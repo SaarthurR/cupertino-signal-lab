@@ -1,0 +1,5 @@
+Attempt 1: osmGet.py -b <negative-longitude-bbox> was rejected by argparse; use --bbox=<value>.
+Attempt 2: nice -n 15 .venv/bin/python $SUMO_HOME/tools/osmGet.py --bbox=-122.0478340819209,37.32155010823751,-122.03060018474577,37.32425691676249 -p overpass -d data/raw/osm --url hpi,oapi --retries 1 --retry-delay 0
+Result: subprocess.TimeoutExpired after 45 seconds; process killed. No usable Overpass extract produced.
+Separate interpreter requests to overpass-api.de and osm.hpi.de returned HTTP 406. kumi/private.coffee requests timed out.
+Fallback: official api.openstreetmap.org/api/0.6/map supplied valid OSM XML. build-net uses that extract with osmBuild/netconvert.

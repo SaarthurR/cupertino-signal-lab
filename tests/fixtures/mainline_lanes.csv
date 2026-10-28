@@ -1,0 +1,7 @@
+intersection,approach,osm_way_id,lanes,basis
+De Anza Blvd,E,1113038411,6,Hand-entered from OSM lanes=6; includes turn pockets
+De Anza Blvd,W,317693325,6,Hand-entered from OSM lanes=6; includes turn pockets
+Saich Way,E,593271036,3,Hand-entered from OSM lanes=3
+Saich Way,W,317693331,4,Hand-entered from OSM lanes=4; includes turn pocket
+Stelling Rd,E,317693332,5,Hand-entered from OSM lanes=5; includes two left turn pockets
+Stelling Rd,W,1113038413,4,Hand-entered from OSM lanes=4; includes turn pocket
