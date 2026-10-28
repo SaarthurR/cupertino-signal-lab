@@ -9,29 +9,47 @@ from signal_lab import optimize as o, pipeline as p
 
 
 class OptimizeTests(unittest.TestCase):
-    def test_split_bounds_clearances_and_minima(self):
+    def test_split_bounds_and_webster_proportions(self):
         with open(p.ROOT/'data/processed/timing_inputs.csv') as stream:
             inputs = list(csv.DictReader(stream))
         for signal in p.config()['signals']:
             rows = [r for r in inputs if r['sumo_tls_id'] == signal['sumo_tls_id']]
+            base = [15.+i*5 for i in range(len(rows))]
             for cycle in (80, 117.9, 150):
-                for split in (.4, .6, .8):
-                    for main in range(len(rows)):
-                        greens = o.split_greens(cycle, split, rows, main)
-                        self.assertLessEqual(sum(greens)+sum(float(r['yellow_s'])+float(r['red_clear_s']) for r in rows), cycle+1e-8)
-                        for green, row in zip(greens, rows):
-                            self.assertTrue(10 <= green <= 60)
-                            self.assertGreater(green, float(row['min_green_s']))
-            if len(rows) == 2:
-                self.assertEqual(o.split_greens(150, .8, rows, 0), [60, 60])
+                for split in (.6, 1., 1.4):
+                    greens = o.split_greens(cycle, split, rows, 0, base, 117.9)
+                    self.assertLessEqual(sum(greens)+sum(float(r['yellow_s'])+float(r['red_clear_s']) for r in rows), cycle+1e-8)
+                    for green, row in zip(greens, rows):
+                        self.assertTrue(10 <= green <= 60)
+                        self.assertGreater(green, float(row['min_green_s']))
         rows = [dict(min_green_s=7, max_green_s=60, yellow_s=3, red_clear_s=1)]*4
-        self.assertEqual(o.split_greens(100, .5, rows, 0), [42, 14, 14, 14])
-        with self.assertRaises(ValueError):
-            o.split_greens(79, .5, rows, 0)
-        with self.assertRaises(ValueError):
-            o.split_greens(80, .9, rows, 0)
-        with self.assertRaises(ValueError):
-            o.split_greens(80, .5, rows*10, 0)
+        greens = o.split_greens(100, 1.2, rows, 0, [20, 12, 24, 16], 100)
+        self.assertAlmostEqual(greens[2]/greens[1], 2)
+        self.assertAlmostEqual(greens[3]/greens[1], 16/12)
+        for cycle, split, phases in ((79, 1., rows), (80, .5, rows), (80, 1., rows*10)):
+            with self.assertRaises(ValueError):
+                o.split_greens(cycle, split, phases, 0, [20]*len(phases), 117.9)
+
+    def test_baseline_is_exactly_representable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target = Path(temp)/'plan.xml'
+            o.plan('pm_peak', o.baseline_params(), target)
+            old = ET.parse(p.ROOT/'sim/tls_actuated_pm_peak.add.xml').getroot().findall('tlLogic')
+            new = ET.parse(target).getroot().findall('tlLogic')
+            for before, after in zip(old, new):
+                self.assertAlmostEqual(float(before.get('offset')), float(after.get('offset')))
+                for a, b in zip(before.findall('phase'), after.findall('phase')):
+                    for key in ('duration', 'maxDur', 'latestEnd'):
+                        if a.get(key) is not None:
+                            self.assertAlmostEqual(float(a.get(key)), float(b.get(key)))
+                    for key in ('state', 'next', 'minDur', 'name'):
+                        self.assertEqual(a.get(key), b.get(key))
+                for a, b in zip(before.findall('param'), after.findall('param')):
+                    self.assertEqual(a.get('key'), b.get('key'))
+                    if a.get('key') == 'coordinated':
+                        self.assertEqual(a.get('value'), b.get('value'))
+                    else:
+                        self.assertEqual(float(a.get('value')), float(b.get('value')))
 
     def test_plan_and_timing_contracts(self):
         params = dict(cycle_s=100, passage_s=2.5)
@@ -128,5 +146,5 @@ class OptimizeTests(unittest.TestCase):
                 stats = o.score('pm_peak', 2, 'plan.xml', temp)
         self.assertEqual(stats['unfinished'], 2)
         self.assertEqual(stats['mean_time_loss_s'], 20)
-        self.assertEqual(stats['deferred_penalty_s'], (30+6300*3)/3)
-        self.assertEqual(o.objective_value(stats, {'side_time_loss_s': 10}), 20+(30+6300*3)/3+8)
+        self.assertEqual(stats['deferred_penalty_s'], (30+1800*3)/3)
+        self.assertEqual(o.objective_value(stats, {'side_time_loss_s': 10}), 20+(30+1800*3)/3+8)

@@ -15,28 +15,44 @@ from . import pipeline as p
 from .demand import seconds, summary_stats
 
 
-def split_greens(cycle, split, rows, main):
-    """Mainline share of usable green; reserve every other phase's lower bound."""
-    if not 80 <= cycle <= 150 or not .4 <= split <= .8:
+def split_greens(cycle, split, rows, main, baseline_greens, baseline_cycle):
+    """Scale Webster greens, retaining side-phase proportions and nominal slack."""
+    if not 80 <= cycle <= 150 or not .6 <= split <= 1.4:
         raise ValueError('Cycle/split outside M5 bounds')
     lower = [max(10., float(r['min_green_s'])+1) for r in rows]
     upper = [min(60., float(r['max_green_s'])) for r in rows]
-    available = cycle-sum(float(r['yellow_s'])+float(r['red_clear_s']) for r in rows)
+    clearance = sum(float(r['yellow_s'])+float(r['red_clear_s']) for r in rows)
+    available = cycle-clearance
     if available < sum(lower) or any(a > b for a, b in zip(lower, upper)):
         raise ValueError('Cycle cannot accommodate bounded greens and clearances')
+    budget = max(sum(lower), sum(baseline_greens)*available/(baseline_cycle-clearance))
     greens = lower[:]
-    greens[main] = min(upper[main], available-sum(lower)+lower[main], max(lower[main], split*available))
-    # Equal non-mainline shares, redistributing only when an input ceiling binds.
-    remaining = available-sum(greens)
-    active = [i for i in range(len(rows)) if i != main]
-    while active and remaining > 1e-9:
-        share = remaining/len(active)
-        for i in active:
-            added = min(share, upper[i]-greens[i])
-            greens[i] += added
-            remaining -= added
-        active = [i for i in active if greens[i] < upper[i]-1e-9]
+    greens[main] = min(upper[main], budget-sum(lower)+lower[main],
+                       max(lower[main], baseline_greens[main]*available/(baseline_cycle-clearance)*split))
+    sides = [i for i in range(len(rows)) if i != main]
+    # Bounded proportional allocation; at multiplier 1 and the seed cycle this is Webster.
+    low, high = 0., budget/min(baseline_greens)
+    for _ in range(60):
+        scale = (low+high)/2
+        total = sum(min(upper[i], max(lower[i], baseline_greens[i]*scale)) for i in sides)
+        if total < budget-greens[main]:
+            low = scale
+        else:
+            high = scale
+    for i in sides:
+        greens[i] = min(upper[i], max(lower[i], baseline_greens[i]*low))
     return greens
+
+
+def baseline_params():
+    logics = ET.parse(p.ROOT/'sim/tls_actuated_pm_peak.add.xml').getroot().findall('tlLogic')
+    settings = {v.get('key'): float(v.get('value')) for v in logics[0].findall('param')
+                if v.get('key') in ('cycleTime', 'max-gap')}
+    params = dict(cycle_s=settings['cycleTime'], passage_s=settings['max-gap'])
+    for index, logic in enumerate(logics):
+        params[f'offset_{index}'] = float(logic.get('offset'))/params['cycle_s']
+        params[f'split_{index}'] = 1.
+    return params
 
 
 def plan(scenario, params, path):
@@ -53,13 +69,15 @@ def plan(scenario, params, path):
         indices = [i for i, phase in enumerate(phases) if phase.get('minDur') is not None]
         rows = [inputs[logic.get('id'), i] for i in indices]
         main = next(j for j, i in enumerate(indices) if phases[i].get('name') == 'mainline')
-        greens = split_greens(cycle, params[f'split_{index}'], rows, main)
+        baseline_cycle = float(next(v.get('value') for v in logic.findall('param') if v.get('key') == 'cycleTime'))
+        greens = split_greens(cycle, params[f'split_{index}'], rows, main,
+                              [float(phases[i].get('maxDur')) for i in indices], baseline_cycle)
         elapsed = 0.
         for i, row, maximum in zip(indices, rows, greens):
             phases[i].set('duration', str(maximum))
             phases[i].set('maxDur', str(maximum))
             elapsed += maximum
-            phases[i].set('latestEnd', str(elapsed))
+            phases[i].set('latestEnd', str(round(elapsed, 3)))
             elapsed += float(row['yellow_s'])+float(row['red_clear_s'])
             timing.append(dict(sumo_tls_id=logic.get('id'), cycle_s=cycle, offset_s=offset,
                                phase=i, max_green_s=maximum, passage_s=params['passage_s']))
@@ -115,8 +133,8 @@ def score(scenario, seed, timing, folder):
     losses = [float(t.get('timeLoss')) for t in trips]
     side = [float(t.get('timeLoss')) for t in trips if requested[t.get('id')]]
     unfinished = len(requested)-len(trips)
-    # Full simulated horizon per missing vehicle/teleport; insertion delay is also real delay.
-    penalty_s = end-begin+cfg['warmup_s']+1800
+    # Charge one drain window per missing vehicle/teleport, plus observed insertion delay.
+    penalty_s = 1800
     deferred = (sum(float(t.get('departDelay')) for t in trips)
                 + penalty_s*(unfinished+stats['teleports']))/len(requested)
     return {**stats, 'requested': len(requested), 'completed': len(trips), 'unfinished': unfinished,
@@ -140,7 +158,7 @@ def worker(storage, count, worker_seed, baseline):
                   'passage_s': trial.suggest_float('passage_s', 2, 4)}
         for index in range(len(p.config()['signals'])):
             params[f'offset_{index}'] = trial.suggest_float(f'offset_{index}', 0, math.nextafter(1., 0.))
-            params[f'split_{index}'] = trial.suggest_float(f'split_{index}', .4, .8)
+            params[f'split_{index}'] = trial.suggest_float(f'split_{index}', .6, 1.4)
         with tempfile.TemporaryDirectory() as temp:
             timing = Path(temp)/'plan.xml'
             plan('pm_peak', params, timing)
@@ -169,6 +187,7 @@ def optimize(trials=200):
         storage = f'sqlite:///{temp}/study.sqlite3'
         study = optuna.create_study(study_name='pm_peak', storage=storage,
                                     sampler=optuna.samplers.TPESampler(seed=0))
+        study.enqueue_trial(baseline_params())
         with ProcessPoolExecutor(max_workers=workers) as pool:
             jobs = [pool.submit(worker, storage, trials//workers+(i < trials % workers), i,
                                 baselines['pm_peak'][0]) for i in range(workers)]

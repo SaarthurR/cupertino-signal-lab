@@ -221,8 +221,9 @@ minDur < maxDur. In night, with no side vehicles, the mainline stays green for t
 phase turns green only after a side vehicle arrives.
 
 **M5 · optimize (`optuna`).** Per scenario (pm_peak required): cycle ∈ [80, 150] s; per signal an offset
-fraction ∈ [0, 1) × cycle; per signal a mainline split fraction ∈ [0.4, 0.8]; one passage time ∈ [2, 4] s.
-That is ~12 dims. Splits convert to max greens that fit inside the cycle after clearances and min greens.
+fraction ∈ [0, 1) × cycle; per signal a Webster mainline multiplier ∈ [0.6, 1.4]; one passage time ∈ [2, 4] s.
+That is ~12 dims. Preserve bounded Webster side-phase proportions and nominal slack; enqueue the exact PM baseline as trial 0 because the old split floor/equal side shares excluded it.
+Deferred demand adds observed insertion delay plus 1800 s (one drain window) per unfinished vehicle/teleport, avoiding the old full-horizon 6300 s charge.
 Objective = mean `timeLoss` on 1 seed with common random numbers, + penalty if mean side-street
 timeLoss is > 20% above the baseline on the same seed. 200 trials, then re-score the top 5 on all seeds.
 Writes `tls_optuna_<scenario>.add.xml` and `reports/timing_<scenario>.csv`.
