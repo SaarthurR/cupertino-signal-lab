@@ -67,10 +67,10 @@ One simulation hour: {wall:.3f} wall seconds.
 
 
 def pending(**kwargs):
-    raise SystemExit("M6 and later are not implemented; stop for independent review.")
+    raise SystemExit("M7 and later are not implemented; stop for independent review.")
 
 
-eval = dashboard = pending
+dashboard = pending
 
 
 

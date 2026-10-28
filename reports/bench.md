@@ -42,10 +42,14 @@ Statistics (avg of 6684):
  DepartDelay: 78.25
 ```
 
-## M5 measured run (Oct 28)
+## M5 original measured run (Oct 28; superseded)
 
 200 PM fit-hour trials plus six baseline runs, top-five rescoring on three seeds, and three night output checks: **587.229 wall seconds (9.79 minutes)**, 224 SUMO runs in total. Three separate Optuna worker processes share temporary SQLite; each uses n_jobs=1. All run at nice 15; at most three simultaneous simulations, no GUI, no job near two hours. Power checked before starting: AC, 95%; battery selects one worker. Heat guard untouched.
 
 Each fit-hour run uses 900 s warmup + 3600 s demand + 1800 s drain, excluding all holdout departures. This differs from the older two-hour extrapolation above. Night uses the frozen PM-selected parameters, with no night tuning. Raw XML and SQLite removed after extracting metrics. Trial/seed evidence: optimize_trials.csv and optimize.json.
 
-The selected candidate did not beat the baseline on the penalized all-seed objective (439.750 baseline vs 673.569 candidate); lower completed-trip loss comes with more unfinished demand. This is an optimization result under demo assumptions, not evidence of real-city benefit.
+The following numbers describe the original trial-154 run, superseded by the corrected trial-146 artifacts evaluated in M6. The selected candidate did not beat the baseline on the penalized all-seed objective (439.750 baseline vs 673.569 candidate); lower completed-trip loss comes with more unfinished demand. This is an optimization result under demo assumptions, not evidence of real-city benefit.
+
+## M6 measured evaluation (Oct 28)
+
+200.716 wall seconds: 52 serial full-scenario evaluations (2 controllers × 2 scenarios × 13 seeds), then 2 serial FCD exports. Power checked before launch: AC, 95%. Shared launcher uses `nice -n 15`; parent also used nice 15 (effective child niceness 20). At most one eval simulation at a time; the test suite ran alongside initially (combined maximum two). Every child retains the 7200 s timeout; no GUI or heat-guard changes. Raw trip/route XML is temporary and removed after extraction. PM full and holdout metrics share each continuous run. Two 900-step FCD archives total 17,479,289 bytes, below 200 MB; reports + sim remain below 2 GB.

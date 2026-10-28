@@ -1,0 +1,3 @@
+fcd_actuated_pm_peak_seed0.xml.gz : 900 steps; 390982 vehicle observations; 8112504 bytes
+fcd_optuna_pm_peak_seed0.xml.gz : 900 steps; 451685 vehicle observations; 9366785 bytes
+PASS: exact 78-row paired matrix; cohorts/completion/sample counts; recomputed p-values; input/FCD hashes; full gzip XML/timestamps/attributes; reports+sim 21565087 bytes

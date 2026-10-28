@@ -1,0 +1,7 @@
+scenario,window,seed_group,n,actuated_mean_s,optuna_mean_s,statistic,p_value,alternative,method,zero_method
+night,full,all,13,8.498420135105688,8.560634125081718,62.0,0.8780517578125,optuna_less,auto,wilcox
+night,full,out_of_sample,10,8.505742209631729,8.565730878186969,35.0,0.7841796875,optuna_less,auto,wilcox
+pm_peak,full,all,13,170.1653176189307,173.64740791181003,57.0,0.7928466796875,optuna_less,auto,wilcox
+pm_peak,full,out_of_sample,10,172.14217475443854,173.0375714169039,30.0,0.615234375,optuna_less,auto,wilcox
+pm_peak,holdout,all,13,164.025676905685,187.55266843322138,87.0,0.9993896484375,optuna_less,auto,wilcox
+pm_peak,holdout,out_of_sample,10,167.05634870598178,187.21087939785448,51.0,0.9951171875,optuna_less,auto,wilcox
