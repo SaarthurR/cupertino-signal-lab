@@ -84,8 +84,11 @@ def turn_file(counts, path, duration=900):
 
 def candidate_routes(net, mapping, path):
     edges = [e for e in net.getEdges() if e.allows('passenger')]
-    origins = [e for e in edges if not any(v.allows('passenger') for v in e.getIncoming())]
-    destinations = [e for e in edges if not any(v.allows('passenger') for v in e.getOutgoing())]
+    # SUMO adds U-turns at clipped road ends; these are still demand boundaries.
+    origins = [e for e in edges if not any(v.allows('passenger') and any(c.getDirection() != 't' for c in cs)
+                                           for v, cs in e.getIncoming().items())]
+    destinations = [e for e in edges if not any(v.allows('passenger') and any(c.getDirection() != 't' for c in cs)
+                                                for v, cs in e.getOutgoing().items())]
     routes = set()
     for incoming, outgoing in sorted(set(mapping.values())):
         first, last = net.getEdge(incoming), net.getEdge(outgoing)
@@ -95,8 +98,12 @@ def candidate_routes(net, mapping, path):
             for suffix in suffixes:
                 if prefix is None or suffix is None:
                     continue
-                route = tuple(e.getID() for e in (*prefix, *suffix))
-                if len(set(route)) == len(route):
+                path_edges = (*prefix, *suffix)
+                route = tuple(e.getID() for e in path_edges)
+                # L/T/R counts do not constrain U-turns; exclude artificial turnaround demand.
+                reverses = any(all(c.getDirection() == 't' for c in a.getOutgoing()[b])
+                               for a, b in zip(path_edges, path_edges[1:]))
+                if len(set(route)) == len(route) and not reverses:
                     routes.add(route)
         if not any((incoming, outgoing) in zip(r, r[1:]) for r in routes):
             raise ValueError(f'No boundary-to-boundary route covers {incoming} → {outgoing}')

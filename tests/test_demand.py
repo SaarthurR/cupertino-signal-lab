@@ -87,12 +87,16 @@ class DemandTests(unittest.TestCase):
 
     def test_candidates_cover_all_movements_and_are_connected(self):
         routes = ET.parse(p.ROOT/'data/processed/candidate_routes.rou.xml').getroot()
+        # Saich's clipped north end has only an automatic U-turn incoming connection.
+        self.assertIn('-714078200#1', {r.get('edges').split()[0] for r in routes})
         covered = set()
         for route in routes:
             edges = route.get('edges').split()
             self.assertEqual(len(set(edges)), len(edges))
             for first, second in zip(edges, edges[1:]):
                 self.assertIn(self.net.getEdge(second), self.net.getEdge(first).getOutgoing())
+                self.assertTrue(any(c.getDirection() != 't' for c in
+                                    self.net.getEdge(first).getOutgoing()[self.net.getEdge(second)]))
                 covered.add((first, second))
         self.assertTrue(set(self.mapping.values()) <= covered)
 
