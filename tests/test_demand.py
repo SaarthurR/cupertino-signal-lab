@@ -190,7 +190,7 @@ class DemandTests(unittest.TestCase):
             self.assertAlmostEqual(float(row['geh']), d.geh(int(row['observed']), int(row['simulated'])), places=4)
         percentage = 100*sum(float(r['geh']) < 5 for r in rows)/len(rows)
         self.assertIn(f'{percentage:.2f}%', (p.ROOT/'reports/demand_check.md').read_text())
-        self.assertIn('M4 baseline pending', (p.ROOT/'reports/demand_check.md').read_text())
+        self.assertIn('textbook coordinated-actuated baseline', (p.ROOT/'reports/demand_check.md').read_text())
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 import argparse
-from . import pipeline, demand
+from . import pipeline, demand, baseline
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
         if name == "optimize":
             sub.add_argument("--trials", type=int, default=200)
     args = parser.parse_args()
-    module = demand if args.verb in ('build-demand', 'check-demand') else pipeline
+    module = baseline if args.verb == 'baseline' else demand if args.verb in ('build-demand', 'check-demand') else pipeline
     getattr(module, args.verb.replace("-", "_"))(**({"trials": args.trials} if args.verb == "optimize" else {}))
 
 

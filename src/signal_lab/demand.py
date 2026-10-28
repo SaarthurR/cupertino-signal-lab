@@ -155,10 +155,19 @@ def simulation(scenario, folder, *, routes=None, additional=None):
             routes or p.ROOT/f'sim/routes_{scenario}.rou.xml', '--begin', begin-cfg['warmup_s'],
             '--end', end+1800, '--seed', '0', '--no-step-log', '--duration-log.statistics',
             '--summary-output', summary]
+    additions = [p.ROOT/'sim/detectors.add.xml']
+    baseline = p.ROOT/f'sim/tls_actuated_{scenario}.add.xml'
+    if baseline.exists():
+        additions.append(baseline)
     if additional:
-        args.extend(['--additional-files', f'{p.ROOT}/sim/detectors.add.xml,{additional}'])
+        additions.append(additional)
+    trips = folder/'tripinfo.xml'
+    args.extend(['--additional-files', ','.join(map(str, additions)), '--tripinfo-output', trips])
     log = p.run(args)
-    return {**summary_stats(summary), 'log': log}
+    losses = [float(t.get('timeLoss')) for _, t in ET.iterparse(trips)
+              if t.tag == 'tripinfo' and begin <= float(t.get('depart')) < end]
+    return {**summary_stats(summary), 'mean_time_loss_s': sum(losses)/len(losses) if losses else None,
+            'completed_after_warmup': len(losses), 'log': log}
 
 
 def summary_stats(path):
@@ -281,6 +290,9 @@ def detector_counts(path, ids, begin, end):
 
 
 def check_demand():
+    from .baseline import LABEL
+    if not (p.ROOT/'sim/tls_actuated_pm_peak.add.xml').exists():
+        raise ValueError('Run baseline before check-demand')
     pm = p.config()['scenarios']['pm_peak']
     begin, end = map(seconds, pm['holdout'])
     net = network()
@@ -305,8 +317,8 @@ def check_demand():
     lines = ['# M3 independent holdout count check', '', f'**{percentage:.2f}% of {len(results)} measured movement-intervals have GEH < 5** (target 85%; reported, not a gate).', '',
              'Observed = historical measured 17:30–18:30 sheets; simulated = physical detector entries at the start of each internal turn lane in that same clock interval. Counts converted to hourly rates before GEH.',
              'Fit uses only 16:30–17:30; replay supplies holdout demand. Estimated intersections are excluded from this score. This is a count-matching check, not validation of travel time or current Cupertino traffic.',
-             f'M1 generated actuated plan used; M4 baseline pending. PM teleports: {stat["teleports"]}; running after drain: {stat["running"]}; waiting to insert: {stat["waiting"]}. Teleports and incomplete trips limit interpretation.',
-             'A miss can reflect day-to-day differences (the two sites were counted on different dates), the repeated fit hour, assumed side-street demand, OSM geometry/connectivity, or queues in the provisional timing; this run does not isolate those causes.', '',
+             f'{LABEL} used. PM teleports: {stat["teleports"]}; running after drain: {stat["running"]}; waiting to insert: {stat["waiting"]}. Teleports and incomplete trips limit interpretation.',
+             'A miss can reflect day-to-day differences (the two sites were counted on different dates), the repeated fit hour, assumed side-street demand, OSM geometry/connectivity, or queues under the baseline timing; this run does not isolate those causes.', '',
              '| movement | interval | observed | simulated | geh |', '|---|---|---:|---:|---:|']
     lines.extend('| '+' | '.join(str(r[k]) for k in r)+' |' for r in results)
     (p.ROOT/'reports/demand_check.md').write_text('\n'.join(lines)+'\n')

@@ -28,24 +28,49 @@ def tool(name, *args):
 
 
 def bench():
-    with tempfile.TemporaryDirectory() as tmp:
-        net = Path(tmp) / "bench.net.xml"
-        routes = Path(tmp) / "bench.rou.xml"
-        run([BIN / "netgenerate", "--grid", "--grid.number", "3", "--tls.guess", "--tls.default-type", "actuated", "-o", net])
-        tool("randomTrips.py", "-n", net, "-r", routes, "-e", "3600", "-p", "2", "--seed", "0", "-o", Path(tmp) / "trips.xml")
-        start = time.monotonic()
-        output = run([BIN / "sumo", "-n", net, "-r", routes, "-e", "3600", "--no-step-log", "--duration-log.statistics"])
-        seconds = time.monotonic() - start
-    report = f"# M0 benchmark\n\nOne simulation hour: {seconds:.3f} wall seconds.\n\nInitial scaffold: synthetic 3×3 actuated grid, not the corridor. Re-run after M4 for the actual optimization budget.\n\nLaptop limits: every SUMO/optimization/evaluation/video child runs with `nice -n 15`; serial execution (one simulation, below the maximum three). No job over two hours. Before a run expected over ten minutes, check `pmset -g batt`; battery means one worker. Keep reports + sim below 2 GB and delete large FCD/tripinfo after extraction. Close sumo-gui after video. No GUI has been opened.\n\n```\n{output}\n```\n"
-    (ROOT / "reports/bench.md").write_text(report)
-    print(f"bench: {seconds:.3f} seconds (synthetic scaffold; corridor benchmark follows M4)")
+    from .demand import seconds
+    from .baseline import LABEL
+    baseline = ROOT/'sim/tls_actuated_pm_peak.add.xml'
+    if not baseline.exists():
+        raise ValueError('Run baseline before bench')
+    begin = seconds(config()['scenarios']['pm_peak']['begin'])
+    start = time.monotonic()
+    output = run([BIN/'sumo', '-c', ROOT/'sim/corridor.sumocfg', '-r', ROOT/'sim/routes_pm_peak.rou.xml',
+                  '-a', f'{ROOT}/sim/detectors.add.xml,{baseline}', '-b', begin, '-e', begin+3600,
+                  '--seed', '0', '--no-step-log', '--duration-log.statistics'])
+    wall = time.monotonic()-start
+    # Budget the full PM window plus warmup and a 30-minute drain, as in demand checks.
+    trial_hours = (7200+config()['warmup_s']+1800)/3600
+    estimate = 200*trial_hours*wall
+    report = f"""# M4 corridor benchmark
+
+One simulation hour: {wall:.3f} wall seconds.
+
+{LABEL}. Actual corridor, unchanged PM routes, seed 0, headless SUMO 1.28.0, 16:30–17:30 (exactly 3600 simulated seconds; no warmup or drain). Wall time includes process startup. This replaces the synthetic-grid M0 number.
+
+200 Optuna trials: approximately {estimate:.1f} seconds ({estimate/60:.2f} minutes) serial for 2 h demand + 900 s warmup + 1800 s drain per trial, extrapolated at {wall:.3f} s/sim-hour. Ideal three-process lower bound {estimate/3:.1f} seconds; concurrent scaling is unmeasured. Excludes Optuna/SQLite/Python objective overhead, top-five rescoring and eval; queue-heavy candidate plans may run slower. No optimization has been run.
+
+## Laptop limits
+
+- Every SUMO / Optuna / eval / video child: `nice -n 15`, enforced by the shared launcher.
+- At most 3 simultaneous simulations; this benchmark and production validation are serial (one).
+- No job over two hours; child timeout 7200 s. Split longer work.
+- Before an expected run over ten minutes: `pmset -g batt`; one worker on battery. No such run started here.
+- Keep reports + sim below 2 GB; remove large XML after extracting aggregates.
+- Close sumo-gui after video. No GUI opened; heat guard untouched.
+
+```text
+{output}```
+"""
+    (ROOT/'reports/bench.md').write_text(report)
+    print(f'bench: {wall:.3f} wall seconds; 200-trial serial estimate {estimate:.1f} seconds')
 
 
 def pending(**kwargs):
-    raise SystemExit("M4 and later are not implemented in this data-only piece; stop for independent review.")
+    raise SystemExit("M5 and later are not implemented; stop for independent review.")
 
 
-baseline = optimize = eval = dashboard = pending
+optimize = eval = dashboard = pending
 
 
 
