@@ -1,0 +1,17 @@
+site_id,intersection,approach,movement,interval_start,interval_end,vehicles,source,count_date,pdf_page
+nds_18-08195-001,Mary Ave,N,R,17:15,18:15,138,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,N,T,17:15,18:15,78,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,N,L,17:15,18:15,123,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,N,U,17:15,18:15,0,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,E,R,17:15,18:15,165,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,E,T,17:15,18:15,892,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,E,L,17:15,18:15,125,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,E,U,17:15,18:15,13,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,S,R,17:15,18:15,75,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,S,T,17:15,18:15,20,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,S,L,17:15,18:15,126,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,S,U,17:15,18:15,0,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,W,R,17:15,18:15,113,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,W,T,17:15,18:15,1680,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,W,L,17:15,18:15,177,measured,2018-04-25,28
+nds_18-08195-001,Mary Ave,W,U,17:15,18:15,48,measured,2018-04-25,28

@@ -162,6 +162,8 @@ Columns: `sumo_tls_id,phase,movement,speed_mph,grade,width_ft,yellow_s,red_clear
 - Every row has a `basis` note. These are **demo assumptions, not city values**.
 
 ### 6.5 Data files
+
+**Oct 28 data revision:** use the newest verified real counts per intersection, recording source URL, 1-based PDF page, count date and year in `tmc_sources.csv`. The linked VTA sample omits the corridor sheets. The usable quarter-hour fallback is Vallco Appendix H: De Anza 2018-01-10 (pp.602–603), Stelling 2018-01-17 (pp.554–555), `source=measured`, year **2018**. Bandley/Saich are estimated. Westport p.28 has newer Mary **2018-04-25 hourly** observations (`tmc_hourly.csv`); disaggregated quarters remain `source=estimated`. Estimation methods and omitted Mary/Campus movements are documented in the source audit. Display **2018 historical counts** plainly on the future dashboard; never imply current traffic. PM demand fits 16:30–17:30 only and replays that hour for independent holdout scoring. This data-only piece stops before M4; M3 uses the provisional M1 generated actuated plan and must be rerun after the textbook baseline exists.
 - `data/raw/vta/` — the downloaded CMP PDFs (gitignored), plus `data/processed/tmc.csv`:
   `site_id,intersection,approach(N/S/E/W),movement(L/T/R),interval_start(HH:MM),vehicles,heavy,peds,source`.
   Transcribed by hand or by PDF table extraction. A human checks one sheet against the PDF.

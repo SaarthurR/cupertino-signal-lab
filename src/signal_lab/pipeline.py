@@ -42,10 +42,10 @@ def bench():
 
 
 def pending(**kwargs):
-    raise SystemExit("Blocked at M2: VTA sample omits sites 211/217. See reports/data-source-audit.md; later milestones are not implemented.")
+    raise SystemExit("M4 and later are not implemented in this data-only piece; stop for independent review.")
 
 
-build_demand = check_demand = baseline = optimize = eval = dashboard = pending
+baseline = optimize = eval = dashboard = pending
 
 
 
@@ -56,7 +56,7 @@ def config():
 def write_csv(path, rows):
     rows = list(rows)
     with open(ROOT / path, 'w', newline='') as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -102,7 +102,8 @@ def build_net():
         # Overpass returns HTTP 406 here; official OSM map API supplies the same OSM primitives.
         with urllib.request.urlopen('https://api.openstreetmap.org/api/0.6/map?bbox=' + bbox, timeout=60) as response:
             path.write_bytes(response.read())
-    tool('osmBuild.py', '-f', path, '-p', 'corridor', '-d', ROOT / 'sim', '--vehicle-classes', 'passenger', '--netconvert-options=--geometry.remove,--ramps.guess,--tls.guess-signals,--tls.discard-simple,--output.original-names,--output.street-names,--tls.default-type,actuated,--tls.yellow.time,4,--tls.allred.time,1,--osm.turn-lanes,--junctions.join,--tls.join')
+    # Incomplete OSM turn:lanes omit real right turns; infer connections geometrically.
+    tool('osmBuild.py', '-f', path, '-p', 'corridor', '-d', ROOT / 'sim', '--vehicle-classes', 'passenger', '--netconvert-options=--geometry.remove,--ramps.guess,--tls.guess-signals,--tls.discard-simple,--output.original-names,--output.street-names,--tls.default-type,actuated,--tls.yellow.time,4,--tls.allred.time,1,--junctions.join,--tls.join')
     net = sumolib.net.readNet(str(ROOT / 'sim/corridor.net.xml'), withPrograms=True)
     for signal in cfg['signals']:
         x,y = net.convertLonLat2XY(signal['lon'], signal['lat'])

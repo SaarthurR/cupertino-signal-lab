@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<data>
+  <interval begin="82800" end="86400">
+    <edgeRelation from="-714078200#1" to="317693329#0" count="2" />
+    <edgeRelation from="-714078200#1" to="593271034#0" count="2" />
+    <edgeRelation from="1113038411" to="157747965#0" count="27" />
+    <edgeRelation from="1113038411" to="498007414#0" count="57" />
+    <edgeRelation from="1113038411" to="593271059#0" count="24" />
+    <edgeRelation from="1113038413" to="198982494#0" count="108" />
+    <edgeRelation from="1113038413" to="8941244#0" count="29" />
+    <edgeRelation from="1113038413" to="8963319#0" count="41" />
+    <edgeRelation from="1528009844#0" to="5031806#0" count="2" />
+    <edgeRelation from="1528009844#0" to="506497762#0" count="2" />
+    <edgeRelation from="25085669#0" to="157747965#0" count="2" />
+    <edgeRelation from="25085669#0" to="498007414#0" count="2" />
+    <edgeRelation from="25085669#0" to="506499370#0" count="2" />
+    <edgeRelation from="287163331#0" to="198982494#0" count="2" />
+    <edgeRelation from="287163331#0" to="498007413#0" count="2" />
+    <edgeRelation from="287163331#0" to="8963319#0" count="2" />
+    <edgeRelation from="287163355#0" to="198982494#0" count="2" />
+    <edgeRelation from="287163355#0" to="498007413#0" count="2" />
+    <edgeRelation from="287163355#0" to="8941244#0" count="2" />
+    <edgeRelation from="317693323#0" to="498007414#0" count="2" />
+    <edgeRelation from="317693323#0" to="506499370#0" count="2" />
+    <edgeRelation from="317693323#0" to="593271059#0" count="2" />
+    <edgeRelation from="317693325#0" to="157747965#0" count="45" />
+    <edgeRelation from="317693325#0" to="506499370#0" count="91" />
+    <edgeRelation from="317693325#0" to="593271059#0" count="18" />
+    <edgeRelation from="317693326#0" to="-1528009844#2" count="2" />
+    <edgeRelation from="317693326#0" to="5031806#0" count="96" />
+    <edgeRelation from="317693331#0" to="317693329#0" count="100" />
+    <edgeRelation from="317693331#0" to="593271033#0" count="2" />
+    <edgeRelation from="317693332#0" to="498007413#0" count="61" />
+    <edgeRelation from="317693332#0" to="8941244#0" count="12" />
+    <edgeRelation from="317693332#0" to="8963319#0" count="35" />
+    <edgeRelation from="393485268#0" to="1423641954" count="168" />
+    <edgeRelation from="409235722" to="-1528009844#2" count="2" />
+    <edgeRelation from="409235722" to="506497762#0" count="58" />
+    <edgeRelation from="417001489#0" to="1423641952#0" count="16" />
+    <edgeRelation from="417001489#0" to="393485270" count="89" />
+    <edgeRelation from="593271036#0" to="593271033#0" count="2" />
+    <edgeRelation from="593271036#0" to="593271034#0" count="59" />
+    <edgeRelation from="649530997#0" to="1423641954" count="2" />
+    <edgeRelation from="649530997#0" to="393485270" count="2" />
+  </interval>
+</data>
