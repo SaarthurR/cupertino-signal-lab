@@ -4,7 +4,7 @@ One simulation hour: 2.334 wall seconds.
 
 textbook coordinated-actuated baseline (not Cupertino's current timing). Actual corridor, unchanged PM routes, seed 0, headless SUMO 1.28.0, 16:30–17:30 (exactly 3600 simulated seconds; no warmup or drain). Wall time includes process startup. This replaces the synthetic-grid M0 number.
 
-200 Optuna trials: approximately 1283.9 seconds (21.40 minutes) serial for 2 h demand + 900 s warmup + 1800 s drain per trial, extrapolated at 2.334 s/sim-hour. Ideal three-process lower bound 428.0 seconds; concurrent scaling is unmeasured. Excludes Optuna/SQLite/Python objective overhead, top-five rescoring and eval; queue-heavy candidate plans may run slower. No optimization has been run.
+200 Optuna trials: approximately 1283.9 seconds (21.40 minutes) serial for 2 h demand + 900 s warmup + 1800 s drain per trial, extrapolated at 2.334 s/sim-hour. Ideal three-process lower bound 428.0 seconds; concurrent scaling is unmeasured. Excludes Optuna/SQLite/Python objective overhead, top-five rescoring and eval; queue-heavy candidate plans may run slower. This was an M4 extrapolation; measured M5 results follow below.
 
 ## Laptop limits
 
@@ -41,3 +41,11 @@ Statistics (avg of 6684):
  TimeLoss: 144.22
  DepartDelay: 78.25
 ```
+
+## M5 measured run (Oct 28)
+
+200 PM fit-hour trials plus six baseline runs, top-five rescoring on three seeds, and three night output checks: **587.229 wall seconds (9.79 minutes)**, 224 SUMO runs in total. Three separate Optuna worker processes share temporary SQLite; each uses n_jobs=1. All run at nice 15; at most three simultaneous simulations, no GUI, no job near two hours. Power checked before starting: AC, 95%; battery selects one worker. Heat guard untouched.
+
+Each fit-hour run uses 900 s warmup + 3600 s demand + 1800 s drain, excluding all holdout departures. This differs from the older two-hour extrapolation above. Night uses the frozen PM-selected parameters, with no night tuning. Raw XML and SQLite removed after extracting metrics. Trial/seed evidence: optimize_trials.csv and optimize.json.
+
+The selected candidate did not beat the baseline on the penalized all-seed objective (439.750 baseline vs 673.569 candidate); lower completed-trip loss comes with more unfinished demand. This is an optimization result under demo assumptions, not evidence of real-city benefit.
