@@ -3,3 +3,7 @@ data/raw/
 __pycache__/
 *.pyc
 .env
+
+*.egg-info/
+reports/runs/
+*.sqlite3
