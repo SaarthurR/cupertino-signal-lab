@@ -53,8 +53,8 @@ class BaselineTests(unittest.TestCase):
 
     def night_states(self, folder, cars):
         root = ET.Element('routes')
-        for tls_id, incoming, outgoing in cars:
-            vehicle = ET.SubElement(root, 'vehicle', id=tls_id, depart='84600', departLane='best')
+        for index, (tls_id, incoming, outgoing) in enumerate(cars):
+            vehicle = ET.SubElement(root, 'vehicle', id=tls_id, depart=str(84600+index*60), departLane='best')
             ET.SubElement(vehicle, 'route', edges=f'{incoming} {outgoing}')
         routes = folder/'routes.xml'
         p.xml_write(root, routes)
@@ -95,8 +95,13 @@ class BaselineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             states, trips = self.night_states(Path(temp), cars)
             self.assertEqual(len(trips), 5, 'All five called movements must complete')
-            for tls_id, links in indices.items():
+            for index, (tls_id, links) in enumerate(indices.items()):
                 served = [float(s.get('time')) for s in states if s.get('id') == tls_id and float(s.get('time')) >= 82800
                           and any(s.get('state')[i] in 'Gg' for i in links)]
                 self.assertTrue(served, tls_id)
-                self.assertGreaterEqual(min(served), 84600, tls_id)
+                self.assertGreaterEqual(min(served), 84600+index*60, tls_id)
+                main = next(phase.get('state') for logic in ET.parse(p.ROOT/'sim/tls_actuated_night.add.xml').getroot()
+                            if logic.get('id') == tls_id for phase in logic.findall('phase') if phase.get('name') == 'mainline')
+                idle = [s for s in states if s.get('id') == tls_id and
+                        (82800 <= float(s.get('time')) < 84600+index*60 or float(s.get('time')) >= 86100)]
+                self.assertTrue(all(s.get('state') == main for s in idle), tls_id)

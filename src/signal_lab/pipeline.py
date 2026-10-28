@@ -162,7 +162,7 @@ def build_net():
             conns = [c for c in tls.getConnections() if phase.state[c[2]] == 'G']
             through = any(v.getDirection() == 's' for c in conns for v in c[0].getOutgoing() if v.getToLane() == c[1])
             width = max((math.dist(c[0].getShape()[-1],c[1].getShape()[0]) for c in conns), default=15)*3.28084
-            timing.append(dict(sumo_tls_id=tls.getID(),phase=i,movement='through' if through else 'protected_left',speed_mph=cfg['speed_mph'],grade=0,width_ft=round(width,1),yellow_s=max(3,math.ceil((1+1.467*cfg['speed_mph']/20)*10)/10),red_clear_s=max(1,round((width+20)/(1.467*cfg['speed_mph']),1)),min_green_s=7 if through else 5,max_green_s=40,passage_s=3,basis='Demo assumption, not city timing; OSM net geometry width, level grade'))
+            timing.append(dict(sumo_tls_id=tls.getID(),phase=i,movement='through' if through else 'protected_left',speed_mph=cfg['speed_mph'],grade=0,width_ft=round(width,1),yellow_s=max(3,math.ceil((1+1.467*cfg['speed_mph']/20)*10)/10),red_clear_s=max(1,round((width+20)/(1.467*cfg['speed_mph']),1)),min_green_s=7 if through else 5,max_green_s=60,passage_s=3,basis='Demo assumption, not city timing; OSM net geometry width, level grade'))
     xml_write(detectors, 'sim/detectors.add.xml')
     write_csv('data/processed/timing_inputs.csv', timing)
     configuration = ET.Element('configuration')

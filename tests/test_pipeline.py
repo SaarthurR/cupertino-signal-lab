@@ -74,4 +74,5 @@ class Milestones(unittest.TestCase):
             self.assertEqual(float(row['yellow_s']), max(3,math.ceil((1+1.467*speed/(20+64.4*grade))*10)/10))
             self.assertAlmostEqual(float(row['red_clear_s']), max(1,round((width+20)/(1.467*speed),1)),places=1)
             self.assertIn(float(row['min_green_s']), (5,7))
+            self.assertEqual(float(row['max_green_s']), 60)
             self.assertTrue(row['basis'])

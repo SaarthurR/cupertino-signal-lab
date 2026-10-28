@@ -2,7 +2,7 @@
 
 textbook coordinated-actuated baseline (not Cupertino's current timing)
 
-Webster unified-cycle seed uses the first scenario hour; greens are bounded by timing_inputs.csv min/max. Yellow/red clearances use the same inputs. The common background cycle is the longest resulting nominal plan including full clearances (Webster seed adjusted to engineering bounds). Forward phase skips have full yellow/all-red clearances; mainline self-successor rests without changing color. Offsets come from tlsCoordinator on the linear nominal schedules, excluding alternative transition branches. SUMO supplies built-in loop actuation with a 0.5 s detector gap: default upstream loops miss vehicles spawned on short boundary lanes; stop-bar loops at 1 m miss cars stopped at red.
+Webster unified-cycle seed uses the first scenario hour; greens are bounded by timing_inputs.csv min/max (60 s ceiling from section 6.4; longer Webster greens are clipped). Yellow/red clearances use the same inputs. The common background cycle is the longest resulting nominal plan including full clearances (Webster seed adjusted to engineering bounds). Forward phase skips have full yellow/all-red clearances; mainline self-successor rests without changing color. Offsets come from tlsCoordinator on the linear nominal schedules, excluding alternative transition branches. SUMO supplies built-in loop actuation with a 0.5 s detector gap: default upstream loops miss vehicles spawned on short boundary lanes; stop-bar loops at 1 m miss cars stopped at red.
 
 Reference: https://sumo.dlr.de/docs/Simulation/Traffic_Lights.html#dynamic_phase_selection_phase_skipping
 
@@ -12,7 +12,7 @@ Time loss averages completed trips departing within the scenario, excludes warmu
 
 | Scenario | Inserted | Teleports | Running after drain | Waiting to insert | Mean time loss (s) | Completed after warmup |
 |---|---:|---:|---:|---:|---:|---:|
-| pm_peak | 17312 | 32 | 117 | 571 | 176.832 | 13968 |
+| pm_peak | 17091 | 0 | 116 | 792 | 170.622 | 14000 |
 | night | 439 | 0 | 0 | 0 | 8.341 | 353 |
 
 ## Tool output
