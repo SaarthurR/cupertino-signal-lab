@@ -14,8 +14,14 @@ from scipy.stats import wilcoxon
 from . import pipeline as p
 from .demand import network, seconds, summary_stats
 
-SEEDS = range(13)  # 0–2 were used by M5; 3–12 are the ten unseen simulation seeds.
-CONTROLLERS = ('actuated', 'optuna')
+SEEDS = range(13, 33)  # Preregistered final test; never used for selection.
+CONTROLLERS = ('actuated', 'optuna')  # Illustration pair retained for existing media consumers.
+EVAL_CONTROLLERS = ('actuated', 'optuna_v1', 'optuna')
+TEST_METRICS = ('mean_time_loss_s', 'all_vehicle_delay_s',
+                'all_vehicle_delay_zero_unfinished_s', 'all_requested_delay_s',
+                'all_requested_delay_0_s', 'all_requested_delay_1800_s',
+                'side_all_requested_delay_s', 'side_time_loss_s', 'unfinished',
+                'teleports', 'mainline_travel_eb_s', 'mainline_travel_wb_s')
 
 
 def mean(values):
@@ -79,6 +85,15 @@ def metrics(requested, trips, travels, teleports, begin, end):
     # M5 charges one drain window per unfinished vehicle and teleport event.
     observed = sum(float(t['timeLoss'])+float(t['departDelay']) for t in completed.values())
     lower = (observed+1800*teleport_events)/len(cohort)
+    side_ids = {vid for vid, side in cohort.items() if side}
+    side_completed = side_ids & completed.keys()
+    side_observed = sum(float(completed[v]['timeLoss'])+float(completed[v]['departDelay']) for v in side_completed)
+    side_unfinished = len(side_ids)-len(side_completed)
+    side_teleports = sum(v in side_ids for v in teleports)
+    extra = {f'all_requested_delay{suffix}_s': (observed+charge*(unfinished+teleport_events))/len(cohort)
+             for suffix, charge in (('_0', 0), ('', 900), ('_1800', 1800))}
+    extra.update(side_requested=len(side_ids), side_unfinished=side_unfinished, side_teleports=side_teleports,
+                 side_all_requested_delay_s=(side_observed+900*(side_unfinished+side_teleports))/len(side_ids) if side_ids else '')
     return dict(all_vehicle_delay_s=lower+1800*unfinished/len(cohort),
                 all_vehicle_delay_zero_unfinished_s=lower,
                 requested=len(cohort), completed=len(completed), unfinished=len(cohort)-len(completed),
@@ -90,7 +105,7 @@ def metrics(requested, trips, travels, teleports, begin, end):
                 teleported_vehicles=len(set(teleports) & cohort.keys()),
                 mean_depart_delay_s=mean([float(t['departDelay']) for t in completed.values()]),
                 mainline_travel_eb_s=mean(directions['eb']), mainline_travel_wb_s=mean(directions['wb']),
-                mainline_eb_n=len(directions['eb']), mainline_wb_n=len(directions['wb']))
+                mainline_eb_n=len(directions['eb']), mainline_wb_n=len(directions['wb']), **extra)
 
 
 def command(scenario, controller, seed, cfg):
@@ -132,28 +147,36 @@ def simulate(scenario, controller, seed, cfg, endpoints):
                  run_teleports_including_warmup=total) for window, a, b in windows]
 
 
+def constraint_check(stats, baseline):
+    return stats['side_all_requested_delay_s'] <= 1.05*baseline['side_all_requested_delay_s']+1e-9
+
+
 def paired_tests(rows):
     results = []
+    candidates = [c for c in EVAL_CONTROLLERS if c != 'actuated' and any(r['controller'] == c for r in rows)]
     for scenario, window in sorted({(r['scenario'], r['window']) for r in rows}):
         for group in ('all', 'out_of_sample'):
-            for metric in ('mean_time_loss_s', 'all_vehicle_delay_s',
-                           'all_vehicle_delay_zero_unfinished_s', 'unfinished',
-                           'mainline_travel_eb_s', 'mainline_travel_wb_s'):
-                paired = {c: {r['seed']: r[metric] for r in rows
-                              if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
-                              and (group == 'all' or r['seed_group'] == group)} for c in CONTROLLERS}
-                if paired['actuated'].keys() != paired['optuna'].keys():
-                    raise ValueError('Unpaired evaluation seeds')
-                seeds = sorted(paired['actuated'])
-                diffs = [paired['optuna'][s]-paired['actuated'][s] for s in seeds]
-                # Directional alternative: optuna has a lower value of this metric.
-                test = wilcoxon(diffs, alternative='less', method='auto') if any(diffs) else None
-                results.append(dict(scenario=scenario, window=window, seed_group=group, metric=metric, n=len(seeds),
-                                    actuated_mean=mean(list(paired['actuated'].values())),
-                                    optuna_mean=mean(list(paired['optuna'].values())),
-                                    statistic=float(test.statistic) if test else 0.,
-                                    p_value=float(test.pvalue) if test else 1., alternative='optuna_less',
-                                    method='auto', zero_method='wilcox'))
+            for candidate in candidates:
+                comparison = {c: [r['side_all_requested_delay_s'] for r in rows
+                                  if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
+                                  and (group == 'all' or r['seed_group'] == group)] for c in ('actuated', candidate)}
+                side_ratio = mean(comparison[candidate])/mean(comparison['actuated'])
+                for metric in TEST_METRICS:
+                    paired = {c: {r['seed']: r[metric] for r in rows
+                                  if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
+                                  and (group == 'all' or r['seed_group'] == group)} for c in ('actuated', candidate)}
+                    if paired['actuated'].keys() != paired[candidate].keys():
+                        raise ValueError('Unpaired evaluation seeds')
+                    seeds = sorted(paired['actuated'])
+                    diffs = [paired[candidate][s]-paired['actuated'][s] for s in seeds]
+                    test = wilcoxon(diffs, alternative='less', method='auto') if any(diffs) else None
+                    results.append(dict(scenario=scenario, window=window, seed_group=group, metric=metric, n=len(seeds),
+                                        actuated_mean=mean(list(paired['actuated'].values())),
+                                        optuna_mean=mean(list(paired[candidate].values())),
+                                        statistic=float(test.statistic) if test else 0.,
+                                        p_value=float(test.pvalue) if test else 1., alternative='optuna_less',
+                                        method='auto', zero_method='wilcox', controller=candidate,
+                                        side_constraint_ratio=side_ratio, side_constraint_met=side_ratio <= 1.05+1e-9))
     return results
 
 
@@ -161,8 +184,8 @@ def save_fcd(cfg):
     paths = []
     begin, end = map(seconds, ('17:30', '17:45'))
     for controller in CONTROLLERS:
-        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed0.xml.gz'
-        p.run([*command('pm_peak', controller, 0, cfg), '-e', end,
+        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed13.xml.gz'
+        p.run([*command('pm_peak', controller, 13, cfg), '-e', end,
                '--fcd-output', path, '--device.fcd.begin', begin, '--device.fcd.period', 1])
         steps = 0
         with gzip.open(path, 'rb') as stream:
@@ -187,15 +210,19 @@ def eval():
     rows = []
     for scenario in cfg['scenarios']:
         for seed in SEEDS:
-            for controller in CONTROLLERS:
+            for controller in EVAL_CONTROLLERS:
                 rows.extend(simulate(scenario, controller, seed, cfg, endpoints))
             print(f'eval: {scenario} seed {seed} complete (serial, nice 15)', flush=True)
+    for row in rows:
+        baseline = next(r for r in rows if r['controller'] == 'actuated' and all(r[k] == row[k] for k in ('scenario', 'window', 'seed')))
+        row['side_constraint_met'] = constraint_check(row, baseline)
+        row['side_constraint_ratio'] = row['side_all_requested_delay_s']/baseline['side_all_requested_delay_s']
     p.write_csv('reports/results.csv', rows)
     p.write_csv('reports/wilcoxon.csv', paired_tests(rows))
     fcd = save_fcd(cfg)
     files = ['config/corridor.yaml', 'sim/corridor.net.xml']
     files += [f'sim/{kind}_{scenario}{suffix}' for scenario in cfg['scenarios']
-              for kind, suffix in [('routes', '.rou.xml'), ('tls_actuated', '.add.xml'), ('tls_optuna', '.add.xml')]]
+              for kind, suffix in [('routes', '.rou.xml'), ('tls_actuated', '.add.xml'), ('tls_optuna', '.add.xml'), ('tls_optuna_v1', '.add.xml')]]
     provenance = dict(seeds=list(SEEDS), fit_used_seeds=cfg['seeds'], workers=1, power=power,
                       time_to_teleport=cfg['time_to_teleport'], warmup_s=cfg['warmup_s'], drain_s=1800,
                       corridor_boundaries=endpoints, fcd=fcd, wall_s=time.monotonic()-start,

@@ -1,18 +1,25 @@
 {
   "seeds": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32
   ],
   "fit_used_seeds": [
     0,
@@ -36,31 +43,33 @@
   },
   "fcd": [
     {
-      "path": "reports/fcd_actuated_pm_peak_seed0.xml.gz",
-      "bytes": 8112504,
+      "path": "reports/fcd_actuated_pm_peak_seed13.xml.gz",
+      "bytes": 7884186,
       "begin_s": 63000,
       "end_s": 63900,
       "steps": 900,
-      "sha256": "f493f170452e71c0b1292e0e36e5e704842e4fca6b008d1f87b31ecff8bf143a"
+      "sha256": "3d31201eda767ddf045806915ae9f2e67adb48eac2c611ead30dafb4ab6c8e2c"
     },
     {
-      "path": "reports/fcd_optuna_pm_peak_seed0.xml.gz",
-      "bytes": 9366785,
+      "path": "reports/fcd_optuna_pm_peak_seed13.xml.gz",
+      "bytes": 7475249,
       "begin_s": 63000,
       "end_s": 63900,
       "steps": 900,
-      "sha256": "7bc276dcbf249d1e517458a88cf15a46a4609118d1955bed6e50a232f71ec1a8"
+      "sha256": "678574595c6c3f09252349ec5bb439300af964074c82b1ae5207428b4b4def9a"
     }
   ],
-  "wall_s": 200.71604504199968,
+  "wall_s": 797.2298875000015,
   "sha256": {
     "config/corridor.yaml": "5438835b91022e6f44aa76d80acf623060f74221ca7dc9ddfc08257bb6797c3d",
     "sim/corridor.net.xml": "7d6367db23e4b6246a52f5a874c5c26cd43e6aa8511e98ca91d7794a6620b494",
     "sim/routes_pm_peak.rou.xml": "cde6b61e37f24e5f53bced1522bc1ac07fe62a9f1cfac89694fc82c769179896",
     "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
-    "sim/tls_optuna_pm_peak.add.xml": "f0d2ab9da1bb3503b9ee547c4e063aa12559182e24420a7b6a8c2ca519042df3",
+    "sim/tls_optuna_pm_peak.add.xml": "51f9056ed97a7f0fe3fc1ece01847c7751936fb98c373510f68d1e41b614075f",
+    "sim/tls_optuna_v1_pm_peak.add.xml": "f0d2ab9da1bb3503b9ee547c4e063aa12559182e24420a7b6a8c2ca519042df3",
     "sim/routes_night.rou.xml": "449251f01e28545cef1d4d35851b1540ae601dd5391348ef37b6d2b1338c62a1",
     "sim/tls_actuated_night.add.xml": "b755f727dea2d987238490fdc09072524ef7b1282e64b003332a7371bdd0ca35",
-    "sim/tls_optuna_night.add.xml": "56cf0202ee43166745afe4568a1da82e16e22a8fe10a6057f55ca7700db972ad"
+    "sim/tls_optuna_night.add.xml": "073e24f8de0875775f5336fee620a133f7e114f486929eb744d7d2db9ea5bc07",
+    "sim/tls_optuna_v1_night.add.xml": "56cf0202ee43166745afe4568a1da82e16e22a8fe10a6057f55ca7700db972ad"
   }
 }

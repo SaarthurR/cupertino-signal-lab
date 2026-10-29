@@ -24,51 +24,60 @@ M4 seed 0: night inserts **439**, with **zero teleports** and **8.341 s** mean t
 
 M3: **42.71% of 96 measured holdout movement-intervals have GEH < 5**, below the 85% target (corrected-route provisional M1 timing: 48.96%). Counts are physical turn-lane detector entries; quarter-hour observations are converted to hourly flows for GEH. This count check establishes neither delay improvement nor a paired Wilcoxon result. [Baseline details](reports/M4-REPORT.md) and [real corridor benchmark](reports/bench.md): **2.334 s per simulation hour**, approximately **21 minutes serial for 200 trials** including warmup/drain, excluding optimizer overhead and rescoring.
 
-M5 completed 200 trials; the corrected scorer selected **trial 146**, as recorded in [search evidence](reports/optimize.json). Earlier piece-3 build prose describes the superseded trial 154. Current M5 preserves bounded Webster side-phase proportions and cycle slack, and enqueues the exact baseline. It searches cycle 80–150 s, five offset fractions, five mainline multipliers 0.6–1.4 and shared passage 2–4 s, preserving phase order, rest, skips and clearances.
+## Results (preregistered v2)
 
-M5 scores scheduled fit-hour departures only, with 900 s warmup and 1800 s drain. Objective = completed-trip mean timeLoss + (completed insertion delays + 1800 s × (unfinished requested vehicles + cumulative teleports)) / requested vehicles + max(0, side-origin mean timeLoss − 1.2 × same-seed baseline side loss). On fit seeds 0–2 the corrected objective falls 410.239 → 239.011, with 13 candidate teleports on seed 2. Night never influences selection. Parallel TPE scheduling may change the search; saved plans and simulation seeds reproduce evaluation. M6 below is the independent evaluation of those saved plans.
+On the 20 preregistered simulation seeds, v2 met the confirmatory rule by cutting rush-hour holdout all-requested delay 24.7% (790.57 to 595.61 s/vehicle; one-sided paired Wilcoxon p=0.00084495544) while keeping mean side-origin delay within the 1.05 cap (ratio 0.756), but completed-trip loss rose 13.6%, westbound corridor travel rose 38.5%, and teleports rose from 69 to 256 events and exceeded the training cap on 8 of 20 seeds, so no overall feasible winner was established.
 
+The confirmatory one-sided paired Wilcoxon p-value is **0.00084495544** (v2 < textbook, n=20, alpha .05). This is an optimized retiming versus a textbook seed plan in a model using **historical 2018 counts**, with 3 of 5 quarter-hour profiles estimated; it establishes no present-city or field benefit. [Preregistration](docs/PREREGISTRATION.md) was committed before the new runs, including the promise to report either outcome.
 
-## Results (M6)
+Means across final seeds **13–32** (never used for fitting or selection); teleports are event totals across the 20 seeds. Full PM and PM holdout overlap.
 
-**In the simulated rush-hour holdout, the optimized plan completes 513 more requested trips and cuts eastbound corridor travel time by 9.1%, but completed trips from side streets lose 11.8% more time.** This is a simulation using **2018 historical counts**, with 3 of 5 quarter-hour profiles estimated, not evidence about current Cupertino traffic. Completed-trip mean loss rises 12.1% in the holdout; the all-requested-vehicle delay score falls 25.5% (paired one-sided p=0.000977), including the stated unfinished charge.
+| Scenario / window | Plan | All-requested (s) | Completed loss (s) | Side all-requested (s) | Side completed loss (s) | EB / WB travel (s) | Unfinished | Teleports | Side constraint |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| pm_peak / holdout | Textbook | 790.57 | 161.49 | 928.80 | 136.56 | 398.25 / 176.28 | 773.1 | 69 | yes (+0.0%) |
+| pm_peak / holdout | v1 | 694.45 | 198.50 | 800.67 | 162.81 | 403.11 / 225.57 | 170.2 | 293 | yes (-13.8%) |
+| pm_peak / holdout | v2 | 595.61 | 183.45 | 702.40 | 167.17 | 340.83 / 244.07 | 105.7 | 256 | yes (-24.4%) |
+| pm_peak / full | Textbook | 641.64 | 176.63 | 730.03 | 151.02 | 403.33 / 187.68 | 773.1 | 191 | yes (+0.0%) |
+| pm_peak / full | v1 | 493.43 | 184.64 | 564.53 | 154.72 | 372.11 / 207.14 | 170.2 | 392 | yes (-22.7%) |
+| pm_peak / full | v2 | 419.46 | 168.52 | 487.15 | 155.11 | 308.75 / 234.11 | 105.7 | 568 | yes (-33.3%) |
+| night / full | Textbook | 9.15 | 8.64 | 15.52 | 15.01 | 117.26 / 98.94 | 0.0 | 0 | yes (+0.0%) |
+| night / full | v1 | 9.18 | 8.66 | 15.34 | 14.83 | 117.37 / 98.93 | 0.0 | 0 | yes (-1.1%) |
+| night / full | v2 | 9.15 | 8.63 | 15.52 | 15.02 | 117.39 / 98.89 | 0.0 | 0 | yes (+0.1%) |
 
-The following table averages each metric equally across the ten out-of-sample seeds **3–12**; unfinished is mean vehicles per seed, while teleports are total events across those ten seeds. Direction travel times are means of per-seed means, with sample counts in the CSV. Full and holdout PM rows overlap and must not be added.
+The teleport guard passed training and selection but failed to generalize: v2 exceeds textbook +2 cohort teleport events on 8 of 20 final seeds in both full PM and holdout. Full-PM teleport totals rise 191 → 568; holdout totals rise 69 → 256. The selected plan is retained for the preregistered comparison without retuning; no overall feasible winner is established.
 
-| Scenario / window | Controller | Loss (s) | Side loss (s) | Stops | Unfinished | Teleports | EB travel (s) | WB travel (s) |
+Requested / completed trips per seed (textbook / v1 / v2): pm_peak/holdout: requested 7980, completed 7206.9 / 7809.8 / 7874.4; pm_peak/full: requested 15960, completed 15186.9 / 15789.8 / 15854.4; night/full: requested 353, completed 353.0 / 353.0 / 353.0.
+
+Primary all-requested delay (seconds/requested vehicle) = **[sum of completed (timeLoss + departDelay) + 900 × (unfinished vehicles + cohort teleport events)] / requested vehicles**. Side-origin delay uses the same formula with only side-origin IDs and its own requested denominator. Unfinished includes never-inserted and still-running vehicles. The charge is a convention, not measured unfinished delay; completed loss and side completed loss exclude unfinished vehicles. Insertion delay remains separately available in the CSV. The final constraint is the ratio of paired side-origin means, at most 1.05; per-seed flags are also retained.
+
+Sensitivity below changes the charge on **both unfinished vehicles and teleport events**. Each cell is textbook / v1 / v2 seconds per requested vehicle. The legacy `all_vehicle_delay_s` (1800 s) and `all_vehicle_delay_zero_unfinished_s` (zero unfinished charge but 1800 s teleport charge) columns remain for compatibility; the new primary is `all_requested_delay_s`.
+
+| Scenario / window | 0 s charge | 900 s charge (primary) | 1800 s charge |
+|---|---:|---:|---:|
+| pm_peak / holdout | 702.99 / 673.61 / 582.25 | 790.57 / 694.45 / 595.61 | 878.16 / 715.30 / 608.97 |
+| pm_peak / full | 597.50 / 482.73 / 411.90 | 641.64 / 493.43 / 419.46 | 685.77 / 504.14 / 427.02 |
+| night / full | 9.15 / 9.18 / 9.15 | 9.15 / 9.18 / 9.15 | 9.15 / 9.18 / 9.15 |
+
+One-sided paired Wilcoxon p-values (candidate < textbook). Only v2 PM holdout primary is confirmatory; all other comparisons and sensitivities are descriptive, unadjusted. All-zero differences give p=1. The CSV retains `all` and `out_of_sample` groups for compatibility; both refer to the same 20 final seeds here.
+
+| Scenario / window | Candidate | Primary | Completed loss | Side completed loss | EB travel | WB travel | Unfinished | Teleports |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| pm_peak / holdout | actuated | 167.06 | 137.85 | 5.52 | 696.8 | 61 | 402.13 | 186.28 |
-| pm_peak / holdout | optuna | 187.21 | 154.09 | 6.43 | 183.4 | 52 | 365.65 | 175.40 |
-| pm_peak / full | actuated | 172.14 | 146.39 | 5.73 | 696.8 | 88 | 393.24 | 180.66 |
-| pm_peak / full | optuna | 173.04 | 147.64 | 5.93 | 183.4 | 63 | 340.13 | 172.89 |
-| night / full | actuated | 8.51 | 13.94 | 0.29 | 0.0 | 0 | 116.59 | 98.89 |
-| night / full | optuna | 8.57 | 14.02 | 0.29 | 0.0 | 0 | 116.76 | 98.91 |
+| pm_peak / holdout | v1 | 0.00319481 | 0.999998 | 0.999982 | 0.521835 | 0.99396 | 9.53674e-07 | 0.997867 |
+| pm_peak / holdout | v2 | 0.000844955 | 0.923177 | 0.999803 | 0.0265846 | 0.977973 | 6.00468e-05 | 0.971809 |
+| pm_peak / full | v1 | 6.67572e-06 | 0.968139 | 0.928547 | 0.0076561 | 0.951346 | 9.53674e-07 | 0.957052 |
+| pm_peak / full | v2 | 1.33514e-05 | 0.0768232 | 0.337111 | 0.000992775 | 0.981883 | 6.00468e-05 | 0.855676 |
+| night / full | v1 | 0.784783 | 0.784783 | 0.0085907 | 0.847749 | 0.571873 | 1 | 1 |
+| night / full | v2 | 0.215217 | 0.215217 | 0.378083 | 0.949004 | 0.138474 | 1 | 1 |
 
-All-requested-vehicle delay score (seconds/requested vehicle) = **[sum of completed-trip (timeLoss + departDelay) + 1800 × (unfinished requested cars + cohort teleport events)] / requested cars**. The 1800 s charge is the M5 one-drain-window rule, a scoring assumption rather than measured unfinished delay. This uses a requested-vehicle denominator for completed loss too; it is not the M5 optimization objective and has no side-origin surcharge. The zero-unfinished version removes only the unfinished charge and retains the teleport charge: a lower bound on this score, not an estimate of actual unfinished delay. Both versions include every requested ID in the denominator.
+Every plan uses identical fixed routes, paired SUMO seeds, 900 s warmup, 1800 s drain and a 300 s teleport timeout. Full PM is scheduled departures 16:30–18:30; holdout is 17:30–18:30 from that continuous run, retaining earlier queues. Night is estimated 23:00–24:00. Warmup IDs are excluded by scheduled departure. Side origin means the first modeled approach is a side street. Teleports count events for cohort IDs, regardless of event time; run totals including warmup are separate. Teleports may distort congestion and completed-trip loss. EB/WB times cover the outer approach entry through the opposite departure-edge exit, include both end signals, exclude pre-insertion delay and teleported vehicles, and retain sample counts in the CSV.
 
-Means across seeds 3–12 and paired one-sided Wilcoxon p-values (`optuna < actuated`):
+Fixed holdout demand replays the fitted hour: the test evaluates simulation randomness and later queues, not unseen measured demand. Neither controller comparison validates current traffic or field deployment.
 
-| Metric | PM holdout actuated → optuna | p | Full PM actuated → optuna | p | Night actuated → optuna | p |
-|---|---:|---:|---:|---:|---:|---:|
-| All-requested delay score (s) | 847.78 → 631.52 | 0.000977 | 634.99 → 454.92 | 0.000977 | 9.02 → 9.08 | 0.784180 |
-| Zero unfinished charge (s) | 690.61 → 590.15 | 0.001953 | 556.40 → 434.24 | 0.000977 | 9.02 → 9.08 | 0.784180 |
-| Unfinished cars | 696.8 → 183.4 | 0.000977 | 696.8 → 183.4 | 0.000977 | 0 → 0 | 1 |
-| EB travel (s) | 402.13 → 365.65 | 0.018555 | 393.24 → 340.13 | 0.006836 | 116.59 → 116.76 | 0.903320 |
-| WB travel (s) | 186.28 → 175.40 | 0.422852 | 180.66 → 172.89 | 0.539063 | 98.89 → 98.91 | 0.509766 |
+v1 is the frozen original trial-146 plan, preserved byte for byte as `sim/tls_optuna_v1_*.add.xml`, with [archived search evidence](reports/optimize_v1.json). v2 completed **200 trials** in **43.15 minutes** on common seeds **0–2**, then rescored the top ten on **3–12**, selecting trial **185**. It tunes one shared cycle (80–150 s), one offset per signal, bounded phase-specific green multipliers (0.6–1.4), and passage time per signal (2–4 s). Bounds, clearance, phase order, rest/skip logic and cycle slack remain; there are no separate EB/WB offsets. The exact textbook plan is trial 0 and a feasible selection fallback. A steep penalty enforces the +5% mean side-origin constraint and candidates exceeding textbook cohort teleports by more than two on any paired seed are rejected. Selection never uses night or final seeds; PM parameters are frozen for night. Final evaluation and FCD export took **13.29 minutes**.
 
-The completed-only mean has survivor bias: of 7,980 requested holdout cars per seed, **7,283.2 → 7,796.6 complete**, and **696.8 → 183.4 remain unfinished**. Full PM requests 15,960 and completes **15,263.2 → 15,776.6**. Unfinished combines never-inserted and still-running cars; the saved aggregates do not separate these, so it would be inaccurate to claim all 513 extra completions are extra insertions onto Stevens Creek. The requested-denominator scores can be recovered from saved completed counts and means without rerunning simulations (up to floating-point rounding).
+[Results CSV](reports/results.csv) identifies textbook as `actuated`, v1 as `optuna_v1`, and v2 as `optuna`. [Paired tests](reports/wilcoxon.csv) retains its original columns and adds `controller` to identify the candidate plus aggregate side-constraint fields; `optuna_mean` is that candidate mean and `actuated_mean` is textbook. Consumers must filter `controller` when looking up a p-value. [Evaluation provenance](reports/eval.json) records input hashes, seeds, boundaries and laptop settings; [v2 search evidence](reports/optimize.json) and [all trials](reports/optimize_trials.csv) retain training and selection metrics.
 
-The tradeoff matters: PM holdout mean insertion delay falls **588.31 → 416.16 s** and unfinished demand falls **696.8 → 183.4 vehicles per seed**, while completed-trip time loss and stops rise. In the full PM scenario, insertion delay falls **408.72 → 265.74 s**. Neither controller clears all PM demand within the drain. Out-of-sample PM teleport totals are **88 → 63** for full PM and **61 → 52** for its holdout cohort; night has none. Teleports can distort congestion and completed-trip loss. Completed-trip loss includes trips that teleported, while directional travel times exclude them. These results do not establish an overall better plan or justify field deployment.
-
-Evaluation uses the frozen trial-146 plans, identical scenario route files and paired SUMO seeds **0–12**. Seeds **3–12** were excluded from M5 fitting/selection and are the primary out-of-sample simulation result; seeds 0–2 remain separately labeled in [results.csv](reports/results.csv). Routes themselves are fixed across seeds. PM holdout demand replays the fitted hour, so this tests simulation randomness and later operating conditions, not unseen measured traffic demand.
-
-**Full PM** is scheduled departures 16:30–18:30; **PM holdout** is 17:30–18:30 from the same continuous run, retaining the preceding hour's queues. **Full night** is 23:00–24:00; night has no specified holdout. Each simulation starts 900 s before the scenario and ends after a 1800 s drain, with `time_to_teleport=300`. Warmup departures are excluded using scheduled departure IDs, so delayed or never-inserted demand stays in its cohort. CSV `unfinished` counts requested vehicles without a completed trip after the drain. Mean loss, side loss, stops (`waitingCount`) and insertion delay describe completed trips only; these means can hide unfinished demand. Side origin is the first modeled approach being a side street.
-
-Directional corridor times measure entry into the outer approach edge at Mary/De Anza through exit from the far-side departure edge at the opposite end, including both end signals. Only continuous mainline traversals with observed exits count; teleported vehicles are excluded. The CSV retains EB/WB sample counts and their pooled `mainline_travel_s`. Teleports count events affecting each departure cohort, excluding warmup IDs; the separate run-total column includes warmup. Teleport times need not fall inside the departure window.
-
-The original primary test is paired Wilcoxon signed-rank on per-seed completed-trip mean time loss for PM holdout seeds 3–12: one-sided alternative **optuna < actuated**, alpha 0.05. [Wilcoxon results](reports/wilcoxon.csv) also include all 13 seeds and the additional full PM/night tests. The all-requested, unfinished and directional tests above were added during review after seeing results; all p-values are unadjusted and are exploratory. All-zero differences return p=1. The original test concerns completed-trip loss; none of these tests establishes field benefit.
-
-For piece 5 only, [actuated FCD](reports/fcd_actuated_pm_peak_seed0.xml.gz) and [optuna FCD](reports/fcd_optuna_pm_peak_seed0.xml.gz) contain the same PM seed-0 17:30–17:45 window at 1 s resolution, after continuous simulation from 16:15. They contain local XY coordinates, lane, speed, angle and vehicle IDs. [Evaluation provenance](reports/eval.json) records input hashes, boundary edges, FCD sizes/timestamps and laptop settings. Dashboard and video are not built.
+[Textbook seed-13 FCD](reports/fcd_actuated_pm_peak_seed13.xml.gz) and [selected v2 seed-13 FCD](reports/fcd_optuna_pm_peak_seed13.xml.gz) cover 17:30–17:45 at 1 s resolution after continuous simulation from 16:15. Each has 900 steps; they illustrate one seed, not the aggregate result. Dashboard/video integration is handled on the separate design branch; the existing seed-0 illustration remains unchanged.
 
 Data: De Anza (Jan 10, 2018) and Stelling (Jan 17, 2018) have measured quarter-hour turns. Mary has newer Apr 25, 2018 hourly observations, preserved separately; its quarter-hour profile is estimated. Bandley and Saich are estimated. Thus **3 of 5 quarter-hour profiles are estimated**. Mary's current OSM topology lacks movements representing 775 vehicles/hour on the sheet; those observations are retained but cannot be simulated. All dates, methods and limits: [source audit](reports/data-source-audit.md), [provenance CSV](data/processed/tmc_sources.csv). The agent visually checked Stelling PDF p.554; independent human sign-off remains pending.
 
