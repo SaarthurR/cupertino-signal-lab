@@ -10,14 +10,15 @@ class DashboardTests(unittest.TestCase):
     def test_exact_paired_cohort_and_uncertainty(self):
         rows = d.read_csv(p.ROOT/'reports/results.csv')
         groups = d.cohort(rows)
-        self.assertEqual([int(r['seed']) for r in groups[0]], list(range(3, 13)))
+        self.assertEqual([int(r['seed']) for r in groups[0]], list(range(13, 33)))
         means, sds = d.stats(groups, 'completed')
-        self.assertAlmostEqual(means[1]-means[0], 513.4)
+        self.assertAlmostEqual(means[1]-means[0], 667.5)
         self.assertTrue(np.all(sds > 0))
         with self.assertRaises(ValueError):
             d.cohort(rows + [groups[0][0]])
+        # The preregistered v2 comparison, not the frozen first try, drives the page.
         tests = d.read_csv(p.ROOT/'reports/wilcoxon.csv')
-        row = next(r for r in tests if r['scenario']=='pm_peak' and r['window']=='holdout' and r['seed_group']=='out_of_sample' and r['metric']=='mainline_travel_eb_s')
+        row = next(r for r in tests if r['scenario']=='pm_peak' and r['window']=='holdout' and r['seed_group']=='out_of_sample' and r['metric']=='mainline_travel_eb_s' and r['controller']=='optuna')
         differences = [float(b['mainline_travel_eb_s'])-float(a['mainline_travel_eb_s']) for a,b in zip(*groups)]
         self.assertAlmostEqual(float(row['p_value']), wilcoxon(differences, alternative='less').pvalue)
 
@@ -48,11 +49,11 @@ class DashboardTests(unittest.TestCase):
 
     def test_page_walks_the_steps_in_order_without_jargon(self):
         roads, signals, _, _ = d.geometry(p.config())
-        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), d.read_csv(p.ROOT/'reports/wilcoxon.csv'), roads, signals)
+        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
         flow, extras = html.split('<details>', 1)
         for word in ('Optuna', 'Wilcoxon', 'GEH', 'FCD', 'p=', '—', '–'):
             self.assertNotIn(word, flow)
-        self.assertEqual([int(n) for n in re.findall(r'<span class="n">(\d)</span>', flow)], list(range(1, 7)))
+        self.assertEqual([int(n) for n in re.findall(r'<span class="n">(\d)</span>', flow)], list(range(1, 8)))
         for word in ('Optuna', 'Wilcoxon', 'p='):
             self.assertIn(word, extras)
 
@@ -61,16 +62,17 @@ class DashboardTests(unittest.TestCase):
         self.assertGreater(distance, 1000)
         self.assertEqual(len(signals), 5)
         self.assertGreater(len(offsets), 5)
-        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), d.read_csv(p.ROOT/'reports/wilcoxon.csv'), roads, signals)
-        for text in ('+513','9.1%','+11.8%','7,980.0','7,283.2','7,796.6','696.8','183.4','0.018555','2018','Completed-only','52','61'):
+        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
+        for text in ('24.7%','668','14.4%','38.5%','8 of 20','7,980.0','7,206.9','7,874.4',
+                     '0.000845','2018','2026-10-28','Completed-only'):
             self.assertIn(text, html)
         self.assertNotIn('https://', html)
-        self.assertNotIn('136.699633', html)
-        self.assertNotIn('2.469368', html)
-        self.assertEqual(html.count('<td>136.7</td>'), 10)
+        self.assertNotIn('148.30642366546667', html)
+        self.assertNotIn('3.4873149533668006', html)
+        self.assertEqual(html.count('<td>148.3</td>'), 10)
         self.assertIn('blocked', html.lower())
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', html):
-            if link.endswith(('.csv',)):
+            if link.endswith(('.csv', '.md')):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
 
     def test_deck_is_nine_offline_slides_with_a_spoken_note_each(self):
@@ -83,5 +85,6 @@ class DashboardTests(unittest.TestCase):
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
             self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
         facts = d.facts(rows)
-        for text in (f'+{facts["extra"]:,.0f}', f'{facts["faster"]:.1f}%', str(facts['close']), f'{facts["trips"]:,}'):
+        for text in (f'{facts["delay_cut"]:.0f}%', f'{facts["wb_cost"]:.0f}%',
+                     f'{facts["cap_fails"]} of {facts["n_test"]}', str(facts['close']), f'{facts["trips"]:,}'):
             self.assertIn(text, deck)
