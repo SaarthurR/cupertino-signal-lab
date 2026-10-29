@@ -36,6 +36,26 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(len(lines), 2)
         self.assertEqual(lines[0], ((0,100),(1/60,105)))
 
+    def test_best_so_far_only_falls_and_ignores_unfinished_trials(self):
+        trials = [{'state': 'COMPLETE', 'value': '9'}, {'state': 'FAIL', 'value': '1'},
+                  {'state': 'COMPLETE', 'value': '12'}, {'state': 'COMPLETE', 'value': '4'}]
+        self.assertEqual(d.best_so_far(trials), [9., 9., 4.])
+        curve = d.best_so_far(d.read_csv(p.ROOT/'reports/optimize_trials.csv'))
+        self.assertEqual(len(curve), 200)
+        self.assertTrue(all(b <= a for a, b in zip(curve, curve[1:])))
+        with self.assertRaises(ValueError):
+            d.best_so_far([{'state': 'RUNNING', 'value': '1'}])
+
+    def test_page_walks_the_steps_in_order_without_jargon(self):
+        roads, signals, _, _ = d.geometry(p.config())
+        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), d.read_csv(p.ROOT/'reports/wilcoxon.csv'), roads, signals)
+        flow, extras = html.split('<details>', 1)
+        for word in ('Optuna', 'Wilcoxon', 'GEH', 'FCD', 'p=', '—', '–'):
+            self.assertNotIn(word, flow)
+        self.assertEqual([int(n) for n in re.findall(r'<span class="n">(\d)</span>', flow)], list(range(1, 7)))
+        for word in ('Optuna', 'Wilcoxon', 'p='):
+            self.assertIn(word, extras)
+
     def test_page_uses_csvs_and_only_local_assets(self):
         roads, signals, offsets, distance = d.geometry(p.config())
         self.assertGreater(distance, 1000)
