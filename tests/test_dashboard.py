@@ -10,39 +10,48 @@ class DashboardTests(unittest.TestCase):
     def test_exact_paired_cohort_and_uncertainty(self):
         rows = d.read_csv(p.ROOT/'reports/results.csv')
         groups = d.cohort(rows)
-        self.assertEqual([int(r['seed']) for r in groups[0]], list(range(13, 33)))
+        self.assertEqual([int(r['seed']) for r in groups[0]], list(range(33, 53)))
         means, sds = d.stats(groups, 'completed')
-        self.assertAlmostEqual(means[1]-means[0], 667.5)
+        self.assertAlmostEqual(means[1]-means[0], 566.45)
         self.assertTrue(np.all(sds > 0))
         with self.assertRaises(ValueError):
             d.cohort(rows + [groups[0][0]])
-        # The preregistered v2 comparison, not the frozen first try, drives the page.
+        # The preregistered v3 comparison, not either earlier try, drives the page.
         tests = d.read_csv(p.ROOT/'reports/wilcoxon.csv')
-        row = next(r for r in tests if r['scenario']=='pm_peak' and r['window']=='holdout' and r['seed_group']=='out_of_sample' and r['metric']=='mainline_travel_eb_s' and r['controller']=='optuna')
+        row = next(r for r in tests if r['scenario']=='pm_peak' and r['window']=='holdout' and r['seed_group']=='v3_final' and r['metric']=='mainline_travel_eb_s' and r['controller']=='optuna_v3')
         differences = [float(b['mainline_travel_eb_s'])-float(a['mainline_travel_eb_s']) for a,b in zip(*groups)]
         self.assertAlmostEqual(float(row['p_value']), wilcoxon(differences, alternative='less').pvalue)
 
-    def test_counts_distinguish_insertion_arrival_and_teleport_gap(self):
-        cars = np.array([[0, 0, 0], [1, 1, .1]])
-        due = {'old': 0, 'blocked': 5, 'future': 11, 'arrived': 1, 'gap': 2}
-        inserted = {'old': 0, 'arrived': 2, 'gap': 3, 'blocked': 11}
-        self.assertEqual(d.traffic_counts(10, cars, due, inserted, [9, 11]), (1, 1, 1))
-        self.assertEqual(d.traffic_counts(11, cars, due, inserted, [9, 11]), (1, 1, 2))
+    def test_video_captions_only_claim_what_the_timeline_shows(self):
+        counters = d.timeline()
+        script = d.caption_script(counters)
+        self.assertGreater(len(script), 3)
+        for (start, stop, line), (later, _, _) in zip(script, script[1:]):
+            self.assertLess(start, stop)
+            self.assertLessEqual(stop, later)  # captions never overlap on screen
+        textbook, ours = counters
+        shown = {int(n.replace(',', '')) for _, _, line in script
+                 for n in re.findall(r'(?<![:\d])(\d[\d,]*)(?!\s*PM|:)', line)}
+        real = {c[t][1] for c in counters for t in range(*d.VIDEO)}
+        real |= {ours[t][2]-textbook[t][2] for t in range(*d.VIDEO)}
+        real |= {textbook[t][1]-ours[t][1] for t in range(*d.VIDEO)}
+        self.assertEqual(shown-real, set())
 
     def test_paths_break_at_missing_samples_and_position_jumps(self):
-        track = [(63000,'eb',0),(63001,'eb',5),(63003,'eb',10),
-                 (63004,'side',0),(63005,'eb',20),(63006,'eb',200),
-                 (63007,'eb',205)]
-        lines = d.segments(track, {'eb': 100})
-        self.assertEqual(len(lines), 2)
-        self.assertEqual(lines[0], ((0,100),(1/60,105)))
+        base = d.VIDEO[0]
+        step = d.STEP
+        samples = [(base, 100), (base+step, 105), (base+3*step, 110),
+                   (base+4*step, 120), (base+5*step, 500), (base+6*step, 505)]
+        lines = d.segments(samples)
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[0], ((0, 100), (step/60, 105)))
 
     def test_best_so_far_only_falls_and_ignores_unfinished_trials(self):
         trials = [{'state': 'COMPLETE', 'value': '9'}, {'state': 'FAIL', 'value': '1'},
                   {'state': 'COMPLETE', 'value': '12'}, {'state': 'COMPLETE', 'value': '4'}]
         self.assertEqual(d.best_so_far(trials), [9., 9., 4.])
-        curve = d.best_so_far(d.read_csv(p.ROOT/'reports/optimize_trials.csv'))
-        self.assertEqual(len(curve), 200)
+        curve = d.best_so_far(d.read_csv(p.ROOT/'reports/optimize_v3_trials.csv'))
+        self.assertEqual(len(curve), 300)
         self.assertTrue(all(b <= a for a, b in zip(curve, curve[1:])))
         with self.assertRaises(ValueError):
             d.best_so_far([{'state': 'RUNNING', 'value': '1'}])
@@ -63,14 +72,14 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(len(signals), 5)
         self.assertGreater(len(offsets), 5)
         html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
-        for text in ('24.7%','668','14.4%','38.5%','8 of 20','7,980.0','7,206.9','7,874.4',
-                     '0.000845','2018','2026-10-28','Completed-only'):
+        for text in ('22.7%','16.5%','35.6%','15.0%','185 → 17','18 of the 20','7,980.0','836.77',
+                     '646.74','0.000052','2018','2026-10-28','Completed-only'):
             self.assertIn(text, html)
         self.assertNotIn('https://', html)
-        self.assertNotIn('148.30642366546667', html)
+        self.assertNotIn('137.1122804334809', html)
         self.assertNotIn('3.4873149533668006', html)
-        self.assertEqual(html.count('<td>148.3</td>'), 10)
-        self.assertIn('blocked', html.lower())
+        self.assertEqual(html.count('<td>137.1</td>'), 10)
+        self.assertIn('shut out of the corridor', html)
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', html):
             if link.endswith(('.csv', '.md')):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
@@ -85,6 +94,10 @@ class DashboardTests(unittest.TestCase):
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
             self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
         facts = d.facts(rows)
-        for text in (f'{facts["delay_cut"]:.0f}%', f'{facts["wb_cost"]:.0f}%',
-                     f'{facts["cap_fails"]} of {facts["n_test"]}', str(facts['close']), f'{facts["trips"]:,}'):
+        for text in (f'{facts["delay_cut"]:.0f}%', f'{facts["wb_cut"]:.0f}%', f'{facts["faster"]:.0f}%',
+                     f'{facts["teleports"][0]} &rarr; {facts["teleports"][1]}',
+                     str(facts['close']), f'{facts["trips"]:,}'):
             self.assertIn(text, deck)
+        # The limits appear once, as the closing next steps, and name the rule we broke.
+        self.assertEqual(deck.count('breaking the rule we set ourselves'), 1)
+        self.assertNotIn('Promising', deck)

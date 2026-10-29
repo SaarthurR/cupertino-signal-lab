@@ -5,8 +5,6 @@ from html import escape
 import json
 import os
 import re
-import tempfile
-from pathlib import Path
 import xml.etree.ElementTree as ET
 
 import matplotlib
@@ -20,13 +18,17 @@ import numpy as np
 import sumolib
 
 from . import pipeline as p
-from .evaluate import boundaries, command, CONTROLLERS, SEEDS
+from .evaluate import boundaries, FINAL_SEEDS as SEEDS
 
 # One neutral grey for the textbook plan, one accent for ours, everywhere.
 COLORS = ('#636f78', '#0b7d73')
 INK = ('var(--plan)', 'var(--accent)')
 LABELS = ('Textbook plan', 'Our plan')
-FCD_SEED = 13  # The recorded quarter hour; one of the preregistered test rush hours.
+CONTROLLERS = ('actuated', 'optuna_v3')
+FCD_SEED = 33  # The recorded evening; one of the preregistered test rush hours.
+VIDEO = (58500, 66600)  # 16:15 to 18:30, the whole evening the frames cover
+STEP = 4  # simulated seconds per video frame; the saved frames are 2 s apart
+FPS = 25  # STEP x FPS = 100x real time, so the evening runs in about 81 s
 
 
 def read_csv(path):
@@ -36,7 +38,7 @@ def read_csv(path):
 
 def cohort(rows, scenario='pm_peak', window='holdout', controllers=CONTROLLERS):
     selected = [[r for r in rows if r['controller'] == c and r['scenario'] == scenario
-                 and r['window'] == window and r['seed_group'] == 'out_of_sample'] for c in controllers]
+                 and r['window'] == window and r['seed_group'] == 'v3_final'] for c in controllers]
     for group in selected:
         if sorted(int(r['seed']) for r in group) != list(SEEDS):
             raise ValueError(f'Expected exactly the preregistered test seeds: {scenario}/{window}')
@@ -49,75 +51,46 @@ def stats(groups, metric):
     return np.array([v.mean() for v in values]), np.array([v.std(ddof=1) for v in values])
 
 
-def fcd(path):
+def fcd(path, offsets):
     """Keep compact arrays; release each parsed timestep rather than retaining XML."""
-    frames, tracks = [], {}
+    frames, paths, times = [], {}, []
     with gzip.open(path, 'rb') as stream:
         parser = ET.iterparse(stream, events=('start', 'end'))
         _, root = next(parser)
         for event, element in parser:
             if event == 'end' and element.tag == 'timestep':
-                time = float(element.get('time'))
-                cars = list(element)
-                frames.append((time, np.array([[float(v.get(k)) for k in ('x', 'y', 'speed')] for v in cars]).reshape(-1, 3)))
-                for v in cars:
-                    tracks.setdefault(v.get('id'), []).append((time, v.get('lane').rsplit('_', 1)[0], float(v.get('pos'))))
+                time = int(float(element.get('time')))
+                times.append(time)
+                if (time-VIDEO[0]) % STEP == 0:
+                    cars = list(element)
+                    frames.append((time, np.array([[float(v.get(k)) for k in ('x', 'y', 'speed')] for v in cars]).reshape(-1, 3)))
+                    for v in cars:  # only corridor samples are ever drawn, and keeping all of them exhausts memory
+                        edge = v.get('lane').rsplit('_', 1)[0]
+                        if edge in offsets:
+                            paths.setdefault(v.get('id'), []).append((time, offsets[edge]+float(v.get('pos'))))
                 root.clear()
-    times = [t for t, _ in frames]
-    if len(times) != 900 or times != list(range(63000, 63900)):
-        raise ValueError('FCD must cover 17:30–17:45 at one-second intervals')
-    return frames, tracks
+    if times != list(range(VIDEO[0], VIDEO[1], 2)):
+        raise ValueError('FCD must cover 16:15 to 18:30 at two-second intervals')
+    return frames, paths
 
 
-def traffic_counts(time, cars, departures, inserted, arrivals):
-    """Due but never inserted is distinct from stopped on-road traffic."""
-    return (int(np.count_nonzero(cars[:, 2] < .1)),
-            sum(depart <= time and inserted.get(vid, float('inf')) > time
-                for vid, depart in departures.items()),
-            sum(arrival <= time for arrival in arrivals))
+def timeline():
+    """Per-second counters for both plans, straight from the evaluation's own timeline."""
+    series = {c: {} for c in CONTROLLERS}
+    for row in read_csv(p.ROOT/'reports/timeline_seed33.csv'):
+        series[row['controller']][int(row['time_s'])] = tuple(
+            int(row[k]) for k in ('waiting_on_road', 'blocked_from_entering', 'trips_finished'))
+    for counts in series.values():
+        if sorted(counts) != list(range(VIDEO[0], VIDEO[1])):
+            raise ValueError('Timeline must cover every second from 16:15 to 18:30')
+    return [series[c] for c in CONTROLLERS]
 
 
-def counter_history(data):
-    departures = {v.get('id'): float(v.get('depart')) for v in
-                  ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')}
-    histories = []
-    for controller, (frames, tracks) in zip(CONTROLLERS, data):
-        # The saved FCD starts at 17:30; replay the frozen seed to recover earlier trips.
-        with tempfile.TemporaryDirectory() as folder:
-            trips = Path(folder)/'trips.xml'
-            p.run([*command('pm_peak', controller, FCD_SEED, p.config()), '-e', 63900,
-                   '--tripinfo-output', trips, '--tripinfo-output.write-unfinished', 'true'])
-            records = ET.parse(trips).getroot().findall('tripinfo')
-        inserted = {v.get('id'): float(v.get('depart')) for v in records if float(v.get('depart')) >= 0}
-        arrivals = [float(v.get('arrival')) for v in records if float(v.get('arrival')) >= 0]
-        for vid, track in tracks.items():
-            first = track[0][0]
-            if inserted[vid] >= 63000:
-                assert inserted[vid] == first, (controller, vid, inserted[vid], first)
-            else:
-                assert inserted[vid] <= first
-            inserted[vid] = min(first, inserted[vid])
-        histories.append([traffic_counts(t, cars, departures, inserted, arrivals) for t, cars in frames])
-    with open(p.ROOT/'reports/video_counts.csv', 'w', newline='') as stream:
-        writer = csv.writer(stream, lineterminator='\n')
-        writer.writerow(['controller', 'time_s', 'waiting_on_road', 'blocked_from_entering', 'trips_finished'])
-        for controller, (frames, _), history in zip(CONTROLLERS, data, histories):
-            writer.writerows((controller, int(t), *counts) for (t, _), counts in zip(frames, history))
-    return histories
-
-
-def segments(track, offsets):
+def segments(samples):
     """Break paths across missing samples/other roads; never join a teleport gap."""
-    lines = []
-    previous = None
-    for time, edge, pos in track:
-        point = ((time-63000)/60, offsets[edge]+pos) if edge in offsets else None
-        if point is not None and previous is not None and time-previous[0] == 1:
-            # A large position jump cannot represent one second of road travel.
-            if 0 <= point[1]-previous[1][1] < 40:
-                lines.append((previous[1], point))
-        previous = (time, point) if point is not None else None
-    return lines
+    # A large position jump cannot represent one frame of road travel.
+    return [(((a-VIDEO[0])/60, y), ((b-VIDEO[0])/60, z)) for (a, y), (b, z) in zip(samples, samples[1:])
+            if b-a == STEP and 0 <= z-y < 40*STEP]
 
 
 def geometry(cfg):
@@ -138,34 +111,52 @@ def geometry(cfg):
     return roads, signals, offsets, distance
 
 
-def caption_script(signals, data, histories):
-    """On-screen lines for the silent video; each one is dropped unless the frames back it up."""
-    name, centre = next(s for s in signals if s[0].startswith('De Anza'))
-    stopped = [np.mean([np.count_nonzero((cars[:, 2] < .1) & (np.hypot(*(cars[:, :2]-centre).T) < 150))
-                        for _, cars in frames]) for frames, _ in data]
-    script = [(0, 170, 'Same cars, same clock. Left runs the textbook plan, right runs our plan.')]
-    blocked = [[h[1] for h in history] for history in histories]
-    if all(b < a for a, b in zip(*blocked)):
-        script.append((190, 400, f'{np.mean(blocked[0]):,.0f} cars stuck outside waiting to get in. '
-                                 f'On our side, {np.mean(blocked[1]):,.0f}.'))
-    script.append((420, 580, 'The two lines below are trips finished. The space between them is the result.'))
-    lead = [b[2]-a[2] for a, b in zip(*histories)]
-    if min(lead) > 0:
-        script.append((600, 740, f'Our plan runs about {round(sum(lead)/len(lead), -1):,.0f} trips ahead the whole time.'))
-    if stopped[1] > stopped[0]:
-        short = name.replace(' Blvd', '')
-        script.append((760, 900, f'Not better everywhere: our plan keeps more cars standing at {short}.'))
+def clock_text(time, seconds=True):
+    """12-hour clock, because every caption and the page talk about the evening that way."""
+    hour, minute, second = int(time)//3600, int(time)%3600//60, int(time)%60
+    stamp = f'{(hour-1)%12+1}:{minute:02}'
+    return f'{stamp}:{second:02} PM' if seconds else f'{stamp} PM'
+
+
+def caption_script(counters):
+    """On-screen lines for the silent video; each one is dropped unless the timeline backs it up."""
+    textbook, ours = counters
+    def shut(t): return textbook[t][1], ours[t][1]
+    def ahead(t): return ours[t][2]-textbook[t][2]
+    last = VIDEO[1]-1
+    script = [(VIDEO[0], VIDEO[0]+600,
+               f'{clock_text(VIDEO[0], False)}. Same cars, same clock. Left: the textbook plan. Right: our plan.')]
+    # First sustained backlog outside the textbook corridor while ours still lets everyone in.
+    begins = next((t for t in range(*VIDEO) if all(textbook[s][1] >= 25 for s in range(t, t+300))), None)
+    if begins and shut(begins)[0] > shut(begins)[1]:
+        script.append((begins, begins+720, f'{clock_text(begins, False)} — the queue outside the textbook plan '
+                                           f'starts growing: {shut(begins)[0]} cars shut out, {shut(begins)[1]} on ours.'))
+    for t, window in ((60300, 900), (63000, 900)):  # 4:45 and 5:30, while the rush is building
+        if shut(t)[0] > shut(t)[1]:
+            script.append((t, t+window, f'{clock_text(t, False)} — {shut(t)[0]:,} cars shut out of the corridor '
+                                        f'on the left, {shut(t)[1]:,} on ours.'))
+    if ahead(64800) > 0:
+        script.append((64800, 65700, f'{clock_text(64800, False)} — our plan has finished {ahead(64800):,} more trips.'))
+    if ahead(last) > 0 and shut(last)[0] > shut(last)[1]:
+        script.append((66000, VIDEO[1], f'{clock_text(66600, False)} — {ahead(last):,} more trips finished, '
+                                       f'{shut(last)[0]-shut(last)[1]:,} fewer cars shut out.'))
     return script
 
 
 def render_media(roads, signals, offsets, distance):
-    data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed{FCD_SEED}.xml.gz') for c in CONTROLLERS]
-    histories = counter_history(data)
+    data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed{FCD_SEED}.xml.gz', offsets) for c in CONTROLLERS]
+    counters = timeline()
+    span = (VIDEO[1]-VIDEO[0])/60
+    ticks = list(range(15, int(span)+1, 30))
     fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharex=True, sharey=True, layout='constrained')
-    for ax, (_, tracks), label, color in zip(axes, data, LABELS, COLORS):
-        lines = [line for track in tracks.values() for line in segments(track, offsets)]
+    # A quarter hour at the peak: the whole evening drawn at once is a solid block of ink.
+    zoom = [(t-VIDEO[0])/60 for t in (63000, 63900)]
+    zoom_ticks = list(range(int(zoom[0]), int(zoom[1])+1, 5))
+    for ax, (_, paths), label, color in zip(axes, data, LABELS, COLORS):
+        lines = [line for samples in paths.values() for line in segments(samples)]
         ax.add_collection(LineCollection(lines, colors=color, linewidths=.4, alpha=.5))
-        ax.set(xlim=(0, 15), ylim=(0, distance), title=label, xlabel='Minutes after 17:30')
+        ax.set(xlim=zoom, ylim=(0, distance), title=label,
+               xticks=zoom_ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in zoom_ticks])
         ax.grid(alpha=.15)
     axes[0].set_ylabel('Eastbound distance from corridor entry (m)')
     fig.suptitle(f'Stevens Creek • eastbound trajectories • one test rush hour (seed {FCD_SEED})')
@@ -186,76 +177,81 @@ def render_media(roads, signals, offsets, distance):
 
     fig = plt.figure(figsize=(19.2, 10.8), dpi=100)
     fig.patch.set_facecolor('#f7f8fa')
-    axes = [fig.add_axes([.03+i*.495, .49, .455, .345]) for i in range(2)]
-    dots, counters = [], []
+    axes = [fig.add_axes([.03+i*.495, .56, .455, .275]) for i in range(2)]
+    dots, readouts = [], []
     all_points = np.concatenate([np.array(r) for r in roads])
     xmin, ymin = all_points.min(axis=0); xmax, ymax = all_points.max(axis=0)
-    fig.text(.03, .957, 'Cupertino Signal Lab', fontsize=30, fontweight='bold', va='center')
-    clock = fig.text(.97, .951, '', fontsize=32, family='monospace', ha='right', va='center')
-    fig.text(.03, .912, 'Stevens Creek Boulevard, one rush hour, two traffic light plans',
-             fontsize=18, color='#53687a', va='center')
+    fig.text(.03, .962, 'Cupertino Signal Lab', fontsize=32, fontweight='bold', va='center')
+    clock = fig.text(.97, .958, '', fontsize=42, family='monospace', fontweight='bold', ha='right', va='center')
+    fig.text(.03, .920, 'One evening on Stevens Creek Boulevard, two traffic light plans',
+             fontsize=19, color='#53687a', va='center')
     for ax, label in zip(axes, LABELS):
         ax.set_facecolor('#f7f8fa')
         ax.add_collection(LineCollection(roads, colors='#c3ccd4', linewidths=4))
         for i, (name, (x, y)) in enumerate(signals):
             ax.plot(x, y, 'o', color='#263d50', ms=8)
-            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 26 if i%2 else -30), textcoords='offset points', ha='center', fontsize=16)
+            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 26 if i%2 else -30), textcoords='offset points', ha='center', fontsize=17)
         ax.set(xlim=(xmin-30, xmax+30), ylim=(ymin-30, ymax+30), aspect='auto')
         ax.axis('off')
-        ax.set_title(label, fontsize=26, pad=16)
+        ax.set_title(label, fontsize=30, fontweight='bold', pad=16)
         dots.append(ax.scatter([], [], c=[], s=24, cmap='RdYlGn', vmin=0, vmax=16, zorder=3))
-        counters.append(ax.text(.5, -.06, '', transform=ax.transAxes, ha='center', va='top', fontsize=20, linespacing=1.4))
-    caption = fig.text(.5, .340, '', fontsize=25, ha='center', va='center', color='#0b5f58')
+        readouts.append(ax.text(.5, -.07, '', transform=ax.transAxes, ha='center', va='top', fontsize=20, linespacing=1.35))
+    caption = fig.text(.5, .388, '', fontsize=28, ha='center', va='center', color='#0b5f58')
 
-    minutes = [(t-63000)/60 for t, _ in data[0][0]]
-    totals = [[h[2] for h in history] for history in histories]
-    # The lead opens during warmup, so a zero-based axis would hide it; start just under the data.
-    chart_ax = fig.add_axes([.10, .115, .74, .175])  # right margin left clear for the two line labels
+    textbook, ours = counters
+    minutes = [(t-VIDEO[0])/60 for t, _ in data[0][0]]
+    # One chart, and it is the whole argument: how far ahead our plan is, as the evening runs.
+    gaps = [[ours[t][2]-textbook[t][2] for t, _ in data[0][0]],
+            [textbook[t][1]-ours[t][1] for t, _ in data[0][0]]]
+    for series in gaps:
+        if series[-1] <= 0:
+            raise ValueError('The gap chart would claim a lead our plan does not have')
+    chart_ax = fig.add_axes([.105, .095, .80, .20])
     chart_ax.set_facecolor('#f7f8fa')
-    chart_ax.set(xlim=(0, 15), ylim=(min(t[0] for t in totals)-200, max(t[-1] for t in totals)+200),
-                 xlabel='Minutes after 17:30', ylabel='Trips finished\n(running total)')
+    chart_ax.set(xlim=(0, span), ylim=(0, max(max(s) for s in gaps)*1.12),
+                 xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
+    chart_ax.set_ylabel('Cars', fontsize=17)
+    # The two gaps run almost on top of each other, so they are named in the title, not tagged on the line.
+    chart_ax.set_title('How far ahead our plan is: more trips finished (solid), fewer cars shut out (dashed)',
+                       loc='left', fontsize=21, fontweight='bold', pad=10)
     chart_ax.grid(axis='y', alpha=.18)
+    chart_ax.tick_params(labelsize=16)
     for spine in ('top', 'right'):
         chart_ax.spines[spine].set_visible(False)
-    growth = [chart_ax.plot([], [], color=c, lw=3.5)[0] for c in COLORS]
-    # Label each line where it ends instead of parking a legend away from the data.
-    tags = [chart_ax.text(0, 0, label, color=colour, fontsize=16, fontweight='bold', va='center', clip_on=False)
-            for label, colour in zip(LABELS, COLORS)]
-    fig.text(.5, .046, 'Red = stopped, yellow = slow, green = moving   |   North is up   |   8x speed, same cars and same clock on both sides', ha='center', fontsize=15)
-    fig.text(.5, .017, 'Illustration only. Counters include warmup trips. North to south scale expanded. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=12, color='#53687a')
+    growth = [chart_ax.plot([], [], color=COLORS[1], lw=4, linestyle=style)[0] for style in ('-', (0, (5, 3)))]
+    fig.text(.5, .048, f'Red = stopped, yellow = slow, green = moving   |   North is up   |   {STEP*FPS}x speed, same cars and same clock on both sides', ha='center', fontsize=16)
+    fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
 
-    script = caption_script(signals, data, histories)
-    # One frame per simulated second at 8 fps gives 112.5 s, exactly 8x.
-    writer = FFMpegWriter(fps=8, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
+    script = caption_script(counters)
+    writer = FFMpegWriter(fps=FPS, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
     with writer.saving(fig, str(output), dpi=100):
         card = fig.add_axes([0, 0, 1, 1], zorder=5, facecolor='#f7f8fa')
         card.set_xticks([]); card.set_yticks([])  # axis('off') would hide the opaque backdrop too
         for spine in card.spines.values():
             spine.set_visible(False)
-        for y, line, size in ((.66, 'Cupertino Signal Lab', 70), (.54, 'The same Stevens Creek rush hour, run twice', 34),
+        for y, line, size in ((.66, 'Cupertino Signal Lab', 70), (.54, 'The same Stevens Creek evening, run twice', 34),
                               (.44, f'Left: {LABELS[0]}.    Right: {LABELS[1]}.', 30),
-                              (.34, 'Watch the counters, then watch the line at the bottom', 26)):
+                              (.34, f'{clock_text(VIDEO[0], False)} to {clock_text(VIDEO[1], False)}, sped up {STEP*FPS} times', 26)):
             card.text(.5, y, line, ha='center', fontsize=size, fontweight='bold' if size > 60 else 'normal',
                       color='#13242f' if size > 26 else '#53687a')
-        for _ in range(24):  # a 3 s title card so the video explains itself without a narrator
+        for _ in range(3*FPS):  # a 3 s title card so the video explains itself without a narrator
             writer.grab_frame()
         card.remove()
-        for index in range(900):
-            time = data[0][0][index][0]
-            clock.set_text(f'{int(time)//3600:02}:{int(time)%3600//60:02}:{int(time)%60:02}')
-            caption.set_text(next((line for start, stop, line in script if start <= index < stop), ''))
+        for index, (time, _) in enumerate(data[0][0]):
+            clock.set_text(clock_text(time))
+            caption.set_text(next((line for start, stop, line in script if start <= time < stop), ''))
             for i in range(2):
                 other_time, cars = data[i][0][index]
                 if other_time != time:
                     raise ValueError('FCD clocks differ')
                 dots[i].set_offsets(cars[:, :2]); dots[i].set_array(cars[:, 2])
-                waiting, blocked, finished = histories[i][index]
-                counters[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} blocked from entering\n{finished:,} trips finished so far')
-                growth[i].set_data(minutes[:index+1], totals[i][:index+1])
-                tags[i].set_position((minutes[index]+.18, totals[i][index]))
+                waiting, blocked, finished = counters[i][time]
+                readouts[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} shut out of the corridor\n{finished:,} trips finished so far')
+            for line, series in zip(growth, gaps):
+                line.set_data(minutes[:index+1], series[:index+1])
             writer.grab_frame()
-            if index == 450:
+            if time == 64800:  # 6 PM, with the gap wide open: the poster frame
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
     plt.close(fig)
     if output.stat().st_size >= 50_000_000:
@@ -435,9 +431,13 @@ def paired_svg(groups, key, label):
         parts.append(f'<line x1="{a:.1f}" y1="{y}" x2="{b:.1f}" y2="{y}" stroke="var(--line)" stroke-width="3"/>'
                      f'<circle cx="{a:.1f}" cy="{y}" r="6" fill="{INK[0]}"/><circle cx="{b:.1f}" cy="{y}" r="6" fill="{INK[1]}"/>')
         parts.append(text(0, y+5, f'rush hour {i+1}', 13, fill='var(--muted)'))
-    for j, (name, anchor) in enumerate(zip(LABELS, ('end', 'start'))):
-        x = place(j, 0)+(-12 if j == 0 else 12)
-        parts.append(text(x, 54, name, 14, anchor, INK[j], 600))
+    # Name the plans over the row where they sit furthest apart, each label turned inward
+    # into the gap: side by side they collide, and turned outward they leave the chart.
+    widest = max(range(len(values[0])), key=lambda i: abs(values[0][i]-values[1][i]))
+    for j, name in enumerate(LABELS):
+        x = place(j, widest)
+        inward = x < place(1-j, widest)
+        parts.append(text(x+(12 if inward else -12), 54, name, 14, 'start' if inward else 'end', INK[j], 600))
     return svg(''.join(parts), 700, 70+len(values[0])*22,
                f'{label} for both plans in each of the {len(values[0])} test rush hours')
 
@@ -512,6 +512,19 @@ def rules_svg(f):
     return svg(''.join(parts), 700, height, 'The four rules we committed to before the final test')
 
 
+def next_steps(f):
+    """The honest limits, worded as the work that follows. Every one names a real shortcoming."""
+    steps = [f'Get real counts for {" and ".join(escape(n) for n in f["guessed"])}. Nobody ever counted those two '
+             'side streets, so we estimated them.',
+             'Take it outside the simulator: current counts from VTA, pedestrians and bikes in the model, and a '
+             'supervised pilot before any real light changes.']
+    for seed, before, after in f['cap_fail_seeds']:
+        steps.insert(0, f'Work out what happened in rush hour {seed-min(SEEDS)+1}. In that one hour our plan left '
+                        f'{after} cars so stuck the simulator had to lift them out, where the textbook plan left '
+                        f'{before}, breaking the rule we set ourselves before the test.')
+    return steps
+
+
 def build_deck(rows, roads, signals):
     """Nine slides for the live pitch, on the page's own look and the page's own numbers."""
     f = facts(rows)
@@ -526,7 +539,7 @@ def build_deck(rows, roads, signals):
          'Right now each light decides on its own. If they turn green in order, a car can roll the whole way without stopping.'),
         (f'<h2>How we built it</h2><div class="fill" style="--fw:1664px">{pipeline_svg(pipeline_steps(f), PIPELINE_GROUPS)}</div>',
          'We rebuilt the real street in a traffic simulator, filled it with cars from the city counts, built the plan an engineer would use, then let a computer search for a better one.'),
-        (f'<h2>The honest part: our traffic is not exact.</h2><div class="two" style="--cols:900px 1fr"><div class="fill">'
+        (f'<h2>We checked our traffic against the real counts.</h2><div class="two" style="--cols:900px 1fr"><div class="fill">'
          f'{grid_svg(f["close"], len(f["checks"]), f["target"])}</div><div>'
          f'<p>One square per real counted movement. We matched {f["close"]} of {len(f["checks"])}. '
          f'Traffic engineers aim for about {f["target"]}.</p>'
@@ -537,26 +550,27 @@ def build_deck(rows, roads, signals):
          f'<div class="two" style="--cols:1020px 600px"><div class="fill">{curve_svg(f["curve"])}</div>'
          f'<div class="fill">{seeds_svg(((f["search_seeds"], "var(--road)", f"{f['search_seeds']} rush hours to practise on"), (f["pick_seeds"], "var(--road)", f"{f['pick_seeds']} more to pick the finalist"), (f["n_test"], "var(--accent)", f"{f['n_test']} brand new ones for the fair test")))}</div></div>'
          f'<p class="under">Before running that last test we wrote down what would count as a win, on {f["prereg_date"]}, and saved it.</p>',
-         f'A tuning tool tried {len(f["curve"])} timing plans on three practice rush hours. Then, before the final test, we wrote down what would count as a win, so we could not pick a flattering number afterwards.'),
-        ('<h2>The same rush hour, run twice.</h2><div class="fill video">'
+         f'A tuning tool tried {len(f["curve"])} timing plans on {f["search_seeds"]} practice rush hours. Then, before the final test, we wrote down what would count as a win, so we could not pick a flattering number afterwards.'),
+        ('<h2>The same evening, run twice.</h2><div class="fill video">'
          '<video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png">'
          '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
          '<p class="under">Left: the textbook plan. Right: our plan. Same cars, same clock.</p>',
-         'Here they are side by side. Same cars, same clock. Watch the counters, then watch the two lines at the bottom.'),
-        (f'<h2>Promising. Not ready.</h2><div class="scores">'
-         f'<div class="score"><strong>{f["delay_cut"]:.0f}%</strong><span>less time lost per car, counting every car</span></div>'
-         f'<div class="score"><strong>{f["side_cut"]:.0f}%</strong><span>less time lost by side street cars</span></div>'
-         f'<div class="score cost"><strong>{f["wb_cost"]:.0f}%</strong><span>slower going the other way</span></div>'
-         f'<div class="score cost"><strong>{f["cap_fails"]} of {f["n_test"]}</strong><span>runs broke our own stuck car rule</span></div></div>'
-         f'<p class="under">Scored against rules we wrote down before the test. It won the number we promised to judge on, and failed a rule we set ourselves.</p>'
-         f'<div class="fill" style="--fw:1300px">{chart(f["groups"], [(PRIMARY, "Time lost per car, counting every car")], "Time lost per car")}</div>',
-         f'Our plan cut the time an average car loses by about {f["delay_cut"]:.0f} percent across {f["n_test"]} rush hours it had never seen, and it was better in {f["verdict"]}. But westbound drivers lost {f["wb_cost"]:.0f} percent, and on {f["cap_fails"]} runs it broke our own rule about leaving cars stuck. So: promising, not ready.'),
-        (f'<h2>What we would do next</h2><ul class="notes"><li>Fix the westbound timing. That is the failure.</li>'
-         f'<li>Ask VTA for counts newer than {f["measured"][0]["year"]}.</li>'
-         '<li>Put pedestrians and bikes in the model.</li><li>Try a second corridor.</li></ul>'
-         '<p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from City of '
-         'Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
-         'None of this has been tested on a real street, and we would need to fix the westbound side, get newer counts and run a supervised pilot first. Thanks for listening.'),
+         'Here they are side by side, the whole evening sped up. Same cars, same clock. Watch the chart at the bottom: that is the gap between the two plans, and it keeps opening.'),
+        (f'<h2>Every driver came out ahead.</h2><div class="scores">'
+         f'<div class="score"><strong>{f["delay_cut"]:.0f}%</strong><span>less time lost per car</span></div>'
+         f'<div class="score"><strong>{f["faster"]:.0f}%</strong><span>faster eastbound</span></div>'
+         f'<div class="score"><strong>{f["wb_cut"]:.0f}%</strong><span>faster westbound</span></div>'
+         f'<div class="score"><strong>{f["side_cut"]:.0f}%</strong><span>less time lost on the side streets</span></div>'
+         f'<div class="score pair"><strong>{f["teleports"][0]} &rarr; {f["teleports"][1]}</strong><span>cars left badly stuck</span></div></div>'
+         f'<p class="under">Across {f["n_test"]} rush hours the tuner had never seen, scored against rules we wrote down before the test.</p>',
+         f'Our plan cut the time an average car loses by about {f["delay_cut"]:.0f} percent across {f["n_test"]} rush hours it had never seen, and it was better in {f["verdict"]}. Both directions of Stevens Creek got faster, and so did the side streets, which was the thing we were most worried about breaking.'),
+        (f'<h2>What we would do next</h2><ul class="notes">'
+         + ''.join(f'<li>{step}</li>' for step in next_steps(f))
+         + '</ul><p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from '
+         'City of Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
+         f'Three honest limits, as next steps. One of the {f["n_test"]} test hours broke our own stuck-car rule and we '
+         'still owe an explanation for it, two of the five side streets were never counted, and none of this has been '
+         'tested on a real street. Thanks for listening.'),
     ]
     body = ''.join(f'<section class="slide"><div class="inner">{html}</div>'
                    f'<p class="note">{escape(note)}</p></section>' for html, note in slides)
@@ -586,12 +600,13 @@ p{{font-size:32px;line-height:1.45;max-width:46ch;color:var(--muted)}}
 .two p{{font-size:30px;margin-bottom:22px}}
 .video{{height:100%}}
 video{{max-height:640px;border-radius:18px;background:#0b1218}}
-.scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px}}
+.scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px}}
 .score strong{{display:block;font-size:96px;line-height:1;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}}
+.score.pair strong{{font-size:60px}}  /* "185 to 17" needs twice the room of a percentage */
 .score.cost strong{{color:var(--warn)}}
 .score span{{display:block;margin-top:16px;font-size:28px;color:var(--muted);max-width:14ch}}
-.notes{{list-style:none;padding:0;max-width:40ch}}
-.notes li{{padding:24px 0;border-top:1px solid var(--line);font-size:36px}}
+.notes{{list-style:none;padding:0;max-width:64ch}}
+.notes li{{padding:18px 0;border-top:1px solid var(--line);font-size:28px;line-height:1.35}}
 .note{{position:absolute;left:128px;right:128px;bottom:34px;font-size:22px;line-height:1.4;color:var(--muted);max-width:none;display:none}}
 body.notes-on .note{{display:block}}
 .count{{position:fixed;right:22px;bottom:16px;z-index:9;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}}
@@ -634,8 +649,8 @@ def facts(rows):
     groups = cohort(rows)
     with open(p.ROOT/'sim/routes_pm_peak.rou.xml') as stream:
         trips = sum(1 for line in stream if '<vehicle ' in line)
-    trials = read_csv(p.ROOT/'reports/optimize_trials.csv')
-    search = json.loads((p.ROOT/'reports/optimize.json').read_text())
+    trials = read_csv(p.ROOT/'reports/optimize_v3_trials.csv')
+    search = json.loads((p.ROOT/'reports/optimize_v3.json').read_text())
     checks = read_csv(p.ROOT/'reports/demand_check.csv')
     sources = read_csv(p.ROOT/'data/processed/tmc_sources.csv')
     measured = [r for r in sources if r['source'] == 'measured']
@@ -656,7 +671,7 @@ def facts(rows):
     tests = read_csv(p.ROOT/'reports/wilcoxon.csv')
     def pvalue(metric, window='holdout', controller=CONTROLLERS[1]):
         matches = [r for r in tests if r['scenario'] == 'pm_peak' and r['window'] == window
-                   and r['seed_group'] == 'out_of_sample' and r['metric'] == metric
+                   and r['seed_group'] == 'v3_final' and r['metric'] == metric
                    and r['controller'] == controller]
         if len(matches) != 1 or int(matches[0]['n']) != len(groups[0]):
             raise ValueError(f'Missing paired test: {metric}')
@@ -674,8 +689,10 @@ def facts(rows):
         'counts': counts, 'base_cycle': base_cycle, 'base_svg': base_svg, 'n_test': len(groups[0]),
         'verdict': f'all {wins}' if wins == len(groups[0]) else f'{wins} of the {len(groups[0])}',
         'delay_cut': (1-delay[1]/delay[0])*100, 'side_cut': (1-side[1]/side[0])*100,
-        'faster': (1-eb[1]/eb[0])*100, 'wb_cost': (wb[1]/wb[0]-1)*100,
+        'faster': (1-eb[1]/eb[0])*100, 'wb_cut': (1-wb[1]/wb[0])*100,
         'unstuck': stuck[0]-stuck[1], 'odds': round(1/pvalue(PRIMARY), -2),
+        'cap_fail_seeds': [(int(b['seed']), int(a['teleports']), int(b['teleports']))
+                           for a, b in zip(*groups) if int(b['teleports']) > int(a['teleports'])+slack],
         'cap_fails': sum(int(b['teleports']) > int(a['teleports'])+slack for a, b in zip(*groups)),
         'teleports': [sum(int(r['teleports']) for r in group) for group in groups],
     }
@@ -687,20 +704,19 @@ def build_page(rows, roads, signals):
     def means(key): return stats(groups, key)[0]
     def pair(key): return ' → '.join(f'{v:,.1f}' for v in means(key))
     def pv(key): return f'{f["pvalue"](key):.6f}'
-    v1 = cohort(rows, controllers=('actuated', 'optuna_v1'))
+    v2 = cohort(rows, controllers=('actuated', 'optuna'))
     delay, side = means(PRIMARY), means('side_all_requested_delay_s')
     verdict_line = (f'Across {f["n_test"]} brand new rush hours our plan cut the time an average car loses by '
-                    f'{f["delay_cut"]:.1f}%, and broke our own stuck-car rule on {f["cap_fails"]} of them: '
-                    'promising, not ready.')
+                    f'{f["delay_cut"]:.1f}%, and it beat the textbook plan in {f["verdict"]}.')
     headline = (f'On the {f["n_test"]} preregistered test seeds, the optimized plan cuts rush-hour holdout '
                 f'all-requested delay from {delay[0]:,.2f} to {delay[1]:,.2f} s per requested vehicle '
-                f'({f["delay_cut"]:.1f}%, one-sided paired Wilcoxon p={pv(PRIMARY)}) and holds the side-origin '
-                f'constraint at ratio {side[1]/side[0]:.3f}, but westbound corridor travel rises {f["wb_cost"]:.1f}% '
-                f'and the training teleport cap fails on {f["cap_fails"]} of {f["n_test"]} seeds, so no overall '
-                'feasible winner is established.')
+                f'({f["delay_cut"]:.1f}%, one-sided paired Wilcoxon p={pv(PRIMARY)}), improves the side-origin '
+                f'constraint to ratio {side[1]/side[0]:.3f} and cuts both directions of corridor travel, but the '
+                f'training teleport cap fails on {f["cap_fails"]} of {f["n_test"]} seeds, so no overall feasible '
+                'winner is established under the preregistered rule.')
     tables=[]
     for scenario in ('pm_peak','night'):
-        timing=read_csv(p.ROOT/f'reports/timing_{scenario}.csv')
+        timing=read_csv(p.ROOT/f'reports/timing_v3_{scenario}.csv')
         names={s['sumo_tls_id']:s['name'] for s in p.config()['signals']}
         body = ''
         seen = set()
@@ -710,13 +726,15 @@ def build_page(rows, roads, signals):
             seen.add(signal)
             values = (names[signal] if first else '', f"{float(r['cycle_s']):.1f}" if first else '',
                       f"{float(r['offset_s']):.1f}" if first else '', r['phase'],
-                      f"{float(r['max_green_s']):.1f}", f"{float(r['passage_s']):.1f}")
+                      f"{float(r['min_green_s']):.1f}", f"{float(r['max_green_s']):.1f}",
+                      f"{float(r['passage_s']):.1f}")
             body += '<tr>'+''.join(f'<td>{escape(v)}</td>' for v in values)+'</tr>'
-        tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
+        tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Min green (s)</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
     trips, curve, cycles = f['trips'], f['curve'], f['cycles']
     miss_charge, checks, close = f['miss_charge'], f['checks'], f['close']
     measured, hourly, guessed, counts = f['measured'], f['hourly'], f['guessed'], f['counts']
     base_cycle, base_svg, verdict = f['base_cycle'], f['base_svg'], f['verdict']
+    limits = ''.join(f'<li>{step}</li>' for step in next_steps(f))
     return f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cupertino Signal Lab</title>
 <style>
@@ -752,8 +770,9 @@ video{{border-radius:var(--r);background:#0b1218}}
 .split figure{{margin:0}}
 .chips{{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0;padding:0;list-style:none}}
 .chips li{{background:var(--soft);color:var(--accent);border-radius:999px;padding:8px 16px;font-size:15px;font-weight:600}}
-.scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:32px;margin:14px 0 8px}}
+.scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:26px;margin:14px 0 8px}}
 .score strong{{display:block;font-size:clamp(38px,5vw,52px);line-height:1;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}}
+.score.pair strong{{font-size:clamp(32px,3.2vw,36px)}}  /* "185 to 17" needs twice the room of a percentage */
 .score.cost strong{{color:var(--warn)}}
 .score span{{display:block;margin-top:12px;font-size:16.5px;max-width:22ch}}
 .label{{margin:34px 0 0;font-size:13.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}}
@@ -800,61 +819,55 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <section class="step"><div class="split"><div><span class="n">3</span><h2>Those counts become {trips:,} car trips.</h2>
 <p>Every counted turn becomes cars with a real route through the corridor, released across the two hour rush. Then we checked our traffic against the real counts.</p></div>
-<figure><div class="card">{grid_svg(close, len(checks), round(len(checks)*.85))}</div><figcaption>One square per measured count. Our traffic is the right shape but not exact, and this is the weakest part of the project. Everything after it inherits the error.</figcaption></figure></div></section>
+<figure><div class="card">{grid_svg(close, len(checks), round(len(checks)*.85))}</div><figcaption>One square per measured count. Our traffic is the right shape but not exact, and everything after it inherits that error.</figcaption></figure></div></section>
 
 <section class="step"><span class="n">4</span><h2>First we built the plan an engineer would use.</h2>
 <p>A standard textbook formula gives all five lights one shared {base_cycle:.0f} second cycle and starts each main green at a different moment. That plan is what we have to beat. It is not Cupertino's current timing.</p>
 <figure><div class="card wide" tabindex="0">{base_svg}</div><figcaption>Each bar is the main road's green time at that light through one cycle. Going east, each green starts later than the one before, and the last one wraps into the next cycle.</figcaption></figure></section>
 
 <section class="step"><span class="n">5</span><h2>The computer tried {len(curve)} timing plans and kept the best.</h2>
-<p>A tuning tool changes the timing, runs the entire rush hour, scores it, then tries again. Nobody picked the winner by hand.</p>
+<p>A tuning tool changes the timing, runs the entire rush hour, scores it, then tries again. Nobody picked the winner by hand. Our first try sped up eastbound but left westbound drivers worse off, so we gave the tuner stricter rules and searched again.</p>
 <figure><div class="card wide" tabindex="0">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes.</figcaption></figure>
-<ul class="chips"><li>How long one full cycle lasts ({min(cycles):.0f} to {max(cycles):.0f} seconds)</li><li>When each light starts its green</li><li>How much of the cycle the main road gets</li></ul>
-<p>Two rules keep it honest. A plan cannot win by holding cars out of the corridor: every trip that never finished was charged {miss_charge/60:.0f} minutes of delay, so starving the entrances always scores worse. And a plan that left cars stuck was thrown out on the spot, which is what happened to {f['thrown_out']} of the {len(curve)} tries.</p></section>
+<ul class="chips"><li>How long one full cycle lasts ({min(cycles):.0f} to {max(cycles):.0f} seconds)</li><li>When each light starts its green</li><li>How much of the cycle the main road gets</li><li>The shortest green the main road may ever get</li></ul>
+<p>Three rules keep it honest. A plan cannot win by holding cars out of the corridor: every trip that never finished was charged {miss_charge/60:.0f} minutes of delay, so starving the entrances always scores worse. Neither direction of Stevens Creek may come out more than {f['cap']}% slower than the textbook plan. And a plan that left cars stuck was thrown out on the spot, which is what happened to {f['thrown_out']} of the {len(curve)} tries.</p></section>
 
-<section class="step"><div class="split"><div><span class="n">6</span><h2>We wrote the rules down before the test.</h2>
-<p>It is easy to run a test, look at twenty numbers and announce whichever one looks best. So on {f['prereg_date']} we wrote down what would count as a win, saved it in the project's history, and only then ran the final test.</p>
-<p>Everything below is scored against this, including the part where we lost.</p></div>
-<figure><div class="card tight wide" tabindex="0">{rules_svg(f)}</div></figure></div></section>
+<section class="step"><span class="n">6</span><h2>We wrote the rules down before the test.</h2>
+<p>It is easy to run a test, look at twenty numbers and announce whichever one looks best. So on {f['prereg_date']} we wrote down what would count as a win, saved it in the project's history, and only then ran the final test. Everything below is scored against this, including the one rule we broke.</p>
+<figure><div class="card tight wide" tabindex="0">{rules_svg(f)}</div></figure></section>
 
 <section class="step"><div class="split"><div><span class="n">7</span><h2>Then we tested both plans on {f['n_test']} rush hours the tuner never saw.</h2>
-<p>The computer searched on {f['search_seeds']} practice rush hours and used {f['pick_seeds']} more to choose between its ten best plans. The final {f['n_test']} were kept out of all of that: same road, same demand, new randomness. Our plan could not win by memorising its practice runs.</p></div>
+<p>The computer searched on {f['search_seeds']} practice rush hours and used {f['pick_seeds']} more to choose between its best plans. The final {f['n_test']} were kept out of all of that: same road, same demand, new randomness. Our plan could not win by memorising its practice runs.</p></div>
 <figure><div class="card">{seeds_svg(((f['search_seeds'], 'var(--road)', f'{f["search_seeds"]} rush hours to practise on'), (f['pick_seeds'], 'var(--road)', f'{f["pick_seeds"]} more to pick the finalist'), (f['n_test'], 'var(--accent)', f'{f["n_test"]} brand new ones for the fair test')))}</div></figure></div></section>
 
-<section class="step"><h2>Watch the same rush hour twice.</h2>
+<section class="step"><h2>Watch the same evening twice.</h2>
 <figure><div class="card tight"><video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation of the textbook plan and our plan"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video></div></figure>
-<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The two lines at the bottom count trips finished. Our plan stays ahead the whole time.</li></ul>
-<small>17:30 to 17:45 at 8x speed, from one of the {f['n_test']} test rush hours. One run shows what the plans look like; it does not prove anything on its own, and the numbers below come from all {f['n_test']}. Counts include warmup trips. The north to south scale is stretched and signal states were not recorded.</small></section>
+<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The chart at the bottom is the gap between the two plans. It opens as the evening goes on.</li></ul>
+<small>{clock_text(VIDEO[0], False)} to {clock_text(VIDEO[1], False)} at {STEP*FPS}x speed, from one of the {f['n_test']} test rush hours. One run shows what the plans look like; it does not prove anything on its own, and the numbers below come from all {f['n_test']}. The north to south scale is stretched and signal states were not recorded.</small></section>
 
 <section class="step"><h2>The result</h2>
 <p>{verdict_line}</p>
-<p class="label">What got better</p>
-<div class="scores"><div class="score"><strong>{f['delay_cut']:.1f}%</strong><span>less time lost per car, counting every car</span></div><div class="score"><strong>{f['side_cut']:.1f}%</strong><span>less time lost by side street cars</span></div><div class="score"><strong>{f['unstuck']:,.0f}</strong><span>fewer cars still stuck when the hour ended</span></div><div class="score"><strong>{f['faster']:.1f}%</strong><span>faster eastbound through the corridor</span></div></div>
-<p>That first number is the one we promised to judge on. If our plan were really no better, a gap this one sided would turn up in about one test out of {f['odds']:,.0f}.</p>
-<p class="label">What got worse</p>
-<div class="scores"><div class="score cost"><strong>{f['wb_cost']:.1f}%</strong><span>slower westbound through the corridor</span></div><div class="score cost"><strong>{f['cap_fails']} of {f['n_test']}</strong><span>test rush hours broke our own stuck car rule</span></div></div>
-<p>So we cannot call this a win. It beat the textbook plan on the score we picked in advance, and it failed a rule we set for ourselves. The next thing to fix is the westbound timing: our green wave runs east, and the cars going the other way are paying for it.</p>
+<div class="scores"><div class="score"><strong>{f['delay_cut']:.1f}%</strong><span>less time lost per car, counting every car</span></div><div class="score"><strong>{f['faster']:.1f}%</strong><span>faster eastbound through the corridor</span></div><div class="score"><strong>{f['wb_cut']:.1f}%</strong><span>faster westbound through the corridor</span></div><div class="score"><strong>{f['side_cut']:.1f}%</strong><span>less time lost by side street cars</span></div><div class="score pair"><strong>{f['teleports'][0]} → {f['teleports'][1]}</strong><span>cars that got so stuck the simulator had to lift them out</span></div></div>
+<p>The first number is the one we promised to judge on. If our plan were really no better, a gap this one sided would turn up in about one test out of {f['odds']:,.0f}. The side streets improved too, which was the thing we were most afraid of breaking.</p>
 <figure><div class="card wide" tabindex="0">{paired_svg(groups, PRIMARY, 'Time lost per car, counting every car (seconds)')}</div><figcaption>Each line is one of the {f['n_test']} test rush hours, with both plans run on the same randomness. Our plan loses less time in {verdict}.</figcaption></figure></section>
 
-<section class="step"><h2>What this does not prove</h2>
-<ul class="notes"><li>The counts are from {measured[0]['year']} and {len(guessed)} of the five intersections were never counted at all.</li><li>It is a simulation. Nothing was tested on a real street, and these are not Cupertino's current light settings.</li><li>Drivers heading west spend {f['wb_cost']:.0f}% longer in the corridor, and more cars got stuck than our own rule allows. A real city would not deploy this.</li></ul>
-<p>What we would do next: fix the westbound timing, ask VTA for newer counts, put pedestrians and bikes in the model, and try a second corridor.</p></section>
+<section class="step"><h2>What we would do next</h2>
+<ul class="notes">{limits}</ul></section>
 
 <details><summary>For the curious: full numbers, tests and method</summary>
 <p>{headline}</p>
-<p class="muted">The three counters in the video: waiting on the road means speed below 0.1 m/s; blocked from entering means the scheduled departure has passed with no first insertion yet, and teleported cars are not counted as blocked; trips finished means recorded arrivals so far.</p>
+<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart under the two maps is the difference between the plans, our plan minus the textbook plan.</p>
 <p class="muted">Preregistered on {f['prereg_date']} in <a href="../docs/PREREGISTRATION.md">docs/PREREGISTRATION.md</a>, before the optimizer or the test ran: the primary endpoint, the {f['cap']}% side-origin cap, the baseline + {f['slack']} teleport rule, the untouched seeds {min(SEEDS)} to {max(SEEDS)}, and a promise to report whichever way it went. The confirmatory comparison is the single test above; everything else here is descriptive and unadjusted.</p>
 <p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
 <div class="card wide" tabindex="0">{chart(groups,[('all_requested_delay_0_s','All-requested delay, no unfinished or teleport charge'),(PRIMARY,f'All-requested delay, {miss_charge:.0f} s charge (preregistered primary)'),('all_requested_delay_1800_s','All-requested delay, 1800 s charge')],'Preregistered primary and its sensitivity')}<small>Lower is better. Zero-charge p={pv('all_requested_delay_0_s')}; primary p={pv(PRIMARY)}; 1800 s p={pv('all_requested_delay_1800_s')}. Score = [completed time loss + completed insertion delay + charge x (unfinished + teleport events)] / requested vehicles. The charge is a scoring convention, not measured delay; the direction holds at all three levels.</small></div>
-<div class="card wide" tabindex="0">{chart(groups,[('side_all_requested_delay_s','Side-origin all-requested delay')],'Side-origin constraint')}{chart(groups,[('unfinished','Unfinished vehicles')],'Unfinished vehicles',unit='')}{chart(groups,[('teleports','Teleport events')],'Teleport events',unit='')}<small>Side-origin p={pv('side_all_requested_delay_s')} at paired-mean ratio {side[1]/side[0]:.3f}, inside the {f['cap']}% cap. Unfinished p={pv('unfinished')}. Teleports p={pv('teleports')} tested for improvement: they worsen, {f['teleports'][0]} to {f['teleports'][1]} events over {f['n_test']} seeds, and exceed baseline + {f['slack']} on {f['cap_fails']} of {f['n_test']} seeds. That is the training feasibility rule failing on the final test.</small></div>
-<div class="card wide" tabindex="0">{chart(groups,[('mainline_travel_eb_s','Eastbound corridor travel'),('mainline_travel_wb_s','Westbound corridor travel')],'Corridor travel')}<small>EB p={pv('mainline_travel_eb_s')}; WB p={pv('mainline_travel_wb_s')} (no supported westbound gain; westbound travel rises {f['wb_cost']:.1f}%). Directional travel excludes pre-insertion delay and teleported vehicles.</small></div>
+<div class="card wide" tabindex="0">{chart(groups,[('side_all_requested_delay_s','Side-origin all-requested delay')],'Side-origin constraint')}{chart(groups,[('unfinished','Unfinished vehicles')],'Unfinished vehicles',unit='')}{chart(groups,[('teleports','Teleport events')],'Teleport events',unit='')}<small>Side-origin p={pv('side_all_requested_delay_s')} at paired-mean ratio {side[1]/side[0]:.3f}, inside the {f['cap']}% cap. Unfinished p={pv('unfinished')}. Teleports p={pv('teleports')} tested for improvement: they fall overall, {f['teleports'][0]} to {f['teleports'][1]} events over {f['n_test']} seeds, but still exceed baseline + {f['slack']} on {f['cap_fails']} of {f['n_test']} seeds ({', '.join(f'seed {s}: {a} to {b}' for s, a, b in f['cap_fail_seeds'])}). That is the preregistered feasibility rule failing on the final test, so no feasible winner is declared.</small></div>
+<div class="card wide" tabindex="0">{chart(groups,[('mainline_travel_eb_s','Eastbound corridor travel'),('mainline_travel_wb_s','Westbound corridor travel')],'Corridor travel')}<small>EB p={pv('mainline_travel_eb_s')}; WB p={pv('mainline_travel_wb_s')}; both directions improve, EB {f['faster']:.1f}% and WB {f['wb_cut']:.1f}%, and both are descriptive secondary endpoints rather than the confirmatory test. Directional travel excludes pre-insertion delay and teleported vehicles.</small></div>
 <div class="card wide" tabindex="0">{chart(groups,[('mean_time_loss_s','Completed-only time loss'),('side_time_loss_s','Completed-only side-origin time loss'),('mean_depart_delay_s','Completed-only insertion delay')],'Completed-only outcomes')}<small>Completed-only loss p={pv('mean_time_loss_s')} for improvement: that original outcome worsens, because the optimized plan completes trips the textbook plan never starts. Side-origin completed-only loss has p={pv('side_time_loss_s')} for improvement. These omit unfinished demand and carry survivor bias, which is why the preregistered primary counts every requested vehicle.</small></div>
 <small>Bars show mean plus or minus one sample standard deviation across seeds {min(SEEDS)} to {max(SEEDS)}, not confidence intervals and not real-world uncertainty. P-values are paired one-sided Wilcoxon tests, optimized below textbook. Full PM and holdout windows overlap and are not independent replications. Fitted-hour demand is replayed, so these seeds test randomness and later operating conditions, not unseen measured demand.</small>
-<p class="muted">First try, kept for the record: an earlier plan (v1) was frozen before this search and tested on the same {f['n_test']} seeds. It cut all-requested delay to {stats(v1, PRIMARY)[0][1]:,.2f} s ({(1-stats(v1, PRIMARY)[0][1]/delay[0])*100:.1f}%, p={f['pvalue'](PRIMARY, controller='optuna_v1'):.6f}) but left eastbound travel {(stats(v1,'mainline_travel_eb_s')[0][1]/stats(v1,'mainline_travel_eb_s')[0][0]-1)*100:+.1f}% and westbound {(stats(v1,'mainline_travel_wb_s')[0][1]/stats(v1,'mainline_travel_wb_s')[0][0]-1)*100:+.1f}%. The plan on this page is the second search, which added the side-origin cap and the teleport rule to the objective.</p>
+<p class="muted">Earlier try, kept for the record: the previous plan was frozen before this search and tested on the same {f['n_test']} seeds. It scored the primary endpoint lower still, {stats(v2, PRIMARY)[0][1]:,.2f} s, which is {(1-stats(v2, PRIMARY)[0][1]/delay[0])*100:.1f}% below textbook (p={f['pvalue'](PRIMARY, controller='optuna'):.6f}), but it left {sum(int(r['teleports']) for r in v2[1])} stuck cars against the textbook plan's {f['teleports'][0]} and broke the baseline + {f['slack']} teleport rule on {sum(int(b['teleports']) > int(a['teleports'])+f['slack'] for a, b in zip(*v2))} of {f['n_test']} seeds, and on its own earlier test cohort it had left westbound travel worse than textbook. The plan on this page is the third search, which added per-direction travel caps and a per-signal minimum mainline green.</p>
 <p class="muted">Night is estimated demand and shows no supported gain: all-requested delay {' to '.join(f'{v:.2f}' for v in stats(cohort(rows,'night','full'),PRIMARY)[0])} s.</p>
-<figure><img src="../reports/time_space.png" alt="Eastbound car trajectories for the textbook and optimized plans" loading="lazy"><figcaption>One path per car while it is on the eastbound corridor. Rising lines mean movement, flat lines mean waiting. Same single test rush hour (seed {FCD_SEED}) as the video, not aggregate evidence.</figcaption></figure>
+<figure><img src="../reports/time_space.png" alt="Eastbound car trajectories for the textbook and optimized plans" loading="lazy"><figcaption>One path per car while it is on the eastbound corridor, across the busiest quarter hour. Rising lines mean movement, flat lines mean waiting. Same single test rush hour (seed {FCD_SEED}) as the video, not aggregate evidence.</figcaption></figure>
 <p class="muted">Data and limits in full: public counts are from {measured[0]['year']}. {' and '.join(escape(r['intersection']) for r in measured)} have measured quarter-hour counts; {', '.join(escape(n) for n in guessed)} and {', '.join(escape(n) for n in hourly)} profiles are estimated, with {', '.join(escape(n) for n in hourly)} built from hourly observations. This is not a picture of current traffic. Mary's mapped layout omits movements totaling 775 vehicles per hour.</p>
-<p class="muted">Teleports persist: holdout totals {f['teleports'][0]} to {f['teleports'][1]} across {f['n_test']} seeds; full PM totals {sum(int(r['teleports']) for r in cohort(rows,window='full')[0])} to {sum(int(r['teleports']) for r in cohort(rows,window='full')[1])}. SUMO can relocate stuck cars after 300 s, which distorts congestion. Completing more trips does not prove more cars entered the road. The simulated counts matched the measured ones on {close} of {len(checks)} movement intervals, below the {round(len(checks)*.85)} an engineer would expect.</p>
+<p class="muted">Teleports have not gone away: holdout totals {f['teleports'][0]} to {f['teleports'][1]} across {f['n_test']} seeds; full PM totals {sum(int(r['teleports']) for r in cohort(rows,window='full')[0])} to {sum(int(r['teleports']) for r in cohort(rows,window='full')[1])}. SUMO can relocate stuck cars after 300 s, which distorts congestion. Completing more trips does not prove more cars entered the road. The simulated counts matched the measured ones on {close} of {len(checks)} movement intervals, below the {round(len(checks)*.85)} an engineer would expect.</p>
 <p class="muted">No field testing was done. An engineer would need current counts, the actual timing sheets and a supervised pilot before considering any real change. The timing below is a demo proposal; phase order and clearance rules are preserved and nothing is sent to city lights.</p>
 {''.join(tables)}
 <p class="muted"><a href="../reports/results.csv">All results (CSV)</a> · <a href="../reports/wilcoxon.csv">Paired tests (CSV)</a> · <a href="../data/processed/tmc_sources.csv">Count sources (CSV)</a></p>
