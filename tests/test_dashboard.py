@@ -21,6 +21,13 @@ class DashboardTests(unittest.TestCase):
         differences = [float(b['mainline_travel_eb_s'])-float(a['mainline_travel_eb_s']) for a,b in zip(*groups)]
         self.assertAlmostEqual(float(row['p_value']), wilcoxon(differences, alternative='less').pvalue)
 
+    def test_counts_distinguish_insertion_arrival_and_teleport_gap(self):
+        cars = np.array([[0, 0, 0], [1, 1, .1]])
+        due = {'old': 0, 'blocked': 5, 'future': 11, 'arrived': 1, 'gap': 2}
+        inserted = {'old': 0, 'arrived': 2, 'gap': 3, 'blocked': 11}
+        self.assertEqual(d.traffic_counts(10, cars, due, inserted, [9, 11]), (1, 1, 1))
+        self.assertEqual(d.traffic_counts(11, cars, due, inserted, [9, 11]), (1, 1, 2))
+
     def test_paths_break_at_missing_samples_and_position_jumps(self):
         track = [(63000,'eb',0),(63001,'eb',5),(63003,'eb',10),
                  (63004,'side',0),(63005,'eb',20),(63006,'eb',200),
@@ -38,6 +45,10 @@ class DashboardTests(unittest.TestCase):
         for text in ('+513','9.1%','+11.8%','7,980.0','7,283.2','7,796.6','696.8','183.4','0.018555','2018','Completed-only','52','61'):
             self.assertIn(text, html)
         self.assertNotIn('https://', html)
+        self.assertNotIn('136.699633', html)
+        self.assertNotIn('2.469368', html)
+        self.assertEqual(html.count('<td>136.7</td>'), 10)
+        self.assertIn('blocked', html.lower())
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', html):
             if link.endswith(('.csv',)):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)

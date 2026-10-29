@@ -2,7 +2,7 @@
 
 A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Historical 2018 demand; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
 
-**Status: M0–M6 implemented.** M5 fits PM only and freezes the selected plan for night. M6 evaluates the frozen plans; dashboard and video remain pending.
+**Status: M0–M6 implemented.** M5 fits PM only and freezes the selected plan for night. M6 evaluates the frozen plans; offline dashboard and video are available below.
 
 ```sh
 source .venv/bin/activate
@@ -84,6 +84,9 @@ Run `.venv/bin/python -m signal_lab dashboard` (headless; requires the installed
 `ffmpeg` on PATH). This builds `dashboard/index.html`, `reports/side_by_side.mp4`,
 `reports/side_by_side_poster.png`, and `reports/time_space.png` from the frozen
 results, paired tests, timing CSVs, SUMO network, and the two seed-0 FCD archives.
+It also replays the two frozen seed-0 plans serially to recover insertion/arrival
+timestamps before the FCD window and writes `reports/video_counts.csv`. Counters
+include warmup trips; teleport gaps are not counted as new insertion queues or finishes.
 Open `dashboard/index.html` directly in a browser; keep its sibling `reports/`
 and `data/processed/` folders with it. No server, CDN, or network is needed.
 The 15-minute seed-0 illustration plays at 8×; the page's aggregate evidence uses

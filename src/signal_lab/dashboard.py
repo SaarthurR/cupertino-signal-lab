@@ -3,6 +3,8 @@ import csv
 import gzip
 from html import escape
 import os
+import tempfile
+from pathlib import Path
 import xml.etree.ElementTree as ET
 
 import matplotlib
@@ -15,7 +17,7 @@ import sumolib
 from scipy.stats import wilcoxon
 
 from . import pipeline as p
-from .evaluate import boundaries, CONTROLLERS
+from .evaluate import boundaries, command, CONTROLLERS
 
 COLORS = ('#52657b', '#087f78')
 LABELS = ('Textbook plan', 'Optimized plan')
@@ -61,6 +63,43 @@ def fcd(path):
     return frames, tracks
 
 
+def traffic_counts(time, cars, departures, inserted, arrivals):
+    """Due but never inserted is distinct from stopped on-road traffic."""
+    return (int(np.count_nonzero(cars[:, 2] < .1)),
+            sum(depart <= time and inserted.get(vid, float('inf')) > time
+                for vid, depart in departures.items()),
+            sum(arrival <= time for arrival in arrivals))
+
+
+def counter_history(data):
+    departures = {v.get('id'): float(v.get('depart')) for v in
+                  ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')}
+    histories = []
+    for controller, (frames, tracks) in zip(CONTROLLERS, data):
+        # The saved FCD starts at 17:30; replay the frozen seed to recover earlier trips.
+        with tempfile.TemporaryDirectory() as folder:
+            trips = Path(folder)/'trips.xml'
+            p.run([*command('pm_peak', controller, 0, p.config()), '-e', 63900,
+                   '--tripinfo-output', trips, '--tripinfo-output.write-unfinished', 'true'])
+            records = ET.parse(trips).getroot().findall('tripinfo')
+        inserted = {v.get('id'): float(v.get('depart')) for v in records if float(v.get('depart')) >= 0}
+        arrivals = [float(v.get('arrival')) for v in records if float(v.get('arrival')) >= 0]
+        for vid, track in tracks.items():
+            first = track[0][0]
+            if inserted[vid] >= 63000:
+                assert inserted[vid] == first, (controller, vid, inserted[vid], first)
+            else:
+                assert inserted[vid] <= first
+            inserted[vid] = min(first, inserted[vid])
+        histories.append([traffic_counts(t, cars, departures, inserted, arrivals) for t, cars in frames])
+    with open(p.ROOT/'reports/video_counts.csv', 'w', newline='') as stream:
+        writer = csv.writer(stream)
+        writer.writerow(['controller', 'time_s', 'waiting_on_road', 'blocked_from_entering', 'trips_finished'])
+        for controller, (frames, _), history in zip(CONTROLLERS, data, histories):
+            writer.writerows((controller, int(t), *counts) for (t, _), counts in zip(frames, history))
+    return histories
+
+
 def segments(track, offsets):
     """Break paths across missing samples/other roads; never join a teleport gap."""
     lines = []
@@ -95,6 +134,7 @@ def geometry(cfg):
 
 def render_media(roads, signals, offsets, distance):
     data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed0.xml.gz') for c in CONTROLLERS]
+    histories = counter_history(data)
     fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharex=True, sharey=True, layout='constrained')
     for ax, (_, tracks), label, color in zip(axes, data, LABELS, COLORS):
         lines = [line for track in tracks.values() for line in segments(track, offsets)]
@@ -114,19 +154,19 @@ def render_media(roads, signals, offsets, distance):
     clock = fig.suptitle('', fontsize=26, y=.94)
     for ax, label in zip(axes, LABELS):
         ax.set_facecolor('#f7f8fa')
-        ax.add_collection(LineCollection(roads, colors='#c3ccd4', linewidths=3))
+        ax.add_collection(LineCollection(roads, colors='#c3ccd4', linewidths=4))
         for i, (name, (x, y)) in enumerate(signals):
-            ax.plot(x, y, 'o', color='#263d50', ms=6)
-            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 30 if i%2 else -38), textcoords='offset points', ha='center', fontsize=11)
-        ax.set(xlim=(xmin-30, xmax+30), ylim=(ymin-140, ymax+140), aspect='equal')
+            ax.plot(x, y, 'o', color='#263d50', ms=8)
+            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 28 if i%2 else -32), textcoords='offset points', ha='center', fontsize=17)
+        ax.set(xlim=(xmin-30, xmax+30), ylim=(ymin-30, ymax+30), aspect='auto')
         ax.axis('off')
         ax.set_title(label, fontsize=24, pad=50)
-        dots.append(ax.scatter([], [], c=[], s=9, cmap='RdYlGn', vmin=0, vmax=16, zorder=3))
-        counters.append(ax.text(.5, -.12, '', transform=ax.transAxes, ha='center', fontsize=23))
-    fig.subplots_adjust(left=.035, right=.965, wspace=.12, bottom=.2, top=.82)
-    fig.text(.5, .18, 'Car speed: red = stopped (< 0.1 m/s) • yellow = slow • green = moving', ha='center', fontsize=17)
-    fig.text(.5, .12, 'North ↑   |   Same clock, same seed, 8× playback   |   2018 demand assumptions', ha='center', fontsize=16)
-    fig.text(.5, .07, 'Illustration only. Waiting counts cover vehicles on the map; vehicles awaiting insertion are absent. Signal states not recorded.', ha='center', fontsize=13)
+        dots.append(ax.scatter([], [], c=[], s=24, cmap='RdYlGn', vmin=0, vmax=16, zorder=3))
+        counters.append(ax.text(.5, -.10, '', transform=ax.transAxes, ha='center', va='top', fontsize=22, linespacing=1.4))
+    fig.subplots_adjust(left=.035, right=.965, wspace=.12, bottom=.33, top=.82)
+    fig.text(.5, .14, 'Car speed: red = stopped (< 0.1 m/s) • yellow = slow • green = moving', ha='center', fontsize=17)
+    fig.text(.5, .095, 'North ↑   |   Same clock, same seed, 8× playback   |   2018 demand assumptions', ha='center', fontsize=16)
+    fig.text(.5, .07, 'Illustration only • Counts include warmup trips • North–south scale expanded • Signal states not recorded.', ha='center', fontsize=13)
     # One frame per simulated second at 8 fps gives 112.5 s, exactly 8×.
     writer = FFMpegWriter(fps=8, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
@@ -139,7 +179,8 @@ def render_media(roads, signals, offsets, distance):
                 if other_time != time:
                     raise ValueError('FCD clocks differ')
                 dots[i].set_offsets(cars[:, :2]); dots[i].set_array(cars[:, 2])
-                counters[i].set_text(f'{np.count_nonzero(cars[:, 2] < .1):,} cars waiting')
+                waiting, blocked, finished = histories[i][index]
+                counters[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} blocked from entering\n{finished:,} trips finished so far')
             writer.grab_frame()
             if index == 450:
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
@@ -194,7 +235,16 @@ def build_page(rows, tests, roads, signals):
     for scenario in ('pm_peak','night'):
         timing=read_csv(p.ROOT/f'reports/timing_{scenario}.csv')
         names={s['sumo_tls_id']:s['name'] for s in p.config()['signals']}
-        body=''.join('<tr>'+''.join(f'<td>{escape(str(v))}</td>' for v in (names[r['sumo_tls_id']],r['cycle_s'],r['offset_s'],r['phase'],r['max_green_s'],r['passage_s']))+'</tr>' for r in timing)
+        body = ''
+        seen = set()
+        for r in timing:
+            signal = r['sumo_tls_id']
+            first = signal not in seen
+            seen.add(signal)
+            values = (names[signal] if first else '', f"{float(r['cycle_s']):.1f}" if first else '',
+                      f"{float(r['offset_s']):.1f}" if first else '', r['phase'],
+                      f"{float(r['max_green_s']):.1f}", f"{float(r['passage_s']):.1f}")
+            body += '<tr>'+''.join(f'<td>{escape(v)}</td>' for v in values)+'</tr>'
         tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
     return f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cupertino Signal Lab</title>
@@ -203,7 +253,7 @@ def build_page(rows, tests, roads, signals):
 </style><main><header><div class="eyebrow">Cupertino Signal Lab · a student simulation study</div><h1>Better flow.<br>Real tradeoffs.</h1><p class="lead">Stevens Creek backs up to Glenbrook at rush hour.</p><p>Cupertino Signal Lab tests whether five coordinated lights can move more traffic through the same roads.</p>
 <div class="stats"><div class="stat"><strong>+{completed[1]-completed[0]:,.0f}</strong><span>more requested trips completed</span><small>Mean per holdout hour · unfinished p={pv('unfinished')}</small></div><div class="stat"><strong>{(1-eb[1]/eb[0])*100:.1f}%</strong><span>faster eastbound corridor trips</span><small>In-road travel · p={pv('mainline_travel_eb_s')}</small></div><div class="stat cost"><strong>+{(side[1]/side[0]-1)*100:.1f}%</strong><span>more time lost by side-street trips</span><small>Completed side-origin loss · p={side_p:.6f} for improvement</small></div></div>
 <p>{headline}</p><p class="muted">2018 historical counts · 3 of 5 quarter-hour profiles estimated · simulation, not field-tested. No overall or field winner established.</p></header>
-<section><div class="eyebrow">01 / Watch the same rush hour</div><h2>Two plans. One clock.</h2><video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video><p class="muted">17:30–17:45 at 8× speed. Seed 0 is illustrative, used during fitting, and is not the ten-seed result above. Waiting = on-map speed below 0.1 m/s; cars waiting to enter are absent. Signal states were not recorded.</p></section>
+<section><div class="eyebrow">01 / Watch the same rush hour</div><h2>Two plans. One clock.</h2><video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video><p class="muted">17:30–17:45 at 8× speed. Seed 0 is illustrative, used during fitting, and is not the ten-seed result above. Waiting on the road = speed below 0.1 m/s. Blocked from entering = scheduled departure reached but no first insertion yet; teleported cars are not counted as blocked. Trips finished = recorded arrivals so far. Counts include warmup trips, not just the holdout cohort. North–south scale is expanded for readability. Signal states were not recorded.</p></section>
 <section><div class="eyebrow">02 / The corridor</div><h2>Five signals along Stevens Creek</h2>{map_svg(roads, signals)}<p class="muted">Road shapes and signal positions from the SUMO / OpenStreetMap network. North up; north–south scale expanded for readability. Eastbound runs Mary → De Anza.</p></section>
 <section><div class="eyebrow">03 / Check the evidence</div><h2>More trips finish. Some trips lose more time.</h2><p>Textbook coordinated-actuated baseline <strong>(not Cupertino’s current timing)</strong> → optimized plan. Holdout 17:30–18:30; ten paired seeds, 3–12.</p><p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
 <div class="panel">{chart(groups,[('all_vehicle_delay_s','All-requested score · 1800 s unfinished charge'),('all_vehicle_delay_zero_unfinished_s','All-requested score · zero unfinished charge')],'All-requested scores')}<small>Lower is better. Main score p={pv('all_vehicle_delay_s')}; zero-charge p={pv('all_vehicle_delay_zero_unfinished_s')}. Score = [completed time loss + completed insertion delay + 1800 × (unfinished + teleport events)] / requested. The 1800 s charge is a scoring rule, not measured delay. Zero-charge removes only the unfinished charge and retains the teleport charge; it is a lower bound on score, not physical total delay.</small></div>
