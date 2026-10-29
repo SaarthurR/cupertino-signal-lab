@@ -94,14 +94,14 @@ class DashboardTests(unittest.TestCase):
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
             self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
         facts = d.facts(rows)
-        for text in (f'{facts["delay_cut"]:.0f}%', f'{facts["wb_cut"]:.0f}%', f'{facts["faster"]:.0f}%',
+        for text in (f'{facts["delay_cut"]:.1f}%', f'{facts["wb_cut"]:.1f}%', f'{facts["faster"]:.1f}%',
                      f'{facts["teleports"][0]} &rarr; {facts["teleports"][1]}',
                      str(facts['close']), f'{facts["trips"]:,}'):
             self.assertIn(text, deck)
         # The limits appear once, as the closing next steps, and name the rule we broke.
         self.assertEqual(deck.count('breaking the rule we set ourselves'), 1)
         self.assertNotIn('Promising', deck)
-        self.assertIn('Every direction came out ahead.', deck)
+        self.assertIn('Every direction improved on average.', deck)
         self.assertNotIn('short of the usual target', deck)
         self.assertIn('Only 41 of 96 counted movements matched closely (GEH under 5)', deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
@@ -130,33 +130,53 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn('neural network', d.build_page(rows, *d.geometry(p.config())[:2]))
         self.assertIn('not a neural network', deck)
 
-    def test_typical_driver_is_nearest_paired_median_and_rejects_broken_paths(self):
-        def trip(duration):
-            return [(61200+t, t, 0, 'entry' if t == 0 else 'exit')
-                    for t in range(0, duration, 2)]
-        textbook = {'slow': trip(50), 'median': trip(40), 'fast': trip(30),
-                    'broken': trip(100), 'truncated': trip(40)}
-        ours = {'slow': trip(10), 'median': trip(20), 'fast': trip(30),
-                'broken': trip(10), 'truncated': trip(20)}
-        textbook['broken'].pop(3)
-        textbook['truncated'] = [(t, x, y, 'entry') for t, x, y, _ in trip(40)]
-        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'), ['entry', 'exit'],
-                                  {vid: 61200 for vid in textbook})
-        self.assertEqual(chosen, dict(id='median', requested=61200, durations=[40, 20], median_saving=20., count=3))
-        self.assertEqual(d.trip_text(206), '3 min 26 s')
+    def test_driver_selection_uses_all_entries_waits_and_counts_unfinished(self):
+        rows = []
+        for vid, request, departures, arrivals, entry in (
+                ('a', 62900, (63200, 63000), (63240, 63040), 'west'),
+                ('b', 61300, (61500, 61400), (61540, 61460), 'side'),
+                ('c', 61300, (61400, 61400), (61440, 61420), 'east'),
+                ('unfinished', 61300, (-1, 61400), (-1, 61420), 'other'),
+                ('truncated', 61300, (61400, 61400), (66600, 61420), 'other'),
+                ('early', 61190, (61210, 61210), (61250, 61230), 'east')):
+            rows.extend(dict(id=vid, requested_s=str(request), depart_s=str(depart),
+                             arrival_s=str(arrive), entry=entry, controller=controller)
+                        for controller, depart, arrive in zip(d.CONTROLLERS, departures, arrivals))
+        chosen = d.typical_driver(rows)
+        self.assertEqual(chosen['id'], 'b')
+        self.assertEqual(chosen['entry'], 'side')
+        self.assertEqual(chosen['durations'], [240, 160])
+        self.assertEqual(chosen['waits'], [200, 100])
+        self.assertEqual(chosen['drives'], [40, 60])
+        self.assertEqual((chosen['median_saving'], chosen['count'], chosen['excluded']), (80, 3, 2))
+        self.assertEqual(chosen['requested_count'], 5)
         with self.assertRaises(ValueError):
-            d.typical_driver([{}, {}], ('entry', 'exit'), [], {})
+            d.typical_driver(rows[1:])
+        with self.assertRaises(ValueError):
+            d.typical_driver([])
+        self.assertEqual(d.trip_text(206), '3 min 26 s')
 
-    def test_driver_selection_counts_wait_and_filters_requests_not_entries(self):
-        def trip(entry, duration):
-            return [(entry+t, t, 0, 'entry' if t == 0 else 'exit')
-                    for t in range(0, duration, 2)]
-        textbook = {'a': trip(63200, 40), 'b': trip(61500, 40),
-                    'c': trip(61400, 40), 'early': trip(61210, 40)}
-        ours = {'a': trip(63000, 40), 'b': trip(61400, 60),
-                'c': trip(61400, 20), 'early': trip(61210, 20)}
-        requested = {'a': 62900, 'b': 61300, 'c': 61300, 'early': 61190}
-        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'),
-                                  ['entry', 'exit'], requested)
-        self.assertEqual(chosen, dict(id='b', requested=61300, durations=[240, 160],
-                                     median_saving=80., count=3))
+    def test_recorded_race_pool_matches_every_route_request(self):
+        import xml.etree.ElementTree as ET
+        rows = d.read_csv(p.ROOT/'reports/trips_seed33.csv')
+        vehicles = {v.get('id'): v for v in ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')
+                    if 61200 <= float(v.get('depart')) < 63000}
+        for controller in d.CONTROLLERS:
+            group = [r for r in rows if r['controller'] == controller]
+            self.assertEqual(len(group), len(vehicles))
+            self.assertEqual({r['id'] for r in group}, vehicles.keys())
+            for row in group:
+                self.assertEqual(float(row['requested_s']), float(vehicles[row['id']].get('depart')))
+                self.assertEqual(row['entry'], vehicles[row['id']].find('route').get('edges').split()[0])
+        race = d.typical_driver(rows)
+        self.assertEqual((race['id'], race['count'], race['excluded']), ('demand_7759', 4171, 0))
+        self.assertEqual(race['median_saving'], 62)
+        for total, wait, drive in zip(race['durations'], race['waits'], race['drives']):
+            self.assertAlmostEqual(total, wait+drive)
+
+    def test_result_plot_has_a_numeric_seconds_scale(self):
+        groups = d.cohort(d.read_csv(p.ROOT/'reports/results.csv'))
+        chart = d.paired_svg(groups, d.PRIMARY, 'Time lost per requested car')
+        values = [float(row[d.PRIMARY]) for group in groups for row in group]
+        self.assertIn(f'{min(values)//100*100:.0f} s', chart)
+        self.assertIn(f'{(max(values)//100+1)*100:.0f} s', chart)
