@@ -695,14 +695,32 @@ def pipeline_svg(steps, groups):
                f'The {len(steps)} steps of the project, in order')
 
 
-PIPELINE_GROUPS = (('Build the street', 3), ('Find a better plan', 4))
+def system_svg(f):
+    """One shared overview for the pitch and the page, in the existing theme."""
+    boxes = [
+        ('Real counts', ['City traffic reports:', 'cars per turn,', 'every 15 min']),
+        ('Virtual street', ['Real map in SUMO,', 'a traffic simulator', '(like a video game)']),
+        ('Virtual cars', [f'{f["trips"]:,} cars made', 'to match the counts']),
+        ('Tuner', ['Tries a light timing,', 'watches the simulator,', 'scores and learns;', f'{len(f["curve"])} tries in all']),
+        ('Fair test', ['Best vs textbook plan', f'on {f["n_test"]} new simulated', 'rush hours']),
+    ]
+    parts = ['<defs><marker id="system-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+             '<polygon points="0 0, 9 3.5, 0 7" fill="var(--accent)"/></marker></defs>']
+    for i, (name, lines) in enumerate(boxes):
+        x = 2+i*338
+        if i:
+            parts.append(f'<path d="M{x-36} 150 H{x-8}" stroke="var(--accent)" stroke-width="3" marker-end="url(#system-arrow)"/>')
+        parts.append(f'<rect x="{x}" y="32" width="300" height="236" rx="12" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>'
+                     + text(x+20, 88, name, 36, weight=600))
+        for j, line in enumerate(lines):
+            parts.append(text(x+20, 142+j*36, line, 28, fill='var(--muted)'))
+    parts.append('<path d="M1166 268 V344 H490 V280" fill="none" stroke="var(--accent)" stroke-width="3" marker-end="url(#system-arrow)"/>'
+                 + text(828, 394, 'try → score → learn', 32, 'middle', 'var(--accent)', 600))
+    return svg(''.join(parts), 1656, 424,
+               'Real counts to virtual street to virtual cars to tuner to fair test. The tuner loops back to the simulator: try, score, learn.')
 
 
-def pipeline_steps(f):
-    return [('The data', f'{f["measured"][0]["year"]} city counts'), ('The street', 'map to simulator'),
-            ('The cars', f'{f["trips"]:,} trips'), ('Textbook plan', 'the one to beat'),
-            ('Tuning', f'{len(f["curve"])} tries, one kept'), ('The rules', 'written in advance'),
-            ('Fair test', f'{f["n_test"]} unseen hours')]
+SYSTEM_OUTPUT = 'Output: a timing plan an engineer can load into the real lights.'
 
 
 def prereg():
@@ -761,10 +779,9 @@ def build_deck(rows, roads, signals):
          'This is the stretch we studied. Five lights in a row, and at five thirty the eastbound line barely moves.'),
         (f'<h2>What if the five lights worked as a team?</h2><div class="fill" style="--fw:940px">{team_svg()}</div>',
          'Coordinating green start times can help cars reach the next light on green. We compare two coordinated plans in a simulator, using the same cars.'),
-        (f'<h2>How we built it</h2><div class="steps">'
-         + ''.join(f'<div><small>Step {i+1}</small><strong>{title}</strong><span>{sub}</span></div>'
-                   for i, (title, sub) in enumerate(pipeline_steps(f))) + '</div>',
-         'We rebuilt the real street in a traffic simulator, filled it with cars from the city counts, built the plan an engineer would use, then let a computer search for a better one.'),
+        (f'<h2>How it works</h2><div class="fill">{system_svg(f)}</div>'
+         f'<p class="under" style="max-width:none">{SYSTEM_OUTPUT}</p>',
+         'Think of the simulator as a video game of Stevens Creek, and the tuner as a player who keeps changing the light timings and remembers what worked.'),
         (f'<h2>Real city counts become simulated cars.</h2><div class="two" style="--cols:1000px 592px"><div class="fill">'
          f'{bars_svg(sorted(f["counts"].items()), "De Anza Blvd: counted cars per 15 minutes")}</div><div>'
          f'<p>City of Cupertino, Vallco traffic report, pp. {f["measured"][0]["pdf_page"]}. '
@@ -843,11 +860,7 @@ p{{font-size:32px;line-height:1.45;max-width:46ch;color:var(--muted)}}
 .two p{{font-size:30px;margin-bottom:22px}}
 .video{{height:100%}}
 video{{max-height:640px;border-radius:18px;background:#0b1218}}
-.steps{{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}}
-.steps>div{{padding:28px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper)}}
-.steps small{{display:block;font-size:26px;color:var(--accent);font-weight:700}}
-.steps strong{{display:block;font-size:36px;margin:12px 0}}
-.steps span{{font-size:28px;color:var(--muted)}}
+
 .scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px}}
 .score strong{{display:block;font-size:96px;line-height:1;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}}
 .score.pair strong{{font-size:60px}}  /* "185 to 17" needs twice the room of a percentage */
@@ -1057,9 +1070,9 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 <p>Coordinating green start times can help cars reach the next light on green. We compare a textbook coordinated plan with one learned by a computer, in the same simulator.</p>
 <figure><div class="card">{team_svg()}</div></figure></section>
 
-<section class="step"><h2>How we built it</h2>
-<p>Real counts, a simulated street, then a search for a better plan and a fair test.</p>
-<figure><div class="card wide flow" tabindex="0">{pipeline_svg(pipeline_steps(f), PIPELINE_GROUPS)}</div></figure></section>
+<section class="step"><h2>How it works</h2>
+<figure><div class="card wide flow" tabindex="0">{system_svg(f)}</div></figure>
+<p>{SYSTEM_OUTPUT}</p></section>
 
 <section class="step"><span class="n">1</span><h2>The car counts come from City of Cupertino traffic reports.</h2>
 <p>People stood at the intersections and wrote down every turn, every 15 minutes. We model the historical {measured[0]['year']} counts from the Vallco and Westport reports.</p>
