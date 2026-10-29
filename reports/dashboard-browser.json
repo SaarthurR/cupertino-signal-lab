@@ -1,0 +1,53 @@
+{
+  "offline": true,
+  "media": {
+    "width": 1920,
+    "height": 1080,
+    "duration": 112.5,
+    "ready": 4
+  },
+  "images": [
+    {
+      "src": "../reports/time_space.png",
+      "ok": true
+    }
+  ],
+  "checks": [
+    {
+      "theme": "light",
+      "width": 375,
+      "scroll": 360,
+      "bg": "rgb(247, 248, 250)"
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "scroll": 753,
+      "bg": "rgb(247, 248, 250)"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1425,
+      "bg": "rgb(247, 248, 250)"
+    },
+    {
+      "theme": "dark",
+      "width": 375,
+      "scroll": 360,
+      "bg": "rgb(17, 29, 39)"
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "scroll": 753,
+      "bg": "rgb(17, 29, 39)"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1425,
+      "bg": "rgb(17, 29, 39)"
+    }
+  ]
+}

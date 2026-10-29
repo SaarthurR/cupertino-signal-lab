@@ -66,11 +66,9 @@ One simulation hour: {wall:.3f} wall seconds.
     print(f'bench: {wall:.3f} wall seconds; 200-trial serial estimate {estimate:.1f} seconds')
 
 
-def pending(**kwargs):
-    raise SystemExit("M7 and later are not implemented; stop for independent review.")
-
-
-dashboard = pending
+def dashboard():
+    from .dashboard import dashboard as build
+    build()
 
 
 

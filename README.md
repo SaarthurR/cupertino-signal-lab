@@ -77,3 +77,15 @@ Outputs: [M4 baseline report](reports/M4-REPORT.md), [M2 report](reports/M2-REPO
 SUMO jobs run at nice 15, with at most three separate worker processes on AC (one on battery) and a two-hour child timeout; the heat guard may pause them. Follow [laptop limits](reports/bench.md) before long jobs. No dependencies were added for M4/M5. `smoke_test.py` remains unchanged.
 
 Roads © [OpenStreetMap contributors, ODbL](https://www.openstreetmap.org/copyright). Counts: City of Cupertino / Vallco TIA (Traffic Data Service), Westport CEQAnet appendix (National Data & Surveying Services). VTA sample was audited but does not supply corridor counts.
+
+## Offline judge demo
+
+Run `.venv/bin/python -m signal_lab dashboard` (headless; requires the installed
+`ffmpeg` on PATH). This builds `dashboard/index.html`, `reports/side_by_side.mp4`,
+`reports/side_by_side_poster.png`, and `reports/time_space.png` from the frozen
+results, paired tests, timing CSVs, SUMO network, and the two seed-0 FCD archives.
+Open `dashboard/index.html` directly in a browser; keep its sibling `reports/`
+and `data/processed/` folders with it. No server, CDN, or network is needed.
+The 15-minute seed-0 illustration plays at 8×; the page's aggregate evidence uses
+seeds 3–12 and shows the gains, side-street cost, unfinished demand, and limits.
+The builder runs at low priority; follow the power limits in `reports/bench.md`.
