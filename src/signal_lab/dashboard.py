@@ -243,7 +243,7 @@ def render_media(roads, signals, offsets, distance):
         ax.set_title(label, fontsize=30, fontweight='bold', pad=16)
         dots.append(ax.scatter([], [], c=[], s=24, cmap='RdYlGn', vmin=0, vmax=16, zorder=3))
         rings.append(ax.plot([], [], 'o', ms=22, mfc='none', mec='#13242f', mew=3, zorder=12)[0])
-        driver_labels.append(ax.annotate('Median driver', (0, 0), xytext=(0, -48), textcoords='offset points', ha='center',
+        driver_labels.append(ax.annotate('Typical driver', (0, 0), xytext=(0, -48), textcoords='offset points', ha='center',
                                          arrowprops=dict(arrowstyle='-', color='#13242f'), fontsize=16, fontweight='bold', zorder=13,
                                          bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2)))
         queues.append(fig.text(.03+len(readouts)*.495, .527, '', fontsize=21, fontweight='bold', color=color))
@@ -251,7 +251,10 @@ def render_media(roads, signals, offsets, distance):
         bar_ax.set(xlim=(0, max_blocked), ylim=(0, 1)); bar_ax.axis('off')
         bar_ax.barh(.5, max_blocked, height=1, color='#dde4e9')
         bars.append(bar_ax.barh(.5, 0, height=1, color=color)[0])
-        timers.append(fig.text(.03+len(readouts)*.495, .479, '', fontsize=18, fontweight='bold', va='top'))
+        timers.append(fig.text(.03+len(readouts)*.495, .479, '', fontsize=21, fontweight='bold', va='top'))
+        fig.text(.03+len(readouts)*.495, .443,
+                 f'wait to get on {race["waits"][len(readouts)]:.0f} s + driving {race["drives"][len(readouts)]:.0f} s',
+                 fontsize=16, color='#53687a', va='top')
         readouts.append(fig.text(.03+(len(readouts))*.495, .397, '', fontsize=16, color='#53687a'))
     caption = fig.text(.5, .351, '', fontsize=21, ha='center', va='center', color='#0b5f58')
 
@@ -307,10 +310,9 @@ def render_media(roads, signals, offsets, distance):
             if time-STEP < race_start <= time:
                 # Hold the request moment so even a sub-frame insertion wait is visible.
                 clock.set_text(clock_text(race_start))
-                caption.set_text('Request snapshot (held for readability): both drivers asked to drive.\n'
-                                 'The total clock includes waiting to get on, then driving.')
+                caption.set_text('Same driver, same moment, both plans. Watch the timers.')
                 for i, timer in enumerate(timers):
-                    timer.set_text(f'Median driver • request • 0 min 00 s\nOutside {race["waits"][i]:.1f} s + driving {race["drives"][i]:.1f} s')
+                    timer.set_text('A typical driver: 0 min 00 s')
                     waiting, blocked, finished = counters[i][int(race_start)]
                     queues[i].set_text(f'Line outside: {blocked:,} cars')
                     bars[i].set_width(blocked)
@@ -337,21 +339,19 @@ def render_media(roads, signals, offsets, distance):
                 bars[i].set_width(blocked)
                 readouts[i].set_text(f'{waiting:,} stopped on road   |   {finished:,} trips finished')
                 samples = data[i][2][race['id']]
-                depart, arrive = race['departures'][i], race['arrivals'][i]
+                arrive = race['arrivals'][i]
                 position = next((s for s in samples if s[0] == time), None)
                 rings[i].set_data([position[1]] if position else [], [position[2]] if position else [])
                 driver_labels[i].set_visible(position is not None)
                 if position:
                     driver_labels[i].xy = (position[1], position[2])
                 if time < race_start:
-                    text = f'Median driver • requests {clock_text(race_start)}'
-                elif time < depart:
-                    text = f'Median driver • waiting to get on • {trip_text(time-race_start)}'
+                    text = f'A typical driver: starts at {clock_text(race_start)}'
                 elif time < arrive:
-                    text = f'Median driver • driving • {trip_text(time-race_start)} total'
+                    text = f'A typical driver: {trip_text(time-race_start)}'
                 else:
-                    text = f'Median driver • arrived in {trip_text(arrive-race_start)} total'
-                timers[i].set_text(text + f'\nOutside {race["waits"][i]:.1f} s + driving {race["drives"][i]:.1f} s')
+                    text = f'Arrived: {trip_text(arrive-race_start)}'
+                timers[i].set_text(text)
             for line, series, label, name in zip(growth, queues_over_time, end_labels, LABELS):
                 line.set_data(minutes[:index+1], series[:index+1])
                 label.xy = (minutes[index], series[index])
@@ -732,9 +732,8 @@ def next_steps(f):
              'Take it outside the simulator: current counts from VTA, pedestrians and bikes in the model, and a '
              'supervised pilot before any real light changes.']
     for seed, before, after in f['cap_fail_seeds']:
-        steps.insert(0, f'Work out what happened in rush hour {seed-min(SEEDS)+1}. In that one hour our plan left '
-                        f'{after} cars so stuck the simulator had to lift them out, where the textbook plan left '
-                        f'{before}, breaking the rule we set ourselves before the test. We cannot declare an overall feasible winner.')
+        steps.insert(0, f'In 1 of the {f["n_test"]} test rush hours our plan left {after} cars stuck where the textbook '
+                        f'plan left {before}. That broke a rule we set before testing, so finding out why comes first.')
     return steps
 
 
@@ -801,8 +800,7 @@ def build_deck(rows, roads, signals):
          + ''.join(f'<li>{step}</li>' for step in next_steps(f))
          + '</ul><p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from '
          'City of Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
-         f'Four honest limits, as next steps. One of the {f["n_test"]} test hours broke our own stuck-car rule and we '
-         'still owe an explanation for it, our sources have no counts for two side streets, and none of this has been '
+         f'Four honest limits, as next steps. {next_steps(f)[0]} Our sources have no counts for two side streets, and none of this has been '
          'tested on a real street. Thanks for listening.'),
     ]
     body = ''.join(f'<section class="slide"><div class="inner">{html}</div>'

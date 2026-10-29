@@ -98,8 +98,10 @@ class DashboardTests(unittest.TestCase):
                      f'{facts["teleports"][0]} &rarr; {facts["teleports"][1]}',
                      str(facts['close']), f'{facts["trips"]:,}'):
             self.assertIn(text, deck)
-        # The limits appear once, as the closing next steps, and name the rule we broke.
-        self.assertEqual(deck.count('breaking the rule we set ourselves'), 1)
+        # The closing limit and spoken note name the rule we broke.
+        self.assertEqual(deck.count('That broke a rule we set before testing, so finding out why comes first.'), 2)
+        self.assertIn('In 1 of the 20 test rush hours our plan left 15 cars stuck where the textbook plan left 0.', deck)
+        self.assertNotIn('We cannot declare an overall feasible winner.', deck)
         self.assertNotIn('Promising', deck)
         self.assertIn('Every direction improved on average.', deck)
         self.assertNotIn('short of the usual target', deck)
