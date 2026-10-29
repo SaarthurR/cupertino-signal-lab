@@ -17,6 +17,12 @@ class EvaluateTests(unittest.TestCase):
         self.assertEqual((stats['requested'], stats['completed'], stats['unfinished']), (3, 1, 2))
         self.assertAlmostEqual(stats['all_vehicle_delay_s'], (50+1800*(2+2))/3)
         self.assertAlmostEqual(stats['all_vehicle_delay_zero_unfinished_s'], (50+1800*2)/3)
+        self.assertEqual(stats['all_requested_delay_s'], (50+900*4)/3)
+        self.assertEqual(stats['all_requested_delay_0_s'], 50/3)
+        self.assertEqual(stats['all_requested_delay_1800_s'], (50+1800*4)/3)
+        self.assertEqual(stats['side_all_requested_delay_s'], 50+900*2)
+        self.assertEqual(stats['side_requested'], 1)
+        self.assertEqual(stats['side_unfinished'], 0)
         self.assertEqual(stats['mean_time_loss_s'], 20)
         self.assertEqual(stats['side_time_loss_s'], 20)
         self.assertEqual(stats['mean_waiting_count'], 2)
@@ -56,19 +62,24 @@ class EvaluateTests(unittest.TestCase):
         rows = [dict(controller=c, scenario='night', window='full', seed=s,
                      seed_group='fit_used' if s < 3 else 'out_of_sample',
                      mean_time_loss_s=10 if c == 'actuated' else 9)
-                for c in e.CONTROLLERS for s in e.SEEDS]
+                for c in e.EVAL_CONTROLLERS for s in e.SEEDS]
         for row in rows:
-            row.update({m: row['mean_time_loss_s'] for m in (
-                'all_vehicle_delay_s', 'all_vehicle_delay_zero_unfinished_s',
-                'unfinished', 'mainline_travel_eb_s', 'mainline_travel_wb_s')})
+            row.update({m: row['mean_time_loss_s'] for m in e.TEST_METRICS})
         tests = [t for t in e.paired_tests(rows) if t['metric'] == 'mean_time_loss_s']
-        self.assertEqual([t['n'] for t in tests], [13, 10])
-        self.assertAlmostEqual(tests[1]['p_value'], 1/1024)
+        self.assertEqual([t['n'] for t in tests], [20, 20, 20, 20])
+        self.assertLess(tests[1]['p_value'], .00001)
         for row in rows:
-            for key in ('mean_time_loss_s', 'all_vehicle_delay_s',
-                        'all_vehicle_delay_zero_unfinished_s', 'unfinished',
-                        'mainline_travel_eb_s', 'mainline_travel_wb_s'):
+            for key in e.TEST_METRICS:
                 row[key] = 10
         self.assertTrue(all(t['p_value'] == 1 for t in e.paired_tests(rows)))
         with self.assertRaisesRegex(ValueError, 'Unpaired'):
             e.paired_tests(rows[:-1])
+
+    def test_side_unfinished_uses_side_denominator(self):
+        stats = e.metrics({'done': (100, False), 'side_missing': (100, True)},
+                          {'done': dict(arrival=200, timeLoss=20, departDelay=30, waitingCount=1)},
+                          {}, ['side_missing'], 100, 200)
+        self.assertEqual(stats['side_all_requested_delay_s'], 1800)
+        self.assertEqual(stats['all_requested_delay_s'], (50+1800)/2)
+        self.assertFalse(e.constraint_check(stats, dict(side_all_requested_delay_s=100)))
+        self.assertTrue(e.constraint_check(dict(side_all_requested_delay_s=105), dict(side_all_requested_delay_s=100)))

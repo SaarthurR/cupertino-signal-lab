@@ -1,6 +1,6 @@
 # Historical count sources — Round 2, October 28, 2026
 
-**All usable observations found are from 2018. None are current traffic measurements.** A bounded parallel search covered the requested City development/agenda and agency leads. A later report year was never treated as the date of traffic collection. It found a newer **April 25, 2018 Mary Avenue hourly sheet**, but no newer usable quarter-hour sheet for De Anza or Stelling. This does not establish that unpublished counts do not exist.
+**All usable turning-movement observations found are from 2018. They do not measure current traffic.** A bounded parallel search covered the requested City development/agenda and agency leads. A later report year was never treated as the date of traffic collection. It found a newer **April 25, 2018 Mary Avenue hourly sheet**, but no newer usable quarter-hour sheet for De Anza or Stelling. This does not establish that unpublished counts do not exist.
 
 ## Selected sources
 
@@ -44,11 +44,25 @@ Mary's page was also visually checked: R/T/L/U by leg are N=138/78/123/0; E=165/
 
 ## Estimation and fit/holdout separation
 
-- Bandley and Saich: mainline through volume linearly interpolated by longitude between measured De Anza and Stelling through volumes for the same quarter; each other legal movement = 5 vehicles/15 minutes. All such rows are estimated. These are transparent assumptions, not an OD survey.
+- Bandley and Saich: mainline through volume linearly interpolated by longitude between measured De Anza and Stelling through volumes for the same quarter; each other legal movement = 5 vehicles/15 minutes (20 vehicles/hour per movement, 40 vehicles/hour from each side street). These side turns are arbitrary low-demand placeholders, not observed turns or an OD survey. All such rows are estimated. Newer segment ADT suggests side demand may be understated but cannot establish PM turns. Obtain current directional turning-movement counts before claiming calibration or field applicability.
 - Mary: retained hourly movement / 4, rounded to integer vehicles; uniform extension across 16:30–18:30. Both temporal disaggregation and extension are estimates. No hourly value is called a measured quarter.
 - PM demand construction reads **only 16:30–17:30** rows, samples routes once (seed 0), then repeats those departures/routes one hour later. The first quarter is copied 900 seconds earlier for warmup. No 17:30–18:30 observed counts are used to generate routes. An adversarial test changes every holdout value by 100,000 and verifies byte-identical generated PM/night routes.
 - Night: 10% of fit-hour mainline-origin movement totals; 2 vehicles/hour for each side-origin turn; integer sampling. Source estimated throughout.
 - GEH uses only measured De Anza/Stelling **17:30–18:30** rows, converted from quarter-hour counts to hourly rates. Estimated nodes and Mary's disaggregated quarters are excluded.
+
+## Newer City segment ADT (not turning counts)
+
+The [City traffic-data page](https://www.cupertino.gov/Your-City/Departments/Public-Works/Transportation-Mobility/Traffic-and-Collision-Data) links the [Traffic Flow Map](https://experience.arcgis.com/experience/aedd536ab2e14a348650ceed761db18b). Its [official TrafficCount2025 layer](https://services2.arcgis.com/WsCmJmL1F5wsSOiu/arcgis/rest/services/TrafficCount2025/FeatureServer/0), checked October 28, 2026, includes newer average daily traffic (ADT) segment counts:
+
+| Segment adjacent to Stevens Creek | ADT vehicles/day | Layer date field |
+|---|---:|---|
+| Mary, Meteor–Stevens Creek | 2,605 | 2023 |
+| Saich, Alves–Stevens Creek | 2,576 | 2023 |
+| Bandley, Alves–Stevens Creek | 4,520 | 2024–2026 bucket, no single year specified |
+| De Anza, Lazaneo–Stevens Creek (north) | 31,080 | 2023 |
+| De Anza, Stevens Creek–Bollinger (south) | 30,140 / 32,720 / 34,500 | 2023; duplicate records with identical segment labels |
+
+Do not sum or arbitrarily select the duplicate De Anza south records. Stelling-adjacent records remain in the 2015–2017 bucket; no newer populated count field was found there. ADT has neither PM direction nor turn shares: it cannot replace TMCs or validate the low Bandley/Saich side-turn placeholders. No numeric changes to `tmc.csv` or `tmc_hourly.csv` are warranted by this audit.
 
 ## Rejected newer leads
 

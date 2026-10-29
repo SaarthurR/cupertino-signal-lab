@@ -1,0 +1,565 @@
+{
+  "trials": 200,
+  "wall_s": 502.3504915829999,
+  "workers": 3,
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=36700259)\t95%; AC attached; not charging present: true",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "best": {
+    "trial": 146,
+    "params": {
+      "cycle_s": 136.6996331750748,
+      "passage_s": 2.4693682678712947,
+      "offset_0": 0.7633534664058177,
+      "split_0": 0.6725938968567728,
+      "offset_1": 0.32561295654007927,
+      "split_1": 1.1335846169895212,
+      "offset_2": 0.7756895939710776,
+      "split_2": 1.076132080168549,
+      "offset_3": 0.262067474101332,
+      "split_3": 0.6602344885092746,
+      "offset_4": 0.6962142036227492,
+      "split_4": 1.0573163214397419
+    },
+    "stats": [
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 152.6124523809524,
+        "side_time_loss_s": 141.83259627329193,
+        "mean_waiting_count": 5.094110275689223,
+        "deferred_penalty_s": 70.61425062656642,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 147.1634298245614,
+        "side_time_loss_s": 133.804884057971,
+        "mean_waiting_count": 5.058145363408522,
+        "deferred_penalty_s": 72.59745864661654,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 13,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 164.44229072681705,
+        "side_time_loss_s": 151.77714906832298,
+        "mean_waiting_count": 4.972556390977443,
+        "deferred_penalty_s": 109.60384962406015,
+        "vehicle_penalty_s": 1800
+      }
+    ],
+    "all_seed_objective": 239.01124394319132
+  },
+  "baseline": {
+    "pm_peak": [
+      {
+        "teleports": 0,
+        "inserted": 9886,
+        "running": 116,
+        "waiting": 17,
+        "requested": 7980,
+        "completed": 7847,
+        "unfinished": 133,
+        "mean_time_loss_s": 170.71589269784633,
+        "side_time_loss_s": 148.2811773472429,
+        "mean_waiting_count": 5.861220848732,
+        "deferred_penalty_s": 291.61858020050124,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 24,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7956,
+        "unfinished": 24,
+        "mean_time_loss_s": 152.23363499245852,
+        "side_time_loss_s": 134.86513316687473,
+        "mean_waiting_count": 5.445072900955254,
+        "deferred_penalty_s": 245.7929761904762,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 159.34301879699248,
+        "side_time_loss_s": 142.8926314699793,
+        "mean_waiting_count": 5.613784461152882,
+        "deferred_penalty_s": 211.01299749373433,
+        "vehicle_penalty_s": 1800
+      }
+    ],
+    "night": [
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.340849858356941,
+        "side_time_loss_s": 13.584545454545456,
+        "mean_waiting_count": 0.28611898016997167,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.623626062322947,
+        "side_time_loss_s": 13.753636363636364,
+        "mean_waiting_count": 0.3087818696883853,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.45756373937677,
+        "side_time_loss_s": 13.782424242424241,
+        "mean_waiting_count": 0.28611898016997167,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      }
+    ]
+  },
+  "selected": {
+    "pm_peak": [
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 152.6124523809524,
+        "side_time_loss_s": 141.83259627329193,
+        "mean_waiting_count": 5.094110275689223,
+        "deferred_penalty_s": 70.61425062656642,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 147.1634298245614,
+        "side_time_loss_s": 133.804884057971,
+        "mean_waiting_count": 5.058145363408522,
+        "deferred_penalty_s": 72.59745864661654,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 13,
+        "inserted": 9903,
+        "running": 0,
+        "waiting": 0,
+        "requested": 7980,
+        "completed": 7980,
+        "unfinished": 0,
+        "mean_time_loss_s": 164.44229072681705,
+        "side_time_loss_s": 151.77714906832298,
+        "mean_waiting_count": 4.972556390977443,
+        "deferred_penalty_s": 109.60384962406015,
+        "vehicle_penalty_s": 1800
+      }
+    ],
+    "night": [
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.420084985835693,
+        "side_time_loss_s": 13.712727272727273,
+        "mean_waiting_count": 0.28895184135977336,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.579178470254957,
+        "side_time_loss_s": 13.822121212121212,
+        "mean_waiting_count": 0.3059490084985836,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      },
+      {
+        "teleports": 0,
+        "inserted": 439,
+        "running": 0,
+        "waiting": 0,
+        "requested": 353,
+        "completed": 353,
+        "unfinished": 0,
+        "mean_time_loss_s": 8.631671388101983,
+        "side_time_loss_s": 13.827878787878788,
+        "mean_waiting_count": 0.29745042492917845,
+        "deferred_penalty_s": 0.5115014164305949,
+        "vehicle_penalty_s": 1800
+      }
+    ]
+  },
+  "finalists": [
+    {
+      "trial": 67,
+      "params": {
+        "cycle_s": 141.54876964404806,
+        "passage_s": 2.1566998234567856,
+        "offset_0": 0.8327274484871943,
+        "split_0": 0.6551196827611712,
+        "offset_1": 0.20568682731103458,
+        "split_1": 0.9288058272381098,
+        "offset_2": 0.5612485110723251,
+        "split_2": 1.1862591910998754,
+        "offset_3": 0.29456614184944735,
+        "split_3": 0.695236785896598,
+        "offset_4": 0.6474711245550382,
+        "split_4": 1.1845310912588571
+      },
+      "stats": [
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 125.47598245614034,
+          "side_time_loss_s": 128.0092049689441,
+          "mean_waiting_count": 4.117293233082707,
+          "deferred_penalty_s": 71.41487719298246,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 44,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 200.82936466165415,
+          "side_time_loss_s": 176.45669979296065,
+          "mean_waiting_count": 5.060401002506266,
+          "deferred_penalty_s": 192.81888721804512,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 7,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 148.8580463659148,
+          "side_time_loss_s": 142.0867474120083,
+          "mean_waiting_count": 4.519924812030075,
+          "deferred_penalty_s": 123.03379949874686,
+          "vehicle_penalty_s": 1800
+        }
+      ],
+      "all_seed_objective": 292.3498324620649
+    },
+    {
+      "trial": 175,
+      "params": {
+        "cycle_s": 137.06889899267028,
+        "passage_s": 2.554267446748247,
+        "offset_0": 0.7987371695552947,
+        "split_0": 0.6180598789684243,
+        "offset_1": 0.5524132240955582,
+        "split_1": 1.0970417965731745,
+        "offset_2": 0.626892733617417,
+        "split_2": 1.0676487635461256,
+        "offset_3": 0.2263012248223191,
+        "split_3": 0.6283292223635911,
+        "offset_4": 0.684527485094753,
+        "split_4": 1.046767622980515
+      },
+      "stats": [
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 145.02464035087718,
+          "side_time_loss_s": 131.78419461697723,
+          "mean_waiting_count": 4.852255639097744,
+          "deferred_penalty_s": 69.56274686716792,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 1,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 159.91420426065164,
+          "side_time_loss_s": 135.30888198757765,
+          "mean_waiting_count": 5.476441102756892,
+          "deferred_penalty_s": 118.78004010025062,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 149.12419799498747,
+          "side_time_loss_s": 142.78763354037267,
+          "mean_waiting_count": 4.890601503759399,
+          "deferred_penalty_s": 106.99307268170426,
+          "vehicle_penalty_s": 1800
+        }
+      ],
+      "all_seed_objective": 249.79963408521303
+    },
+    {
+      "trial": 143,
+      "params": {
+        "cycle_s": 135.133803426988,
+        "passage_s": 2.485000315718238,
+        "offset_0": 0.7709385031283877,
+        "split_0": 0.6446317328290174,
+        "offset_1": 0.5734795855615828,
+        "split_1": 1.0955602993327012,
+        "offset_2": 0.6079473036849559,
+        "split_2": 1.0962934578458836,
+        "offset_3": 0.26691365540481865,
+        "split_3": 0.6374804568915331,
+        "offset_4": 0.669547197025551,
+        "split_4": 1.0416916553243138
+      },
+      "stats": [
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 143.09706516290728,
+          "side_time_loss_s": 129.46544513457556,
+          "mean_waiting_count": 5.007769423558897,
+          "deferred_penalty_s": 71.7452030075188,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 146.5280426065163,
+          "side_time_loss_s": 137.03204347826087,
+          "mean_waiting_count": 5.1568922305764415,
+          "deferred_penalty_s": 112.65597994987468,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 10,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 179.9631052631579,
+          "side_time_loss_s": 143.7571076604555,
+          "mean_waiting_count": 5.631077694235589,
+          "deferred_penalty_s": 129.94921303258144,
+          "vehicle_penalty_s": 1800
+        }
+      ],
+      "all_seed_objective": 261.3128696741855
+    },
+    {
+      "trial": 155,
+      "params": {
+        "cycle_s": 137.05987385790158,
+        "passage_s": 2.766594656928687,
+        "offset_0": 0.6896593751976202,
+        "split_0": 0.6118555683569233,
+        "offset_1": 0.3748967291691132,
+        "split_1": 1.0998404190210738,
+        "offset_2": 0.8802881690800128,
+        "split_2": 1.1050532482802409,
+        "offset_3": 0.32721111302183103,
+        "split_3": 0.645791322829249,
+        "offset_4": 0.6802544963339241,
+        "split_4": 1.0129980175153732
+      },
+      "stats": [
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 148.14002882205514,
+          "side_time_loss_s": 127.29119461697722,
+          "mean_waiting_count": 5.220802005012532,
+          "deferred_penalty_s": 73.24457644110275,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 156.65443734335838,
+          "side_time_loss_s": 129.55326708074534,
+          "mean_waiting_count": 5.515538847117795,
+          "deferred_penalty_s": 103.91738345864661,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 24,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 193.68039598997495,
+          "side_time_loss_s": 166.4041304347826,
+          "mean_waiting_count": 5.834711779448622,
+          "deferred_penalty_s": 119.33392481203008,
+          "vehicle_penalty_s": 1800
+        }
+      ],
+      "all_seed_objective": 264.9902489557226
+    },
+    {
+      "trial": 146,
+      "params": {
+        "cycle_s": 136.6996331750748,
+        "passage_s": 2.4693682678712947,
+        "offset_0": 0.7633534664058177,
+        "split_0": 0.6725938968567728,
+        "offset_1": 0.32561295654007927,
+        "split_1": 1.1335846169895212,
+        "offset_2": 0.7756895939710776,
+        "split_2": 1.076132080168549,
+        "offset_3": 0.262067474101332,
+        "split_3": 0.6602344885092746,
+        "offset_4": 0.6962142036227492,
+        "split_4": 1.0573163214397419
+      },
+      "stats": [
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 152.6124523809524,
+          "side_time_loss_s": 141.83259627329193,
+          "mean_waiting_count": 5.094110275689223,
+          "deferred_penalty_s": 70.61425062656642,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 0,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 147.1634298245614,
+          "side_time_loss_s": 133.804884057971,
+          "mean_waiting_count": 5.058145363408522,
+          "deferred_penalty_s": 72.59745864661654,
+          "vehicle_penalty_s": 1800
+        },
+        {
+          "teleports": 13,
+          "inserted": 9903,
+          "running": 0,
+          "waiting": 0,
+          "requested": 7980,
+          "completed": 7980,
+          "unfinished": 0,
+          "mean_time_loss_s": 164.44229072681705,
+          "side_time_loss_s": 151.77714906832298,
+          "mean_waiting_count": 4.972556390977443,
+          "deferred_penalty_s": 109.60384962406015,
+          "vehicle_penalty_s": 1800
+        }
+      ],
+      "all_seed_objective": 239.01124394319132
+    }
+  ]
+}
