@@ -84,12 +84,12 @@ class DashboardTests(unittest.TestCase):
             if link.endswith(('.csv', '.md')):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
 
-    def test_deck_is_nine_offline_slides_with_a_spoken_note_each(self):
+    def test_deck_is_eleven_offline_slides_with_a_spoken_note_each(self):
         roads, signals, _, _ = d.geometry(p.config())
         rows = d.read_csv(p.ROOT/'reports/results.csv')
         deck = d.build_deck(rows, roads, signals)
-        self.assertEqual(deck.count('<section class="slide">'), 9)
-        self.assertEqual(deck.count('<p class="note">'), 9)
+        self.assertEqual(deck.count('<section class="slide">'), 11)
+        self.assertEqual(deck.count('<p class="note">'), 11)
         self.assertNotIn('https://', deck)
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
             self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
@@ -105,6 +105,30 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn('short of the usual target', deck)
         self.assertIn('Only 41 of 96 counted movements matched closely (GEH under 5)', deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
+
+    def test_tuner_slides_quote_the_search_space_and_the_two_real_scores(self):
+        """The knob list and both scores must come out of the optimizer's own record."""
+        rows = d.read_csv(p.ROOT/'reports/results.csv')
+        f = d.facts(rows)
+        trials = d.read_csv(p.ROOT/'reports/optimize_v3_trials.csv')
+        self.assertEqual([count for count, _, _ in f['knobs']], [1, 5, 16, 5, 5])
+        self.assertEqual(sum(count for count, _, _ in f['knobs']),
+                         sum(c.startswith('params_') for c in trials[0]))
+        # Trial 0 is the textbook plan the optimizer enqueued, so its score is textbook's.
+        from signal_lab.optimize import baseline_params
+        for key, value in baseline_params().items():
+            self.assertAlmostEqual(float(trials[0]['params_'+key]), value)
+        self.assertAlmostEqual(f['try0'], 396.4492997493734)
+        self.assertEqual(f['kept'], 224)
+        self.assertAlmostEqual(f['kept_score'], 269.85603007518796)
+        # The kept plan won a run-off on fresh seeds; it is not the lowest point on the curve.
+        self.assertLess(min(f['curve']), f['kept_score'])
+        deck = d.build_deck(rows, *d.geometry(p.config())[:2])
+        for shown in ('396 s', '270 s', 'Try 224, the plan we kept', '32 numbers in all',
+                      '181 of the 300 tries broke a rule', 'best on practice'):
+            self.assertIn(shown, deck)
+        self.assertNotIn('neural network', d.build_page(rows, *d.geometry(p.config())[:2]))
+        self.assertIn('not a neural network', deck)
 
     def test_typical_driver_is_nearest_paired_median_and_rejects_broken_paths(self):
         def trip(duration):

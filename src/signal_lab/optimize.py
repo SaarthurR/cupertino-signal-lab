@@ -173,6 +173,13 @@ def feasible(stats, baseline):
                     for key in CONSTRAINT_METRICS))
 
 
+def bounds(key):
+    """The v3 search space, in one place so write-ups cannot drift from the search."""
+    return ((80, 150) if key == 'cycle_s' else (2, 4) if key.startswith('passage_')
+            else (.6, 1.4) if key.startswith('share_') else (7, 30) if key.startswith('min_')
+            else (0, math.nextafter(1., 0.)))
+
+
 def worker(storage, count, worker_seed, baseline):
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.load_study(study_name='pm_peak', storage=storage,
@@ -180,10 +187,7 @@ def worker(storage, count, worker_seed, baseline):
     def objective(trial):
         params = {}
         for key in baseline_params():
-            bounds = ((80, 150) if key == 'cycle_s' else (2, 4) if key.startswith('passage_')
-                      else (.6, 1.4) if key.startswith('share_') else (7, 30) if key.startswith('min_')
-                      else (0, math.nextafter(1., 0.)))
-            params[key] = trial.suggest_float(key, *bounds)
+            params[key] = trial.suggest_float(key, *bounds(key))
         with tempfile.TemporaryDirectory() as temp:
             timing = Path(temp)/'plan.xml'
             plan('pm_peak', params, timing)

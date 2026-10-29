@@ -19,6 +19,7 @@ import sumolib
 
 from . import pipeline as p
 from .evaluate import boundaries, FINAL_SEEDS as SEEDS
+from .optimize import bounds as knob_bounds
 
 # One neutral grey for the textbook plan, one accent for ours, everywhere.
 COLORS = ('#636f78', '#0b7d73')
@@ -474,8 +475,109 @@ def curve_svg(curve):
              text(710, 248, f'try {len(curve)}', 14, 'end', fill='var(--muted)')]
     x, y = point(len(curve)-1, low)
     parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="7" fill="var(--accent)"/>'
-                 + text(x-14, y-16, 'the plan we kept', 14, 'end', 'var(--accent)', 600))
+                 + text(x-14, y-16, 'best on practice', 14, 'end', 'var(--accent)', 600))
     return svg(''.join(parts), 760, 260, 'Best score so far falls as the tuner tries more timing plans')
+
+
+KNOBS = (  # family prefix in the trial record, plain name, what its search range means
+    ('cycle', 'Cycle length', lambda lo, hi: f'one round of greens, shared by all five, {lo:g} to {hi:g} s'),
+    ('offset', 'Start times', lambda lo, hi: 'where in that cycle each light turns green: the wave'),
+    ('share', 'Green split dials', lambda lo, hi: f'stretch or shrink one phase’s green, x{lo:g} to x{hi:g}'),
+    ('min', 'Shortest main green', lambda lo, hi: f'{lo:g} to {hi:g} s, and never longer than that phase’s green'),
+    ('passage', 'Gap times', lambda lo, hi: f'how much quiet ends a green early, {lo:g} to {hi:g} s'),
+)
+
+LOOP = (('Pick a plan', '32 numbers that set', 'all five lights'),
+        ('Run it', '5 practice rush hours,', 'a whole evening each'),
+        ('Score it', 'seconds an average car', 'loses, lower is better'),
+        ('Narrow it down', 'the tuner learns which', 'settings scored well'))
+
+
+def knobs(trials):
+    """What the tuner may change: counted from the search's own record, ranged from its search space."""
+    families = {}
+    for column in trials[0]:
+        if column.startswith('params_'):
+            key = column[len('params_'):]
+            families.setdefault(key.split('_')[0], []).append(key)
+    rows = [(len(families[family]), name, detail(*knob_bounds(families[family][0])))
+            for family, name, detail in KNOBS]
+    if sum(count for count, _, _ in rows) != sum(map(len, families.values())):
+        raise ValueError('Knob families do not cover the recorded search space')
+    return rows
+
+
+def tuner_loop_svg(f):
+    """One turn of the tuning loop, and what 300 turns bought: try 0 against the plan we kept."""
+    box, pitch = 345, 385
+    parts = ['<defs><marker id="loop" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+             '<polygon points="0 0, 9 3.5, 0 7" fill="var(--road)"/></marker></defs>']
+    for i, (title, first, second) in enumerate(LOOP):
+        x = i*pitch
+        if i:
+            parts.append(f'<line x1="{x-pitch+box+8}" y1="108" x2="{x-10}" y2="108" '
+                         'stroke="var(--road)" stroke-width="3" marker-end="url(#loop)"/>')
+        parts.append(f'<rect x="{x}" y="20" width="{box}" height="176" rx="16" fill="var(--paper)" '
+                     'stroke="var(--line)" stroke-width="2"/>'
+                     + text(x+30, 62, i+1, 24, fill='var(--accent)', weight=700)
+                     + text(x+30, 106, title, 33, weight=600)
+                     + text(x+30, 146, first, 22, fill='var(--muted)')
+                     + text(x+30, 174, second, 22, fill='var(--muted)'))
+    parts.append(f'<path d="M {3*pitch+box/2} 196 V 232 Q {3*pitch+box/2} 242 {3*pitch+box/2-10} 242 '
+                 f'H {box/2+10} Q {box/2} 242 {box/2} 232 V 208" fill="none" stroke="var(--road)" '
+                 'stroke-width="3" marker-end="url(#loop)"/>'
+                 + text(750, 278, f'next try, {len(f["curve"])} tries in all', 24, 'middle', 'var(--muted)'))
+    parts.append(text(0, 344, f'Score on the {f["search_seeds"]} practice rush hours, seconds lost per car',
+                      24, fill='var(--muted)'))
+    for i, (value, label, ink) in enumerate(((f['try0'], 'Try 0, the textbook plan', INK[0]),
+                                             (f['kept_score'], f'Try {f["kept"]}, the plan we kept', INK[1]))):
+        y = 366+i*78
+        width = value/f['try0']*790
+        parts.append(text(0, y+40, label, 28)
+                     + f'<rect x="510" y="{y}" width="{width:.1f}" height="56" rx="6" fill="{ink}"/>'
+                     + text(530+width, y+42, f'{value:,.0f} s', 34, fill=ink, weight=700))
+    parts.append(text(0, 536, f'{f["search_minutes"]:.0f} minutes on a laptop.', 22, fill='var(--muted)'))
+    return svg(''.join(parts), 1500, 550,
+               f'The tuning loop: pick a plan, run it, score it, narrow the search, then try again. '
+               f'Try 0, the textbook plan, scored {f["try0"]:,.0f} seconds lost per car; '
+               f'try {f["kept"]}, the plan we kept, scored {f["kept_score"]:,.0f}.')
+
+
+def plan_space_svg(f):
+    """Everything the tuner is allowed to touch, and the single score plus the rules it is held to."""
+    parts = [text(0, 34, 'What it can change', 30, weight=700)]
+    for i, (count, name, detail) in enumerate(f['knobs']):
+        y = 116+i*96
+        parts.append(text(80, y, count, 50, 'end', 'var(--accent)', 700)
+                     + text(116, y-8, name, 28, weight=600)
+                     + text(116, y+26, detail, 21, fill='var(--muted)'))
+    total = sum(count for count, _, _ in f['knobs'])
+    parts.append(text(0, 584, f'{total} numbers in all, and nothing else.', 22, fill='var(--muted)'))
+    ox = 790
+    parts.append(text(ox, 34, 'How it is scored', 30, weight=700)
+                 + f'<rect x="{ox}" y="62" width="710" height="150" rx="16" fill="var(--soft)"/>'
+                 + text(ox+30, 112, 'Seconds an average car loses,', 29, weight=600)
+                 + text(ox+30, 150, 'counting every car that asked to drive.', 29, weight=600)
+                 + text(ox+30, 186, f'A car that never finishes is charged {f["miss_charge"]/60:.0f} minutes.',
+                        21, fill='var(--muted)'))
+    rules = ((f'No direction more than {f["cap"]}% slower',
+              'eastbound, westbound and the side streets, against textbook'),
+             ('No more cars left stuck',
+              f'at most {f["slack"]} more than textbook, in every practice hour'),
+             (f'{f["thrown_out"]} of the {len(f["curve"])} tries broke a rule',
+              'and were thrown out on the spot'),
+             (f'Then {f["pick_seeds"]} more rush hours picked the finalist',
+              f'and {f["n_test"]} it had never seen tested it'))
+    for i, (head, body) in enumerate(rules):
+        y = 282+i*82
+        parts.append(f'<circle cx="{ox+23}" cy="{y-9}" r="21" fill="var(--soft)"/>'
+                     f'<path d="M {ox+12.5} {y-9.8} l 7.3 7.3 L {ox+33.5} {y-20.3}" fill="none" '
+                     'stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>'
+                     + text(ox+68, y, head, 26, weight=600)
+                     + text(ox+68, y+32, body, 21, fill='var(--muted)'))
+    return svg(''.join(parts), 1500, 610,
+               f'The {total} numbers the tuner may change, the one score it is judged on, '
+               'and the rules a plan may not break')
 
 
 def seeds_svg(bands):
@@ -550,7 +652,7 @@ PIPELINE_GROUPS = (('Build the street', 3), ('Find a better plan', 4))
 def pipeline_steps(f):
     return [('The street', 'map to simulator'), ('The data', f'{f["measured"][0]["year"]} city counts'),
             ('The cars', f'{f["trips"]:,} trips'), ('Textbook plan', 'the one to beat'),
-            ('Tuning', f'{len(f["curve"])} plans tried'), ('The rules', 'written in advance'),
+            ('Tuning', f'{len(f["curve"])} tries, one kept'), ('The rules', 'written in advance'),
             ('Fair test', f'{f["n_test"]} unseen hours')]
 
 
@@ -600,7 +702,7 @@ def next_steps(f):
 
 
 def build_deck(rows, roads, signals):
-    """Nine slides for the live pitch, on the page's own look and the page's own numbers."""
+    """Eleven slides for the live pitch, on the page's own look and the page's own numbers."""
     f = facts(rows)
     slides = [
         ('<h1>Cupertino Signal Lab</h1><p class="lead">Five traffic lights on Stevens Creek, retimed by a computer '
@@ -622,11 +724,29 @@ def build_deck(rows, roads, signals):
          f'<p>The counts are from {f["measured"][0]["year"]}, and {len(f["guessed"])} of the five intersections '
          'were never counted at all.</p></div></div>',
          'Before any result, the thing we would want a judge to push on. Our traffic has the right shape but it is not exact, and we say so on the page.'),
+        (f'<h2>The tuner learns from its own tries.</h2>'
+         f'<div class="fill" style="--fw:1664px">{tuner_loop_svg(f)}</div>'
+         f'<p class="under">Nobody picked the winner by hand. Try 0 was the textbook plan.</p>',
+         f'This is the loop. The computer sets the five lights, runs {f["search_seeds"]} whole practice rush hours '
+         f'in the simulator, and gets back one score: the seconds an average car loses. Then the tuner looks at '
+         f'every try so far, builds a picture of which settings scored well, and aims the next try at the promising '
+         f'part, {len(f["curve"])} times. Where is the AI? It is not a neural network. It is machine learning '
+         f'search, called Bayesian optimization: it learns from its own tries instead of guessing at random. '
+         f'The textbook plan was try 0 at {f["try0"]:,.0f} seconds a car, and the plan we kept scored '
+         f'{f["kept_score"]:,.0f}.'),
+        (f'<h2>What it can change, and how we score it.</h2>'
+         f'<div class="fill" style="--fw:1664px">{plan_space_svg(f)}</div>',
+         f'The tuner only ever touches these {sum(c for c, _, _ in f["knobs"])} numbers: one cycle length shared by '
+         f'all five lights, when each light starts its green, how long each phase of green runs, the shortest green '
+         f'the main road may get, and how much quiet traffic ends a green early. It is scored on one number, the '
+         f'seconds an average car loses, counting every car that asked to drive, including the ones that never got '
+         f'in. And it may not win by hurting anybody: no direction more than {f["cap"]}% slower than today, and no '
+         f'more cars left stuck. That threw out {f["thrown_out"]} of the {len(f["curve"])} tries.'),
         (f'<h2>{len(f["curve"])} plans tried, then a test it could not study for.</h2>'
          f'<div class="two" style="--cols:1020px 600px"><div class="fill">{curve_svg(f["curve"])}</div>'
          f'<div class="fill">{seeds_svg(((f["search_seeds"], "var(--road)", f"{f['search_seeds']} rush hours to practise on"), (f["pick_seeds"], "var(--road)", f"{f['pick_seeds']} more to pick the finalist"), (f["n_test"], "var(--accent)", f"{f['n_test']} brand new ones for the fair test")))}</div></div>'
          f'<p class="under">Before running that last test we wrote down what would count as a win, on {f["prereg_date"]}, and saved it.</p>',
-         f'A tuning tool tried {len(f["curve"])} timing plans on {f["search_seeds"]} practice rush hours. Then, before the final test, we wrote down what would count as a win, so we could not pick a flattering number afterwards.'),
+         f'A tuning tool tried {len(f["curve"])} timing plans on {f["search_seeds"]} practice rush hours. The ten best were then run again on {f["pick_seeds"]} fresh ones, and the winner of that run off is the plan we kept, which is why it is not the very lowest point on this curve. Then, before the final test, we wrote down what would count as a win, so we could not pick a flattering number afterwards.'),
         ('<h2>The same evening, run twice.</h2><div class="fill video">'
          '<video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png">'
          '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
@@ -688,8 +808,10 @@ video{{max-height:640px;border-radius:18px;background:#0b1218}}
 .score span{{display:block;margin-top:16px;font-size:28px;color:var(--muted);max-width:14ch}}
 .notes{{list-style:none;padding:0;max-width:64ch}}
 .notes li{{padding:18px 0;border-top:1px solid var(--line);font-size:28px;line-height:1.35}}
-.note{{position:absolute;left:128px;right:128px;bottom:34px;font-size:22px;line-height:1.4;color:var(--muted);max-width:none;display:none}}
+/* A footer bar, not floating text: a four-line note would otherwise sit on top of the slide. */
+.note{{position:absolute;left:0;right:0;bottom:0;padding:18px 128px 26px;font-size:22px;line-height:1.4;color:var(--muted);max-width:none;display:none;background:var(--bg);border-top:1px solid var(--line)}}
 body.notes-on .note{{display:block}}
+body.notes-on .slide{{padding-bottom:208px}}  /* the longest note is four lines; never cover the slide */
 .count{{position:fixed;right:22px;bottom:16px;z-index:9;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}}
 @media(prefers-reduced-motion:no-preference){{.slide{{transition:opacity .22s ease-out}}}}
 </style>
@@ -731,6 +853,7 @@ def facts(rows):
     with open(p.ROOT/'sim/routes_pm_peak.rou.xml') as stream:
         trips = sum(1 for line in stream if '<vehicle ' in line)
     trials = read_csv(p.ROOT/'reports/optimize_v3_trials.csv')
+    scores = {int(t['number']): float(t['value']) for t in trials}  # trial number, not row order
     search = json.loads((p.ROOT/'reports/optimize_v3.json').read_text())
     checks = read_csv(p.ROOT/'reports/demand_check.csv')
     sources = read_csv(p.ROOT/'data/processed/tmc_sources.csv')
@@ -759,9 +882,11 @@ def facts(rows):
         return float(matches[0]['p_value'])
     return {
         'groups': groups, 'cfg': p.config(), 'trips': trips, 'curve': best_so_far(trials),
-        'cycles': [float(r['params_cycle_s']) for r in trials],
         'thrown_out': sum(float(r['value']) >= 1e9 for r in trials if r['state'] == 'COMPLETE'),
         'search_seeds': len(search['seeds']), 'pick_seeds': len(search['selection_seeds']),
+        'knobs': knobs(trials), 'try0': scores[0], 'kept': int(search['best']['trial']),
+        'kept_score': scores[int(search['best']['trial'])],
+        'search_minutes': search['wall_s']/60,
         'miss_charge': charge, 'prereg_date': prereg_date, 'cap': cap, 'slack': slack, 'pvalue': pvalue,
         'checks': checks, 'close': sum(float(r['geh']) < 5 for r in checks),
         'target': round(len(checks)*.85), 'measured': measured,
@@ -811,7 +936,7 @@ def build_page(rows, roads, signals):
                       f"{float(r['passage_s']):.1f}")
             body += '<tr>'+''.join(f'<td>{escape(v)}</td>' for v in values)+'</tr>'
         tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Min green (s)</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
-    trips, curve, cycles = f['trips'], f['curve'], f['cycles']
+    trips, curve = f['trips'], f['curve']
     miss_charge, checks, close = f['miss_charge'], f['checks'], f['close']
     measured, hourly, guessed, counts = f['measured'], f['hourly'], f['guessed'], f['counts']
     base_cycle, base_svg, verdict = f['base_cycle'], f['base_svg'], f['verdict']
@@ -907,10 +1032,11 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 <figure><div class="card wide" tabindex="0">{base_svg}</div><figcaption>Each bar is the main road's green time at that light through one cycle. Going east, each green starts later than the one before, and the last one wraps into the next cycle.</figcaption></figure></section>
 
 <section class="step"><span class="n">5</span><h2>The computer tried {len(curve)} timing plans and kept the best.</h2>
-<p>A tuning tool changes the timing, runs the entire rush hour, scores it, then tries again. Nobody picked the winner by hand. Our first try sped up eastbound but left westbound drivers worse off, so we gave the tuner stricter rules and searched again.</p>
-<figure><div class="card wide" tabindex="0">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes.</figcaption></figure>
-<ul class="chips"><li>How long one full cycle lasts ({min(cycles):.0f} to {max(cycles):.0f} seconds)</li><li>When each light starts its green</li><li>How much of the cycle the main road gets</li><li>The shortest green the main road may ever get</li></ul>
-<p>Three rules keep it honest. A plan cannot win by holding cars out of the corridor: every trip that never finished was charged {miss_charge/60:.0f} minutes of delay, so starving the entrances always scores worse. Neither direction of Stevens Creek may come out more than {f['cap']}% slower than the textbook plan. And a plan that left cars stuck was thrown out on the spot, which is what happened to {f['thrown_out']} of the {len(curve)} tries.</p></section>
+<p>One try goes like this: pick a timing plan, run {f['search_seeds']} practice rush hours with it in the simulator, score the result, then let the tuner choose what to try next. It is not a brain and it is not guessing at random. It builds a picture of which settings scored well so far and aims the next try at the promising part, which is a kind of machine learning called Bayesian optimization. Try 0 was the textbook plan and scored {f['try0']:,.0f} seconds lost per car; {len(curve)} tries later we kept try {f['kept']}, at {f['kept_score']:,.0f}. Our first search sped up eastbound but left westbound drivers worse off, so we gave the tuner stricter rules and searched again.</p>
+<figure><div class="card wide" tabindex="0">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes. The lowest point here is not the plan we kept: the ten best were run again on {f['pick_seeds']} fresh rush hours, and try {f['kept']} won that run off.</figcaption></figure>
+<p>It may change {sum(c for c, _, _ in f['knobs'])} numbers, and nothing else:</p>
+<ul class="chips">{''.join(f'<li>{count} &middot; {escape(name.lower())}, {escape(detail)}</li>' for count, name, detail in f['knobs'])}</ul>
+<p>The score is one number: the seconds an average car loses, counting every car that asked to drive. That is what stops a plan winning by holding cars out of the corridor, because every trip that never finished was charged {miss_charge/60:.0f} minutes. On top of that, no direction of Stevens Creek and no side street may come out more than {f['cap']}% slower than the textbook plan, and no plan may leave more than {f['slack']} extra cars stuck. Breaking any of those threw a try out on the spot, which is what happened to {f['thrown_out']} of the {len(curve)} tries.</p></section>
 
 <section class="step"><span class="n">6</span><h2>We wrote the rules down before the test.</h2>
 <p>It is easy to run a test, look at twenty numbers and announce whichever one looks best. So on {f['prereg_date']} we wrote down what would count as a win, saved it in the project's history, and only then ran the final test. Everything below is scored against this, including the one rule we broke.</p>
