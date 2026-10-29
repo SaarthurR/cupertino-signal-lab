@@ -190,7 +190,7 @@ def render_media(roads, signals, offsets, distance):
         ax.add_collection(LineCollection(roads, colors='#c3ccd4', linewidths=4))
         for i, (name, (x, y)) in enumerate(signals):
             ax.plot(x, y, 'o', color='#263d50', ms=8)
-            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 26 if i%2 else -30), textcoords='offset points', ha='center', fontsize=17)
+            ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 45 if name.startswith('De Anza') else 26 if i%2 else -30), textcoords='offset points', ha='center', fontsize=17, zorder=10, bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2))
         ax.set(xlim=(xmin-30, xmax+30), ylim=(ymin-30, ymax+30), aspect='auto')
         ax.axis('off')
         ax.set_title(label, fontsize=30, fontweight='bold', pad=16)
@@ -211,14 +211,18 @@ def render_media(roads, signals, offsets, distance):
     chart_ax.set(xlim=(0, span), ylim=(0, max(max(s) for s in gaps)*1.12),
                  xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
     chart_ax.set_ylabel('Cars', fontsize=17)
-    # The two gaps run almost on top of each other, so they are named in the title, not tagged on the line.
     chart_ax.set_title('How far ahead our plan is: more trips finished (solid), fewer cars shut out (dashed)',
                        loc='left', fontsize=21, fontweight='bold', pad=10)
     chart_ax.grid(axis='y', alpha=.18)
     chart_ax.tick_params(labelsize=16)
     for spine in ('top', 'right'):
         chart_ax.spines[spine].set_visible(False)
-    growth = [chart_ax.plot([], [], color=COLORS[1], lw=4, linestyle=style)[0] for style in ('-', (0, (5, 3)))]
+    growth = [chart_ax.plot([], [], color=color, lw=4, linestyle=style)[0]
+              for color, style in ((COLORS[1], '-'), ('#a6560d', (0, (5, 3))))]
+    end_labels = [chart_ax.annotate(label, (0, 0), xytext=(-8, dy), textcoords='offset points',
+                                   ha='right', va='center', fontsize=16, color=line.get_color(),
+                                   bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2))
+                  for label, dy, line in zip(('More trips finished', 'Fewer cars shut out'), (18, -22), growth)]
     fig.text(.5, .048, f'Red = stopped, yellow = slow, green = moving   |   North is up   |   {STEP*FPS}x speed, same cars and same clock on both sides', ha='center', fontsize=16)
     fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
 
@@ -248,8 +252,10 @@ def render_media(roads, signals, offsets, distance):
                 dots[i].set_offsets(cars[:, :2]); dots[i].set_array(cars[:, 2])
                 waiting, blocked, finished = counters[i][time]
                 readouts[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} shut out of the corridor\n{finished:,} trips finished so far')
-            for line, series in zip(growth, gaps):
+            for line, series, label in zip(growth, gaps, end_labels):
                 line.set_data(minutes[:index+1], series[:index+1])
+                label.xy = (minutes[index], series[index])
+                label.set_visible(index > 0)
             writer.grab_frame()
             if time == 64800:  # 6 PM, with the gap wide open: the poster frame
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
@@ -353,7 +359,7 @@ def bars_svg(pairs, unit):
     return svg(''.join(parts), 760, 268, unit)
 
 
-def grid_svg(hit, total, target):
+def grid_svg(hit, total):
     """One square per measured count; filled means the simulation landed close to it."""
     columns, cell = 8, 24
     parts = []
@@ -361,14 +367,12 @@ def grid_svg(hit, total, target):
         x, y = 2+i % columns*cell, 2+i//columns*cell
         if i < hit:
             style = 'fill="var(--accent)" stroke="var(--accent)"'
-        elif i < target:
-            style = 'fill="none" stroke="var(--warn)" stroke-dasharray="3 2.5"'
         else:
             style = 'fill="none" stroke="var(--line)"'
         parts.append(f'<rect x="{x}" y="{y}" width="19" height="19" rx="4" stroke-width="2" {style}/>')
     edge = 2+columns*cell
     for centre, colour, line in ((hit//2, 'var(--accent)', f'{hit} we matched'),
-                                 ((hit+target)//2, 'var(--warn)', f'{target-hit} short of the usual target')):
+                                 ((hit+total)//2, 'var(--accent)', f'{total} counted movements')):
         y = 2+centre//columns*cell+11
         parts.append(f'<line x1="{edge}" y1="{y}" x2="{edge+20}" y2="{y}" stroke="{colour}" stroke-width="2"/>'
                      + text(edge+28, y+5, line, 14, fill=colour, weight=600))
@@ -514,7 +518,8 @@ def rules_svg(f):
 
 def next_steps(f):
     """The honest limits, worded as the work that follows. Every one names a real shortcoming."""
-    steps = [f'Get real counts for {" and ".join(escape(n) for n in f["guessed"])}. Nobody ever counted those two '
+    steps = [f'Only {f["close"]} of {len(f["checks"])} counted movements matched closely (GEH under 5); better counts come first.',
+             f'Get real counts for {" and ".join(escape(n) for n in f["guessed"])}. Nobody ever counted those two '
              'side streets, so we estimated them.',
              'Take it outside the simulator: current counts from VTA, pedestrians and bikes in the model, and a '
              'supervised pilot before any real light changes.']
@@ -537,14 +542,16 @@ def build_deck(rows, roads, signals):
          'This is the stretch we studied. Five lights in a row, and at five thirty the eastbound line barely moves.'),
         (f'<h2>What if the five lights worked as a team?</h2><div class="fill" style="--fw:940px">{team_svg()}</div>',
          'Right now each light decides on its own. If they turn green in order, a car can roll the whole way without stopping.'),
-        (f'<h2>How we built it</h2><div class="fill" style="--fw:1664px">{pipeline_svg(pipeline_steps(f), PIPELINE_GROUPS)}</div>',
+        (f'<h2>How we built it</h2><div class="steps">'
+         + ''.join(f'<div><small>Step {i+1}</small><strong>{title}</strong><span>{sub}</span></div>'
+                   for i, (title, sub) in enumerate(pipeline_steps(f))) + '</div>',
          'We rebuilt the real street in a traffic simulator, filled it with cars from the city counts, built the plan an engineer would use, then let a computer search for a better one.'),
         (f'<h2>We checked our traffic against the real counts.</h2><div class="two" style="--cols:900px 1fr"><div class="fill">'
-         f'{grid_svg(f["close"], len(f["checks"]), f["target"])}</div><div>'
+         f'{grid_svg(f["close"], len(f["checks"]))}</div><div>'
          f'<p>One square per real counted movement. We matched {f["close"]} of {len(f["checks"])}. '
-         f'Traffic engineers aim for about {f["target"]}.</p>'
+         '</p>'
          f'<p>The counts are from {f["measured"][0]["year"]}, and {len(f["guessed"])} of the five intersections '
-         'were never counted at all. Everything after this inherits that error.</p></div></div>',
+         'were never counted at all.</p></div></div>',
          'Before any result, the thing we would want a judge to push on. Our traffic has the right shape but it is not exact, and we say so on the page.'),
         (f'<h2>{len(f["curve"])} plans tried, then a test it could not study for.</h2>'
          f'<div class="two" style="--cols:1020px 600px"><div class="fill">{curve_svg(f["curve"])}</div>'
@@ -556,7 +563,7 @@ def build_deck(rows, roads, signals):
          '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
          '<p class="under">Left: the textbook plan. Right: our plan. Same cars, same clock.</p>',
          'Here they are side by side, the whole evening sped up. Same cars, same clock. Watch the chart at the bottom: that is the gap between the two plans, and it keeps opening.'),
-        (f'<h2>Every driver came out ahead.</h2><div class="scores">'
+        (f'<h2>Every direction came out ahead.</h2><div class="scores">'
          f'<div class="score"><strong>{f["delay_cut"]:.0f}%</strong><span>less time lost per car</span></div>'
          f'<div class="score"><strong>{f["faster"]:.0f}%</strong><span>faster eastbound</span></div>'
          f'<div class="score"><strong>{f["wb_cut"]:.0f}%</strong><span>faster westbound</span></div>'
@@ -568,7 +575,7 @@ def build_deck(rows, roads, signals):
          + ''.join(f'<li>{step}</li>' for step in next_steps(f))
          + '</ul><p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from '
          'City of Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
-         f'Three honest limits, as next steps. One of the {f["n_test"]} test hours broke our own stuck-car rule and we '
+         f'Four honest limits, as next steps. One of the {f["n_test"]} test hours broke our own stuck-car rule and we '
          'still owe an explanation for it, two of the five side streets were never counted, and none of this has been '
          'tested on a real street. Thanks for listening.'),
     ]
@@ -600,6 +607,11 @@ p{{font-size:32px;line-height:1.45;max-width:46ch;color:var(--muted)}}
 .two p{{font-size:30px;margin-bottom:22px}}
 .video{{height:100%}}
 video{{max-height:640px;border-radius:18px;background:#0b1218}}
+.steps{{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}}
+.steps>div{{padding:28px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper)}}
+.steps small{{display:block;font-size:26px;color:var(--accent);font-weight:700}}
+.steps strong{{display:block;font-size:36px;margin:12px 0}}
+.steps span{{font-size:28px;color:var(--muted)}}
 .scores{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px}}
 .score strong{{display:block;font-size:96px;line-height:1;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}}
 .score.pair strong{{font-size:60px}}  /* "185 to 17" needs twice the room of a percentage */
@@ -819,7 +831,7 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <section class="step"><div class="split"><div><span class="n">3</span><h2>Those counts become {trips:,} car trips.</h2>
 <p>Every counted turn becomes cars with a real route through the corridor, released across the two hour rush. Then we checked our traffic against the real counts.</p></div>
-<figure><div class="card">{grid_svg(close, len(checks), round(len(checks)*.85))}</div><figcaption>One square per measured count. Our traffic is the right shape but not exact, and everything after it inherits that error.</figcaption></figure></div></section>
+<figure><div class="card">{grid_svg(close, len(checks))}</div><figcaption>One square per counted movement; filled squares matched closely.</figcaption></figure></div></section>
 
 <section class="step"><span class="n">4</span><h2>First we built the plan an engineer would use.</h2>
 <p>A standard textbook formula gives all five lights one shared {base_cycle:.0f} second cycle and starts each main green at a different moment. That plan is what we have to beat. It is not Cupertino's current timing.</p>

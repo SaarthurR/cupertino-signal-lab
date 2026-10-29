@@ -60,7 +60,7 @@ class DashboardTests(unittest.TestCase):
         roads, signals, _, _ = d.geometry(p.config())
         html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
         flow, extras = html.split('<details>', 1)
-        for word in ('Optuna', 'Wilcoxon', 'GEH', 'FCD', 'p=', '—', '–'):
+        for word in ('Optuna', 'Wilcoxon', 'FCD', 'p=', '—', '–'):
             self.assertNotIn(word, flow)
         self.assertEqual([int(n) for n in re.findall(r'<span class="n">(\d)</span>', flow)], list(range(1, 8)))
         for word in ('Optuna', 'Wilcoxon', 'p='):
@@ -101,3 +101,7 @@ class DashboardTests(unittest.TestCase):
         # The limits appear once, as the closing next steps, and name the rule we broke.
         self.assertEqual(deck.count('breaking the rule we set ourselves'), 1)
         self.assertNotIn('Promising', deck)
+        self.assertIn('Every direction came out ahead.', deck)
+        self.assertNotIn('short of the usual target', deck)
+        self.assertIn('Only 41 of 96 counted movements matched closely (GEH under 5)', deck)
+        self.assertIn('96 counted movements', d.grid_svg(41, 96))

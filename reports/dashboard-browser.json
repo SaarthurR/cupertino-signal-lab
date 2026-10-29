@@ -44,72 +44,6 @@
     "remote": []
   },
   {
-    "file": "reports/deck/slide-01.png",
-    "width": 1920,
-    "dark": false,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(245, 247, 248)",
-    "slide": 1,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-01-dark.png",
-    "width": 1920,
-    "dark": true,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(15, 26, 35)",
-    "slide": 1,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-02.png",
-    "width": 1920,
-    "dark": false,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(245, 247, 248)",
-    "slide": 2,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-02-dark.png",
-    "width": 1920,
-    "dark": true,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(15, 26, 35)",
-    "slide": 2,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-03.png",
-    "width": 1920,
-    "dark": false,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(245, 247, 248)",
-    "slide": 3,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-03-dark.png",
-    "width": 1920,
-    "dark": true,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(15, 26, 35)",
-    "slide": 3,
-    "notes": "none",
-    "remote": []
-  },
-  {
     "file": "reports/deck/slide-04.png",
     "width": 1920,
     "dark": false,
@@ -150,50 +84,6 @@
     "client": 1920,
     "bg": "rgb(15, 26, 35)",
     "slide": 5,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-06.png",
-    "width": 1920,
-    "dark": false,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(245, 247, 248)",
-    "slide": 6,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-06-dark.png",
-    "width": 1920,
-    "dark": true,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(15, 26, 35)",
-    "slide": 6,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-07.png",
-    "width": 1920,
-    "dark": false,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(245, 247, 248)",
-    "slide": 7,
-    "notes": "none",
-    "remote": []
-  },
-  {
-    "file": "reports/deck/slide-07-dark.png",
-    "width": 1920,
-    "dark": true,
-    "scroll": 1920,
-    "client": 1920,
-    "bg": "rgb(15, 26, 35)",
-    "slide": 7,
     "notes": "none",
     "remote": []
   },
