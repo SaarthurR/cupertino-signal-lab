@@ -1,0 +1,7 @@
+Final video: 92.32 s, 1920x1080, 25 fps, 14,792,495 bytes; rendered nice -n 15.
+Inspected final frames at 1, 7, 25, 33, 38, 43, 65, 89 seconds and the poster.
+Scores: title 9/10 (benefit stated), early explanation 8/10 (named plans), growing queues 9/10 (shared scale), race 8/10 (clear rings/timers), result 9/10 (direct numbers).
+Fixed: chart labels near ticks, driver labels over street names, future-dated closing caption, follow-ring caption after arrival.
+ffmpeg decoded full video with freezedetect: expected title 0-3s; sparse start 3-3.84s and slowed race 33.2-36s trigger the 0.3% movement threshold; clock/data keep advancing.
+Race: 20x during 17:04:20-17:07:46, 100x otherwise, both panels and chart share the same simulation clock.
+Validation: 45 tests passed before concurrent deck rewrite; final 3 video tests and all 8 tests against the exact staged dashboard source pass. Shared deck test subsequently expects 9 slides while concurrent builder emits 11; no unrelated test edits.

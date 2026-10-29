@@ -54,6 +54,7 @@ def stats(groups, metric):
 def fcd(path, offsets):
     """Keep compact arrays; release each parsed timestep rather than retaining XML."""
     frames, paths, times = [], {}, []
+    tracks, seen = {}, set()
     with gzip.open(path, 'rb') as stream:
         parser = ET.iterparse(stream, events=('start', 'end'))
         _, root = next(parser)
@@ -61,6 +62,14 @@ def fcd(path, offsets):
             if event == 'end' and element.tag == 'timestep':
                 time = int(float(element.get('time')))
                 times.append(time)
+                for v in element:
+                    vid = v.get('id')
+                    edge = v.get('lane').rsplit('_', 1)[0]
+                    if vid not in seen and 61200 <= time < 63000:
+                        tracks[vid] = []
+                    if vid in tracks:
+                        tracks[vid].append((time, float(v.get('x')), float(v.get('y')), edge))
+                    seen.add(vid)
                 if (time-VIDEO[0]) % STEP == 0:
                     cars = list(element)
                     frames.append((time, np.array([[float(v.get(k)) for k in ('x', 'y', 'speed')] for v in cars]).reshape(-1, 3)))
@@ -71,7 +80,33 @@ def fcd(path, offsets):
                 root.clear()
     if times != list(range(VIDEO[0], VIDEO[1], 2)):
         raise ValueError('FCD must cover 16:15 to 18:30 at two-second intervals')
-    return frames, paths
+    return frames, paths, tracks
+
+
+def typical_driver(tracks, endpoints, mainline):
+    """Median-nearest paired, completed westbound trip; all times are 2 s FCD observations."""
+    candidates = []
+    for vid in sorted(tracks[0].keys() & tracks[1].keys()):
+        pair = [group[vid] for group in tracks]
+        if not all(endpoints[0] in [s[3] for s in samples]
+                   and endpoints[1] in [s[3] for s in samples]
+                   and [s[3] for s in samples].index(endpoints[0]) < [s[3] for s in samples].index(endpoints[1])
+                   and samples[-1][0] < VIDEO[1]-2
+                   and all(s[3] in mainline or s[3].startswith(':') for s in samples)
+                   and all(b[0]-a[0] == 2 and np.hypot(b[1]-a[1], b[2]-a[2]) < 80
+                           for a, b in zip(samples, samples[1:])) for samples in pair):
+            continue
+        durations = [samples[-1][0]+2-samples[0][0] for samples in pair]
+        candidates.append((vid, durations, durations[0]-durations[1]))
+    if not candidates:
+        raise ValueError('No comparable complete westbound trips in both FCDs')
+    median = float(np.median([c[2] for c in candidates]))
+    chosen = min(candidates, key=lambda c: (abs(c[2]-median), c[0]))
+    return dict(id=chosen[0], durations=chosen[1], median_saving=median, count=len(candidates))
+
+
+def trip_text(seconds):
+    return f'{seconds//60} min {seconds%60:02} s'
 
 
 def timeline():
@@ -123,9 +158,8 @@ def caption_script(counters):
     textbook, ours = counters
     def shut(t): return textbook[t][1], ours[t][1]
     def ahead(t): return ours[t][2]-textbook[t][2]
-    last = VIDEO[1]-1
     script = [(VIDEO[0], VIDEO[0]+600,
-               f'{clock_text(VIDEO[0], False)}. Same cars, same clock. Left: the textbook plan. Right: our plan.')]
+               'Both roads are full at rush hour. The difference: how many cars get through,\nand how long the line outside is.')]
     # First sustained backlog outside the textbook corridor while ours still lets everyone in.
     begins = next((t for t in range(*VIDEO) if all(textbook[s][1] >= 25 for s in range(t, t+300))), None)
     if begins and shut(begins)[0] > shut(begins)[1]:
@@ -137,14 +171,18 @@ def caption_script(counters):
                                         f'on the left, {shut(t)[1]:,} on ours.'))
     if ahead(64800) > 0:
         script.append((64800, 65700, f'{clock_text(64800, False)} — our plan has finished {ahead(64800):,} more trips.'))
-    if ahead(last) > 0 and shut(last)[0] > shut(last)[1]:
-        script.append((66000, VIDEO[1], f'{clock_text(66600, False)} — {ahead(last):,} more trips finished, '
-                                       f'{shut(last)[0]-shut(last)[1]:,} fewer cars shut out.'))
+    if ahead(66000) > 0 and shut(66000)[0] > shut(66000)[1]:
+        script.append((66000, VIDEO[1], f'{clock_text(66000, False)} — {ahead(66000):,} more trips finished, '
+                                       f'{shut(66000)[0]-shut(66000)[1]:,} fewer cars shut out.'))
     return script
 
 
 def render_media(roads, signals, offsets, distance):
+    cfg = p.config()
+    westbound = boundaries(cfg)['wb']
     data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed{FCD_SEED}.xml.gz', offsets) for c in CONTROLLERS]
+    race = typical_driver([d[2] for d in data], westbound, cfg['mainline_edges'])
+    print('Typical driver:', race, 'observed departures:', [d[2][race['id']][0][0] for d in data], flush=True)
     counters = timeline()
     span = (VIDEO[1]-VIDEO[0])/60
     ticks = list(range(15, int(span)+1, 30))
@@ -152,7 +190,7 @@ def render_media(roads, signals, offsets, distance):
     # A quarter hour at the peak: the whole evening drawn at once is a solid block of ink.
     zoom = [(t-VIDEO[0])/60 for t in (63000, 63900)]
     zoom_ticks = list(range(int(zoom[0]), int(zoom[1])+1, 5))
-    for ax, (_, paths), label, color in zip(axes, data, LABELS, COLORS):
+    for ax, (_, paths, _), label, color in zip(axes, data, LABELS, COLORS):
         lines = [line for samples in paths.values() for line in segments(samples)]
         ax.add_collection(LineCollection(lines, colors=color, linewidths=.4, alpha=.5))
         ax.set(xlim=zoom, ylim=(0, distance), title=label,
@@ -178,14 +216,16 @@ def render_media(roads, signals, offsets, distance):
     fig = plt.figure(figsize=(19.2, 10.8), dpi=100)
     fig.patch.set_facecolor('#f7f8fa')
     axes = [fig.add_axes([.03+i*.495, .56, .455, .275]) for i in range(2)]
-    dots, readouts = [], []
+    dots, readouts, bars, queues, rings, timers, driver_labels = [], [], [], [], [], [], []
+    plan_colors = ('#b23b31', COLORS[1])
+    max_blocked = max(v[1] for c in counters for v in c.values())
     all_points = np.concatenate([np.array(r) for r in roads])
     xmin, ymin = all_points.min(axis=0); xmax, ymax = all_points.max(axis=0)
     fig.text(.03, .962, 'Cupertino Signal Lab', fontsize=32, fontweight='bold', va='center')
     clock = fig.text(.97, .958, '', fontsize=42, family='monospace', fontweight='bold', ha='right', va='center')
     fig.text(.03, .920, 'One evening on Stevens Creek Boulevard, two traffic light plans',
              fontsize=19, color='#53687a', va='center')
-    for ax, label in zip(axes, LABELS):
+    for ax, label, color in zip(axes, LABELS, plan_colors):
         ax.set_facecolor('#f7f8fa')
         ax.add_collection(LineCollection(roads, colors='#c3ccd4', linewidths=4))
         for i, (name, (x, y)) in enumerate(signals):
@@ -195,38 +235,49 @@ def render_media(roads, signals, offsets, distance):
         ax.axis('off')
         ax.set_title(label, fontsize=30, fontweight='bold', pad=16)
         dots.append(ax.scatter([], [], c=[], s=24, cmap='RdYlGn', vmin=0, vmax=16, zorder=3))
-        readouts.append(ax.text(.5, -.07, '', transform=ax.transAxes, ha='center', va='top', fontsize=20, linespacing=1.35))
-    caption = fig.text(.5, .388, '', fontsize=28, ha='center', va='center', color='#0b5f58')
+        rings.append(ax.plot([], [], 'o', ms=22, mfc='none', mec='#13242f', mew=3, zorder=12)[0])
+        driver_labels.append(ax.annotate('Typical driver', (0, 0), xytext=(0, -48), textcoords='offset points', ha='center',
+                                         arrowprops=dict(arrowstyle='-', color='#13242f'), fontsize=16, fontweight='bold', zorder=13,
+                                         bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2)))
+        queues.append(fig.text(.03+len(readouts)*.495, .527, '', fontsize=21, fontweight='bold', color=color))
+        bar_ax = fig.add_axes([.03+len(readouts)*.495, .493, .455, .016])
+        bar_ax.set(xlim=(0, max_blocked), ylim=(0, 1)); bar_ax.axis('off')
+        bar_ax.barh(.5, max_blocked, height=1, color='#dde4e9')
+        bars.append(bar_ax.barh(.5, 0, height=1, color=color)[0])
+        timers.append(fig.text(.03+len(readouts)*.495, .459, '', fontsize=21, fontweight='bold'))
+        readouts.append(fig.text(.03+(len(readouts))*.495, .425, '', fontsize=17, color='#53687a'))
+    caption = fig.text(.5, .367, '', fontsize=23, ha='center', va='center', color='#0b5f58')
 
     textbook, ours = counters
     minutes = [(t-VIDEO[0])/60 for t, _ in data[0][0]]
-    # One chart, and it is the whole argument: how far ahead our plan is, as the evening runs.
-    gaps = [[ours[t][2]-textbook[t][2] for t, _ in data[0][0]],
-            [textbook[t][1]-ours[t][1] for t, _ in data[0][0]]]
-    for series in gaps:
-        if series[-1] <= 0:
-            raise ValueError('The gap chart would claim a lead our plan does not have')
-    chart_ax = fig.add_axes([.105, .095, .80, .20])
+    queues_over_time = [[c[t][1] for t, _ in data[0][0]] for c in counters]
+    chart_ax = fig.add_axes([.105, .095, .72, .19])
     chart_ax.set_facecolor('#f7f8fa')
-    chart_ax.set(xlim=(0, span), ylim=(0, max(max(s) for s in gaps)*1.12),
+    chart_ax.set(xlim=(0, span), ylim=(0, max_blocked*1.16),
                  xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
     chart_ax.set_ylabel('Cars', fontsize=17)
-    chart_ax.set_title('How far ahead our plan is: more trips finished (solid), fewer cars shut out (dashed)',
+    chart_ax.set_title('Cars stuck waiting to get onto Stevens Creek',
                        loc='left', fontsize=21, fontweight='bold', pad=10)
     chart_ax.grid(axis='y', alpha=.18)
     chart_ax.tick_params(labelsize=16)
     for spine in ('top', 'right'):
         chart_ax.spines[spine].set_visible(False)
-    growth = [chart_ax.plot([], [], color=color, lw=4, linestyle=style)[0]
-              for color, style in ((COLORS[1], '-'), ('#a6560d', (0, (5, 3))))]
-    end_labels = [chart_ax.annotate(label, (0, 0), xytext=(-8, dy), textcoords='offset points',
-                                   ha='right', va='center', fontsize=16, color=line.get_color(),
+    growth = [chart_ax.plot([], [], color=color, lw=4)[0] for color in plan_colors]
+    end_labels = [chart_ax.annotate('', (0, 0), xytext=(8, dy), textcoords='offset points',
+                                   ha='left', va='center', fontsize=17, fontweight='bold', color=color,
                                    bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2))
-                  for label, dy, line in zip(('More trips finished', 'Fewer cars shut out'), (18, -22), growth)]
-    fig.text(.5, .048, f'Red = stopped, yellow = slow, green = moving   |   North is up   |   {STEP*FPS}x speed, same cars and same clock on both sides', ha='center', fontsize=16)
-    fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
+                  for color, dy in zip(plan_colors, (28, 6))]
+    fig.text(.5, .048, f'Red = stopped, yellow = slow, green = moving   |   North up   |   {STEP*FPS}x; driver race slowed to 20x', ha='center', fontsize=16)
+    fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Trip timers sampled every 2 s. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
 
     script = caption_script(counters)
+    race_start = min(d[2][race['id']][0][0] for d in data)
+    race_end = max(d[2][race['id']][-1][0]+2 for d in data)
+    script.append((race_start, race_end,
+                   'Follow the ring: a typical westbound driver, De Anza to Mary.\nSame car in both runs; selected at the median time saving.'))
+    script.append((race_end, race_end+600,
+                   f'This typical driver saved {race["durations"][0]-race["durations"][1]} seconds.\n'
+                   'The bigger difference: the line waiting outside.'))
     writer = FFMpegWriter(fps=FPS, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
     with writer.saving(fig, str(output), dpi=100):
@@ -234,7 +285,7 @@ def render_media(roads, signals, offsets, distance):
         card.set_xticks([]); card.set_yticks([])  # axis('off') would hide the opaque backdrop too
         for spine in card.spines.values():
             spine.set_visible(False)
-        for y, line, size in ((.66, 'Cupertino Signal Lab', 70), (.54, 'The same Stevens Creek evening, run twice', 34),
+        for y, line, size in ((.66, 'Cupertino Signal Lab', 70), (.54, 'A shorter line outside the same full road', 34),
                               (.44, f'Left: {LABELS[0]}.    Right: {LABELS[1]}.', 30),
                               (.34, f'{clock_text(VIDEO[0], False)} to {clock_text(VIDEO[1], False)}, sped up {STEP*FPS} times', 26)):
             card.text(.5, y, line, ha='center', fontsize=size, fontweight='bold' if size > 60 else 'normal',
@@ -251,13 +302,31 @@ def render_media(roads, signals, offsets, distance):
                     raise ValueError('FCD clocks differ')
                 dots[i].set_offsets(cars[:, :2]); dots[i].set_array(cars[:, 2])
                 waiting, blocked, finished = counters[i][time]
-                readouts[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} shut out of the corridor\n{finished:,} trips finished so far')
-            for line, series, label in zip(growth, gaps, end_labels):
+                queues[i].set_text(f'Line outside: {blocked:,} cars')
+                bars[i].set_width(blocked)
+                readouts[i].set_text(f'{waiting:,} stopped on road   |   {finished:,} trips finished')
+                samples = data[i][2][race['id']]
+                depart, arrive = samples[0][0], samples[-1][0]+2
+                position = next((s for s in samples if s[0] == time), None)
+                rings[i].set_data([position[1]] if position else [], [position[2]] if position else [])
+                driver_labels[i].set_visible(position is not None)
+                if position:
+                    driver_labels[i].xy = (position[1], position[2])
+                if time < depart:
+                    text = f'A typical driver • westbound • starts {clock_text(depart, False)}'
+                elif time < arrive:
+                    text = f'Ring = typical driver • traveling {trip_text(time-depart)}'
+                else:
+                    text = f'Typical driver • arrived in {trip_text(arrive-depart)}'
+                timers[i].set_text(text)
+            for line, series, label, name in zip(growth, queues_over_time, end_labels, LABELS):
                 line.set_data(minutes[:index+1], series[:index+1])
                 label.xy = (minutes[index], series[index])
+                label.set_text(f'{name}: {series[index]:,}')
                 label.set_visible(index > 0)
-            writer.grab_frame()
-            if time == 64800:  # 6 PM, with the gap wide open: the poster frame
+            for _ in range(5 if race_start <= time <= race_end else 1):
+                writer.grab_frame()
+            if time == max(d[2][race['id']][0][0] for d in data)+120:  # race in motion, chart already split
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
     plt.close(fig)
     if output.stat().st_size >= 50_000_000:
@@ -867,7 +936,7 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <details><summary>For the curious: full numbers, tests and method</summary>
 <p>{headline}</p>
-<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart under the two maps is the difference between the plans, our plan minus the textbook plan.</p>
+<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart compares the number waiting outside under each plan, textbook in red and ours in teal, on the same scale as the outside-line bars. The ring follows one westbound driver selected at the median saving among paired through trips first observed between 5:00 and 5:30 PM; trip timers use two-second samples.</p>
 <p class="muted">Preregistered on {f['prereg_date']} in <a href="../docs/PREREGISTRATION.md">docs/PREREGISTRATION.md</a>, before the optimizer or the test ran: the primary endpoint, the {f['cap']}% side-origin cap, the baseline + {f['slack']} teleport rule, the untouched seeds {min(SEEDS)} to {max(SEEDS)}, and a promise to report whichever way it went. The confirmatory comparison is the single test above; everything else here is descriptive and unadjusted.</p>
 <p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
 <div class="card wide" tabindex="0">{chart(groups,[('all_requested_delay_0_s','All-requested delay, no unfinished or teleport charge'),(PRIMARY,f'All-requested delay, {miss_charge:.0f} s charge (preregistered primary)'),('all_requested_delay_1800_s','All-requested delay, 1800 s charge')],'Preregistered primary and its sensitivity')}<small>Lower is better. Zero-charge p={pv('all_requested_delay_0_s')}; primary p={pv(PRIMARY)}; 1800 s p={pv('all_requested_delay_1800_s')}. Score = [completed time loss + completed insertion delay + charge x (unfinished + teleport events)] / requested vehicles. The charge is a scoring convention, not measured delay; the direction holds at all three levels.</small></div>

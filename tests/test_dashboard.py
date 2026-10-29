@@ -105,3 +105,19 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn('short of the usual target', deck)
         self.assertIn('Only 41 of 96 counted movements matched closely (GEH under 5)', deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
+
+    def test_typical_driver_is_nearest_paired_median_and_rejects_broken_paths(self):
+        def trip(duration):
+            return [(61200+t, t, 0, 'entry' if t == 0 else 'exit')
+                    for t in range(0, duration, 2)]
+        textbook = {'slow': trip(50), 'median': trip(40), 'fast': trip(30),
+                    'broken': trip(100), 'truncated': trip(40)}
+        ours = {'slow': trip(10), 'median': trip(20), 'fast': trip(30),
+                'broken': trip(10), 'truncated': trip(20)}
+        textbook['broken'].pop(3)
+        textbook['truncated'] = [(t, x, y, 'entry') for t, x, y, _ in trip(40)]
+        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'), ['entry', 'exit'])
+        self.assertEqual(chosen, dict(id='median', durations=[40, 20], median_saving=20., count=3))
+        self.assertEqual(d.trip_text(206), '3 min 26 s')
+        with self.assertRaises(ValueError):
+            d.typical_driver([{}, {}], ('entry', 'exit'), [])
