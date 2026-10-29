@@ -11,6 +11,8 @@ import xml.etree.ElementTree as ET
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+# Match the page's system sans so the figures and the HTML read as one piece.
+plt.rcParams['font.family'] = ['Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans']
 from matplotlib.animation import FFMpegWriter
 from matplotlib.collections import LineCollection
 import numpy as np
@@ -20,8 +22,10 @@ from scipy.stats import wilcoxon
 from . import pipeline as p
 from .evaluate import boundaries, command, CONTROLLERS
 
-COLORS = ('#52657b', '#087f78')
-LABELS = ('Textbook plan', 'Optimized plan')
+# One neutral grey for the textbook plan, one accent for ours, everywhere.
+COLORS = ('#636f78', '#0b7d73')
+INK = ('var(--plan)', 'var(--accent)')
+LABELS = ('Textbook plan', 'Our plan')
 
 
 def read_csv(path):
@@ -138,7 +142,7 @@ def caption_script(signals, data, histories):
     name, centre = next(s for s in signals if s[0].startswith('De Anza'))
     stopped = [[int(np.count_nonzero((cars[:, 2] < .1) & (np.hypot(*(cars[:, :2]-centre).T) < 150)))
                 for _, cars in frames] for frames, _ in data]
-    script = [(0, 170, 'Same cars, same clock. Left runs the textbook plan, right runs the tuned plan.')]
+    script = [(0, 170, 'Same cars, same clock. Left runs the textbook plan, right runs our plan.')]
     peak = max(range(180, 420), key=lambda i: stopped[0][i]-stopped[1][i])
     if stopped[0][peak] > stopped[1][peak]:
         short = name.replace(' Blvd', '')
@@ -146,7 +150,7 @@ def caption_script(signals, data, histories):
     script.append((520, 720, 'The two lines below are trips finished. The space between them is the whole result.'))
     lead = [b[2]-a[2] for a, b in zip(*histories)]
     if min(lead) > 0:
-        script.append((740, 900, f'The tuned plan runs about {round(sum(lead)/len(lead), -1):,.0f} trips ahead the whole time.'))
+        script.append((740, 900, f'Our plan runs about {round(sum(lead)/len(lead), -1):,.0f} trips ahead the whole time.'))
     return script
 
 
@@ -164,13 +168,15 @@ def render_media(roads, signals, offsets, distance):
     fig.savefig(p.ROOT/'reports/time_space.png', dpi=150)
     plt.close(fig)
 
-    fig, ax = plt.subplots(figsize=(8, 3.2))
-    ax.add_collection(LineCollection(roads, colors='#9fb0bd', linewidths=1.3))
-    for name, (x, y) in signals:
-        ax.plot(x, y, 'o', color='#0b7d73', ms=8, zorder=3)
-        ax.annotate(name.replace(' Blvd', '').replace(' Rd', ''), (x, y), xytext=(0, 12),
-                    textcoords='offset points', ha='center', fontsize=11, color='#13242f')
-    ax.autoscale_view(); ax.set_aspect('equal'); ax.axis('off')
+    # Zoomed on one junction: the hero map already shows the whole corridor, so this picture
+    # earns its place only by showing the turning paths inside an intersection.
+    name, (cx, cy) = next(s for s in signals if s[0].startswith('De Anza'))
+    fig, ax = plt.subplots(figsize=(7, 4.4))
+    ax.add_collection(LineCollection(roads, colors='#9fb0bd', linewidths=2.4))
+    ax.plot(cx, cy, 'o', color=COLORS[1], ms=11, zorder=3)
+    ax.text(.02, .05, f'{name} signal', transform=ax.transAxes, fontsize=14, color='#13242f')
+    ax.set(xlim=(cx-115, cx+115), ylim=(cy-72, cy+72), aspect='equal')
+    ax.axis('off')
     fig.savefig(p.ROOT/'reports/network.png', dpi=180, facecolor='white', bbox_inches='tight', pad_inches=.08)
     plt.close(fig)
 
@@ -200,15 +206,17 @@ def render_media(roads, signals, offsets, distance):
     minutes = [(t-63000)/60 for t, _ in data[0][0]]
     totals = [[h[2] for h in history] for history in histories]
     # The lead opens during warmup, so a zero-based axis would hide it; start just under the data.
-    chart_ax = fig.add_axes([.10, .115, .82, .175])
+    chart_ax = fig.add_axes([.10, .115, .74, .175])  # right margin left clear for the two line labels
     chart_ax.set_facecolor('#f7f8fa')
     chart_ax.set(xlim=(0, 15), ylim=(min(t[0] for t in totals)-200, max(t[-1] for t in totals)+200),
                  xlabel='Minutes after 17:30', ylabel='Trips finished\n(running total)')
-    chart_ax.grid(alpha=.18)
+    chart_ax.grid(axis='y', alpha=.18)
     for spine in ('top', 'right'):
         chart_ax.spines[spine].set_visible(False)
-    growth = [chart_ax.plot([], [], color=c, lw=3.5, label=l)[0] for c, l in zip(COLORS, LABELS)]
-    chart_ax.legend(loc='lower right', fontsize=15, frameon=False)
+    growth = [chart_ax.plot([], [], color=c, lw=3.5)[0] for c in COLORS]
+    # Label each line where it ends instead of parking a legend away from the data.
+    tags = [chart_ax.text(0, 0, label, color=colour, fontsize=16, fontweight='bold', va='center', clip_on=False)
+            for label, colour in zip(LABELS, COLORS)]
     fig.text(.5, .046, 'Red = stopped, yellow = slow, green = moving   |   North is up   |   8x speed, same cars and same clock on both sides', ha='center', fontsize=15)
     fig.text(.5, .017, 'Illustration only. Counters include warmup trips. North to south scale expanded. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=12, color='#53687a')
 
@@ -241,6 +249,7 @@ def render_media(roads, signals, offsets, distance):
                 waiting, blocked, finished = histories[i][index]
                 counters[i].set_text(f'{waiting:,} waiting on the road\n{blocked:,} blocked from entering\n{finished:,} trips finished so far')
                 growth[i].set_data(minutes[:index+1], totals[i][:index+1])
+                tags[i].set_position((minutes[index]+.18, totals[i][index]))
             writer.grab_frame()
             if index == 450:
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
@@ -275,7 +284,7 @@ def chart(groups, metrics, title):
         parts.append(f'<text x="0" y="{y-15}" fill="currentColor" font-size="16">{escape(label)}</text>')
         for i, (mean, sd) in enumerate(zip(means, sds)):
             yy = y+i*30; x = 170+mean/maximum*440; lo=170+max(0,mean-sd)/maximum*440; hi=170+(mean+sd)/maximum*440
-            parts.append(f'<text x="0" y="{yy+16}" fill="currentColor" font-size="13">{LABELS[i]}</text><rect x="170" y="{yy}" width="{x-170:.2f}" height="22" fill="{COLORS[i]}"/><path d="M {lo} {yy+11} H {hi} M {lo} {yy+5} V {yy+17} M {hi} {yy+5} V {yy+17}" stroke="currentColor" fill="none"/><text x="{hi+12}" y="{yy+16}" fill="currentColor" font-size="14">{mean:.1f} ± {sd:.1f} s</text>')
+            parts.append(f'<text x="0" y="{yy+16}" fill="currentColor" font-size="13">{LABELS[i]}</text><rect x="170" y="{yy}" width="{x-170:.2f}" height="22" fill="{INK[i]}"/><path d="M {lo} {yy+11} H {hi} M {lo} {yy+5} V {yy+17} M {hi} {yy+5} V {yy+17}" stroke="currentColor" fill="none"/><text x="{hi+12}" y="{yy+16}" fill="currentColor" font-size="14">{mean:.1f} ± {sd:.1f} s</text>')
     return ''.join(parts)+'</svg>'
 
 
@@ -298,7 +307,7 @@ def team_svg():
         for i in range(5):
             x = 64+i*108
             parts.append(f'<line x1="{x}" y1="{y-10}" x2="{x}" y2="{y-34}" stroke="var(--road)" stroke-width="4"/>'
-                         f'<rect x="{x-9}" y="{y-62}" width="18" height="34" rx="9" fill="{"#c2443a" if i in reds else "var(--accent)"}"/>')
+                         f'<rect x="{x-9}" y="{y-62}" width="18" height="34" rx="9" fill="{"var(--stop)" if i in reds else "var(--accent)"}"/>')
             queue = range(1, 5) if i in reds else (2,)
             for j in queue:
                 parts.append(f'<rect x="{x-14-j*22:.0f}" y="{y+14}" width="17" height="11" rx="3" fill="currentColor" opacity=".72"/>')
@@ -324,7 +333,7 @@ def offset_svg(path):
             x, width = 150+start/cycle*590, green/cycle*590
             left, right = max(150., x), min(740., x+width)
             if right > left:
-                parts.append(f'<rect x="{left:.1f}" y="{y-10}" width="{right-left:.1f}" height="20" rx="4" fill="var(--accent)"/>')
+                parts.append(f'<rect x="{left:.1f}" y="{y-10}" width="{right-left:.1f}" height="20" rx="4" fill="var(--plan)"/>')
     parts.append(text(150, 36+len(order)*52+12, '0 s', 13, fill='var(--muted)'))
     parts.append(text(740, 36+len(order)*52+12, f'{cycle:.0f} s', 13, anchor='end', fill='var(--muted)'))
     return cycle, svg(''.join(parts), 760, 36+len(order)*52+24,
@@ -337,7 +346,7 @@ def bars_svg(pairs, unit):
     parts = [text(0, 16, unit, 15, fill='var(--muted)')]
     for i, (name, value) in enumerate(pairs):
         x, height = 30+i*width, value/top*170
-        parts.append(f'<rect x="{x+7:.1f}" y="{230-height:.1f}" width="{width-14:.1f}" height="{height:.1f}" rx="4" fill="var(--accent)"/>')
+        parts.append(f'<rect x="{x+7:.1f}" y="{230-height:.1f}" width="{width-14:.1f}" height="{height:.1f}" rx="4" fill="var(--plan)"/>')
         parts.append(text(x+width/2, 252, name, 14, 'middle', 'var(--muted)'))
         parts.append(text(x+width/2, 224-height, f'{value:,.0f}', 14, 'middle'))
     parts.append('<line x1="24" y1="230" x2="736" y2="230" stroke="var(--line)" stroke-width="2"/>')
@@ -346,24 +355,24 @@ def bars_svg(pairs, unit):
 
 def grid_svg(hit, total, target):
     """One square per measured count; filled means the simulation landed close to it."""
-    columns = 12
+    columns, cell = 8, 24
     parts = []
     for i in range(total):
-        x, y = 2+i % columns*34, 2+i//columns*34
+        x, y = 2+i % columns*cell, 2+i//columns*cell
         if i < hit:
             style = 'fill="var(--accent)" stroke="var(--accent)"'
         elif i < target:
-            style = 'fill="none" stroke="var(--warn)" stroke-dasharray="4 3"'
+            style = 'fill="none" stroke="var(--warn)" stroke-dasharray="3 2.5"'
         else:
             style = 'fill="none" stroke="var(--line)"'
-        parts.append(f'<rect x="{x}" y="{y}" width="26" height="26" rx="5" stroke-width="2" {style}/>')
-    rows = -(-total//columns)
-    legend = rows*34+26
-    parts.append(f'<rect x="2" y="{legend}" width="16" height="16" rx="4" fill="var(--accent)"/>'
-                 + text(28, legend+14, f'{hit} counts we matched', 15))
-    parts.append(f'<rect x="230" y="{legend}" width="16" height="16" rx="4" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="4 3"/>'
-                 + text(256, legend+14, f'{target-hit} short of the usual target', 15))
-    return svg(''.join(parts), 560, legend+30, f'{hit} of {total} measured counts matched closely')
+        parts.append(f'<rect x="{x}" y="{y}" width="19" height="19" rx="4" stroke-width="2" {style}/>')
+    edge = 2+columns*cell
+    for centre, colour, line in ((hit//2, 'var(--accent)', f'{hit} we matched'),
+                                 ((hit+target)//2, 'var(--warn)', f'{target-hit} short of the usual target')):
+        y = 2+centre//columns*cell+11
+        parts.append(f'<line x1="{edge}" y1="{y}" x2="{edge+20}" y2="{y}" stroke="{colour}" stroke-width="2"/>'
+                     + text(edge+28, y+5, line, 14, fill=colour, weight=600))
+    return svg(''.join(parts), 460, -(-total//columns)*cell+6, f'{hit} of {total} measured counts matched closely')
 
 
 def best_so_far(trials):
@@ -391,7 +400,8 @@ def curve_svg(curve):
              text(110, 248, 'first try', 14, fill='var(--muted)'),
              text(710, 248, f'try {len(curve)}', 14, 'end', fill='var(--muted)')]
     x, y = point(len(curve)-1, low)
-    parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="7" fill="var(--accent)"/>')
+    parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="7" fill="var(--accent)"/>'
+                 + text(x-14, y-16, 'the plan we kept', 14, 'end', 'var(--accent)', 600))
     return svg(''.join(parts), 760, 260, 'Best score so far falls as the tuner tries more timing plans')
 
 
@@ -407,21 +417,195 @@ def seeds_svg(fit, holdout):
 
 
 def paired_svg(groups, key, label):
-    """One row per test rush hour: both plans, same randomness."""
+    """One row per test rush hour: both plans, same randomness. Labelled on the data, not in a key."""
     values = [[float(r[key]) for r in group] for group in groups]
     low = min(min(v) for v in values)*.985
     high = max(max(v) for v in values)*1.004
-    parts = [text(0, 18, label, 15, fill='var(--muted)')]
+    def place(j, i):
+        return 150+(values[j][i]-low)/(high-low)*500
+    parts = [text(0, 20, label, 15, fill='var(--muted)')]
     for i in range(len(values[0])):
-        y = 46+i*26
-        a, b = (150+(values[j][i]-low)/(high-low)*520 for j in range(2))
+        y = 70+i*26
+        a, b = place(0, i), place(1, i)
         parts.append(f'<line x1="{a:.1f}" y1="{y}" x2="{b:.1f}" y2="{y}" stroke="var(--line)" stroke-width="3"/>'
-                     f'<circle cx="{a:.1f}" cy="{y}" r="6" fill="{COLORS[0]}"/><circle cx="{b:.1f}" cy="{y}" r="6" fill="{COLORS[1]}"/>')
+                     f'<circle cx="{a:.1f}" cy="{y}" r="6" fill="{INK[0]}"/><circle cx="{b:.1f}" cy="{y}" r="6" fill="{INK[1]}"/>')
         parts.append(text(0, y+5, f'rush hour {i+1}', 13, fill='var(--muted)'))
-    bottom = 46+len(values[0])*26
-    for j, name in enumerate(LABELS):
-        parts.append(f'<circle cx="{156+j*230}" cy="{bottom+6}" r="6" fill="{COLORS[j]}"/>'+text(170+j*230, bottom+11, name, 14))
-    return svg(''.join(parts), 700, bottom+30, f'{label} for both plans in each of the ten test rush hours')
+    for j, (name, anchor) in enumerate(zip(LABELS, ('end', 'start'))):
+        x = place(j, 0)+(-12 if j == 0 else 12)
+        parts.append(text(x, 54, name, 14, anchor, INK[j], 600))
+    return svg(''.join(parts), 700, 70+len(values[0])*26, f'{label} for both plans in each of the ten test rush hours')
+
+
+def pipeline_svg(steps, groups):
+    """The whole project as one left-to-right flow, so a judge sees the shape before the detail."""
+    box, pitch, split = 150, 186, 70
+    def left(i): return 20+i*pitch+(split-pitch+box if i >= 3 else 0)
+    parts = ['<defs><marker id="flow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+             '<polygon points="0 0, 9 3.5, 0 7" fill="var(--road)"/></marker></defs>']
+    for i, name in enumerate(groups):
+        start, end = left(i*3), left(i*3+2)+box
+        parts.append(text(start, 26, name, 13, fill='var(--muted)', weight=700)
+                     + f'<line x1="{start}" y1="38" x2="{end}" y2="38" stroke="var(--line)" stroke-width="2"/>')
+    for i, (title, sub) in enumerate(steps):
+        x = left(i)
+        if i:
+            parts.append(f'<line x1="{left(i-1)+box+7}" y1="110" x2="{x-9}" y2="110" '
+                         'stroke="var(--road)" stroke-width="2" marker-end="url(#flow)"/>')
+        parts.append(f'<rect x="{x}" y="58" width="{box}" height="104" rx="12" fill="var(--paper)" '
+                     'stroke="var(--line)" stroke-width="1.5"/>'
+                     + text(x+16, 84, f'Step {i+1}', 12.5, fill='var(--accent)', weight=700)
+                     + text(x+16, 112, title, 17, weight=600)
+                     + text(x+16, 136, sub, 13.5, fill='var(--muted)'))
+    return svg(''.join(parts), left(5)+box+20, 182, 'The six steps of the project, in order')
+
+
+PIPELINE_GROUPS = ('Build the street', 'Find a better plan')
+
+
+def pipeline_steps(f):
+    return [('The street', 'map to simulator'), ('The data', f'{f["measured"][0]["year"]} city counts'),
+            ('The cars', f'{f["trips"]:,} trips'), ('Textbook plan', 'the one to beat'),
+            ('Tuning', f'{len(f["curve"])} plans tried'), ('Fair test', f'{len(f["groups"][0])} unseen hours')]
+
+
+def build_deck(rows, roads, signals):
+    """Nine slides for the live pitch, on the page's own look and the page's own numbers."""
+    f = facts(rows)
+    slides = [
+        ('<h1>Cupertino Signal Lab</h1><p class="lead">Five traffic lights on Stevens Creek, retimed by a computer '
+         'and tested on rush hours it had never seen.</p><p class="hint">Arrow keys to move. Press N for notes.</p>',
+         'Hi, we are Cupertino Signal Lab. We took five real traffic lights near school and asked a computer to retime them.'),
+        (f'<h2>Rush hour barely moves.</h2><div class="fill" style="--fw:1664px">{map_svg(roads, signals)}</div>'
+         '<p class="under">Mary Avenue to De Anza Boulevard. Five signals in about two kilometres.</p>',
+         'This is the stretch we studied. Five lights in a row, and at five thirty the eastbound line barely moves.'),
+        (f'<h2>What if the five lights worked as a team?</h2><div class="fill" style="--fw:940px">{team_svg()}</div>',
+         'Right now each light decides on its own. If they turn green in order, a car can roll the whole way without stopping.'),
+        (f'<h2>How we built it</h2><div class="fill" style="--fw:1664px">{pipeline_svg(pipeline_steps(f), PIPELINE_GROUPS)}</div>',
+         'We rebuilt the real street in a traffic simulator, filled it with cars from the city counts, built the plan an engineer would use, then let a computer search for a better one.'),
+        (f'<h2>The honest part: our traffic is not exact.</h2><div class="two" style="--cols:900px 1fr"><div class="fill">'
+         f'{grid_svg(f["close"], len(f["checks"]), f["target"])}</div><div>'
+         f'<p>One square per real counted movement. We matched {f["close"]} of {len(f["checks"])}. '
+         f'Traffic engineers aim for about {f["target"]}.</p>'
+         f'<p>The counts are from {f["measured"][0]["year"]}, and {len(f["guessed"])} of the five intersections '
+         'were never counted at all. Everything after this inherits that error.</p></div></div>',
+         'Before any result, the thing we would want a judge to push on. Our traffic has the right shape but it is not exact, and we say so on the page.'),
+        (f'<h2>{len(f["curve"])} plans tried, then a test it could not study for.</h2>'
+         f'<div class="two" style="--cols:1020px 560px"><div class="fill">{curve_svg(f["curve"])}</div>'
+         f'<div class="fill">{seeds_svg(f["cfg"]["seeds"], f["groups"][0])}</div></div>',
+         f'A tuning tool tried {len(f["curve"])} timing plans on three practice rush hours. Then we scored both plans on ten different rush hours it had never seen.'),
+        ('<h2>The same rush hour, run twice.</h2><div class="fill video">'
+         '<video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png">'
+         '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
+         '<p class="under">Left: the textbook plan. Right: our plan. Same cars, same clock.</p>',
+         'Here they are side by side. Same cars, same clock. Watch the counters, then watch the two lines at the bottom.'),
+        (f'<h2>The result</h2><div class="scores"><div class="score"><strong>+{f["extra"]:,.0f}</strong>'
+         '<span>more trips finished per rush hour</span></div><div class="score">'
+         f'<strong>{f["faster"]:.1f}%</strong><span>faster for eastbound drivers</span></div>'
+         f'<div class="score cost"><strong>+{f["cost"]:.1f}%</strong><span>more time lost by side street drivers</span>'
+         f'</div></div><div class="fill" style="--fw:1400px">{paired_svg(f["groups"], "completed", "Trips finished in each test rush hour")}</div>',
+         f'Our plan finished about {f["extra"]:,.0f} more trips in {f["verdict"]} test hours, and eastbound drivers got through {f["faster"]:.0f} percent faster. The third number is the cost: side street drivers wait longer.'),
+        (f'<h2>What we would do next</h2><ul class="notes"><li>Ask VTA for counts newer than {f["measured"][0]["year"]}.</li>'
+         '<li>Put pedestrians and bikes in the model.</li><li>Try a second corridor.</li></ul>'
+         '<p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from City of '
+         'Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
+         'None of this has been tested on a real street, and we would need newer counts and a supervised pilot first. Thanks for listening.'),
+    ]
+    body = ''.join(f'<section class="slide"><div class="inner">{html}</div>'
+                   f'<p class="note">{escape(note)}</p></section>' for html, note in slides)
+    return f'''<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cupertino Signal Lab, pitch deck</title>
+<style>
+:root{{color-scheme:light dark;--bg:#f5f7f8;--paper:#fff;--ink:#13242f;--muted:#53687a;--line:#dde4e9;--accent:#0b7d73;--soft:#eef7f5;--warn:#a6560d;--plan:#636f78;--stop:#b23b31;--road:#a9b8c4}}
+@media(prefers-color-scheme:dark){{:root{{--bg:#0f1a23;--paper:#17242e;--ink:#e8eff3;--muted:#a7bac6;--line:#2e414e;--accent:#5ecabd;--soft:#16302d;--warn:#e9a75d;--plan:#9aa9b4;--stop:#e2796c;--road:#61788a}}}}
+*{{box-sizing:border-box;margin:0}}
+html,body{{width:100%;height:100%;overflow:hidden;background:var(--bg)}}
+body{{color:var(--ink);font:28px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}}
+.viewport{{position:fixed;inset:0;overflow:hidden}}
+.stage{{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--bg)}}
+.slide{{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;padding:96px 128px 112px;background:var(--bg)}}
+.slide.active{{visibility:visible;opacity:1;pointer-events:auto;z-index:1}}
+.inner{{display:flex;flex-direction:column;justify-content:center;height:100%;gap:40px}}
+h1{{font-size:132px;line-height:1;letter-spacing:-.045em;max-width:16ch}}
+h2{{font-size:76px;line-height:1.06;letter-spacing:-.035em;max-width:20ch}}
+p{{font-size:32px;line-height:1.45;max-width:46ch;color:var(--muted)}}
+.lead{{font-size:44px;line-height:1.3;color:var(--muted);max-width:28ch}}
+.hint{{font-size:24px;color:var(--muted)}}
+.under{{font-size:27px}}
+.fill{{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}}
+.fill>svg{{width:100%;max-width:var(--fw,1664px);height:auto;max-height:100%}}
+.two{{flex:1;display:grid;grid-template-columns:var(--cols,1fr 1fr);gap:72px;align-items:center;align-content:center;min-height:0}}
+.two p{{font-size:30px;margin-bottom:22px}}
+.video{{height:100%}}
+video{{max-height:640px;border-radius:18px;background:#0b1218}}
+.scores{{display:grid;grid-template-columns:repeat(3,1fr);gap:64px}}
+.score strong{{display:block;font-size:112px;line-height:1;letter-spacing:-.04em;color:var(--accent);font-variant-numeric:tabular-nums}}
+.score.cost strong{{color:var(--warn)}}
+.score span{{display:block;margin-top:16px;font-size:28px;color:var(--muted);max-width:14ch}}
+.notes{{list-style:none;padding:0;max-width:40ch}}
+.notes li{{padding:24px 0;border-top:1px solid var(--line);font-size:36px}}
+.note{{position:absolute;left:128px;right:128px;bottom:34px;font-size:22px;line-height:1.4;color:var(--muted);max-width:none;display:none}}
+body.notes-on .note{{display:block}}
+.count{{position:fixed;right:22px;bottom:16px;z-index:9;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}}
+@media(prefers-reduced-motion:no-preference){{.slide{{transition:opacity .22s ease-out}}}}
+</style>
+<div class="viewport"><div class="stage" id="stage">{body}</div></div>
+<p class="count" id="count"></p>
+<script>
+// Fixed 1920x1080 stage, scaled as one piece so slides never reflow.
+const stage = document.getElementById('stage'), slides = [...document.querySelectorAll('.slide')],
+      count = document.getElementById('count');
+let at = 0;
+const fit = () => {{
+  const k = Math.min(innerWidth/1920, innerHeight/1080);
+  stage.style.transform = `translate(${{(innerWidth-1920*k)/2}}px, ${{(innerHeight-1080*k)/2}}px) scale(${{k}})`;
+}};
+const show = i => {{
+  at = Math.max(0, Math.min(i, slides.length-1));
+  slides.forEach((s, j) => s.classList.toggle('active', j === at));
+  count.textContent = `${{at+1}} / ${{slides.length}}`;
+}};
+addEventListener('resize', fit);
+addEventListener('keydown', e => {{
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) {{ show(at+1); e.preventDefault(); }}
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {{ show(at-1); e.preventDefault(); }}
+  else if (e.key === 'Home') show(0);
+  else if (e.key === 'End') show(slides.length-1);
+  else if (e.key === 'n' || e.key === 'N') document.body.classList.toggle('notes-on');
+}});
+fit(); show(0);
+</script>
+</html>'''
+
+
+def facts(rows):
+    """Every derived number the page and the deck quote, read once from the project's own files."""
+    groups = cohort(rows)
+    with open(p.ROOT/'sim/routes_pm_peak.rou.xml') as stream:
+        trips = sum(1 for line in stream if '<vehicle ' in line)
+    trials = read_csv(p.ROOT/'reports/optimize_trials.csv')
+    checks = read_csv(p.ROOT/'reports/demand_check.csv')
+    sources = read_csv(p.ROOT/'data/processed/tmc_sources.csv')
+    measured = [r for r in sources if r['source'] == 'measured']
+    counts = {}  # 15-minute totals at the first measured intersection
+    for row in read_csv(p.ROOT/'data/processed/tmc.csv'):
+        if row['intersection'] == measured[0]['intersection']:
+            counts[row['interval_start']] = counts.get(row['interval_start'], 0)+int(row['vehicles'])
+    base_cycle, base_svg = offset_svg(p.ROOT/'sim/tls_actuated_pm_peak.add.xml')
+    wins = sum(float(b['completed']) > float(a['completed']) for a, b in zip(*groups))
+    completed, eb, side = (stats(groups, k)[0] for k in ('completed', 'mainline_travel_eb_s', 'side_time_loss_s'))
+    return {
+        'groups': groups, 'cfg': p.config(), 'trips': trips, 'curve': best_so_far(trials),
+        'cycles': [float(r['params_cycle_s']) for r in trials],
+        'miss_charge': ast.literal_eval(trials[0]['user_attrs_stats'])['vehicle_penalty_s'],
+        'checks': checks, 'close': sum(float(r['geh']) < 5 for r in checks),
+        'target': round(len(checks)*.85), 'measured': measured,
+        'hourly': [r['intersection'] for r in sources if r['source'] != 'measured' and r['count_date']],
+        'guessed': [r['intersection'] for r in sources if not r['count_date']],
+        'counts': counts, 'base_cycle': base_cycle, 'base_svg': base_svg,
+        'verdict': f'all {wins}' if wins == len(groups[0]) else f'{wins} of the {len(groups[0])}',
+        'extra': completed[1]-completed[0], 'faster': (1-eb[1]/eb[0])*100, 'cost': (side[1]/side[0]-1)*100,
+    }
 
 
 def build_page(rows, tests, roads, signals):
@@ -451,31 +635,16 @@ def build_page(rows, tests, roads, signals):
                       f"{float(r['max_green_s']):.1f}", f"{float(r['passage_s']):.1f}")
             body += '<tr>'+''.join(f'<td>{escape(v)}</td>' for v in values)+'</tr>'
         tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
-    cfg = p.config()
-    with open(p.ROOT/'sim/routes_pm_peak.rou.xml') as stream:
-        trips = sum(1 for line in stream if '<vehicle ' in line)
-    trials = read_csv(p.ROOT/'reports/optimize_trials.csv')
-    curve = best_so_far(trials)
-    cycles = [float(r['params_cycle_s']) for r in trials]
-    miss_charge = ast.literal_eval(trials[0]['user_attrs_stats'])['vehicle_penalty_s']
-    checks = read_csv(p.ROOT/'reports/demand_check.csv')
-    close = sum(float(r['geh']) < 5 for r in checks)
-    sources = read_csv(p.ROOT/'data/processed/tmc_sources.csv')
-    measured = [r for r in sources if r['source'] == 'measured']
-    hourly = [r['intersection'] for r in sources if r['source'] != 'measured' and r['count_date']]
-    guessed = [r['intersection'] for r in sources if not r['count_date']]
-    counts = {}
-    for row in read_csv(p.ROOT/'data/processed/tmc.csv'):
-        if row['intersection'] == measured[0]['intersection']:
-            counts[row['interval_start']] = counts.get(row['interval_start'], 0)+int(row['vehicles'])
-    base_cycle, base_svg = offset_svg(p.ROOT/'sim/tls_actuated_pm_peak.add.xml')
-    wins = sum(float(b['completed']) > float(a['completed']) for a, b in zip(*groups))
-    verdict = f'all {wins}' if wins == len(groups[0]) else f'{wins} of the {len(groups[0])}'
+    f = facts(rows)
+    cfg, trips, curve, cycles = f['cfg'], f['trips'], f['curve'], f['cycles']
+    miss_charge, checks, close = f['miss_charge'], f['checks'], f['close']
+    measured, hourly, guessed, counts = f['measured'], f['hourly'], f['guessed'], f['counts']
+    base_cycle, base_svg, verdict = f['base_cycle'], f['base_svg'], f['verdict']
     return f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cupertino Signal Lab</title>
 <style>
-:root{{color-scheme:light dark;--bg:#f5f7f8;--paper:#fff;--ink:#13242f;--muted:#53687a;--line:#dde4e9;--accent:#0b7d73;--soft:#e6f2f0;--warn:#a6560d;--road:#a9b8c4;--r:14px}}
-@media(prefers-color-scheme:dark){{:root{{--bg:#0f1a23;--paper:#17242e;--ink:#e8eff3;--muted:#a7bac6;--line:#2e414e;--accent:#5ecabd;--soft:#16302d;--warn:#e9a75d;--road:#61788a}}}}
+:root{{color-scheme:light dark;--bg:#f5f7f8;--paper:#fff;--ink:#13242f;--muted:#53687a;--line:#dde4e9;--accent:#0b7d73;--soft:#eef7f5;--warn:#a6560d;--plan:#636f78;--stop:#b23b31;--road:#a9b8c4;--r:14px}}
+@media(prefers-color-scheme:dark){{:root{{--bg:#0f1a23;--paper:#17242e;--ink:#e8eff3;--muted:#a7bac6;--line:#2e414e;--accent:#5ecabd;--soft:#16302d;--warn:#e9a75d;--plan:#9aa9b4;--stop:#e2796c;--road:#61788a}}}}
 *{{box-sizing:border-box}}
 body{{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}}
 main{{max-width:1040px;margin:auto;padding:0 28px 72px}}
@@ -483,10 +652,11 @@ h1{{font-size:clamp(38px,6.4vw,64px);line-height:1.03;letter-spacing:-.045em;mar
 h2{{font-size:clamp(25px,3.5vw,35px);line-height:1.14;letter-spacing:-.03em;margin:0 0 12px;max-width:21ch}}
 p{{margin:12px 0;max-width:60ch}}
 .lead{{font-size:clamp(19px,2.3vw,22px);color:var(--muted);max-width:42ch}}
-.kicker{{font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:700;color:var(--accent);margin:0}}
 .muted{{color:var(--muted)}}
-small{{display:block;font-size:13.5px;line-height:1.55;color:var(--muted);max-width:84ch;margin-top:14px}}
-header{{padding:56px 0 0}}
+small{{display:block;font-size:13.5px;line-height:1.55;color:var(--muted);max-width:74ch;margin-top:14px}}
+.masthead{{display:flex;justify-content:space-between;gap:20px;padding:22px 0;border-bottom:1px solid var(--line);font-size:14.5px;font-weight:600;letter-spacing:.01em}}
+.masthead span{{color:var(--muted);font-weight:400}}
+header{{padding:52px 0 0}}
 .step{{padding:78px 0;border-top:1px solid var(--line)}}
 .n{{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;background:var(--soft);color:var(--accent);font:700 16px/1 inherit;margin-bottom:16px}}
 figure{{margin:28px 0 0}}
@@ -497,7 +667,9 @@ svg,img,video{{display:block;width:100%;height:auto}}
 img{{border-radius:calc(var(--r) - 4px);background:#fff}}
 video{{border-radius:var(--r);background:#0b1218}}
 .wide{{overflow-x:auto}}
+.wide:focus-visible{{outline:3px solid var(--accent);outline-offset:4px}}
 .wide>svg,.wide>img{{min-width:560px}}
+.wide.flow>svg{{min-width:880px}}
 .split{{display:grid;grid-template-columns:5fr 6fr;gap:48px;align-items:center}}
 .split figure{{margin:0}}
 .chips{{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0;padding:0;list-style:none}}
@@ -517,26 +689,34 @@ table{{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:t
 th,td{{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}}
 .scroll{{overflow-x:auto}}
 a{{color:var(--accent)}}
+::selection{{background:var(--soft);color:var(--ink)}}
+.wide,.scroll{{scrollbar-color:var(--road) transparent;scrollbar-width:thin}}
+video{{accent-color:var(--accent)}}
 footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid var(--line)}}
-@keyframes rise{{from{{opacity:0;transform:translateY(20px)}}to{{opacity:1;transform:none}}}}
-@media(prefers-reduced-motion:no-preference){{@supports(animation-timeline:view()){{.step>*,header>*{{animation:rise linear both;animation-timeline:view();animation-range:entry 12% entry 88%}}}}}}
+@keyframes fade{{from{{opacity:0}}to{{opacity:1}}}}
+@media(prefers-reduced-motion:no-preference){{@supports(animation-timeline:view()){{.step{{animation:fade linear both;animation-timeline:view();animation-range:entry 4% entry 30%}}}}}}
 @media(max-width:860px){{.split{{grid-template-columns:1fr;gap:26px}}.split figure{{margin-top:12px}}}}
 @media(max-width:720px){{main{{padding:0 18px 52px}}.step{{padding:52px 0}}.scores{{grid-template-columns:1fr;gap:26px}}.card{{padding:16px}}}}
 </style><main>
-<header><p class="kicker">Cupertino Signal Lab</p><h1>Rush hour on Stevens Creek.</h1><p class="lead">Five traffic lights in a row, and a line of cars that barely moves.</p>
-<figure><div class="card tight wide">{map_svg(roads, signals)}</div><figcaption>The stretch we studied, drawn from the real street map. Eastbound runs from Mary Avenue to De Anza Boulevard. North is up, and the north to south distance is stretched so the names fit.</figcaption></figure></header>
+<p class="masthead">Cupertino Signal Lab<span>AI Club hackathon project</span></p>
+<header><h1>Rush hour on Stevens Creek.</h1><p class="lead">Five traffic lights in a row, and a line of cars that barely moves.</p>
+<figure><div class="card tight wide" tabindex="0">{map_svg(roads, signals)}</div><figcaption>The stretch we studied, drawn from the real street map. Eastbound runs from Mary Avenue to De Anza Boulevard. North is up, and the north to south distance is stretched so the names fit.</figcaption></figure></header>
 
 <section class="step"><h2>What if the five lights worked as a team?</h2>
 <p>Today each light decides on its own. If they turn green in order, a car can roll from one end to the other without stopping. That is the whole idea we tested.</p>
 <figure><div class="card">{team_svg()}</div></figure></section>
 
+<section class="step"><h2>How we built it</h2>
+<p>Three steps to build a street we could experiment on, then three to find a better plan and check it honestly.</p>
+<figure><div class="card wide flow" tabindex="0">{pipeline_svg(pipeline_steps(f), PIPELINE_GROUPS)}</div></figure></section>
+
 <section class="step"><div class="split"><div><span class="n">1</span><h2>We rebuilt the real street inside a traffic simulator.</h2>
-<p>Every lane and every turn comes from the public street map. All five lights line up with the real ones.</p></div>
-<figure><div class="card tight wide"><img src="../reports/network.png" alt="The Stevens Creek corridor road network with the five signals marked" loading="lazy"></div><figcaption>The roads the simulated cars actually drive on, with the five signals marked.</figcaption></figure></div></section>
+<p>Every road and every turning path comes from the public street map. All five lights line up with the real ones.</p></div>
+<figure><div class="card tight wide" tabindex="0"><img src="../reports/network.png" alt="Close view of one intersection showing every road and turning path the simulated cars can use" loading="lazy"></div><figcaption>Inside one of the five intersections. Every short curve is a turn a simulated car can take.</figcaption></figure></div></section>
 
 <section class="step"><span class="n">2</span><h2>The car counts come from City of Cupertino traffic reports.</h2>
 <p>People stood at the intersections and wrote down every turn, every 15 minutes. The newest public counts we could find are from {measured[0]['year']}, so that is the traffic we model. It is not today's traffic.</p>
-<figure><div class="card wide">{bars_svg(sorted(counts.items()), 'cars through ' + measured[0]['intersection'] + ' per 15 minutes')}</div><figcaption>Counted at {escape(measured[0]['intersection'])} and Stevens Creek on {measured[0]['count_date']}. The rush builds toward 17:15 and stays heavy for an hour.</figcaption></figure>
+<figure><div class="card wide" tabindex="0">{bars_svg(sorted(counts.items()), 'cars through ' + measured[0]['intersection'] + ' per 15 minutes')}</div><figcaption>Counted at {escape(measured[0]['intersection'])} and Stevens Creek on {measured[0]['count_date']}. The rush builds toward 17:15 and stays heavy for an hour.</figcaption></figure>
 <ul class="chips"><li>Counted every 15 minutes: {', '.join(escape(r['intersection']) for r in measured)}</li><li>Counted by the hour: {', '.join(escape(n) for n in hourly)}</li><li>No counts, estimated: {', '.join(escape(n) for n in guessed)}</li></ul></section>
 
 <section class="step"><div class="split"><div><span class="n">3</span><h2>Those counts become {trips:,} car trips.</h2>
@@ -545,26 +725,26 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <section class="step"><span class="n">4</span><h2>First we built the plan an engineer would use.</h2>
 <p>A standard textbook formula gives all five lights one shared {base_cycle:.0f} second cycle and starts each main green at a different moment. That plan is what we have to beat. It is not Cupertino's current timing.</p>
-<figure><div class="card wide">{base_svg}</div><figcaption>Green bars are the main road's green time at each light through one cycle. Going east, each green starts later than the one before, and the last one wraps into the next cycle.</figcaption></figure></section>
+<figure><div class="card wide" tabindex="0">{base_svg}</div><figcaption>Each bar is the main road's green time at that light through one cycle. Going east, each green starts later than the one before, and the last one wraps into the next cycle.</figcaption></figure></section>
 
 <section class="step"><span class="n">5</span><h2>The computer tried {len(curve)} timing plans and kept the best.</h2>
 <p>A tuning tool changes the timing, runs the entire rush hour, scores it, then tries again. Nobody picked the winner by hand.</p>
-<figure><div class="card wide">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes.</figcaption></figure>
+<figure><div class="card wide" tabindex="0">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes.</figcaption></figure>
 <ul class="chips"><li>How long one full cycle lasts ({min(cycles):.0f} to {max(cycles):.0f} seconds)</li><li>When each light starts its green</li><li>How much of the cycle the main road gets</li></ul>
 <p>One rule keeps it honest. A plan cannot win by holding cars out of the corridor: every trip that never finished was charged {miss_charge/60:.0f} minutes of delay, so starving the entrances always scores worse.</p></section>
 
 <section class="step"><div class="split"><div><span class="n">6</span><h2>Then we tested both plans on {len(groups[0])} rush hours the tuner never saw.</h2>
-<p>Tuning used {len(cfg['seeds'])} practice rush hours. Scoring used {len(groups[0])} different ones: same road, same demand, new randomness. The tuned plan could not win by memorising its practice runs.</p></div>
+<p>Tuning used {len(cfg['seeds'])} practice rush hours. Scoring used {len(groups[0])} different ones: same road, same demand, new randomness. Our plan could not win by memorising its practice runs.</p></div>
 <figure><div class="card">{seeds_svg(cfg['seeds'], groups[0])}</div></figure></div></section>
 
 <section class="step"><h2>Watch the same rush hour twice.</h2>
-<video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation of the textbook plan and the tuned plan"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video>
-<ul class="notes"><li>Left is the textbook plan. Right is the tuned plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The two lines at the bottom count trips finished. The tuned plan stays ahead the whole time.</li></ul>
+<figure><div class="card tight"><video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation of the textbook plan and our plan"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video></div></figure>
+<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The two lines at the bottom count trips finished. Our plan stays ahead the whole time.</li></ul>
 <small>17:30 to 17:45 at 8x speed, from one example run that was also used while tuning, so it shows what the plans look like rather than proving anything. The numbers below come from the ten test rush hours instead. Counts include warmup trips. The north to south scale is stretched and signal states were not recorded.</small></section>
 
 <section class="step"><h2>The result</h2>
 <div class="scores"><div class="score"><strong>+{completed[1]-completed[0]:,.0f}</strong><span>more trips finished per rush hour</span></div><div class="score"><strong>{(1-eb[1]/eb[0])*100:.1f}%</strong><span>faster for eastbound drivers</span></div><div class="score cost"><strong>+{(side[1]/side[0]-1)*100:.1f}%</strong><span>more time lost by side street drivers, the honest cost</span></div></div>
-<figure><div class="card wide">{paired_svg(groups, 'completed', 'Trips finished in the test hour')}</div><figcaption>Each line is one of the {len(groups[0])} test rush hours, with both plans run on the same randomness. The tuned plan finishes more trips in {verdict}.</figcaption></figure></section>
+<figure><div class="card wide" tabindex="0">{paired_svg(groups, 'completed', 'Trips finished in the test hour')}</div><figcaption>Each line is one of the {len(groups[0])} test rush hours, with both plans run on the same randomness. Our plan finishes more trips in {verdict}.</figcaption></figure></section>
 
 <section class="step"><h2>What this does not prove</h2>
 <ul class="notes"><li>The counts are from {measured[0]['year']} and {len(guessed)} of the five intersections were never counted at all.</li><li>It is a simulation. Nothing was tested on a real street, and these are not Cupertino's current light settings.</li><li>Side street drivers lose time. A real city would have to decide whether that trade is worth making.</li></ul>
@@ -574,9 +754,9 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 <p>{headline}</p>
 <p class="muted">The three counters in the video: waiting on the road means speed below 0.1 m/s; blocked from entering means the scheduled departure has passed with no first insertion yet, and teleported cars are not counted as blocked; trips finished means recorded arrivals so far.</p>
 <p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
-<div class="card wide">{chart(groups,[('all_vehicle_delay_s','All-requested score, 1800 s unfinished charge'),('all_vehicle_delay_zero_unfinished_s','All-requested score, zero unfinished charge')],'All-requested scores')}<small>Lower is better. Main score p={pv('all_vehicle_delay_s')}; zero-charge p={pv('all_vehicle_delay_zero_unfinished_s')}. Score = [completed time loss + completed insertion delay + 1800 x (unfinished + teleport events)] / requested. The 1800 s charge is a scoring rule, not measured delay. Zero-charge removes only the unfinished charge and retains the teleport charge; it is a lower bound on score, not physical total delay.</small></div>
-<div class="card wide">{chart(groups,[('mainline_travel_eb_s','Eastbound corridor travel'),('mainline_travel_wb_s','Westbound corridor travel')],'Corridor travel')}<small>EB p={pv('mainline_travel_eb_s')}; WB p={pv('mainline_travel_wb_s')} (no supported westbound gain). Directional travel excludes pre-insertion delay and teleported vehicles.</small></div>
-<div class="card wide">{chart(groups,[('mean_time_loss_s','Completed-only time loss'),('side_time_loss_s','Completed-only side-origin time loss'),('mean_depart_delay_s','Completed-only insertion delay')],'Completed-only outcomes')}<small>Completed-only loss p={pv('mean_time_loss_s')} for improvement: that original outcome worsens. Time loss measures in-road slowing; insertion delay measures waiting to enter; side-origin loss is for trips starting off the mainline. These omit unfinished demand and can carry survivor bias.</small></div>
+<div class="card wide" tabindex="0">{chart(groups,[('all_vehicle_delay_s','All-requested score, 1800 s unfinished charge'),('all_vehicle_delay_zero_unfinished_s','All-requested score, zero unfinished charge')],'All-requested scores')}<small>Lower is better. Main score p={pv('all_vehicle_delay_s')}; zero-charge p={pv('all_vehicle_delay_zero_unfinished_s')}. Score = [completed time loss + completed insertion delay + 1800 x (unfinished + teleport events)] / requested. The 1800 s charge is a scoring rule, not measured delay. Zero-charge removes only the unfinished charge and retains the teleport charge; it is a lower bound on score, not physical total delay.</small></div>
+<div class="card wide" tabindex="0">{chart(groups,[('mainline_travel_eb_s','Eastbound corridor travel'),('mainline_travel_wb_s','Westbound corridor travel')],'Corridor travel')}<small>EB p={pv('mainline_travel_eb_s')}; WB p={pv('mainline_travel_wb_s')} (no supported westbound gain). Directional travel excludes pre-insertion delay and teleported vehicles.</small></div>
+<div class="card wide" tabindex="0">{chart(groups,[('mean_time_loss_s','Completed-only time loss'),('side_time_loss_s','Completed-only side-origin time loss'),('mean_depart_delay_s','Completed-only insertion delay')],'Completed-only outcomes')}<small>Completed-only loss p={pv('mean_time_loss_s')} for improvement: that original outcome worsens. Time loss measures in-road slowing; insertion delay measures waiting to enter; side-origin loss is for trips starting off the mainline. These omit unfinished demand and can carry survivor bias.</small></div>
 <small>Bars show mean plus or minus one sample standard deviation across seeds 3 to 12, not confidence intervals and not real-world uncertainty. P-values are paired one-sided Wilcoxon tests, optimized below textbook. Extra completions use the complementary unfinished count. Score and directional tests are post-result exploratory and unadjusted; no overall winner is established. Full PM and holdout windows overlap. Fitted-hour demand is replayed, so these seeds test randomness and later operating conditions, not unseen measured demand. The side-street cost has p={side_p:.6f} when tested for improvement.</small>
 <p class="muted">Night is estimated demand and shows no supported gain: all-requested score {' to '.join(f'{v:.2f}' for v in stats(cohort(rows,'night','full'),'all_vehicle_delay_s')[0])} s.</p>
 <figure><img src="../reports/time_space.png" alt="Eastbound car trajectories for the textbook and optimized plans" loading="lazy"><figcaption>One path per car while it is on the eastbound corridor. Rising lines mean movement, flat lines mean waiting. Same illustrative seed 0 as the video, not aggregate evidence.</figcaption></figure>
@@ -596,7 +776,9 @@ def dashboard():
     rows = read_csv(p.ROOT/'reports/results.csv')
     tests = read_csv(p.ROOT/'reports/wilcoxon.csv')
     page = build_page(rows, tests, roads, signals)
+    deck = build_deck(rows, roads, signals)
     render_media(roads, signals, offsets, distance)
     (p.ROOT/'dashboard').mkdir(exist_ok=True)
     (p.ROOT/'dashboard/index.html').write_text(page)
-    print('Built dashboard/index.html, side_by_side.mp4, side_by_side_poster.png, time_space.png')
+    (p.ROOT/'dashboard/deck.html').write_text(deck)
+    print('Built dashboard/index.html, dashboard/deck.html, side_by_side.mp4, side_by_side_poster.png, time_space.png')

@@ -72,3 +72,16 @@ class DashboardTests(unittest.TestCase):
         for link in re.findall(r'(?:href|src|poster)="([^"]+)"', html):
             if link.endswith(('.csv',)):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
+
+    def test_deck_is_nine_offline_slides_with_a_spoken_note_each(self):
+        roads, signals, _, _ = d.geometry(p.config())
+        rows = d.read_csv(p.ROOT/'reports/results.csv')
+        deck = d.build_deck(rows, roads, signals)
+        self.assertEqual(deck.count('<section class="slide">'), 9)
+        self.assertEqual(deck.count('<p class="note">'), 9)
+        self.assertNotIn('https://', deck)
+        for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
+            self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
+        facts = d.facts(rows)
+        for text in (f'+{facts["extra"]:,.0f}', f'{facts["faster"]:.1f}%', str(facts['close']), f'{facts["trips"]:,}'):
+            self.assertIn(text, deck)
