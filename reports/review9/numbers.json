@@ -1,0 +1,110 @@
+{
+  "captions": [
+    [
+      58500,
+      59100,
+      "Both roads are full at rush hour. The difference: how many cars get through,\nand how long the line outside is."
+    ],
+    [
+      59385,
+      60105,
+      "4:29 PM \u2014 the queue outside the textbook plan starts growing: 26 cars shut out, 0 on ours."
+    ],
+    [
+      60300,
+      61200,
+      "4:45 PM \u2014 195 cars shut out of the corridor on the left, 20 on ours."
+    ],
+    [
+      63000,
+      63900,
+      "5:30 PM \u2014 915 cars shut out of the corridor on the left, 544 on ours."
+    ],
+    [
+      64800,
+      65700,
+      "6:00 PM \u2014 our plan has finished 657 more trips."
+    ],
+    [
+      66000,
+      66600,
+      "6:20 PM \u2014 680 more trips finished, 663 fewer cars shut out."
+    ]
+  ],
+  "slide6": {
+    "try0": 396.4492997493734,
+    "kept": 224,
+    "kept_score": 269.85603007518796,
+    "search_minutes": 96.36588398541669,
+    "search_seeds": 5,
+    "pick_seeds": 8
+  },
+  "slide7": {
+    "thrown_out": 181,
+    "miss_charge": 899.9999999999992,
+    "cap": 5,
+    "slack": 2,
+    "knobs": [
+      [
+        1,
+        "Cycle length",
+        "one round of greens, shared by all five, 80 to 150 s"
+      ],
+      [
+        5,
+        "Start times",
+        "where in that cycle each light turns green: the wave"
+      ],
+      [
+        16,
+        "Green split dials",
+        "stretch or shrink one phase\u2019s green, x0.6 to x1.4"
+      ],
+      [
+        5,
+        "Shortest main green",
+        "7 to 30 s, and never longer than that phase\u2019s green"
+      ],
+      [
+        5,
+        "Gap times",
+        "how much quiet ends a green early, 2 to 4 s"
+      ]
+    ]
+  },
+  "slide10": {
+    "delay_cut": 22.709514904670613,
+    "faster": 16.538431299034706,
+    "wb_cut": 35.56060213137254,
+    "side_cut": 15.019894529893286,
+    "teleports": [
+      185,
+      17
+    ],
+    "n_test": 20,
+    "verdict": "18 of the 20"
+  },
+  "slide11": [
+    "Work out what happened in rush hour 5. In that one hour our plan left 15 cars so stuck the simulator had to lift them out, where the textbook plan left 0, breaking the rule we set ourselves before the test.",
+    "Only 41 of 96 counted movements matched closely (GEH under 5); better counts come first.",
+    "Get real counts for Bandley Dr and Saich Way. Nobody ever counted those two side streets, so we estimated them.",
+    "Take it outside the simulator: current counts from VTA, pedestrians and bikes in the model, and a supervised pilot before any real light changes."
+  ],
+  "primary_mean_s": [
+    836.7683568295739,
+    646.7423221177944
+  ],
+  "snapshot_counters_at_61458": [
+    [
+      221,
+      422,
+      5489
+    ],
+    [
+      176,
+      179,
+      5705
+    ]
+  ],
+  "checks": "Six exact numeric spot-checks plus all displayed counts, bounds, rule failures and caption claims verified; generated HTML equals source builders."
+}

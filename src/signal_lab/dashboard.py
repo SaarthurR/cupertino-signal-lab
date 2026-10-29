@@ -66,7 +66,7 @@ def fcd(path, offsets):
                 for v in element:
                     vid = v.get('id')
                     edge = v.get('lane').rsplit('_', 1)[0]
-                    if vid not in seen and 61200 <= time < 63000:
+                    if vid not in seen and 61200 <= time:
                         tracks[vid] = []
                     if vid in tracks:
                         tracks[vid].append((time, float(v.get('x')), float(v.get('y')), edge))
@@ -84,10 +84,12 @@ def fcd(path, offsets):
     return frames, paths, tracks
 
 
-def typical_driver(tracks, endpoints, mainline):
-    """Median-nearest paired, completed westbound trip; all times are 2 s FCD observations."""
+def typical_driver(tracks, endpoints, mainline, requested):
+    """Median-nearest request-to-arrival saving; entry/arrival use 2 s FCD samples."""
     candidates = []
     for vid in sorted(tracks[0].keys() & tracks[1].keys()):
+        if vid not in requested or not 61200 <= requested[vid] < 63000:
+            continue
         pair = [group[vid] for group in tracks]
         if not all(endpoints[0] in [s[3] for s in samples]
                    and endpoints[1] in [s[3] for s in samples]
@@ -97,16 +99,18 @@ def typical_driver(tracks, endpoints, mainline):
                    and all(b[0]-a[0] == 2 and np.hypot(b[1]-a[1], b[2]-a[2]) < 80
                            for a, b in zip(samples, samples[1:])) for samples in pair):
             continue
-        durations = [samples[-1][0]+2-samples[0][0] for samples in pair]
+        durations = [samples[-1][0]+2-requested[vid] for samples in pair]
         candidates.append((vid, durations, durations[0]-durations[1]))
     if not candidates:
         raise ValueError('No comparable complete westbound trips in both FCDs')
     median = float(np.median([c[2] for c in candidates]))
     chosen = min(candidates, key=lambda c: (abs(c[2]-median), c[0]))
-    return dict(id=chosen[0], durations=chosen[1], median_saving=median, count=len(candidates))
+    return dict(id=chosen[0], requested=requested[chosen[0]], durations=chosen[1],
+                median_saving=median, count=len(candidates))
 
 
 def trip_text(seconds):
+    seconds = round(seconds)
     return f'{seconds//60} min {seconds%60:02} s'
 
 
@@ -182,7 +186,9 @@ def render_media(roads, signals, offsets, distance):
     cfg = p.config()
     westbound = boundaries(cfg)['wb']
     data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed{FCD_SEED}.xml.gz', offsets) for c in CONTROLLERS]
-    race = typical_driver([d[2] for d in data], westbound, cfg['mainline_edges'])
+    requested = {v.get("id"): float(v.get("depart"))
+                 for v in ET.parse(p.ROOT/"sim/routes_pm_peak.rou.xml").getroot().findall("vehicle")}
+    race = typical_driver([d[2] for d in data], westbound, cfg['mainline_edges'], requested)
     print('Typical driver:', race, 'observed departures:', [d[2][race['id']][0][0] for d in data], flush=True)
     counters = timeline()
     span = (VIDEO[1]-VIDEO[0])/60
@@ -272,13 +278,13 @@ def render_media(roads, signals, offsets, distance):
     fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Trip timers sampled every 2 s. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
 
     script = caption_script(counters)
-    race_start = min(d[2][race['id']][0][0] for d in data)
+    race_start = race['requested']
     race_end = max(d[2][race['id']][-1][0]+2 for d in data)
     script.append((race_start, race_end,
-                   'Follow the ring: a typical westbound driver, De Anza to Mary.\nSame car in both runs; selected at the median time saving.'))
+                   f'Typical westbound trip: {trip_text(race["durations"][0])} vs {trip_text(race["durations"][1])}, including the wait outside.\nClock starts at the same request; selected nearest the median saving.'))
     script.append((race_end, race_end+600,
-                   f'This typical driver saved {race["durations"][0]-race["durations"][1]} seconds.\n'
-                   'The bigger difference: the line waiting outside.'))
+                   f'This driver saved {race["durations"][0]-race["durations"][1]:g} seconds from request to arrival.\n'
+                   f'Median saving: {race["median_saving"]:g} seconds across {race["count"]} comparable westbound trips.'))
     writer = FFMpegWriter(fps=FPS, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
     with writer.saving(fig, str(output), dpi=100):
@@ -295,6 +301,24 @@ def render_media(roads, signals, offsets, distance):
             writer.grab_frame()
         card.remove()
         for index, (time, _) in enumerate(data[0][0]):
+            if time-STEP < race_start <= time:
+                # Hold the request moment so even a sub-frame insertion wait is visible.
+                clock.set_text(clock_text(race_start))
+                caption.set_text('Request snapshot (held for readability): both drivers asked to drive.\n'
+                                 'The total clock includes waiting to get on, then driving.')
+                for i, timer in enumerate(timers):
+                    timer.set_text('Typical driver • waiting to get on • 0 min 00 s')
+                    waiting, blocked, finished = counters[i][int(race_start)]
+                    queues[i].set_text(f'Line outside: {blocked:,} cars')
+                    bars[i].set_width(blocked)
+                    readouts[i].set_text(f'{waiting:,} stopped on road   |   {finished:,} trips finished')
+                    growth[i].set_data(minutes[:index]+[(race_start-VIDEO[0])/60],
+                                       queues_over_time[i][:index]+[blocked])
+                    end_labels[i].xy = ((race_start-VIDEO[0])/60, blocked)
+                    end_labels[i].set_text(f'{LABELS[i]}: {blocked:,}')
+                for _ in range(FPS):
+                    writer.grab_frame()
+                fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
             clock.set_text(clock_text(time))
             caption.set_text(next((line for start, stop, line in script if start <= time < stop), ''))
             for i in range(2):
@@ -313,12 +337,14 @@ def render_media(roads, signals, offsets, distance):
                 driver_labels[i].set_visible(position is not None)
                 if position:
                     driver_labels[i].xy = (position[1], position[2])
-                if time < depart:
-                    text = f'A typical driver • westbound • starts {clock_text(depart, False)}'
+                if time < race_start:
+                    text = f'Typical driver • requests {clock_text(race_start)}'
+                elif time < depart:
+                    text = f'Typical driver • waiting to get on • {trip_text(time-race_start)}'
                 elif time < arrive:
-                    text = f'Ring = typical driver • traveling {trip_text(time-depart)}'
+                    text = f'Typical driver • driving • {trip_text(time-race_start)} total'
                 else:
-                    text = f'Typical driver • arrived in {trip_text(arrive-depart)}'
+                    text = f'Typical driver • arrived in {trip_text(arrive-race_start)} total'
                 timers[i].set_text(text)
             for line, series, label, name in zip(growth, queues_over_time, end_labels, LABELS):
                 line.set_data(minutes[:index+1], series[:index+1])
@@ -327,8 +353,6 @@ def render_media(roads, signals, offsets, distance):
                 label.set_visible(index > 0)
             for _ in range(5 if race_start <= time <= race_end else 1):
                 writer.grab_frame()
-            if time == max(d[2][race['id']][0][0] for d in data)+120:  # race in motion, chart already split
-                fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
     plt.close(fig)
     if output.stat().st_size >= 50_000_000:
         raise ValueError('Video exceeds 50 MB')
@@ -512,21 +536,24 @@ def tuner_loop_svg(f):
     box, pitch = 345, 385
     parts = ['<defs><marker id="loop" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
              '<polygon points="0 0, 9 3.5, 0 7" fill="var(--road)"/></marker></defs>']
-    for i, (title, first, second) in enumerate(LOOP):
+    for i, (title, first, second) in enumerate((('Pick a plan', '32 numbers', '5 lights'),
+                                                ('Run it', '5 practice', 'rush hours'),
+                                                ('Score it', 'Seconds lost', 'per car'),
+                                                ('Learn', 'Use scores', 'to try again'))):
         x = i*pitch
         if i:
             parts.append(f'<line x1="{x-pitch+box+8}" y1="108" x2="{x-10}" y2="108" '
                          'stroke="var(--road)" stroke-width="3" marker-end="url(#loop)"/>')
-        parts.append(f'<rect x="{x}" y="20" width="{box}" height="176" rx="16" fill="var(--paper)" '
+        parts.append(f'<rect x="{x}" y="20" width="{box}" height="220" rx="16" fill="var(--paper)" '
                      'stroke="var(--line)" stroke-width="2"/>'
                      + text(x+30, 62, i+1, 24, fill='var(--accent)', weight=700)
-                     + text(x+30, 106, title, 33, weight=600)
-                     + text(x+30, 146, first, 22, fill='var(--muted)')
-                     + text(x+30, 174, second, 22, fill='var(--muted)'))
-    parts.append(f'<path d="M {3*pitch+box/2} 196 V 232 Q {3*pitch+box/2} 242 {3*pitch+box/2-10} 242 '
-                 f'H {box/2+10} Q {box/2} 242 {box/2} 232 V 208" fill="none" stroke="var(--road)" '
+                     + text(x+30, 106, title, 44, weight=600)
+                     + text(x+30, 164, first, 44, fill='var(--muted)')
+                     + text(x+30, 212, second, 44, fill='var(--muted)'))
+    parts.append(f'<path d="M {3*pitch+box/2} 240 V 260 Q {3*pitch+box/2} 270 {3*pitch+box/2-10} 270 '
+                 f'H {box/2+10} Q {box/2} 270 {box/2} 260 V 252" fill="none" stroke="var(--road)" '
                  'stroke-width="3" marker-end="url(#loop)"/>'
-                 + text(750, 278, f'next try, {len(f["curve"])} tries in all', 24, 'middle', 'var(--muted)'))
+                 + text(750, 310, f'next try, {len(f["curve"])} tries in all', 24, 'middle', 'var(--muted)'))
     parts.append(text(0, 344, f'Score on the {f["search_seeds"]} practice rush hours, seconds lost per car',
                       24, fill='var(--muted)'))
     for i, (value, label, ink) in enumerate(((f['try0'], 'Try 0, the textbook plan', INK[0]),
@@ -751,7 +778,7 @@ def build_deck(rows, roads, signals):
          '<video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png">'
          '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
          '<p class="under">Left: the textbook plan. Right: our plan. Same cars, same clock.</p>',
-         'Here they are side by side, the whole evening sped up. Same cars, same clock. Watch the chart at the bottom: that is the gap between the two plans, and it keeps opening.'),
+         'Here they are side by side, the whole evening sped up. Same cars, same clock. Watch the chart at the bottom: cars waiting outside, textbook in red and ours in teal. The typical-driver clock starts when the car asks to drive, including the wait to get on.'),
         (f'<h2>Every direction came out ahead.</h2><div class="scores">'
          f'<div class="score"><strong>{f["delay_cut"]:.0f}%</strong><span>less time lost per car</span></div>'
          f'<div class="score"><strong>{f["faster"]:.0f}%</strong><span>faster eastbound</span></div>'
@@ -1048,7 +1075,7 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <section class="step"><h2>Watch the same evening twice.</h2>
 <figure><div class="card tight"><video controls playsinline preload="metadata" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation of the textbook plan and our plan"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video></div></figure>
-<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The chart at the bottom is the gap between the two plans. It opens as the evening goes on.</li></ul>
+<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The chart at the bottom shows cars waiting outside: textbook in red, ours in teal. The race clock includes the wait to get on.</li></ul>
 <small>{clock_text(VIDEO[0], False)} to {clock_text(VIDEO[1], False)} at {STEP*FPS}x speed, from one of the {f['n_test']} test rush hours. One run shows what the plans look like; it does not prove anything on its own, and the numbers below come from all {f['n_test']}. The north to south scale is stretched and signal states were not recorded.</small></section>
 
 <section class="step"><h2>The result</h2>
@@ -1062,7 +1089,7 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 
 <details><summary>For the curious: full numbers, tests and method</summary>
 <p>{headline}</p>
-<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart compares the number waiting outside under each plan, textbook in red and ours in teal, on the same scale as the outside-line bars. The ring follows one westbound driver selected at the median saving among paired through trips first observed between 5:00 and 5:30 PM; trip timers use two-second samples.</p>
+<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart compares the number waiting outside under each plan, textbook in red and ours in teal, on the same scale as the outside-line bars. The ring follows one westbound driver selected at the median saving among paired through trips requested between 5:00 and 5:30 PM. Timers start at scheduled departure in the demand file and include waiting to get on, then driving, until arrival estimated from two-second samples.</p>
 <p class="muted">Preregistered on {f['prereg_date']} in <a href="../docs/PREREGISTRATION.md">docs/PREREGISTRATION.md</a>, before the optimizer or the test ran: the primary endpoint, the {f['cap']}% side-origin cap, the baseline + {f['slack']} teleport rule, the untouched seeds {min(SEEDS)} to {max(SEEDS)}, and a promise to report whichever way it went. The confirmatory comparison is the single test above; everything else here is descriptive and unadjusted.</p>
 <p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
 <div class="card wide" tabindex="0">{chart(groups,[('all_requested_delay_0_s','All-requested delay, no unfinished or teleport charge'),(PRIMARY,f'All-requested delay, {miss_charge:.0f} s charge (preregistered primary)'),('all_requested_delay_1800_s','All-requested delay, 1800 s charge')],'Preregistered primary and its sensitivity')}<small>Lower is better. Zero-charge p={pv('all_requested_delay_0_s')}; primary p={pv(PRIMARY)}; 1800 s p={pv('all_requested_delay_1800_s')}. Score = [completed time loss + completed insertion delay + charge x (unfinished + teleport events)] / requested vehicles. The charge is a scoring convention, not measured delay; the direction holds at all three levels.</small></div>

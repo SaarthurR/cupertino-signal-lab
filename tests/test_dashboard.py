@@ -140,8 +140,23 @@ class DashboardTests(unittest.TestCase):
                 'broken': trip(10), 'truncated': trip(20)}
         textbook['broken'].pop(3)
         textbook['truncated'] = [(t, x, y, 'entry') for t, x, y, _ in trip(40)]
-        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'), ['entry', 'exit'])
-        self.assertEqual(chosen, dict(id='median', durations=[40, 20], median_saving=20., count=3))
+        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'), ['entry', 'exit'],
+                                  {vid: 61200 for vid in textbook})
+        self.assertEqual(chosen, dict(id='median', requested=61200, durations=[40, 20], median_saving=20., count=3))
         self.assertEqual(d.trip_text(206), '3 min 26 s')
         with self.assertRaises(ValueError):
-            d.typical_driver([{}, {}], ('entry', 'exit'), [])
+            d.typical_driver([{}, {}], ('entry', 'exit'), [], {})
+
+    def test_driver_selection_counts_wait_and_filters_requests_not_entries(self):
+        def trip(entry, duration):
+            return [(entry+t, t, 0, 'entry' if t == 0 else 'exit')
+                    for t in range(0, duration, 2)]
+        textbook = {'a': trip(63200, 40), 'b': trip(61500, 40),
+                    'c': trip(61400, 40), 'early': trip(61210, 40)}
+        ours = {'a': trip(63000, 40), 'b': trip(61400, 60),
+                'c': trip(61400, 20), 'early': trip(61210, 20)}
+        requested = {'a': 62900, 'b': 61300, 'c': 61300, 'early': 61190}
+        chosen = d.typical_driver([textbook, ours], ('entry', 'exit'),
+                                  ['entry', 'exit'], requested)
+        self.assertEqual(chosen, dict(id='b', requested=61300, durations=[240, 160],
+                                     median_saving=80., count=3))
