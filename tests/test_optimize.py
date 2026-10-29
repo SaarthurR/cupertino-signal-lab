@@ -66,7 +66,7 @@ class OptimizeTests(unittest.TestCase):
                 for index, (before, after) in enumerate(zip(old, new)):
                     self.assertEqual(after.get('id'), before.get('id'))
                     self.assertEqual(after.get('type'), 'actuated')
-                    self.assertEqual(after.get('programID'), 'optuna')
+                    self.assertEqual(after.get('programID'), 'optuna_v3')
                     self.assertAlmostEqual(float(after.get('offset')), 20*index)
                     settings = {r.get('key'): r.get('value') for r in after.findall('param')}
                     self.assertEqual(float(settings['cycleTime']), 100)
@@ -82,14 +82,15 @@ class OptimizeTests(unittest.TestCase):
                         self.assertTrue(10 <= maximum <= 60)
                         self.assertGreater(maximum, float(b.get('minDur')))
                         expected.append(dict(sumo_tls_id=after.get('id'), cycle_s=100, offset_s=float(after.get('offset')),
-                                             phase=phase, max_green_s=maximum, passage_s=2.5))
+                                             phase=phase, min_green_s=float(b.get('minDur')),
+                                             max_green_s=maximum, passage_s=2.5))
                         self.assertTrue(elapsed < float(b.get('latestEnd')) <= 100)
                         elapsed = float(b.get('latestEnd'))
                 self.assertEqual(timing, expected)
                 p.write_csv(Path(temp)/'timing.csv', timing)
                 with open(Path(temp)/'timing.csv') as stream:
                     reader = csv.DictReader(stream)
-                    self.assertEqual(reader.fieldnames, ['sumo_tls_id','cycle_s','offset_s','phase','max_green_s','passage_s'])
+                    self.assertEqual(reader.fieldnames, ['sumo_tls_id','cycle_s','offset_s','phase','min_green_s','max_green_s','passage_s'])
                     self.assertEqual(len(list(reader)), len(expected))
 
     def test_persisted_file_contracts(self):
@@ -137,8 +138,10 @@ class OptimizeTests(unittest.TestCase):
         def run(args):
             summary = Path(args[args.index('--summary-output')+1])
             trips = Path(args[args.index('--tripinfo-output')+1])
+            routes = Path(args[args.index('--vehroute-output')+1])
             summary.write_text('<summary><step teleports="1" inserted="3" running="1" waiting="1"/></summary>')
             trips.write_text('<tripinfos><tripinfo id="done" arrival="1" timeLoss="20" departDelay="30" waitingCount="2"/></tripinfos>')
+            routes.write_text('<routes/>')
             Path(args[args.index('--error-log')+1]).write_text("Warning: Teleporting vehicle 'done'")
             self.assertEqual(args[args.index('--seed')+1], 2)
             self.assertEqual(args[args.index('-e')+1], 64800)
@@ -149,7 +152,8 @@ class OptimizeTests(unittest.TestCase):
         self.assertEqual(stats['mean_time_loss_s'], 20)
         self.assertEqual(stats['all_requested_delay_s'], (50+900*3)/3)
         self.assertEqual(stats['side_all_requested_delay_s'], 950)
-        self.assertEqual(o.objective_value([stats], [stats]), stats['all_requested_delay_s'])
+        constrained = dict(stats, mainline_travel_eb_s=100, mainline_travel_wb_s=100)
+        self.assertEqual(o.objective_value([constrained], [constrained]), stats['all_requested_delay_s'])
 
     def test_phase_shares_and_per_signal_passage(self):
         rows = [dict(min_green_s=7, max_green_s=60, yellow_s=3, red_clear_s=1)]*4
@@ -170,17 +174,30 @@ class OptimizeTests(unittest.TestCase):
             for i, logic in enumerate(ET.parse(path).getroot().findall('tlLogic')):
                 gap = next(v.get('value') for v in logic.findall('param') if v.get('key') == 'max-gap')
                 self.assertAlmostEqual(float(gap), 2+i*.4)
+                main = next(v for v in logic.findall('phase') if v.get('name') == 'mainline')
+                self.assertEqual(float(main.get('minDur')), 7)
+        params.update({f'min_{i}': 30 for i in range(5)})
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp)/'plan.xml'
+            o.plan('pm_peak', params, path)
+            for logic in ET.parse(path).getroot().findall('tlLogic'):
+                main = next(v for v in logic.findall('phase') if v.get('name') == 'mainline')
+                self.assertTrue(7 <= float(main.get('minDur')) < float(main.get('maxDur')))
 
     def test_constraint_mean_boundary_and_teleport_reject(self):
-        base = [dict(side_all_requested_delay_s=100, all_requested_delay_s=300, teleports=2)]*3
-        candidate = [dict(side_all_requested_delay_s=105, all_requested_delay_s=200, teleports=4)]*3
+        base = [dict(side_all_requested_delay_s=100, mainline_travel_eb_s=200,
+                     mainline_travel_wb_s=100, all_requested_delay_s=300, teleports=2)]*3
+        candidate = [dict(side_all_requested_delay_s=105, mainline_travel_eb_s=210,
+                          mainline_travel_wb_s=105, all_requested_delay_s=200, teleports=4)]*3
         self.assertTrue(o.feasible(candidate, base))
         self.assertEqual(o.objective_value(candidate, base), 200)
         mean_feasible = [dict(s, side_all_requested_delay_s=v) for s, v in zip(candidate, (110, 100, 105))]
         self.assertTrue(o.feasible(mean_feasible, base))
         bad_side = [dict(s, side_all_requested_delay_s=105.01) for s in candidate]
         self.assertFalse(o.feasible(bad_side, base))
-        self.assertGreater(o.objective_value(bad_side, base), 1e6)
+        self.assertEqual(o.objective_value(bad_side, base), 1e9)
+        bad_wb = [dict(s, mainline_travel_wb_s=105.01) for s in candidate]
+        self.assertFalse(o.feasible(bad_wb, base))
         bad_teleport = [*candidate[:2], dict(candidate[2], teleports=5)]
         self.assertFalse(o.feasible(bad_teleport, base))
         self.assertEqual(o.objective_value(bad_teleport, base), 1e9)

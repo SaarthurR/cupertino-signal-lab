@@ -1,4 +1,5 @@
 """Frozen-plan evaluation: paired seeds, scheduled departure cohorts, no tuning."""
+import csv
 import gzip
 import hashlib
 import json
@@ -14,9 +15,10 @@ from scipy.stats import wilcoxon
 from . import pipeline as p
 from .demand import network, seconds, summary_stats
 
-SEEDS = range(13, 33)  # Preregistered final test; never used for selection.
-CONTROLLERS = ('actuated', 'optuna')  # Illustration pair retained for existing media consumers.
-EVAL_CONTROLLERS = ('actuated', 'optuna_v1', 'optuna')
+SEEDS = range(13, 33)  # Legacy illustration cohort retained for dashboard/video consumers.
+CONTROLLERS = ('actuated', 'optuna')  # Legacy illustration pair retained for dashboard/video consumers.
+FINAL_SEEDS = range(33, 53)  # Preregistered v3 final test; never used before.
+EVAL_CONTROLLERS = ('actuated', 'optuna', 'optuna_v3')
 TEST_METRICS = ('mean_time_loss_s', 'all_vehicle_delay_s',
                 'all_vehicle_delay_zero_unfinished_s', 'all_requested_delay_s',
                 'all_requested_delay_0_s', 'all_requested_delay_1800_s',
@@ -142,7 +144,8 @@ def simulate(scenario, controller, seed, cfg, endpoints):
     if 'holdout' in period:
         windows.append(('holdout', *map(seconds, period['holdout'])))
     return [dict(controller=controller, scenario=scenario, seed=seed, window=window,
-                 seed_group='fit_used' if seed in cfg['seeds'] else 'out_of_sample',
+                 seed_group=('fit_used' if seed in cfg['seeds'] else
+                             'v3_final' if seed in FINAL_SEEDS else 'out_of_sample'),
                  begin_s=a, end_s=b, **metrics(requested, trips, travels, teleports, a, b),
                  run_teleports_including_warmup=total) for window, a, b in windows]
 
@@ -155,12 +158,17 @@ def paired_tests(rows):
     results = []
     candidates = [c for c in EVAL_CONTROLLERS if c != 'actuated' and any(r['controller'] == c for r in rows)]
     for scenario, window in sorted({(r['scenario'], r['window']) for r in rows}):
-        for group in ('all', 'out_of_sample'):
+        groups = ('all', *sorted({r['seed_group'] for r in rows if r['seed_group'] != 'fit_used'}))
+        for group in groups:
             for candidate in candidates:
-                comparison = {c: [r['side_all_requested_delay_s'] for r in rows
-                                  if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
-                                  and (group == 'all' or r['seed_group'] == group)] for c in ('actuated', candidate)}
-                side_ratio = mean(comparison[candidate])/mean(comparison['actuated'])
+                selected = {c: [r for r in rows if r['scenario'] == scenario and r['window'] == window
+                                and r['controller'] == c and (group == 'all' or r['seed_group'] == group)]
+                            for c in ('actuated', candidate)}
+                ratios = {key: mean([r[key] for r in selected[candidate]])/mean([r[key] for r in selected['actuated']])
+                          for key in ('side_all_requested_delay_s', 'mainline_travel_eb_s', 'mainline_travel_wb_s')}
+                teleport_met = all(r['teleports'] <= b['teleports']+2
+                                   for r, b in zip(sorted(selected[candidate], key=lambda x: x['seed']),
+                                                   sorted(selected['actuated'], key=lambda x: x['seed'])))
                 for metric in TEST_METRICS:
                     paired = {c: {r['seed']: r[metric] for r in rows
                                   if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
@@ -176,17 +184,35 @@ def paired_tests(rows):
                                         statistic=float(test.statistic) if test else 0.,
                                         p_value=float(test.pvalue) if test else 1., alternative='optuna_less',
                                         method='auto', zero_method='wilcox', controller=candidate,
-                                        side_constraint_ratio=side_ratio, side_constraint_met=side_ratio <= 1.05+1e-9))
+                                        side_constraint_ratio=ratios['side_all_requested_delay_s'],
+                                        side_constraint_met=ratios['side_all_requested_delay_s'] <= 1.05+1e-9,
+                                        eb_constraint_ratio=ratios['mainline_travel_eb_s'],
+                                        eb_constraint_met=ratios['mainline_travel_eb_s'] <= 1.05+1e-9,
+                                        wb_constraint_ratio=ratios['mainline_travel_wb_s'],
+                                        wb_constraint_met=ratios['mainline_travel_wb_s'] <= 1.05+1e-9,
+                                        teleport_constraint_met=teleport_met,
+                                        all_constraints_met=(teleport_met and all(r <= 1.05+1e-9 for r in ratios.values()))))
     return results
 
 
-def save_fcd(cfg):
+def save_media(cfg):
     paths = []
-    begin, end = map(seconds, ('17:30', '17:45'))
-    for controller in CONTROLLERS:
-        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed13.xml.gz'
-        p.run([*command('pm_peak', controller, 13, cfg), '-e', end,
-               '--fcd-output', path, '--device.fcd.begin', begin, '--device.fcd.period', 1])
+    timeline = []
+    begin, end = map(seconds, ('16:15', '18:30'))
+    for controller in ('actuated', 'optuna_v3'):
+        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed33.xml.gz'
+        with tempfile.TemporaryDirectory() as folder:
+            summary = Path(folder)/'summary.xml'
+            p.run([*command('pm_peak', controller, 33, cfg), '-e', end,
+                   '--summary-output', summary, '--fcd-output', path,
+                   '--device.fcd.begin', begin, '--device.fcd.period', 2])
+            steps = ET.parse(summary).getroot().findall('step')
+            if [float(step.get('time')) for step in steps] != list(range(begin, end)):
+                raise ValueError('Timeline must cover every second from 16:15 to 18:30')
+            timeline.extend(dict(controller=controller, time_s=int(float(step.get('time'))),
+                                 waiting_on_road=int(step.get('halting')),
+                                 blocked_from_entering=int(step.get('waiting')),
+                                 trips_finished=int(step.get('arrived'))) for step in steps)
         steps = 0
         with gzip.open(path, 'rb') as stream:
             for _, element in ET.iterparse(stream):
@@ -194,10 +220,13 @@ def save_fcd(cfg):
                     assert begin <= float(element.get('time')) < end
                     steps += 1
                     element.clear()
-        if steps != 900 or path.stat().st_size >= 100_000_000:
-            raise ValueError('FCD must contain 900 steps and the pair must stay below 200 MB')
+        if steps != (end-begin)//2:
+            raise ValueError('FCD must cover 16:15–18:30 at two-second intervals')
         paths.append(dict(path=str(path.relative_to(p.ROOT)), bytes=path.stat().st_size,
                           begin_s=begin, end_s=end, steps=steps, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+    if sum(row['bytes'] for row in paths) >= 150_000_000:
+        raise ValueError('FCD pair must stay below 150 MB')
+    p.write_csv('reports/timeline_seed33.csv', timeline)
     return paths
 
 
@@ -207,9 +236,21 @@ def eval():
     print(power, flush=True)
     cfg = p.config()
     endpoints = boundaries(cfg)
+    legacy = []
+    legacy_tests = []
+    results_path = p.ROOT/'reports/results.csv'
+    if results_path.exists():
+        with open(results_path, newline='') as stream:
+            legacy = [row for row in csv.DictReader(stream) if int(row['seed']) in SEEDS]
+    tests_path = p.ROOT/'reports/wilcoxon.csv'
+    if tests_path.exists():
+        with open(tests_path, newline='') as stream:
+            legacy_tests = [row for row in csv.DictReader(stream)
+                            if row['controller'] in ('optuna_v1', 'optuna')
+                            and not row.get('eb_constraint_ratio')]
     rows = []
     for scenario in cfg['scenarios']:
-        for seed in SEEDS:
+        for seed in FINAL_SEEDS:
             for controller in EVAL_CONTROLLERS:
                 rows.extend(simulate(scenario, controller, seed, cfg, endpoints))
             print(f'eval: {scenario} seed {seed} complete (serial, nice 15)', flush=True)
@@ -217,15 +258,24 @@ def eval():
         baseline = next(r for r in rows if r['controller'] == 'actuated' and all(r[k] == row[k] for k in ('scenario', 'window', 'seed')))
         row['side_constraint_met'] = constraint_check(row, baseline)
         row['side_constraint_ratio'] = row['side_all_requested_delay_s']/baseline['side_all_requested_delay_s']
-    p.write_csv('reports/results.csv', rows)
-    p.write_csv('reports/wilcoxon.csv', paired_tests(rows))
-    fcd = save_fcd(cfg)
+        row['eb_constraint_met'] = row['mainline_travel_eb_s'] <= 1.05*baseline['mainline_travel_eb_s']+1e-9
+        row['eb_constraint_ratio'] = row['mainline_travel_eb_s']/baseline['mainline_travel_eb_s']
+        row['wb_constraint_met'] = row['mainline_travel_wb_s'] <= 1.05*baseline['mainline_travel_wb_s']+1e-9
+        row['wb_constraint_ratio'] = row['mainline_travel_wb_s']/baseline['mainline_travel_wb_s']
+        row['teleport_constraint_met'] = row['teleports'] <= baseline['teleports']+2
+        row['all_constraints_met'] = all(row[k] for k in
+                                         ('side_constraint_met', 'eb_constraint_met',
+                                          'wb_constraint_met', 'teleport_constraint_met'))
+    p.write_csv('reports/results.csv', [*rows, *legacy])
+    p.write_csv('reports/wilcoxon.csv', [*paired_tests(rows), *legacy_tests])
+    fcd = save_media(cfg)
     files = ['config/corridor.yaml', 'sim/corridor.net.xml']
     files += [f'sim/{kind}_{scenario}{suffix}' for scenario in cfg['scenarios']
-              for kind, suffix in [('routes', '.rou.xml'), ('tls_actuated', '.add.xml'), ('tls_optuna', '.add.xml'), ('tls_optuna_v1', '.add.xml')]]
-    provenance = dict(seeds=list(SEEDS), fit_used_seeds=cfg['seeds'], workers=1, power=power,
+              for kind, suffix in [('routes', '.rou.xml'), ('tls_actuated', '.add.xml'),
+                                   ('tls_optuna', '.add.xml'), ('tls_optuna_v3', '.add.xml')]]
+    provenance = dict(seeds=list(FINAL_SEEDS), fit_used_seeds=cfg['seeds'], workers=1, power=power,
                       time_to_teleport=cfg['time_to_teleport'], warmup_s=cfg['warmup_s'], drain_s=1800,
                       corridor_boundaries=endpoints, fcd=fcd, wall_s=time.monotonic()-start,
                       sha256={f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files})
-    (p.ROOT/'reports/eval.json').write_text(json.dumps(provenance, indent=2)+'\n')
+    (p.ROOT/'reports/eval_v3.json').write_text(json.dumps(provenance, indent=2)+'\n')
     print(f'eval finished in {provenance["wall_s"]:.1f} s', flush=True)

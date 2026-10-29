@@ -13,7 +13,7 @@ nice -n 15 python -m signal_lab build-demand
 nice -n 15 python -m signal_lab baseline
 nice -n 15 python -m signal_lab check-demand
 nice -n 15 python -m signal_lab bench
-nice -n 15 python -m signal_lab optimize --trials 200
+nice -n 15 python -m signal_lab optimize --trials 300
 nice -n 15 python -m signal_lab eval
 nice -n 15 python -m unittest discover -s tests -v
 ```
@@ -24,7 +24,9 @@ M4 seed 0: night inserts **439**, with **zero teleports** and **8.341 s** mean t
 
 M3: **42.71% of 96 measured holdout movement-intervals have GEH < 5**, below the 85% target (corrected-route provisional M1 timing: 48.96%). Counts are physical turn-lane detector entries; quarter-hour observations are converted to hourly flows for GEH. This count check establishes neither delay improvement nor a paired Wilcoxon result. [Baseline details](reports/M4-REPORT.md) and [real corridor benchmark](reports/bench.md): **2.334 s per simulation hour**, approximately **21 minutes serial for 200 trials** including warmup/drain, excluding optimizer overhead and rescoring.
 
-## Results (preregistered v2)
+## Results (preregistered v2 and v3)
+
+On brand-new seeds 33–52, v3 cut PM-holdout all-requested delay 22.7% (836.77 to 646.74 s/vehicle), EB travel 16.5%, WB travel 35.6%, and teleports from 185 to 17 (one-sided paired Wilcoxon primary p=0.0000524521), but it exceeded textbook +2 teleports on seed 37, so it was not a feasible winner under the preregistered rule.
 
 On the 20 preregistered simulation seeds, v2 met the confirmatory rule by cutting rush-hour holdout all-requested delay 24.7% (790.57 to 595.61 s/vehicle; one-sided paired Wilcoxon p=0.00084495544) while keeping mean side-origin delay within the 1.05 cap (ratio 0.756), but completed-trip loss rose 13.6%, westbound corridor travel rose 38.5%, and teleports rose from 69 to 256 events and exceeded the training cap on 8 of 20 seeds, so no overall feasible winner was established.
 

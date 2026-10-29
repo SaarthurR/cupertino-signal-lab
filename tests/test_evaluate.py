@@ -68,6 +68,13 @@ class EvaluateTests(unittest.TestCase):
         tests = [t for t in e.paired_tests(rows) if t['metric'] == 'mean_time_loss_s']
         self.assertEqual([t['n'] for t in tests], [20, 20, 20, 20])
         self.assertLess(tests[1]['p_value'], .00001)
+        self.assertTrue(all(t['all_constraints_met'] for t in tests))
+        for row in rows:
+            if row['controller'] == 'optuna_v3':
+                row['mainline_travel_wb_s'] = 11
+        v3 = [t for t in e.paired_tests(rows)
+              if t['controller'] == 'optuna_v3' and t['metric'] == 'mean_time_loss_s']
+        self.assertTrue(all(not t['wb_constraint_met'] and not t['all_constraints_met'] for t in v3))
         for row in rows:
             for key in e.TEST_METRICS:
                 row[key] = 10

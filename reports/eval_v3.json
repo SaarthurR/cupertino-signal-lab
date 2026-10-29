@@ -1,0 +1,75 @@
+{
+  "seeds": [
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52
+  ],
+  "fit_used_seeds": [
+    0,
+    1,
+    2
+  ],
+  "workers": 1,
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=36700259)\t95%; AC attached; not charging present: true",
+  "time_to_teleport": 300,
+  "warmup_s": 900,
+  "drain_s": 1800,
+  "corridor_boundaries": {
+    "eb": [
+      "393485268#0",
+      "506499370#0"
+    ],
+    "wb": [
+      "1113038411",
+      "393485270"
+    ]
+  },
+  "fcd": [
+    {
+      "path": "reports/fcd_actuated_pm_peak_seed33.xml.gz",
+      "bytes": 33572951,
+      "begin_s": 58500,
+      "end_s": 66600,
+      "steps": 4050,
+      "sha256": "a6d9a83d2f6b7ad160dad83b678aedbf8d2f6e21e482009c767d06ae27152d3a"
+    },
+    {
+      "path": "reports/fcd_optuna_v3_pm_peak_seed33.xml.gz",
+      "bytes": 34295315,
+      "begin_s": 58500,
+      "end_s": 66600,
+      "steps": 4050,
+      "sha256": "bc7f4fc4d849ca871332f4b8e86030e61e0a0a3735125f98752a8d435185ef8b"
+    }
+  ],
+  "wall_s": 680.4689267499998,
+  "sha256": {
+    "config/corridor.yaml": "5438835b91022e6f44aa76d80acf623060f74221ca7dc9ddfc08257bb6797c3d",
+    "sim/corridor.net.xml": "7d6367db23e4b6246a52f5a874c5c26cd43e6aa8511e98ca91d7794a6620b494",
+    "sim/routes_pm_peak.rou.xml": "cde6b61e37f24e5f53bced1522bc1ac07fe62a9f1cfac89694fc82c769179896",
+    "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
+    "sim/tls_optuna_pm_peak.add.xml": "51f9056ed97a7f0fe3fc1ece01847c7751936fb98c373510f68d1e41b614075f",
+    "sim/tls_optuna_v3_pm_peak.add.xml": "28b06707db7693932515e7549261a76d5463c58ffec7b4fe7f8783e873cd1831",
+    "sim/routes_night.rou.xml": "449251f01e28545cef1d4d35851b1540ae601dd5391348ef37b6d2b1338c62a1",
+    "sim/tls_actuated_night.add.xml": "b755f727dea2d987238490fdc09072524ef7b1282e64b003332a7371bdd0ca35",
+    "sim/tls_optuna_night.add.xml": "073e24f8de0875775f5336fee620a133f7e114f486929eb744d7d2db9ea5bc07",
+    "sim/tls_optuna_v3_night.add.xml": "955625d08789b1a2033fe6e1c36e19a831634eddac32aceff43c9cd2b88fc2e2"
+  }
+}

@@ -8,7 +8,7 @@ def main():
     for name in ("build-net", "build-demand", "check-demand", "baseline", "optimize", "eval", "bench", "dashboard"):
         sub = verbs.add_parser(name)
         if name == "optimize":
-            sub.add_argument("--trials", type=int, default=200)
+            sub.add_argument("--trials", type=int, default=300)
     args = parser.parse_args()
     module = evaluate if args.verb == 'eval' else optimize if args.verb == 'optimize' else baseline if args.verb == 'baseline' else demand if args.verb in ('build-demand', 'check-demand') else pipeline
     getattr(module, args.verb.replace("-", "_"))(**({"trials": args.trials} if args.verb == "optimize" else {}))
