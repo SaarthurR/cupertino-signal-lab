@@ -166,8 +166,10 @@ def caption_script(counters):
     textbook, ours = counters
     def shut(t): return textbook[t][1], ours[t][1]
     def ahead(t): return ours[t][2]-textbook[t][2]
-    script = [(VIDEO[0], VIDEO[0]+600,
-               'Both roads are full at rush hour. The difference: how many cars get through,\nand how long the line outside is.')]
+    script = [(VIDEO[0], VIDEO[0]+300,
+               'Both roads are full at rush hour. The difference: how many cars get through,\nand how long the line outside is.'),
+              (VIDEO[0]+300, VIDEO[0]+800,
+               'Red = cars stopped on the road. Our plan lets more cars onto the road,\nso it can look just as busy. Watch the line outside and trips finished.')]
     # First sustained backlog outside the textbook corridor while ours still lets everyone in.
     begins = next((t for t in range(*VIDEO) if all(textbook[s][1] >= 25 for s in range(t, t+300))), None)
     if begins and shut(begins)[0] > shut(begins)[1]:
@@ -223,13 +225,14 @@ def render_media(roads, signals, offsets, distance):
     fig = plt.figure(figsize=(19.2, 10.8), dpi=100)
     fig.patch.set_facecolor('#f7f8fa')
     axes = [fig.add_axes([.03+i*.495, .56, .455, .275]) for i in range(2)]
-    dots, readouts, bars, queues, rings, timers, driver_labels = [], [], [], [], [], [], []
+    dots, readouts, bars, queues, finished_counts, rings, timers, driver_labels = [], [], [], [], [], [], [], []
     plan_colors = ('#b23b31', COLORS[1])
     max_blocked = max(v[1] for c in counters for v in c.values())
     all_points = np.concatenate([np.array(r) for r in roads])
     xmin, ymin = all_points.min(axis=0); xmax, ymax = all_points.max(axis=0)
     fig.text(.03, .962, 'Cupertino Signal Lab', fontsize=32, fontweight='bold', va='center')
     clock = fig.text(.97, .958, '', fontsize=42, family='monospace', fontweight='bold', ha='right', va='center')
+    speed = fig.text(.97, .920, '', fontsize=24, fontweight='bold', ha='right', va='center', color='#0b5f58')
     fig.text(.03, .920, 'One evening on Stevens Creek Boulevard, two traffic light plans',
              fontsize=19, color='#53687a', va='center')
     for ax, label, color in zip(axes, LABELS, plan_colors):
@@ -255,13 +258,14 @@ def render_media(roads, signals, offsets, distance):
         fig.text(.03+len(readouts)*.495, .443,
                  f'wait to get on {race["waits"][len(readouts)]:.0f} s + driving {race["drives"][len(readouts)]:.0f} s',
                  fontsize=16, color='#53687a', va='top')
-        readouts.append(fig.text(.03+(len(readouts))*.495, .397, '', fontsize=16, color='#53687a'))
-    caption = fig.text(.5, .351, '', fontsize=21, ha='center', va='center', color='#0b5f58')
+        finished_counts.append(fig.text(.03+len(readouts)*.495, .392, '', fontsize=21, fontweight='bold', color=color))
+        readouts.append(fig.text(.03+len(readouts)*.495, .363, '', fontsize=16, color='#53687a'))
+    caption = fig.text(.5, .333, '', fontsize=21, ha='center', va='center', color='#0b5f58')
 
     textbook, ours = counters
     minutes = [(t-VIDEO[0])/60 for t, _ in data[0][0]]
     queues_over_time = [[c[t][1] for t, _ in data[0][0]] for c in counters]
-    chart_ax = fig.add_axes([.105, .095, .72, .19])
+    chart_ax = fig.add_axes([.105, .095, .72, .16])
     chart_ax.set_facecolor('#f7f8fa')
     chart_ax.set(xlim=(0, span), ylim=(0, max_blocked*1.16),
                  xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
@@ -277,7 +281,7 @@ def render_media(roads, signals, offsets, distance):
                                    ha='left', va='center', fontsize=17, fontweight='bold', color=color,
                                    bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2))
                   for color, dy in zip(plan_colors, (28, 6))]
-    fig.text(.5, .048, f'Red = stopped, yellow = slow, green = moving   |   North up   |   {STEP*FPS}x; driver race slowed to 20x', ha='center', fontsize=16)
+    fig.text(.5, .048, 'Red = stopped, yellow = slow, green = moving   |   North up', ha='center', fontsize=16)
     fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Exact trip clocks; positions every 2 s. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
 
     script = caption_script(counters)
@@ -287,7 +291,7 @@ def render_media(roads, signals, offsets, distance):
                    f'Median-saving trip: {trip_text(race["durations"][0])} vs {trip_text(race["durations"][1])}, including the wait outside.\nClock starts at the same request; selected nearest the median saving.'))
     script.append((race_end, race_end+600,
                    f'This driver saved {race["durations"][0]-race["durations"][1]:g} seconds from request to arrival.\n'
-                   f'Median: {race["median_saving"]:g} s across {race["count"]:,} completed pairs; {race["excluded"]:,} unfinished pairs excluded.'))
+                   f'A typical driver: half of all {race["count"]:,} drivers saved more, half saved less.'))
     writer = FFMpegWriter(fps=FPS, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
     with writer.saving(fig, str(output), dpi=100):
@@ -310,13 +314,15 @@ def render_media(roads, signals, offsets, distance):
             if time-STEP < race_start <= time:
                 # Hold the request moment so even a sub-frame insertion wait is visible.
                 clock.set_text(clock_text(race_start))
-                caption.set_text('Same driver, same moment, both plans. Watch the timers.')
+                speed.set_text('SLOW MOTION 20x - following one driver')
+                caption.set_text('Slowing to 20x. Same driver, same moment. Watch the timers.')
                 for i, timer in enumerate(timers):
                     timer.set_text('A typical driver: 0 min 00 s')
                     waiting, blocked, finished = counters[i][int(race_start)]
                     queues[i].set_text(f'Line outside: {blocked:,} cars')
                     bars[i].set_width(blocked)
-                    readouts[i].set_text(f'{waiting:,} stopped on road   |   {finished:,} trips finished')
+                    finished_counts[i].set_text(f'Trips finished: {finished:,}')
+                    readouts[i].set_text(f'{waiting:,} stopped on road')
                     growth[i].set_data(minutes[:index]+[(race_start-VIDEO[0])/60],
                                        queues_over_time[i][:index]+[blocked])
                     end_labels[i].xy = ((race_start-VIDEO[0])/60, blocked)
@@ -325,6 +331,7 @@ def render_media(roads, signals, offsets, distance):
                     writer.grab_frame()
                 fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
             clock.set_text(clock_text(time))
+            speed.set_text('SLOW MOTION 20x - following one driver' if race_start <= time <= race_end else '100x speed')
             caption.set_text(next((line for start, stop, line in script if start <= time < stop), ''))
             if shot == 0:
                 caption.set_text(f'5:30 PM preview: {counters[0][time][1]:,} waiting outside vs {counters[1][time][1]:,}.\n'
@@ -337,7 +344,8 @@ def render_media(roads, signals, offsets, distance):
                 waiting, blocked, finished = counters[i][time]
                 queues[i].set_text(f'Line outside: {blocked:,} cars')
                 bars[i].set_width(blocked)
-                readouts[i].set_text(f'{waiting:,} stopped on road   |   {finished:,} trips finished')
+                finished_counts[i].set_text(f'Trips finished: {finished:,}')
+                readouts[i].set_text(f'{waiting:,} stopped on road')
                 samples = data[i][2][race['id']]
                 arrive = race['arrivals'][i]
                 position = next((s for s in samples if s[0] == time), None)
@@ -357,6 +365,10 @@ def render_media(roads, signals, offsets, distance):
                 label.xy = (minutes[index], series[index])
                 label.set_text(f'{name}: {series[index]:,}')
                 label.set_visible(index > 0)
+            if time-STEP <= race_end < time:
+                caption.set_text('Back to 100x speed.')
+                for _ in range(FPS):
+                    writer.grab_frame()
             for _ in range(3*FPS if shot == 0 else 5 if race_start <= time <= race_end else 1):
                 writer.grab_frame()
     plt.close(fig)

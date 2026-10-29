@@ -29,6 +29,8 @@ class DashboardTests(unittest.TestCase):
         for (start, stop, line), (later, _, _) in zip(script, script[1:]):
             self.assertLess(start, stop)
             self.assertLessEqual(stop, later)  # captions never overlap on screen
+        self.assertIn('Red = cars stopped on the road.', script[1][2])
+        self.assertIn('line outside and trips finished', script[1][2])
         textbook, ours = counters
         shown = {int(n.replace(',', '')) for _, _, line in script
                  for n in re.findall(r'(?<![:\d])(\d[\d,]*)(?!\s*PM|:)', line)}
