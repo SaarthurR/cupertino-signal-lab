@@ -15,6 +15,8 @@ class EvaluateTests(unittest.TestCase):
         travels = {'warm': ('eb', 900), 'late': ('eb', 50), 'running': ('wb', 60)}
         stats = e.metrics(requested, trips, travels, ['warm', 'late', 'late'], 100, 120)
         self.assertEqual((stats['requested'], stats['completed'], stats['unfinished']), (3, 1, 2))
+        self.assertAlmostEqual(stats['all_vehicle_delay_s'], (50+1800*(2+2))/3)
+        self.assertAlmostEqual(stats['all_vehicle_delay_zero_unfinished_s'], (50+1800*2)/3)
         self.assertEqual(stats['mean_time_loss_s'], 20)
         self.assertEqual(stats['side_time_loss_s'], 20)
         self.assertEqual(stats['mean_waiting_count'], 2)
@@ -55,11 +57,18 @@ class EvaluateTests(unittest.TestCase):
                      seed_group='fit_used' if s < 3 else 'out_of_sample',
                      mean_time_loss_s=10 if c == 'actuated' else 9)
                 for c in e.CONTROLLERS for s in e.SEEDS]
-        tests = e.paired_tests(rows)
+        for row in rows:
+            row.update({m: row['mean_time_loss_s'] for m in (
+                'all_vehicle_delay_s', 'all_vehicle_delay_zero_unfinished_s',
+                'unfinished', 'mainline_travel_eb_s', 'mainline_travel_wb_s')})
+        tests = [t for t in e.paired_tests(rows) if t['metric'] == 'mean_time_loss_s']
         self.assertEqual([t['n'] for t in tests], [13, 10])
         self.assertAlmostEqual(tests[1]['p_value'], 1/1024)
         for row in rows:
-            row['mean_time_loss_s'] = 10
+            for key in ('mean_time_loss_s', 'all_vehicle_delay_s',
+                        'all_vehicle_delay_zero_unfinished_s', 'unfinished',
+                        'mainline_travel_eb_s', 'mainline_travel_wb_s'):
+                row[key] = 10
         self.assertTrue(all(t['p_value'] == 1 for t in e.paired_tests(rows)))
         with self.assertRaisesRegex(ValueError, 'Unpaired'):
             e.paired_tests(rows[:-1])

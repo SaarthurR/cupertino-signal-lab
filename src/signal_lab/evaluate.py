@@ -74,7 +74,14 @@ def metrics(requested, trips, travels, teleports, begin, end):
         raise ValueError('No completed evaluation vehicles')
     directions = {d: [duration for vid, (direction, duration) in travels.items()
                       if vid in cohort and direction == d] for d in ('eb', 'wb')}
-    return dict(requested=len(cohort), completed=len(completed), unfinished=len(cohort)-len(completed),
+    unfinished = len(cohort)-len(completed)
+    teleport_events = sum(vid in cohort for vid in teleports)
+    # M5 charges one drain window per unfinished vehicle and teleport event.
+    observed = sum(float(t['timeLoss'])+float(t['departDelay']) for t in completed.values())
+    lower = (observed+1800*teleport_events)/len(cohort)
+    return dict(all_vehicle_delay_s=lower+1800*unfinished/len(cohort),
+                all_vehicle_delay_zero_unfinished_s=lower,
+                requested=len(cohort), completed=len(completed), unfinished=len(cohort)-len(completed),
                 mean_time_loss_s=mean([float(t['timeLoss']) for t in completed.values()]),
                 mean_waiting_count=mean([float(t['waitingCount']) for t in completed.values()]),
                 mainline_travel_s=mean(directions['eb']+directions['wb']),
@@ -129,21 +136,24 @@ def paired_tests(rows):
     results = []
     for scenario, window in sorted({(r['scenario'], r['window']) for r in rows}):
         for group in ('all', 'out_of_sample'):
-            paired = {c: {r['seed']: r['mean_time_loss_s'] for r in rows
-                          if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
-                          and (group == 'all' or r['seed_group'] == group)} for c in CONTROLLERS}
-            if paired['actuated'].keys() != paired['optuna'].keys():
-                raise ValueError('Unpaired evaluation seeds')
-            seeds = sorted(paired['actuated'])
-            diffs = [paired['optuna'][s]-paired['actuated'][s] for s in seeds]
-            # Predeclared directional test: optuna has lower completed-trip loss.
-            test = wilcoxon(diffs, alternative='less', method='auto') if any(diffs) else None
-            results.append(dict(scenario=scenario, window=window, seed_group=group, n=len(seeds),
-                                actuated_mean_s=mean(list(paired['actuated'].values())),
-                                optuna_mean_s=mean(list(paired['optuna'].values())),
-                                statistic=float(test.statistic) if test else 0.,
-                                p_value=float(test.pvalue) if test else 1., alternative='optuna_less',
-                                method='auto', zero_method='wilcox'))
+            for metric in ('mean_time_loss_s', 'all_vehicle_delay_s',
+                           'all_vehicle_delay_zero_unfinished_s', 'unfinished',
+                           'mainline_travel_eb_s', 'mainline_travel_wb_s'):
+                paired = {c: {r['seed']: r[metric] for r in rows
+                              if r['scenario'] == scenario and r['window'] == window and r['controller'] == c
+                              and (group == 'all' or r['seed_group'] == group)} for c in CONTROLLERS}
+                if paired['actuated'].keys() != paired['optuna'].keys():
+                    raise ValueError('Unpaired evaluation seeds')
+                seeds = sorted(paired['actuated'])
+                diffs = [paired['optuna'][s]-paired['actuated'][s] for s in seeds]
+                # Directional alternative: optuna has a lower value of this metric.
+                test = wilcoxon(diffs, alternative='less', method='auto') if any(diffs) else None
+                results.append(dict(scenario=scenario, window=window, seed_group=group, metric=metric, n=len(seeds),
+                                    actuated_mean=mean(list(paired['actuated'].values())),
+                                    optuna_mean=mean(list(paired['optuna'].values())),
+                                    statistic=float(test.statistic) if test else 0.,
+                                    p_value=float(test.pvalue) if test else 1., alternative='optuna_less',
+                                    method='auto', zero_method='wilcox'))
     return results
 
 
