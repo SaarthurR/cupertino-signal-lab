@@ -130,8 +130,18 @@ def build_net():
     # Guessed internal left-turn waiting points trap crossing lefts at De Anza.
     with tempfile.TemporaryDirectory() as tmp:
         repaired = Path(tmp)/'corridor.net.xml'
+        lane_changes = {lane.get('id'): {k: v for k, v in lane.attrib.items() if k in ('changeLeft', 'changeRight')}
+                        for lane in ET.parse(ROOT/'sim/corridor.net.xml').iter('lane')
+                        if 'changeLeft' in lane.attrib or 'changeRight' in lane.attrib}
         run([BIN/'netconvert', '-s', ROOT/'sim/corridor.net.xml', '-x', ROOT/'sim/vta_stopline.con.xml', '-o', repaired])
-        (ROOT/'sim/corridor.net.xml').write_bytes(repaired.read_bytes())
+        # netconvert's net-file round trip drops lane-change restrictions.
+        root = ET.parse(repaired).getroot()
+        lanes = {lane.get('id'): lane for lane in root.iter('lane')}
+        if not lane_changes.keys() <= lanes.keys():
+            raise ValueError('Network repair removed a lane with lane-change restrictions')
+        for lane, restrictions in lane_changes.items():
+            lanes[lane].attrib.update(restrictions)
+        xml_write(root, 'sim/corridor.net.xml')
     net = sumolib.net.readNet(str(ROOT / 'sim/corridor.net.xml'), withPrograms=True)
     for signal in cfg['signals']:
         x,y = net.convertLonLat2XY(signal['lon'], signal['lat'])

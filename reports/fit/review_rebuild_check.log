@@ -1,0 +1,1 @@
+PASS: actual build_net repair block / netconvert preserves all external edge/lane attributes and installs four stop-line overrides

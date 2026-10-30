@@ -1,0 +1,21 @@
+{
+  "commit": "8c14bd2a7c770bd14bb84c799be9b8295a2bc50b",
+  "sumo_version": "1.28.0",
+  "seeds": [
+    0
+  ],
+  "window": "full PM; 900 s warmup and 1800 s drain",
+  "unfinished_charge_s": 900,
+  "original_count_rows_unchanged": 328,
+  "external_edges_unchanged": 65,
+  "signal_links_unchanged": 88,
+  "deanza_foes_unchanged": true,
+  "sha256": {
+    "sim/corridor.net.xml": "98a51582c9e946c55631018a3a82c9397ae4c9c5a083b7624537f81af90ca67f",
+    "sim/routes_pm_peak.rou.xml": "817f29ca521f2e841ba80156cf5e51b24427077ce348fd5b908f46da58dd8e08",
+    "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
+    "sim/tls_optuna_v3_pm_peak.add.xml": "28b06707db7693932515e7549261a76d5463c58ffec7b4fe7f8783e873cd1831",
+    "sim/tls_existing_vta_pm_peak.add.xml": "d73ca732b8f2d1b55a911348bc56406589b5d92adae1241fd8a63a9753a9d5fc",
+    "data/processed/tmc.csv": "70cfa8558525009779f655e88c715c4ce4339287ebae28632ea9fc8cb398de5e"
+  }
+}

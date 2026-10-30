@@ -182,6 +182,11 @@ class DemandTests(unittest.TestCase):
                 self.assertTrue(continuation)
                 self.assertTrue(all(c.get('via') is None for c in continuation))
 
+    def test_network_keeps_original_lane_change_restrictions(self):
+        root = ET.parse(p.ROOT/'sim/corridor.net.xml').getroot()
+        for lane in ('393485268#0_3', '593271035_3'):
+            self.assertEqual(root.find(f".//lane[@id='{lane}']").get('changeRight'), 'authority')
+
     def test_detector_binning_and_front_entries(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp)/'counts.xml'

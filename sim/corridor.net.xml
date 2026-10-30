@@ -911,7 +911,7 @@
         <lane id="393485268#0_2" index="2" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="55.81" shape="213.66,352.32 265.95,353.26 269.48,353.37" changeLeft="authority">
             <param key="origId" value="393485268"/>
         </lane>
-        <lane id="393485268#0_3" index="3" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="55.81" shape="213.60,355.52 265.87,356.46 269.47,356.57">
+        <lane id="393485268#0_3" index="3" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="55.81" shape="213.60,355.52 265.87,356.46 269.47,356.57" changeRight="authority">
             <param key="origId" value="393485268"/>
         </lane>
         <param key="origTo" value="272273326"/>
@@ -1114,7 +1114,7 @@
         <lane id="593271035_2" index="2" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="24.14" shape="1163.81,378.02 1147.59,377.76 1139.67,377.74" changeLeft="authority">
             <param key="origId" value="593271035"/>
         </lane>
-        <lane id="593271035_3" index="3" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="24.14" shape="1163.86,374.82 1147.63,374.56 1139.71,374.54">
+        <lane id="593271035_3" index="3" disallow="pedestrian tram rail_urban rail rail_electric rail_fast ship container cable_car subway aircraft wheelchair scooter drone" speed="15.65" length="24.14" shape="1163.86,374.82 1147.63,374.56 1139.71,374.54" changeRight="authority">
             <param key="origId" value="593271035"/>
         </lane>
         <param key="origTo" value="5660176800"/>

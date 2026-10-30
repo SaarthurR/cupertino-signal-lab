@@ -1,0 +1,129 @@
+site_id,intersection,approach,movement,interval_start,vehicles,heavy,peds,source,before,after,before_geh,after_geh
+211,De Anza Blvd,E,L,16:30,50,,,measured,50,50,0.0,0.0
+211,De Anza Blvd,E,R,16:30,34,,,measured,34,34,0.0,0.0
+211,De Anza Blvd,E,T,16:30,91,,3,measured,91,68,0.0,5.159103817646807
+211,De Anza Blvd,N,L,16:30,140,,,measured,140,140,0.0,0.0
+211,De Anza Blvd,N,R,16:30,62,,,measured,5,47,19.69620010325501,4.063712768871578
+211,De Anza Blvd,N,T,16:30,358,,0,measured,358,358,0.0,0.0
+211,De Anza Blvd,S,L,16:30,61,,,measured,20,46,12.885056901621532,4.10151556214798
+211,De Anza Blvd,S,R,16:30,53,,,measured,53,53,0.0,0.0
+211,De Anza Blvd,S,T,16:30,158,,11,measured,158,158,0.0,0.0
+211,De Anza Blvd,W,L,16:30,32,,,measured,0,24,16.0,3.0237157840738176
+211,De Anza Blvd,W,R,16:30,90,,,measured,90,66,0.0,5.4349297638940595
+211,De Anza Blvd,W,T,16:30,264,,7,measured,154,191,15.217718205053641,9.67970574432422
+211,De Anza Blvd,E,L,16:45,86,,,measured,86,86,0.0,0.0
+211,De Anza Blvd,E,R,16:45,34,,,measured,34,34,0.0,0.0
+211,De Anza Blvd,E,T,16:45,96,,5,measured,96,69,0.0,5.945204331682347
+211,De Anza Blvd,N,L,16:45,95,,,measured,95,95,0.0,0.0
+211,De Anza Blvd,N,R,16:45,46,,,measured,5,33,16.23841970481746,4.136897877713796
+211,De Anza Blvd,N,T,16:45,435,,0,measured,435,435,0.0,0.0
+211,De Anza Blvd,S,L,16:45,69,,,measured,11,50,18.3412104289766,4.926348298996449
+211,De Anza Blvd,S,R,16:45,41,,,measured,41,41,0.0,0.0
+211,De Anza Blvd,S,T,16:45,162,,13,measured,162,162,0.0,0.0
+211,De Anza Blvd,W,L,16:45,35,,,measured,0,27,16.73320053068151,2.8736848324283986
+211,De Anza Blvd,W,R,16:45,83,,,measured,83,64,0.0,4.432410010750512
+211,De Anza Blvd,W,T,16:45,230,,8,measured,154,176,10.969655114602888,7.580113988510841
+211,De Anza Blvd,E,L,17:00,45,,,measured,45,45,0.0,0.0
+211,De Anza Blvd,E,R,17:00,28,,,measured,28,28,0.0,0.0
+211,De Anza Blvd,E,T,17:00,122,,10,measured,122,99,0.0,4.375993746221345
+211,De Anza Blvd,N,L,17:00,145,,,measured,145,145,0.0,0.0
+211,De Anza Blvd,N,R,17:00,51,,,measured,5,41,17.386365758424454,2.9488391230979425
+211,De Anza Blvd,N,T,17:00,382,,6,measured,382,382,0.0,0.0
+211,De Anza Blvd,S,L,17:00,44,,,measured,11,35,12.58570617804182,2.864006223032628
+211,De Anza Blvd,S,R,17:00,74,,,measured,74,74,0.0,0.0
+211,De Anza Blvd,S,T,17:00,123,,18,measured,123,123,0.0,0.0
+211,De Anza Blvd,W,L,17:00,38,,,measured,0,28,17.435595774162696,3.481553119113957
+211,De Anza Blvd,W,R,17:00,102,,,measured,102,73,0.0,6.200460812368246
+211,De Anza Blvd,W,T,17:00,293,,9,measured,166,209,16.76649839440502,10.604065972043093
+211,De Anza Blvd,E,L,17:15,54,,,measured,54,54,0.0,0.0
+211,De Anza Blvd,E,R,17:15,31,,,measured,31,31,0.0,0.0
+211,De Anza Blvd,E,T,17:15,86,,5,measured,86,66,0.0,4.588314677411235
+211,De Anza Blvd,N,L,17:15,161,,,measured,161,161,0.0,0.0
+211,De Anza Blvd,N,R,17:15,61,,,measured,5,47,19.496697467038157,3.8103173776627215
+211,De Anza Blvd,N,T,17:15,399,,5,measured,399,399,0.0,0.0
+211,De Anza Blvd,S,L,17:15,66,,,measured,25,50,12.156488793242058,4.201805851511121
+211,De Anza Blvd,S,R,17:15,95,,,measured,95,95,0.0,0.0
+211,De Anza Blvd,S,T,17:15,155,,16,measured,155,155,0.0,0.0
+211,De Anza Blvd,W,L,17:15,42,,,measured,0,32,18.33030277982336,3.287979746107146
+211,De Anza Blvd,W,R,17:15,80,,,measured,80,62,0.0,4.272413969497872
+211,De Anza Blvd,W,T,17:15,293,,7,measured,200,221,11.846893448551764,8.982473206345997
+217,Stelling Rd,E,L,16:30,40,,,measured,0,27,17.88854381999832,4.492115813023073
+217,Stelling Rd,E,R,16:30,37,,,measured,0,25,17.204650534085253,4.310527248642598
+217,Stelling Rd,E,T,16:30,161,,6,measured,121,106,6.737215368532151,9.520331092974141
+217,Stelling Rd,N,L,16:30,49,,,measured,49,49,0.0,0.0
+217,Stelling Rd,N,R,16:30,32,,,measured,32,32,0.0,0.0
+217,Stelling Rd,N,T,16:30,104,,6,measured,104,104,0.0,0.0
+217,Stelling Rd,S,L,16:30,31,,,measured,31,31,0.0,0.0
+217,Stelling Rd,S,R,16:30,26,,,measured,26,27,0.0,0.38851434494290565
+217,Stelling Rd,S,T,16:30,68,,11,measured,68,68,0.0,0.0
+217,Stelling Rd,W,L,16:30,71,,,measured,71,76,0.0,1.1664236870396085
+217,Stelling Rd,W,R,16:30,113,,,measured,113,121,0.0,1.4792005232672778
+217,Stelling Rd,W,T,16:30,208,,6,measured,208,221,0.0,1.775250729197189
+217,Stelling Rd,E,L,16:45,42,,,measured,0,29,18.33030277982336,4.363743063142783
+217,Stelling Rd,E,R,16:45,31,,,measured,0,21,15.748015748023622,3.922322702763681
+217,Stelling Rd,E,T,16:45,133,,3,measured,117,90,2.862167011199731,8.144436049538509
+217,Stelling Rd,N,L,16:45,41,,,measured,41,41,0.0,0.0
+217,Stelling Rd,N,R,16:45,35,,,measured,35,35,0.0,0.0
+217,Stelling Rd,N,T,16:45,111,,5,measured,111,111,0.0,0.0
+217,Stelling Rd,S,L,16:45,39,,,measured,39,39,0.0,0.0
+217,Stelling Rd,S,R,16:45,36,,,measured,36,37,0.0,0.3310423554409472
+217,Stelling Rd,S,T,16:45,60,,15,measured,60,60,0.0,0.0
+217,Stelling Rd,W,L,16:45,69,,,measured,69,73,0.0,0.9494253265550827
+217,Stelling Rd,W,R,16:45,90,,,measured,90,95,0.0,1.0397504898200727
+217,Stelling Rd,W,T,16:45,237,,7,measured,237,250,0.0,1.6661874738912037
+217,Stelling Rd,E,L,17:00,42,,,measured,0,30,18.33030277982336,4.0
+217,Stelling Rd,E,R,17:00,29,,,measured,0,21,15.231546211727817,3.2
+217,Stelling Rd,E,T,17:00,159,,10,measured,143,113,2.60412306806771,7.888934916555407
+217,Stelling Rd,N,L,17:00,59,,,measured,59,59,0.0,0.0
+217,Stelling Rd,N,R,17:00,28,,,measured,28,28,0.0,0.0
+217,Stelling Rd,N,T,17:00,133,,6,measured,133,133,0.0,0.0
+217,Stelling Rd,S,L,17:00,39,,,measured,39,39,0.0,0.0
+217,Stelling Rd,S,R,17:00,43,,,measured,43,43,0.0,0.0
+217,Stelling Rd,S,T,17:00,83,,20,measured,83,83,0.0,0.0
+217,Stelling Rd,W,L,17:00,65,,,measured,65,70,0.0,1.2171612389003692
+217,Stelling Rd,W,R,17:00,96,,,measured,96,103,0.0,1.4035131799278395
+217,Stelling Rd,W,T,17:00,229,,4,measured,229,245,0.0,2.078623367877219
+217,Stelling Rd,E,L,17:15,68,,,measured,0,38,23.323807579381203,8.241633836921341
+217,Stelling Rd,E,R,17:15,32,,,measured,0,18,16.0,5.6
+217,Stelling Rd,E,T,17:15,172,,3,measured,121,99,8.427162324674683,12.542473963956686
+217,Stelling Rd,N,L,17:15,48,,,measured,48,48,0.0,0.0
+217,Stelling Rd,N,R,17:15,33,,,measured,33,33,0.0,0.0
+217,Stelling Rd,N,T,17:15,131,,15,measured,131,131,0.0,0.0
+217,Stelling Rd,S,L,17:15,33,,,measured,33,33,0.0,0.0
+217,Stelling Rd,S,R,17:15,39,,,measured,39,39,0.0,0.0
+217,Stelling Rd,S,T,17:15,92,,14,measured,92,92,0.0,0.0
+217,Stelling Rd,W,L,17:15,78,,,measured,78,81,0.0,0.6729265849104531
+217,Stelling Rd,W,R,17:15,90,,,measured,90,93,0.0,0.62725004818718
+217,Stelling Rd,W,T,17:15,250,,18,measured,250,258,0.0,1.0039292882210538
+211,De Anza Blvd,W,U,16:30,3,,,measured,0,2,4.898979485566356,1.2649110640673518
+211,De Anza Blvd,E,U,16:30,4,,,measured,0,4,5.656854249492381,0.0
+211,De Anza Blvd,S,U,16:30,20,,,measured,0,20,12.649110640673518,0.0
+211,De Anza Blvd,N,U,16:30,5,,,measured,0,5,6.324555320336759,0.0
+211,De Anza Blvd,W,U,16:45,1,,,measured,0,1,2.8284271247461903,0.0
+211,De Anza Blvd,E,U,16:45,3,,,measured,0,3,4.898979485566356,0.0
+211,De Anza Blvd,S,U,16:45,15,,,measured,0,15,10.954451150103322,0.0
+211,De Anza Blvd,N,U,16:45,2,,,measured,0,2,4.0,0.0
+211,De Anza Blvd,W,U,17:00,1,,,measured,0,1,2.8284271247461903,0.0
+211,De Anza Blvd,E,U,17:00,9,,,measured,0,9,8.48528137423857,0.0
+211,De Anza Blvd,S,U,17:00,12,,,measured,0,12,9.797958971132712,0.0
+211,De Anza Blvd,N,U,17:00,5,,,measured,0,5,6.324555320336759,0.0
+211,De Anza Blvd,W,U,17:15,2,,,measured,0,0,4.0,4.0
+211,De Anza Blvd,E,U,17:15,8,,,measured,0,8,8.0,0.0
+211,De Anza Blvd,S,U,17:15,13,,,measured,0,13,10.198039027185569,0.0
+211,De Anza Blvd,N,U,17:15,13,,,measured,0,13,10.198039027185569,0.0
+217,Stelling Rd,W,U,16:30,5,,,measured,0,5,6.324555320336759,0.0
+217,Stelling Rd,E,U,16:30,12,,,measured,0,8,9.797958971132712,2.5298221281347035
+217,Stelling Rd,S,U,16:30,0,,,measured,0,0,0.0,0.0
+217,Stelling Rd,N,U,16:30,17,,,measured,0,17,11.661903789690601,0.0
+217,Stelling Rd,W,U,16:45,7,,,measured,0,7,7.483314773547883,0.0
+217,Stelling Rd,E,U,16:45,20,,,measured,0,14,12.649110640673518,2.9104275004359956
+217,Stelling Rd,S,U,16:45,0,,,measured,0,0,0.0,0.0
+217,Stelling Rd,N,U,16:45,10,,,measured,0,10,8.94427190999916,0.0
+217,Stelling Rd,W,U,17:00,2,,,measured,0,2,4.0,0.0
+217,Stelling Rd,E,U,17:00,18,,,measured,0,13,12.0,2.54000254000381
+217,Stelling Rd,S,U,17:00,1,,,measured,0,1,2.8284271247461903,0.0
+217,Stelling Rd,N,U,17:00,17,,,measured,0,17,11.661903789690601,0.0
+217,Stelling Rd,W,U,17:15,5,,,measured,0,5,6.324555320336759,0.0
+217,Stelling Rd,E,U,17:15,20,,,measured,0,11,12.649110640673518,4.572004572006858
+217,Stelling Rd,S,U,17:15,3,,,measured,0,3,4.898979485566356,0.0
+217,Stelling Rd,N,U,17:15,19,,,measured,0,19,12.328828005937952,0.0

@@ -1,0 +1,21 @@
+{
+  "controller": "actuated",
+  "seed": 0,
+  "network": "review-repaired; same outcome as 8c14bd2 before restriction restoration",
+  "demand": "8c14bd2^",
+  "requested": 15154,
+  "completed": 13699,
+  "unfinished": 1455,
+  "teleports": 0,
+  "all_requested_delay_s": 666.6800019796754,
+  "final": {
+    "teleports": 0,
+    "inserted": 15625,
+    "running": 118,
+    "waiting": 1337
+  },
+  "pending_by_edge": {
+    "754815172": 1337
+  },
+  "network_sha256": "98a51582c9e946c55631018a3a82c9397ae4c9c5a083b7624537f81af90ca67f"
+}
