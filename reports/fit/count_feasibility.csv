@@ -1,0 +1,5 @@
+begin,all_49_exactly_feasible,solver_status
+59400,False,The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)
+60300,False,The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)
+61200,False,The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)
+62100,False,The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)

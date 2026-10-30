@@ -43,6 +43,7 @@ class VtaTimingTests(unittest.TestCase):
                        '--tripinfo-output': '<tripinfos/>', '--vehroute-output': '<routes/>', '--error-log': ''}
             for flag, value in outputs.items():
                 Path(args[args.index(flag)+1]).write_text(value)
+            return ''
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             for name in ('config', 'sim', 'data'):
@@ -63,6 +64,8 @@ class VtaTimingTests(unittest.TestCase):
                     rows = list(csv.DictReader(stream))
                 self.assertTrue(rows)
                 self.assertEqual({r['demand_basis'] for r in rows}, {comparison.DEMAND_BASIS})
+                for row in rows:
+                    self.assertEqual(row['basis'], comparison.TEXTBOOK_LABEL if row['controller'] == 'actuated' else LABEL)
             provenance = json.loads((root/'reports/vta_timing_run.json').read_text())
             self.assertEqual(provenance['demand_basis'], comparison.DEMAND_BASIS)
             self.assertTrue({'data/processed/tmc.csv', 'data/processed/tmc_sources.csv',
@@ -99,6 +102,18 @@ class VtaTimingTests(unittest.TestCase):
             self.assertEqual(row['source_page'], '5')
             self.assertEqual(row['basis'], LABEL)
         self.assertEqual(next(r['delay_s_per_vehicle'] for r in rows if (r['site_id'], r['direction'], r['movement']) == ('211', 'SB', 'T')), '41.46')
+
+    def test_probe_changes_are_isolated_and_never_written_to_plans(self):
+        from signal_lab.vta_probe import plans
+        original = ET.tostring(ET.parse(p.ROOT/'sim/tls_existing_vta_pm_peak.add.xml').getroot())
+        variants = dict(plans())
+        self.assertEqual(len(variants), 4)
+        root = variants['longer_EW_pair_diagnostic']
+        expected = {p.config()['signals'][i]['sumo_tls_id']: green for i, green in ((0, 40.4), (3, 35))}
+        for t in root.findall('tlLogic'):
+            if t.get('id') in expected:
+                self.assertAlmostEqual(float(t.findall('phase')[3].get('maxDur')), expected[t.get('id')])
+        self.assertEqual(ET.tostring(ET.parse(p.ROOT/'sim/tls_existing_vta_pm_peak.add.xml').getroot()), original)
 
     def test_plan_reproducible_without_simulation(self):
         with patch.object(p, 'run', side_effect=AssertionError('SUMO forbidden')), patch.object(p, 'xml_write') as xml_write, patch.object(p, 'write_csv') as write_csv, contextlib.redirect_stdout(io.StringIO()):
@@ -149,7 +164,8 @@ class VtaTimingTests(unittest.TestCase):
                     links = {link for a, b, link in net.getTLS(signal['sumo_tls_id']).getConnections()
                              if (a.getEdge().getID(), b.getEdge().getID()) == pair}
                     served = any(phase.get('state')[link] in 'Gg' for link in links)
-                    self.assertEqual(served, f'{direction}_{turn}' in expected, (signal['name'], i, leg, turn))
+                    expected_turn = 'L' if turn == 'U' else turn
+                    self.assertEqual(served, f'{direction}_{expected_turn}' in expected, (signal['name'], i, leg, turn))
                 for successor in map(int, phase.get('next').split()):
                     if successor == i:
                         self.assertEqual(phase.get('name'), 'recall_rest')

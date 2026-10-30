@@ -1,0 +1,13 @@
+test_comparison_labels_and_hashes_merged_demand_without_simulation (test_vta_timing.VtaTimingTests.test_comparison_labels_and_hashes_merged_demand_without_simulation) ... ok
+test_independently_read_timing_inputs (test_vta_timing.VtaTimingTests.test_independently_read_timing_inputs) ... ok
+test_local_delay_proxy_excludes_other_cohorts_teleports_and_unfinished (test_vta_timing.VtaTimingTests.test_local_delay_proxy_excludes_other_cohorts_teleports_and_unfinished) ... ok
+test_mapping_clearances_and_untouched_other_signals (test_vta_timing.VtaTimingTests.test_mapping_clearances_and_untouched_other_signals) ... ok
+test_plan_reproducible_without_simulation (test_vta_timing.VtaTimingTests.test_plan_reproducible_without_simulation) ... ok
+test_probe_changes_are_isolated_and_never_written_to_plans (test_vta_timing.VtaTimingTests.test_probe_changes_are_isolated_and_never_written_to_plans) ... ok
+test_reported_movements (test_vta_timing.VtaTimingTests.test_reported_movements) ... ok
+test_source_sanity_preserves_and_exposes_contradictions (test_vta_timing.VtaTimingTests.test_source_sanity_preserves_and_exposes_contradictions) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.107s
+
+OK

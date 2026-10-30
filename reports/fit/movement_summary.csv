@@ -1,0 +1,99 @@
+intersection,approach,movement,period,source,observed,before_scheduled,hard_cap_with_u_scheduled,final_scheduled,final_physical,physical_geh_pass,quarters,causes
+Bandley Dr,E,R,count check,estimated,20,20,20,24,16,3,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Bandley Dr,E,R,fit,estimated,20,20,20,24,24,4,4,estimated intermediate through/side constraints
+Bandley Dr,E,T,count check,estimated,570,462,462,631,593,4,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; fit-hour replay / count-fit residual
+Bandley Dr,E,T,fit,estimated,462,462,462,631,544,3,4,estimated intermediate through/side constraints; route fit / inconsistent corridor constraints; estimated intermediate through/side constraints; route fit / inconsistent corridor constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Bandley Dr,N,L,count check,estimated,20,20,20,25,25,4,4,estimated intermediate through/side constraints
+Bandley Dr,N,L,fit,estimated,20,20,20,25,25,4,4,estimated intermediate through/side constraints
+Bandley Dr,N,R,count check,estimated,20,20,20,23,23,4,4,estimated intermediate through/side constraints
+Bandley Dr,N,R,fit,estimated,20,20,20,23,23,4,4,estimated intermediate through/side constraints
+Bandley Dr,W,L,count check,estimated,20,5,5,18,19,4,4,estimated intermediate through/side constraints
+Bandley Dr,W,L,fit,estimated,20,5,5,18,15,4,4,estimated intermediate through/side constraints
+Bandley Dr,W,T,count check,estimated,991,1009,1009,1152,1194,2,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; fit-hour replay / count-fit residual; estimated intermediate through/side constraints; fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Bandley Dr,W,T,fit,estimated,1034,1009,1009,1152,1050,3,4,estimated intermediate through/side constraints
+De Anza Blvd,E,L,count check,measured,278,235,235,235,135,0,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,E,L,fit,measured,235,235,235,235,171,3,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,E,R,count check,measured,131,127,127,127,127,4,4,no large scheduled or transport residual
+De Anza Blvd,E,R,fit,measured,127,127,127,127,127,4,4,no large scheduled or transport residual
+De Anza Blvd,E,T,count check,measured,530,395,395,302,302,0,4,fit-hour replay / count-fit residual
+De Anza Blvd,E,T,fit,measured,395,395,395,302,305,3,4,no large scheduled or transport residual; route fit / inconsistent corridor constraints
+De Anza Blvd,E,U,count check,measured,31,0,24,24,16,3,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,E,U,fit,measured,24,0,24,24,13,3,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,N,L,count check,measured,645,541,541,541,200,0,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); insertion capacity / queues / travel lag at internal measure point (not separately identified)
+De Anza Blvd,N,L,fit,measured,541,541,541,541,203,1,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,N,R,count check,measured,192,20,37,168,107,1,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,N,R,fit,measured,220,20,37,168,97,0,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,N,T,count check,measured,1476,1574,1574,1574,943,0,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); insertion capacity / queues / travel lag at internal measure point (not separately identified)
+De Anza Blvd,N,T,fit,measured,1574,1574,1574,1574,917,0,4,insertion capacity / queues / travel lag at internal measure point (not separately identified)
+De Anza Blvd,N,U,count check,measured,35,0,25,25,5,1,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,N,U,fit,measured,25,0,25,25,8,3,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,S,L,count check,measured,279,67,50,181,190,2,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+De Anza Blvd,S,L,fit,measured,240,67,50,181,164,2,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,S,R,count check,measured,268,263,263,263,272,4,4,fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,S,R,fit,measured,263,263,263,263,224,3,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,S,T,count check,measured,588,598,598,598,600,2,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+De Anza Blvd,S,T,fit,measured,598,598,598,598,609,4,4,no large scheduled or transport residual
+De Anza Blvd,S,U,count check,measured,77,0,60,60,61,4,4,no large scheduled or transport residual
+De Anza Blvd,S,U,fit,measured,60,0,60,60,59,4,4,no large scheduled or transport residual
+De Anza Blvd,W,L,count check,measured,170,0,147,111,111,1,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+De Anza Blvd,W,L,fit,measured,147,0,147,111,103,2,4,no large scheduled or transport residual
+De Anza Blvd,W,R,count check,measured,333,355,0,265,264,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+De Anza Blvd,W,R,fit,measured,355,355,0,265,262,2,4,no large scheduled or transport residual; route fit / inconsistent corridor constraints
+De Anza Blvd,W,T,count check,measured,1034,674,882,797,818,2,4,fit-hour replay / count-fit residual; fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+De Anza Blvd,W,T,fit,measured,1080,674,882,797,719,1,4,route fit / inconsistent corridor constraints; route fit / inconsistent corridor constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+De Anza Blvd,W,U,count check,measured,10,0,0,4,4,4,4,no large scheduled or transport residual
+De Anza Blvd,W,U,fit,measured,7,0,0,4,4,4,4,no large scheduled or transport residual
+Mary Ave,E,R,count check,estimated,164,164,164,164,155,3,4,2018 Mary boundary mismatch; estimated quarters; 2018 Mary boundary mismatch; estimated quarters; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Mary Ave,E,R,fit,estimated,164,164,164,164,139,3,4,2018 Mary boundary mismatch; estimated quarters; 2018 Mary boundary mismatch; estimated quarters; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Mary Ave,E,T,count check,estimated,892,892,892,891,897,3,4,2018 Mary boundary mismatch; estimated quarters; 2018 Mary boundary mismatch; estimated quarters; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Mary Ave,E,T,fit,estimated,892,892,892,891,854,3,4,2018 Mary boundary mismatch; estimated quarters; 2018 Mary boundary mismatch; estimated quarters; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Mary Ave,N,L,count check,estimated,124,124,124,118,119,4,4,2018 Mary boundary mismatch; estimated quarters
+Mary Ave,N,L,fit,estimated,124,124,124,118,117,4,4,2018 Mary boundary mismatch; estimated quarters
+Mary Ave,N,R,count check,estimated,136,136,136,136,137,4,4,2018 Mary boundary mismatch; estimated quarters
+Mary Ave,N,R,fit,estimated,136,136,136,136,135,4,4,2018 Mary boundary mismatch; estimated quarters
+Mary Ave,W,T,count check,estimated,1680,1472,1491,1587,1603,3,4,2018 Mary boundary mismatch; estimated quarters; 2018 Mary boundary mismatch; estimated quarters; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Mary Ave,W,T,fit,estimated,1680,1472,1491,1587,1497,2,4,2018 Mary boundary mismatch; estimated quarters
+Saich Way,E,R,count check,estimated,20,0,0,18,16,3,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Saich Way,E,R,fit,estimated,20,0,0,18,19,4,4,estimated intermediate through/side constraints
+Saich Way,E,T,count check,estimated,606,482,482,636,600,4,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; fit-hour replay / count-fit residual
+Saich Way,E,T,fit,estimated,520,482,482,636,554,3,4,estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified); estimated intermediate through/side constraints; route fit / inconsistent corridor constraints
+Saich Way,N,L,count check,estimated,20,18,20,24,24,4,4,estimated intermediate through/side constraints
+Saich Way,N,L,fit,estimated,20,18,20,24,24,4,4,estimated intermediate through/side constraints
+Saich Way,N,R,count check,estimated,20,20,20,27,27,4,4,estimated intermediate through/side constraints
+Saich Way,N,R,fit,estimated,20,20,20,27,27,4,4,estimated intermediate through/side constraints
+Saich Way,W,L,count check,estimated,20,20,20,21,20,4,4,estimated intermediate through/side constraints
+Saich Way,W,L,fit,estimated,20,20,20,21,22,4,4,estimated intermediate through/side constraints
+Saich Way,W,T,count check,estimated,956,996,994,1146,1198,1,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; fit-hour replay / count-fit residual; estimated intermediate through/side constraints; fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified); estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Saich Way,W,T,fit,estimated,996,996,994,1146,1036,4,4,estimated intermediate through/side constraints; estimated intermediate through/side constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified); estimated intermediate through/side constraints; route fit / inconsistent corridor constraints; estimated intermediate through/side constraints; route fit / inconsistent corridor constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Stelling Rd,E,L,count check,measured,271,0,0,124,77,0,4,fit-hour replay / count-fit residual; fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Stelling Rd,E,L,fit,measured,192,0,0,124,117,1,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual; route fit / inconsistent corridor constraints
+Stelling Rd,E,R,count check,measured,141,0,0,85,84,2,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,E,R,fit,measured,129,0,0,85,79,2,4,no large scheduled or transport residual; route fit / inconsistent corridor constraints
+Stelling Rd,E,T,count check,measured,669,502,432,408,399,0,4,fit-hour replay / count-fit residual; fit-hour replay / count-fit residual; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Stelling Rd,E,T,fit,measured,625,502,432,408,347,0,4,route fit / inconsistent corridor constraints; route fit / inconsistent corridor constraints; insertion capacity / queues / travel lag at internal measure point (not separately identified)
+Stelling Rd,E,U,count check,measured,101,0,70,46,45,0,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,E,U,fit,measured,70,0,70,46,45,3,4,no large scheduled or transport residual
+Stelling Rd,N,L,count check,measured,171,197,197,197,191,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,N,L,fit,measured,197,197,197,197,200,4,4,no large scheduled or transport residual
+Stelling Rd,N,R,count check,measured,163,128,128,128,128,4,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,N,R,fit,measured,128,128,128,128,128,4,4,no large scheduled or transport residual
+Stelling Rd,N,T,count check,measured,433,479,479,479,481,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,N,T,fit,measured,479,479,479,479,478,4,4,no large scheduled or transport residual
+Stelling Rd,N,U,count check,measured,49,0,63,63,60,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,N,U,fit,measured,63,0,63,63,64,4,4,no large scheduled or transport residual
+Stelling Rd,S,L,count check,measured,237,142,142,142,142,1,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,S,L,fit,measured,142,142,142,142,142,4,4,no large scheduled or transport residual
+Stelling Rd,S,R,count check,measured,157,144,144,146,146,2,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,S,R,fit,measured,144,144,144,146,146,4,4,no large scheduled or transport residual
+Stelling Rd,S,T,count check,measured,410,303,303,303,303,2,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,S,T,fit,measured,303,303,303,303,303,4,4,no large scheduled or transport residual
+Stelling Rd,S,U,count check,measured,5,0,4,4,4,4,4,no large scheduled or transport residual
+Stelling Rd,S,U,fit,measured,4,0,4,4,4,4,4,no large scheduled or transport residual
+Stelling Rd,W,L,count check,measured,289,283,283,300,313,4,4,no large scheduled or transport residual
+Stelling Rd,W,L,fit,measured,283,283,283,300,272,4,4,no large scheduled or transport residual
+Stelling Rd,W,R,count check,measured,258,389,389,412,408,0,4,fit-hour replay / count-fit residual
+Stelling Rd,W,R,fit,measured,389,389,389,412,369,4,4,insertion capacity / queues / travel lag at internal measure point (not separately identified); no large scheduled or transport residual
+Stelling Rd,W,T,count check,measured,889,924,924,974,1025,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,W,T,fit,measured,924,924,924,974,870,4,4,no large scheduled or transport residual
+Stelling Rd,W,U,count check,measured,37,0,19,19,19,3,4,fit-hour replay / count-fit residual; no large scheduled or transport residual
+Stelling Rd,W,U,fit,measured,19,0,19,19,18,4,4,no large scheduled or transport residual

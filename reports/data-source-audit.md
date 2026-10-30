@@ -27,7 +27,7 @@ Both scrambled-text PDFs were rendered with PyMuPDF and page 1 read by eye. `vta
 | De Anza 211 | 17:15–18:15 | 6271 | 151 | 6120 | 55 | 7 | 125 |
 | Stelling 217 | 17:00–18:00 | 4393 | 171 | 4222 | 45 | 10 | 179 |
 
-The production format remains unchanged. U-turns stay in the raw transcription and are excluded from L/T/R demand, as for Mary; they are never folded into left/through counts. Quarter-hour heavy counts are available by approach, but not by movement, so `heavy` stays blank in tmc.csv (unknown, not zero). Crossing-leg pedestrians are stored once on the T row. The model uses homogeneous passenger vehicles and does not simulate bicycles or pedestrians.
+The production schema is unchanged. De Anza/Stelling U-turn rows are now included separately with measured source labels; Mary U-turns remain unmodeled. No U-turn is folded into left/through counts. Quarter-hour heavy counts are available by approach, but not by movement, so `heavy` stays blank in tmc.csv (unknown, not zero). Crossing-leg pedestrians are stored once on the T row. The model uses homogeneous passenger vehicles and does not simulate bicycles or pedestrians.
 
 Mary's hourly R/T/L/U by leg remain N=138/78/123/0, E=165/892/125/13, S=75/20/126/0, W=113/1680/177/48; sum 3773, including 61 U-turns. Only N R/L, E R/T, W T exist in the current OSM model: **775 observed vehicles/hour cannot be represented**. Rounding retained movements to quarters adds 2 vehicles/hour. No network changes were made.
 
@@ -71,10 +71,16 @@ Do not sum or arbitrarily select the duplicate De Anza south records. Stelling-a
 
 ## Network and measurement limits
 
-Using `--osm.turn-lanes` had suppressed all four Stelling right turns because incomplete OSM lane tags were interpreted as movement exclusions. Removing that option lets SUMO infer connections geometrically while retaining lane counts and the five TLS ids. All 24 measured movement types now map to legal connections. This is inferred connectivity, not field validation, and changes turn-lane allocation at other nodes too; inspect before treating it as engineering geometry.
+Using `--osm.turn-lanes` had suppressed all four Stelling right turns because incomplete OSM lane tags were interpreted as movement exclusions. Removing that option lets SUMO infer connections geometrically while retaining lane counts and the five TLS ids. All 24 L/T/R movement types, plus eight separately modeled source-site U-turns, map to legal connections. This is inferred connectivity, not field validation, and changes turn-lane allocation at other nodes too; inspect before treating it as engineering geometry.
 
 M3 uses SUMO induction loops at the **start of each internal turning lane**, summing `nVehEntered` by movement/quarter. These count physical entries; a teleported jump is not inferred from a planned route. A small real SUMO run verifies three vehicles produce three detector entries. See [SUMO E1 documentation](https://sumo.dlr.de/docs/Simulation/Output/Induction_Loops_Detectors_%28E1%29.html). Summary `teleports` is cumulative; a focused regression verifies it is read once from the final step.
 
 The October 30 data rebuild used the retained textbook coordinated-actuated baseline without rewriting timing. Completed before the away-from-home stop: GEH < 5 fell from **41/96 (42.71%)** on the earlier inputs to **37/96 (38.54%)**; target 85% remains unmet. PM seed 0: **0 teleports, 105 running + 647 waiting to insert = 752 unfinished** after the 30-minute drain; **118.421 s** completed-trip time loss, 13,683 completed non-warmup departures. Build-demand also completed night with 415 inserted, zero running/waiting/teleports. No subsequent SUMO run is authorized while away.
 
-The full test suite is **NOT RUN** after the stop; only fast, SUMO-blocked checks run. Existing M4/optimization/evaluation reports, results.csv, dashboard, deck, video and their archived race evidence remain **2018-demand results** and require a separate later rerun. This update does not establish calibration, delay gains or current-city benefit.
+At the earlier away-stop, the full test suite had not run; current home-run checks are recorded below and in `reports/fit/tests_full.log`. Existing M4/optimization/evaluation reports, results.csv, dashboard, deck, video and their archived race evidence remain **2018-demand results** and require a separate later rerun. This update does not establish calibration, delay gains or current-city benefit.
+
+## Home fit correction
+
+See `reports/fit/README.md` and `reports/fit/movement_diagnosis.csv` for current results. All original count values and source labels are preserved; 64 measured U-turn quarters were added from the retained transcription. The symmetric count fit replaces hard count ceilings because mixed-year and estimated corridor observations are inconsistent. GEH now reports all 128 measured quarters, with the shared 96 L/T/R quarters stated separately.
+
+Restoring De Anza EB left exposed a junction gridlock hidden by the previous zero allocation. `sim/vta_stopline.con.xml` moves the four De Anza left waiting points to the stop line; netconvert retains external geometry, TLS link indices and all plan files. This inferred internal waiting model is not field-verified geometry. `build-net` reapplies it after OSM conversion. The count-check residuals still combine departure-to-crossing lag, queues and insertion limits; they do not individually identify each effect.

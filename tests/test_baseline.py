@@ -64,7 +64,7 @@ class BaselineTests(unittest.TestCase):
         p.xml_write(extra, folder/'output.xml')
         p.run([p.BIN/'sumo', '-n', p.ROOT/'sim/corridor.net.xml', '-r', routes,
                '-a', f'{p.ROOT}/sim/detectors.add.xml,{p.ROOT}/sim/tls_actuated_night.add.xml,{folder}/output.xml',
-               '-b', '81900', '-e', '86400', '--no-step-log', '--tripinfo-output', folder/'trips.xml', '--summary-output', folder/'summary.xml'])
+               '-b', '81900', '-e', '86400', '--seed', '0', '--no-step-log', '--tripinfo-output', folder/'trips.xml', '--summary-output', folder/'summary.xml'])
         self.assertEqual(d.summary_stats(folder/'summary.xml')['teleports'], 0)
         return ET.parse(folder/'states.xml').getroot(), ET.parse(folder/'trips.xml').getroot()
 

@@ -49,11 +49,11 @@
     <phase duration="27.0" state="GGGGrrrrrrrGGGGrrrrrrr" minDur="10.0" maxDur="27.0" latestEnd="52.0" name="recall_rest" next="3 12 14 16" />
     <phase duration="4.0" state="yyyyrrrrrrryyyyrrrrrrr" next="5" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="6" />
-    <phase duration="32.9" state="rrrrrrGGGGrrrrrrrrrrrr" minDur="10.0" maxDur="32.9" latestEnd="89.9" name="phase_6" next="18 20 22" />
-    <phase duration="4.1" state="rrrrrryyyyrrrrrrrrrrrr" next="8" />
+    <phase duration="32.9" state="rrrrrrGGGGGrrrrrrrrrrr" minDur="10.0" maxDur="32.9" latestEnd="89.9" name="phase_6" next="18 20 22" />
+    <phase duration="4.1" state="rrrrrryyyyyrrrrrrrrrrr" next="8" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="9" />
-    <phase duration="31.9" state="rrrrrrrrrrrrrrrrrGGGGr" minDur="10.0" maxDur="31.9" latestEnd="126.9" name="phase_9" next="24 26" />
-    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyr" next="11" />
+    <phase duration="31.9" state="rrrrrrrrrrrrrrrrrGGGGG" minDur="10.0" maxDur="31.9" latestEnd="126.9" name="phase_9" next="24 26" />
+    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyy" next="11" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
     <phase duration="4.0" state="yyyyrrrrrrryyyyrrrrrrr" next="13" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="6" />
@@ -61,15 +61,15 @@
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="9" />
     <phase duration="4.0" state="yyyyrrrrrrryyyyrrrrrrr" next="17" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
-    <phase duration="4.1" state="rrrrrryyyyrrrrrrrrrrrr" next="19" />
+    <phase duration="4.1" state="rrrrrryyyyyrrrrrrrrrrr" next="19" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="3" />
-    <phase duration="4.1" state="rrrrrryyyyrrrrrrrrrrrr" next="21" />
+    <phase duration="4.1" state="rrrrrryyyyyrrrrrrrrrrr" next="21" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="9" />
-    <phase duration="4.1" state="rrrrrryyyyrrrrrrrrrrrr" next="23" />
+    <phase duration="4.1" state="rrrrrryyyyyrrrrrrrrrrr" next="23" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
-    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyr" next="25" />
+    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyy" next="25" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="3" />
-    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyr" next="27" />
+    <phase duration="4.1" state="rrrrrrrrrrrrrrrrryyyyy" next="27" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
     <phase duration="3.5" state="rrrryyrrrrrrrrryyrrrrr" next="29" />
     <phase duration="1.0" state="rrrrrrrrrrrrrrrrrrrrrr" next="3" />

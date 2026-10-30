@@ -13,8 +13,9 @@ from . import pipeline as p
 from .demand import movement_map, network, seconds, summary_stats
 from .evaluate import boundaries, command, corridor_times, mean, metrics
 from .vta_timing import LABEL
+from .baseline import LABEL as TEXTBOOK_LABEL
 
-DEMAND_BASIS = '2024 De Anza/Stelling L/T/R counts; 2024-based Bandley/Saich estimates; 2018 Mary estimates; U-turn demand excluded'
+DEMAND_BASIS = '2024 De Anza/Stelling L/T/R/U counts; 2024-based Bandley/Saich estimates; 2018 Mary estimates; Mary U-turns unmodeled'
 
 
 def movement_delays(path, net, mapping, requested, teleported):
@@ -47,6 +48,7 @@ def movement_delays(path, net, mapping, requested, teleported):
 
 
 def compare():
+    (p.ROOT/'reports/fit').mkdir(parents=True, exist_ok=True)
     cfg = p.config()
     begin, end = (seconds(cfg['scenarios']['pm_peak'][k]) for k in ('begin', 'end'))
     requested = {}
@@ -62,6 +64,7 @@ def compare():
         reported = {(int(r['site_id']), r['direction'], r['movement']): r for r in csv.DictReader(stream)}
     for seed in range(3):
         for controller in ('actuated', 'existing_vta'):
+            basis = TEXTBOOK_LABEL if controller == 'actuated' else LABEL
             power = subprocess.check_output(['pmset', '-g', 'batt'], text=True)
             percent = re.search(r'(\d+)%;', power)
             if percent and int(percent[1]) < 25:
@@ -70,18 +73,19 @@ def compare():
                 raise RuntimeError('Another SUMO process is running; retry after it finishes')
             with tempfile.TemporaryDirectory() as folder:
                 folder = Path(folder)
-                p.run([*command('pm_peak', controller, seed, cfg), '-e', end+1800,
+                log = p.run([*command('pm_peak', controller, seed, cfg), '-e', end+1800,
                        '--summary-output', folder/'summary.xml', '--tripinfo-output', folder/'trips.xml',
                        '--tripinfo-output.write-unfinished', 'true', '--vehroute-output', folder/'routes.xml',
                        '--vehroute-output.exit-times', 'true', '--vehroute-output.write-unfinished', 'true',
                        '--error-log', folder/'warnings.txt'])
+                (p.ROOT/f'reports/fit/compare_{controller}_{seed}.log').write_text(log+'\n'+(folder/'warnings.txt').read_text())
                 teleports = re.findall(r"Teleporting vehicle '([^']+)'", (folder/'warnings.txt').read_text())
                 if len(teleports) != summary_stats(folder/'summary.xml')['teleports']:
                     raise ValueError('Teleport warning/summary mismatch')
                 trips = {t.get('id'): dict(t.attrib) for t in ET.parse(folder/'trips.xml').getroot().findall('tripinfo')}
                 travels = corridor_times(folder/'routes.xml', endpoints, set(cfg['mainline_edges']), set(teleports))
                 rows.append(dict(controller=controller, seed=seed, scenario='pm_peak', window='full',
-                                 seed_group='training', basis=LABEL, demand_basis=DEMAND_BASIS,
+                                 seed_group='training', basis=basis, demand_basis=DEMAND_BASIS,
                                  **metrics(requested, trips, travels, teleports, begin, end)))
                 cohort = {v for v, (depart, _) in requested.items() if begin <= depart < end}
                 delays = movement_delays(folder/'routes.xml', net, mapping, cohort, set(teleports))
@@ -91,18 +95,18 @@ def compare():
                     values = delays.get((name, approach, movement), [])
                     local.append(dict(controller=controller, seed=seed, site_id=site, direction=direction,
                                       movement=movement, n=len(values), simulated_segment_excess_s=mean(values),
-                                      sample_status='observed' if values else 'no observed crossing; U-turns not mapped' if movement == 'U' else 'no observed crossing',
+                                      sample_status='observed' if values else 'no observed crossing',
                                       vistro_hcm_delay_s=source['delay_s_per_vehicle'], vistro_los=source['los'],
                                       metric_note='Completed local crossings excluding teleports; approach+departure excess over external-edge freeflow, not HCM control delay',
-                                      basis=LABEL, demand_basis=DEMAND_BASIS))
+                                      basis=basis, demand_basis=DEMAND_BASIS))
             print(f'{controller} seed {seed}: full PM training look complete', flush=True)
     p.write_csv('reports/vta_timing_comparison.csv', rows)
     p.write_csv('reports/vta_movement_comparison.csv', local)
-    files = ['config/corridor.yaml', 'sim/routes_pm_peak.rou.xml', 'sim/corridor.net.xml',
+    files = ['config/corridor.yaml', 'sim/routes_pm_peak.rou.xml', 'sim/corridor.net.xml', 'sim/vta_stopline.con.xml',
              'sim/detectors.add.xml', 'sim/tls_actuated_pm_peak.add.xml', 'sim/tls_existing_vta_pm_peak.add.xml',
              'data/processed/vta_timing_2024.csv', 'data/processed/vta_vistro_results_2024.csv',
              'data/processed/tmc.csv', 'data/processed/tmc_sources.csv', 'data/processed/vta_counts_2024.csv']
-    provenance = dict(basis=LABEL, demand_basis=DEMAND_BASIS, seeds=[0, 1, 2], window='full PM only', warmup_s=cfg['warmup_s'],
+    provenance = dict(basis={'actuated': TEXTBOOK_LABEL, 'existing_vta': LABEL}, demand_basis=DEMAND_BASIS, seeds=[0, 1, 2], window='full PM only', warmup_s=cfg['warmup_s'],
                       drain_s=1800, unfinished_charge_s=900, power=power.strip(),
                       sha256={f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files})
     (p.ROOT/'reports/vta_timing_run.json').write_text(json.dumps(provenance, indent=2)+'\n')

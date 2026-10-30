@@ -127,6 +127,11 @@ def build_net():
             path.write_bytes(response.read())
     # Incomplete OSM turn:lanes omit real right turns; infer connections geometrically.
     tool('osmBuild.py', '-f', path, '-p', 'corridor', '-d', ROOT / 'sim', '--vehicle-classes', 'passenger', '--netconvert-options=--geometry.remove,--ramps.guess,--tls.guess-signals,--tls.discard-simple,--output.original-names,--output.street-names,--tls.default-type,actuated,--tls.yellow.time,4,--tls.allred.time,1,--junctions.join,--tls.join')
+    # Guessed internal left-turn waiting points trap crossing lefts at De Anza.
+    with tempfile.TemporaryDirectory() as tmp:
+        repaired = Path(tmp)/'corridor.net.xml'
+        run([BIN/'netconvert', '-s', ROOT/'sim/corridor.net.xml', '-x', ROOT/'sim/vta_stopline.con.xml', '-o', repaired])
+        (ROOT/'sim/corridor.net.xml').write_bytes(repaired.read_bytes())
     net = sumolib.net.readNet(str(ROOT / 'sim/corridor.net.xml'), withPrograms=True)
     for signal in cfg['signals']:
         x,y = net.convertLonLat2XY(signal['lon'], signal['lat'])

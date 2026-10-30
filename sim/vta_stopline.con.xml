@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<connections>
+  <connection from="1113038411" to="157747965#0" fromLane="4" toLane="3" contPos="0" />
+  <connection from="25085669#0" to="506499370#0" fromLane="5" toLane="2" contPos="0" />
+  <connection from="317693323#0" to="498007414#0" fromLane="4" toLane="2" contPos="0" />
+  <connection from="317693325#0" to="593271059#0" fromLane="4" toLane="2" contPos="0" />
+</connections>

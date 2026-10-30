@@ -20,11 +20,11 @@ class DemandTests(unittest.TestCase):
         cls.mapping = d.movement_map(cls.net)
 
     def test_complete_profiles_and_provenance(self):
-        self.assertEqual(len(self.rows), 328)
-        self.assertEqual(sum(r['source'] == 'measured' for r in self.rows), 192)
+        self.assertEqual(len(self.rows), 392)
+        self.assertEqual(sum(r['source'] == 'measured' for r in self.rows), 256)
         counts = d.mapped_counts(self.rows, self.mapping)
         self.assertEqual(set(counts), set(range(59400, 66600, 900)))
-        self.assertTrue(all(len(c) == 41 for c in counts.values()))
+        self.assertTrue(all(len(c) == 49 for c in counts.values()))
         self.assertEqual({r['intersection'] for r in self.rows if r['source'] == 'measured'}, {'De Anza Blvd', 'Stelling Rd'})
         with open(p.ROOT/'data/processed/tmc_sources.csv') as stream:
             sources = list(csv.DictReader(stream))
@@ -80,12 +80,17 @@ class DemandTests(unittest.TestCase):
         covered = set()
         for route in routes:
             edges = route.get('edges').split()
-            self.assertEqual(len(set(edges)), len(edges))
+            reverses = []
             for first, second in zip(edges, edges[1:]):
                 self.assertIn(self.net.getEdge(second), self.net.getEdge(first).getOutgoing())
-                self.assertTrue(any(c.getDirection() != 't' for c in
-                                    self.net.getEdge(first).getOutgoing()[self.net.getEdge(second)]))
+                if all(c.getDirection() == 't' for c in self.net.getEdge(first).getOutgoing()[self.net.getEdge(second)]):
+                    reverses.append((first, second))
                 covered.add((first, second))
+            counted_uturns = {pair for key, pair in self.mapping.items() if key[2] == 'U'}
+            self.assertLessEqual(len(reverses), 1)
+            self.assertTrue(set(reverses) <= counted_uturns)
+            if not reverses:
+                self.assertEqual(len(set(edges)), len(edges))
         self.assertTrue(set(self.mapping.values()) <= covered)
 
     def test_fit_replay_and_warmup(self):
@@ -108,7 +113,7 @@ class DemandTests(unittest.TestCase):
         self.assertEqual([int(i.get('begin')) for i in turns], [59400, 60300, 61200, 62100])
 
     def test_holdout_changes_cannot_change_generated_routes(self):
-        # Exercise the real routeSampler twice in isolation; skip only the already verified full simulations.
+        # Exercise the real count fitter twice; skip only the full simulations.
         actual_root = p.ROOT
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -148,6 +153,35 @@ class DemandTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 d.geh(*args)
 
+    def test_symmetric_fit_does_not_sacrifice_turn_to_inconsistent_ceiling(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            candidates, turns, output = [root/name for name in ('routes.xml', 'turns.xml', 'out.xml')]
+            candidates.write_text('<routes><route edges="a b c"/><route edges="a d c"/></routes>')
+            # Both routes pass c, but different observed turns can demand more than its ceiling.
+            d.turn_file({0: {('a', 'b'): 20, ('a', 'd'): 10, ('b', 'c'): 5}}, turns)
+            d.sample(candidates, turns, output)
+            routes = [v.find('route').get('edges') for v in ET.parse(output).getroot()]
+            self.assertGreater(routes.count('a b c'), 5)
+            self.assertGreater(routes.count('a d c'), 0)
+
+    def test_counted_uturns_preserve_source_and_are_separate(self):
+        rows = [r for r in self.rows if r['movement'] == 'U' and r['interval_start'] < '17:30']
+        self.assertEqual(sum(int(r['vehicles']) for r in rows), 272)
+        self.assertEqual({r['source'] for r in rows}, {'measured'})
+        self.assertEqual(len({self.mapping[r['intersection'], r['approach'], 'U'] for r in rows}), 8)
+
+    def test_deanza_lefts_wait_before_conflicting_internal_paths(self):
+        root = ET.parse(p.ROOT/'sim/corridor.net.xml').getroot()
+        lefts = {pair for key, pair in self.mapping.items() if key[0] == 'De Anza Blvd' and key[2] == 'L'}
+        for connection in root.findall('connection'):
+            if (connection.get('from'), connection.get('to')) in lefts:
+                self.assertEqual(float(connection.get('contPos')), 0)
+                via = connection.get('via').rsplit('_', 1)[0]
+                continuation = [c for c in root.findall('connection') if c.get('from') == via]
+                self.assertTrue(continuation)
+                self.assertTrue(all(c.get('via') is None for c in continuation))
+
     def test_detector_binning_and_front_entries(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp)/'counts.xml'
@@ -168,10 +202,29 @@ class DemandTests(unittest.TestCase):
             self.assertEqual(sum(counts.values()), 3)
             self.assertEqual(stat['teleports'], 0)
 
+    def test_missing_turns_and_uturns_have_physical_detector_crossings(self):
+        keys = [('De Anza Blvd', 'W', 'L'), ('Stelling Rd', 'E', 'L'), ('Stelling Rd', 'E', 'R')]
+        keys += [k for k in self.mapping if k[2] == 'U']
+        selected = {k: self.mapping[k] for k in keys}
+        with tempfile.TemporaryDirectory() as temp:
+            root = ET.Element('routes')
+            for i, pair in enumerate(selected.values()):
+                for j in range(3):
+                    v = ET.SubElement(root, 'vehicle', id=f'turn_{i}_{j}', depart=str(82810+i*30+j*5), departLane='best')
+                    ET.SubElement(v, 'route', edges=' '.join(pair))
+            path = Path(temp)/'turns.rou.xml'
+            p.xml_write(root, path)
+            detectors, ids = d.turn_detectors(self.net, selected, temp)
+            stat = d.simulation('night', temp, routes=path, additional=detectors)
+            counts = d.detector_counts(Path(temp)/'turn_counts.xml', ids, 82800, 86400)
+            for pair in selected.values():
+                self.assertEqual(sum(v for (_, a, b), v in counts.items() if (a, b) == pair), 3, pair)
+            self.assertEqual(stat['teleports'], 0)
+
     def test_m3_reports_only_measured_holdout_with_honest_percentage(self):
         with open(p.ROOT/'reports/demand_check.csv') as stream:
             rows = list(csv.DictReader(stream))
-        self.assertEqual(len(rows), 96)
+        self.assertEqual(len(rows), 128)
         self.assertEqual({r['interval'] for r in rows}, {'17:30', '17:45', '18:00', '18:15'})
         self.assertTrue(all(r['movement'].split(' / ')[0] in ('De Anza Blvd', 'Stelling Rd') for r in rows))
         for row in rows:

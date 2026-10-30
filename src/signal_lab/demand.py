@@ -26,7 +26,7 @@ def load_counts():
         if key in seen:
             raise ValueError(f'Duplicate count: {key}')
         seen.add(key)
-        if row['intersection'] not in names or row['approach'] not in ('N', 'S', 'E', 'W') or row['movement'] not in ('L', 'T', 'R'):
+        if row['intersection'] not in names or row['approach'] not in ('N', 'S', 'E', 'W') or row['movement'] not in ('L', 'T', 'R', 'U'):
             raise ValueError(f'Invalid movement: {row}')
         if row['source'] not in ('measured', 'estimated') or int(row['vehicles']) < 0:
             raise ValueError(f'Invalid count/source: {row}')
@@ -50,11 +50,14 @@ def movement_map(net):
             dx, dy = x0-x1, y0-y1
             approach = ('E' if dx > 0 else 'W') if abs(dx) > abs(dy) else ('N' if dy > 0 else 'S')
             for connection in lane.getOutgoing():
-                if connection.getToLane() != outgoing or connection.getDirection() not in ('l', 's', 'r'):
+                directions = {'l': 'L', 's': 'T', 'r': 'R'}
+                if signal['name'] in ('De Anza Blvd', 'Stelling Rd'):
+                    directions['t'] = 'U'
+                if connection.getToLane() != outgoing or connection.getDirection() not in directions:
                     continue
                 if not lane.allows('passenger') or not outgoing.allows('passenger'):
                     continue
-                movement = {'l': 'L', 's': 'T', 'r': 'R'}[connection.getDirection()]
+                movement = directions[connection.getDirection()]
                 key = signal['name'], approach, movement
                 pair = edge.getID(), outgoing.getEdge().getID()
                 if key in mapping and mapping[key] != pair:
@@ -100,10 +103,11 @@ def candidate_routes(net, mapping, path):
                     continue
                 path_edges = (*prefix, *suffix)
                 route = tuple(e.getID() for e in path_edges)
-                # L/T/R counts do not constrain U-turns; exclude artificial turnaround demand.
-                reverses = any(all(c.getDirection() == 't' for c in a.getOutgoing()[b])
-                               for a, b in zip(path_edges, path_edges[1:]))
-                if len(set(route)) == len(route) and not reverses:
+                # Only the counted target may reverse; clipped-end turnarounds stay excluded.
+                reverses = [(a.getID(), b.getID()) for a, b in zip(path_edges, path_edges[1:])
+                            if all(c.getDirection() == 't' for c in a.getOutgoing()[b])]
+                target_u = all(c.getDirection() == 't' for c in first.getOutgoing()[last])
+                if reverses == ([(incoming, outgoing)] if target_u else []) and (target_u or len(set(route)) == len(route)):
                     routes.add(route)
         if not any((incoming, outgoing) in zip(r, r[1:]) for r in routes):
             raise ValueError(f'No boundary-to-boundary route covers {incoming} → {outgoing}')
@@ -115,9 +119,39 @@ def candidate_routes(net, mapping, path):
 
 
 def sample(candidates, turns, output):
-    log = p.tool('routeSampler.py', '-r', candidates, '-t', turns, '-o', output,
-                 '--optimize', 'full', '--seed', '0', '--attributes', 'departLane="best" departSpeed="max"')
-    return log
+    """Fit all counts with symmetric, flow-scaled residuals, not hard ceilings.
+
+    Mixed-year counts and estimated intermediate turns need not conserve flow.
+    """
+    import numpy as np
+    from scipy.optimize import nnls
+    routes = [r.get('edges').split() for r in ET.parse(candidates).getroot()]
+    pairs = [Counter(zip(route, route[1:])) for route in routes]
+    root = ET.Element('routes')
+    rng = np.random.default_rng(0)
+    logs = []
+    for interval in ET.parse(turns).getroot():
+        relations = list(interval)
+        observed = np.array([float(r.get('count')) for r in relations])
+        matrix = np.array([[route[r.get('from'), r.get('to')] for route in pairs]
+                           for r in relations], dtype=float)
+        scale = np.sqrt(np.maximum(observed, 1))
+        allocation, _ = nnls(matrix / scale[:, None], observed / scale, maxiter=10000)
+        allocation = np.floor(allocation + rng.random(len(allocation))).astype(int)
+        scheduled = matrix @ allocation
+        logs.append(f"{interval.get('begin')}: symmetric count fit; {sum(allocation)} vehicles; "
+                    f"GEH<5 {sum(geh(o, s, float(interval.get('end'))-float(interval.get('begin'))) < 5 for o, s in zip(observed, scheduled))}/{len(observed)}")
+        begin, end = float(interval.get('begin')), float(interval.get('end'))
+        vehicles = []
+        for route, count in zip(routes, allocation):
+            for i in range(count):
+                vehicles.append((begin+(i+.5)*(end-begin)/count, route))
+        for depart, route in sorted(vehicles):
+            vehicle = ET.SubElement(root, 'vehicle', id=f'fit_{len(root)}', depart=f'{depart:.6f}',
+                                    departLane='best', departSpeed='max')
+            ET.SubElement(vehicle, 'route', edges=' '.join(route))
+    p.xml_write(root, output)
+    return '\n'.join(logs)
 
 
 def extend_fit(sampled, output, fit_begin, fit_end, end, warmup):
@@ -226,7 +260,7 @@ def build_demand():
     if stats['night']['teleports']:
         raise ValueError(f'Night must have zero teleports: {stats["night"]["teleports"]}')
     fit_hash = hashlib.sha256(repr(sorted(tuple(sorted(r.items())) for r in fit)).encode()).hexdigest()
-    report = ['# M2 demand build', '', f'{n_candidates} boundary-to-boundary candidate routes; routeSampler --optimize full, seed 0.',
+    report = ['# M2 demand build', '', f'{n_candidates} boundary-to-boundary candidate routes; symmetric nonnegative count fit, seed 0 rounding.',
               f'Vehicles including 900 s warmup: PM {total_pm}; night {total_night}.',
               f'Fit-only input SHA256: `{fit_hash}`.', '',
               'PM fit is 16:30–17:30. The fit hour is replayed at 17:30–18:30 without reading holdout volumes; warmup replays its first 15 minutes. All scenarios have a 30-minute drain period.',
@@ -289,8 +323,18 @@ def detector_counts(path, ids, begin, end):
     return counts
 
 
+def scheduled_counts(path):
+    counts = Counter()
+    for vehicle in ET.parse(path).getroot().findall('vehicle'):
+        interval = int(float(vehicle.get('depart')))//900*900
+        edges = vehicle.find('route').get('edges').split()
+        counts.update((interval, a, b) for a, b in zip(edges, edges[1:]))
+    return counts
+
+
 def check_demand():
     from .baseline import LABEL
+    (p.ROOT/'reports/fit').mkdir(parents=True, exist_ok=True)
     if not (p.ROOT/'sim/tls_actuated_pm_peak.add.xml').exists():
         raise ValueError('Run baseline before check-demand')
     pm = p.config()['scenarios']['pm_peak']
@@ -303,7 +347,29 @@ def check_demand():
     with tempfile.TemporaryDirectory() as temp:
         detectors, ids = turn_detectors(net, mapping, temp)
         stat = simulation('pm_peak', temp, additional=detectors)
-        actual = detector_counts(Path(temp)/'turn_counts.xml', ids, begin, end)
+        actual = detector_counts(Path(temp)/'turn_counts.xml', ids, seconds(pm['fit'][0]), end)
+    scheduled = scheduled_counts(p.ROOT/'sim/routes_pm_peak.rou.xml')
+    diagnostics = []
+    for row in load_counts():
+        time = seconds(row['interval_start'])
+        pair = mapping[row['intersection'], row['approach'], row['movement']]
+        requested = scheduled[time, *pair]
+        observed = int(row['vehicles'])
+        physical = actual[time, *pair]
+        causes = []
+        if row['intersection'] in ('Bandley Dr', 'Saich Way'):
+            causes.append('estimated intermediate through/side constraints')
+        if row['intersection'] == 'Mary Ave':
+            causes.append('2018 Mary boundary mismatch; estimated quarters')
+        if geh(observed, requested) >= 5:
+            causes.append('route fit / inconsistent corridor constraints' if time < begin else 'fit-hour replay / count-fit residual')
+        if geh(requested, physical) >= 5:
+            causes.append('insertion capacity / queues / travel lag at internal measure point (not separately identified)')
+        diagnostics.append(dict(**row, period='fit' if time < begin else 'count check',
+                                scheduled=requested, physical=physical, geh=round(geh(observed, physical), 4),
+                                scheduled_geh=round(geh(observed, requested), 4),
+                                cause='; '.join(causes) or 'no large scheduled or transport residual'))
+    p.write_csv('reports/fit/movement_diagnosis.csv', diagnostics)
     results = []
     for row in holdout:
         key = row['intersection'], row['approach'], row['movement']
