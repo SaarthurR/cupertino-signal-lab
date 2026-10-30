@@ -1,0 +1,9 @@
+site_id,sumo_tls_id,phase,textbook_phase,signal_groups,cycle_s,offset_s,applied_split_s,min_green_s,max_green_s,yellow_s,red_clear_s,basis,nominal_slack_s
+211,GS_cluster_258972910_3369079743_518311316_65426566,0,7,1;5,180.0,120.0,23.0,8.0,18.0,3.5,1.5,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",18.0
+211,GS_cluster_258972910_3369079743_518311316_65426566,3,5,2;6,180.0,120.0,40.0,8.0,34.4,4.1,1.5,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",18.0
+211,GS_cluster_258972910_3369079743_518311316_65426566,6,2,3;7,180.0,120.0,32.0,8.0,27.0,3.5,1.5,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",18.0
+211,GS_cluster_258972910_3369079743_518311316_65426566,9,0,8;4,180.0,120.0,67.0,8.0,61.2,4.3,1.5,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",18.0
+217,GS_cluster_2471567001_2471567002_65431017_917880337,0,2,1;5,140.0,57.0,25.0,8.0,20.5,3.5,1.0,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",8.0
+217,GS_cluster_2471567001_2471567002_65431017_917880337,3,0,2;6,140.0,57.0,32.0,10.0,27.0,4.0,1.0,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",8.0
+217,GS_cluster_2471567001_2471567002_65431017_917880337,6,5,3,140.0,57.0,38.0,10.0,32.9,4.1,1.0,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",8.0
+217,GS_cluster_2471567001_2471567002_65431017_917880337,9,7,4,140.0,57.0,37.0,10.0,31.9,4.1,1.0,"Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",8.0
