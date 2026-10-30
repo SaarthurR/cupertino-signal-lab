@@ -1,0 +1,8 @@
+All commands: cwd=/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024
+SUMO_HOME="$PWD/.venv/lib/python3.12/site-packages/sumo" PYTHONPATH=src
+nice -n 15 .venv/bin/python -m signal_lab build-demand
+nice -n 15 .venv/bin/python -m signal_lab check-demand
+nice -n 15 .venv/bin/python -m signal_lab.vta_timing
+nice -n 15 .venv/bin/python -m signal_lab.vta_compare
+nice -n 15 .venv/bin/python -m unittest discover -s tests -v
+All exited 0. Only training seeds 0,1,2; no optimizer/evaluate simulate/eval invocation.

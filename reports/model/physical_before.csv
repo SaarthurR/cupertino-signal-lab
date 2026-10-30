@@ -1,0 +1,393 @@
+site_id,intersection,approach,movement,interval_start,vehicles,heavy,peds,source,physical,geh
+estimated_bandley,Bandley Dr,E,R,16:30,5,,,estimated,4,0.9428090415820634
+estimated_bandley,Bandley Dr,E,T,16:30,111,,,estimated,129,3.286335345030997
+estimated_bandley,Bandley Dr,N,L,16:30,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,16:30,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,16:30,5,,,estimated,4,0.9428090415820634
+estimated_bandley,Bandley Dr,W,T,16:30,248,,,estimated,239,1.1535144050016026
+estimated_bandley,Bandley Dr,E,R,16:45,5,,,estimated,3,2.0
+estimated_bandley,Bandley Dr,E,T,16:45,107,,,estimated,155,8.387558943945965
+estimated_bandley,Bandley Dr,N,L,16:45,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,16:45,5,,,estimated,5,0.0
+estimated_bandley,Bandley Dr,W,L,16:45,5,,,estimated,5,0.0
+estimated_bandley,Bandley Dr,W,T,16:45,232,,,estimated,275,5.401438919983418
+estimated_bandley,Bandley Dr,E,R,17:00,5,,,estimated,10,3.6514837167011076
+estimated_bandley,Bandley Dr,E,T,17:00,133,,,estimated,142,1.5350451577603952
+estimated_bandley,Bandley Dr,N,L,17:00,5,,,estimated,7,1.632993161855452
+estimated_bandley,Bandley Dr,N,R,17:00,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,17:00,5,,,estimated,4,0.9428090415820634
+estimated_bandley,Bandley Dr,W,T,17:00,274,,,estimated,267,0.8512250604346742
+estimated_bandley,Bandley Dr,E,R,17:15,5,,,estimated,7,1.632993161855452
+estimated_bandley,Bandley Dr,E,T,17:15,111,,,estimated,118,1.3083540778447937
+estimated_bandley,Bandley Dr,N,L,17:15,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,17:15,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,17:15,5,,,estimated,2,3.2071349029490928
+estimated_bandley,Bandley Dr,W,T,17:15,280,,,estimated,269,1.3278576086236051
+estimated_bandley,Bandley Dr,E,R,17:30,5,,,estimated,2,3.2071349029490928
+estimated_bandley,Bandley Dr,E,T,17:30,125,,,estimated,148,3.9372365311003987
+estimated_bandley,Bandley Dr,N,L,17:30,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,17:30,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,17:30,5,,,estimated,7,1.632993161855452
+estimated_bandley,Bandley Dr,W,T,17:30,295,,,estimated,314,2.1776593692327606
+estimated_bandley,Bandley Dr,E,R,17:45,5,,,estimated,0,6.324555320336759
+estimated_bandley,Bandley Dr,E,T,17:45,138,,,estimated,142,0.6761234037828132
+estimated_bandley,Bandley Dr,N,L,17:45,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,17:45,5,,,estimated,5,0.0
+estimated_bandley,Bandley Dr,W,L,17:45,5,,,estimated,5,0.0
+estimated_bandley,Bandley Dr,W,T,17:45,259,,,estimated,317,6.835365551469959
+estimated_bandley,Bandley Dr,E,R,18:00,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,E,T,18:00,178,,,estimated,167,1.675051372779138
+estimated_bandley,Bandley Dr,N,L,18:00,5,,,estimated,7,1.632993161855452
+estimated_bandley,Bandley Dr,N,R,18:00,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,18:00,5,,,estimated,4,0.9428090415820634
+estimated_bandley,Bandley Dr,W,T,18:00,221,,,estimated,258,4.781662956159164
+estimated_bandley,Bandley Dr,E,R,18:15,5,,,estimated,8,2.3533936216582085
+estimated_bandley,Bandley Dr,E,T,18:15,129,,,estimated,136,1.2162422797365942
+estimated_bandley,Bandley Dr,N,L,18:15,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,N,R,18:15,5,,,estimated,6,0.8528028654224418
+estimated_bandley,Bandley Dr,W,L,18:15,5,,,estimated,3,2.0
+estimated_bandley,Bandley Dr,W,T,18:15,216,,,estimated,305,11.028492152396458
+211,De Anza Blvd,E,L,16:30,50,,,measured,46,1.1547005383792515
+211,De Anza Blvd,E,R,16:30,34,,,measured,34,0.0
+211,De Anza Blvd,E,T,16:30,91,,3,measured,69,4.919349550499537
+211,De Anza Blvd,N,L,16:30,140,,,measured,36,22.172874500983486
+211,De Anza Blvd,N,R,16:30,62,,,measured,31,9.092121131323903
+211,De Anza Blvd,N,T,16:30,358,,0,measured,231,14.801000287400852
+211,De Anza Blvd,S,L,16:30,61,,,measured,33,8.168439523882096
+211,De Anza Blvd,S,R,16:30,53,,,measured,55,0.5443310539518174
+211,De Anza Blvd,S,T,16:30,158,,11,measured,165,1.1016452655104871
+211,De Anza Blvd,W,L,16:30,32,,,measured,26,2.2283440581246223
+211,De Anza Blvd,W,R,16:30,90,,,measured,67,5.191860361444523
+211,De Anza Blvd,W,T,16:30,264,,7,measured,167,13.215332443829329
+211,De Anza Blvd,E,L,16:45,86,,,measured,38,12.192012192018288
+211,De Anza Blvd,E,R,16:45,34,,,measured,34,0.0
+211,De Anza Blvd,E,T,16:45,96,,5,measured,69,5.945204331682347
+211,De Anza Blvd,N,L,16:45,95,,,measured,75,4.338609156373123
+211,De Anza Blvd,N,R,16:45,46,,,measured,27,6.289804753377997
+211,De Anza Blvd,N,T,16:45,435,,0,measured,203,25.979012508351637
+211,De Anza Blvd,S,L,16:45,69,,,measured,61,1.9845557534273353
+211,De Anza Blvd,S,R,16:45,41,,,measured,42,0.3104602102825332
+211,De Anza Blvd,S,T,16:45,162,,13,measured,156,0.951661902861773
+211,De Anza Blvd,W,L,16:45,35,,,measured,21,5.291502622129181
+211,De Anza Blvd,W,R,16:45,83,,,measured,63,4.681645887845223
+211,De Anza Blvd,W,T,16:45,230,,8,measured,194,4.944980302152805
+211,De Anza Blvd,E,L,17:00,45,,,measured,40,1.5339299776947408
+211,De Anza Blvd,E,R,17:00,28,,,measured,27,0.3813850356982369
+211,De Anza Blvd,E,T,17:00,122,,10,measured,96,4.980696683149987
+211,De Anza Blvd,N,L,17:00,145,,,measured,53,18.492695800769503
+211,De Anza Blvd,N,R,17:00,51,,,measured,20,10.405848842878944
+211,De Anza Blvd,N,T,17:00,382,,6,measured,252,14.603054863844992
+211,De Anza Blvd,S,L,17:00,44,,,measured,40,1.2344267996967353
+211,De Anza Blvd,S,R,17:00,74,,,measured,60,3.4207444419765465
+211,De Anza Blvd,S,T,17:00,123,,18,measured,127,0.7155417527999327
+211,De Anza Blvd,W,L,17:00,38,,,measured,31,2.383518286124496
+211,De Anza Blvd,W,R,17:00,102,,,measured,64,8.342083759216466
+211,De Anza Blvd,W,T,17:00,293,,9,measured,164,17.06776300271506
+211,De Anza Blvd,E,L,17:15,54,,,measured,47,1.9700731252448171
+211,De Anza Blvd,E,R,17:15,31,,,measured,32,0.3563483225498992
+211,De Anza Blvd,E,T,17:15,86,,5,measured,71,3.385995887898602
+211,De Anza Blvd,N,L,17:15,161,,,measured,39,24.4
+211,De Anza Blvd,N,R,17:15,61,,,measured,19,13.281566172707194
+211,De Anza Blvd,N,T,17:15,399,,5,measured,231,18.93145530591877
+211,De Anza Blvd,S,L,17:15,66,,,measured,30,10.392304845413264
+211,De Anza Blvd,S,R,17:15,95,,,measured,67,6.222222222222222
+211,De Anza Blvd,S,T,17:15,155,,16,measured,161,0.9546687410108761
+211,De Anza Blvd,W,L,17:15,42,,,measured,25,5.874305293953249
+211,De Anza Blvd,W,R,17:15,80,,,measured,68,2.789943329851663
+211,De Anza Blvd,W,T,17:15,293,,7,measured,194,12.68865845501763
+211,De Anza Blvd,E,L,17:30,62,,,measured,34,8.082903768654761
+211,De Anza Blvd,E,R,17:30,30,,,measured,34,1.4142135623730951
+211,De Anza Blvd,E,T,17:30,121,,5,measured,68,10.904103397321162
+211,De Anza Blvd,N,L,17:30,138,,,measured,51,17.899188595602663
+211,De Anza Blvd,N,R,17:30,61,,,measured,22,12.107948201018791
+211,De Anza Blvd,N,T,17:30,367,,3,measured,217,17.556172079419586
+211,De Anza Blvd,S,L,17:30,70,,,measured,54,4.064004064006096
+211,De Anza Blvd,S,R,17:30,60,,,measured,65,1.2649110640673518
+211,De Anza Blvd,S,T,17:30,169,,18,measured,151,2.8460498941515415
+211,De Anza Blvd,W,L,17:30,41,,,measured,33,2.6303837968857167
+211,De Anza Blvd,W,R,17:30,71,,,measured,68,0.7197121726848806
+211,De Anza Blvd,W,T,17:30,317,,9,measured,202,14.277729670616619
+211,De Anza Blvd,E,L,17:45,69,,,measured,25,12.83611925181472
+211,De Anza Blvd,E,R,17:45,41,,,measured,34,2.2861904265976327
+211,De Anza Blvd,E,T,17:45,130,,5,measured,69,12.230614853656887
+211,De Anza Blvd,N,L,17:45,200,,,measured,44,28.24715276526578
+211,De Anza Blvd,N,R,17:45,45,,,measured,29,5.260767593771433
+211,De Anza Blvd,N,T,17:45,370,,0,measured,252,13.382332260120329
+211,De Anza Blvd,S,L,17:45,77,,,measured,43,8.778762251403478
+211,De Anza Blvd,S,R,17:45,76,,,measured,71,1.1664236870396085
+211,De Anza Blvd,S,T,17:45,125,,16,measured,169,7.258117669812438
+211,De Anza Blvd,W,L,17:45,42,,,measured,26,5.487954724560283
+211,De Anza Blvd,W,R,17:45,102,,,measured,65,8.098199696435826
+211,De Anza Blvd,W,T,17:45,266,,4,measured,236,3.787166418586819
+211,De Anza Blvd,E,L,18:00,80,,,measured,40,10.327955589886445
+211,De Anza Blvd,E,R,18:00,32,,,measured,27,1.8411492357966468
+211,De Anza Blvd,E,T,18:00,160,,8,measured,95,11.51299351202124
+211,De Anza Blvd,N,L,18:00,173,,,measured,56,21.868203872548694
+211,De Anza Blvd,N,R,18:00,42,,,measured,27,5.107539184552492
+211,De Anza Blvd,N,T,18:00,401,,0,measured,243,17.60999151738115
+211,De Anza Blvd,S,L,18:00,65,,,measured,48,4.523292715616628
+211,De Anza Blvd,S,R,18:00,74,,,measured,66,1.9123657749350298
+211,De Anza Blvd,S,T,18:00,165,,20,measured,126,6.466408043859491
+211,De Anza Blvd,W,L,18:00,45,,,measured,26,6.377778323054837
+211,De Anza Blvd,W,R,18:00,81,,,measured,61,4.747126632775413
+211,De Anza Blvd,W,T,18:00,229,,4,measured,166,8.965757643756733
+211,De Anza Blvd,E,L,18:15,67,,,measured,36,8.639489377216059
+211,De Anza Blvd,E,R,18:15,28,,,measured,32,1.4605934866804429
+211,De Anza Blvd,E,T,18:15,119,,4,measured,70,10.081152197523338
+211,De Anza Blvd,N,L,18:15,134,,,measured,49,17.772084698636768
+211,De Anza Blvd,N,R,18:15,44,,,measured,29,4.965635331614208
+211,De Anza Blvd,N,T,18:15,338,,0,measured,231,12.687400167995298
+211,De Anza Blvd,S,L,18:15,67,,,measured,45,5.879747322073336
+211,De Anza Blvd,S,R,18:15,58,,,measured,70,3.0
+211,De Anza Blvd,S,T,18:15,129,,20,measured,154,4.203313517091986
+211,De Anza Blvd,W,L,18:15,42,,,measured,26,5.487954724560283
+211,De Anza Blvd,W,R,18:15,79,,,measured,70,2.085424006908572
+211,De Anza Blvd,W,T,18:15,222,,4,measured,214,1.0836567383657543
+estimated_mary,Mary Ave,E,R,16:30,41,,,estimated,38,0.9546687410108761
+estimated_mary,Mary Ave,E,T,16:30,223,,,estimated,215,1.0811798054391775
+estimated_mary,Mary Ave,N,L,16:30,31,,,estimated,28,1.104689541477988
+estimated_mary,Mary Ave,N,R,16:30,34,,,estimated,33,0.34554737023254406
+estimated_mary,Mary Ave,W,T,16:30,420,,,estimated,388,3.1841190086719653
+estimated_mary,Mary Ave,E,R,16:45,41,,,estimated,44,0.9203579866168445
+estimated_mary,Mary Ave,E,T,16:45,223,,,estimated,219,0.53813823519705
+estimated_mary,Mary Ave,N,L,16:45,31,,,estimated,30,0.3621429841700741
+estimated_mary,Mary Ave,N,R,16:45,34,,,estimated,35,0.34050261230349943
+estimated_mary,Mary Ave,W,T,16:45,420,,,estimated,383,3.6930819509440274
+estimated_mary,Mary Ave,E,R,17:00,41,,,estimated,14,10.297395963852397
+estimated_mary,Mary Ave,E,T,17:00,223,,,estimated,234,1.4553906436423696
+estimated_mary,Mary Ave,N,L,17:00,31,,,estimated,29,0.7302967433402214
+estimated_mary,Mary Ave,N,R,17:00,34,,,estimated,34,0.0
+estimated_mary,Mary Ave,W,T,17:00,420,,,estimated,356,6.498215456855162
+estimated_mary,Mary Ave,E,R,17:15,41,,,estimated,43,0.6172133998483676
+estimated_mary,Mary Ave,E,T,17:15,223,,,estimated,186,5.174698649435485
+estimated_mary,Mary Ave,N,L,17:15,31,,,estimated,30,0.3621429841700741
+estimated_mary,Mary Ave,N,R,17:15,34,,,estimated,33,0.34554737023254406
+estimated_mary,Mary Ave,W,T,17:15,420,,,estimated,370,5.031546054266276
+estimated_mary,Mary Ave,E,R,17:30,41,,,estimated,46,1.5161960871578068
+estimated_mary,Mary Ave,E,T,17:30,223,,,estimated,204,2.6006664611507886
+estimated_mary,Mary Ave,N,L,17:30,31,,,estimated,30,0.3621429841700741
+estimated_mary,Mary Ave,N,R,17:30,34,,,estimated,35,0.34050261230349943
+estimated_mary,Mary Ave,W,T,17:30,420,,,estimated,384,3.5910336099874782
+estimated_mary,Mary Ave,E,R,17:45,41,,,estimated,51,2.9488391230979425
+estimated_mary,Mary Ave,E,T,17:45,223,,,estimated,225,0.2672612419124244
+estimated_mary,Mary Ave,N,L,17:45,31,,,estimated,29,0.7302967433402214
+estimated_mary,Mary Ave,N,R,17:45,34,,,estimated,34,0.0
+estimated_mary,Mary Ave,W,T,17:45,420,,,estimated,460,3.8138503569823694
+estimated_mary,Mary Ave,E,R,18:00,41,,,estimated,15,9.827076298239907
+estimated_mary,Mary Ave,E,T,18:00,223,,,estimated,271,6.1083337245674665
+estimated_mary,Mary Ave,N,L,18:00,31,,,estimated,28,1.104689541477988
+estimated_mary,Mary Ave,N,R,18:00,34,,,estimated,33,0.34554737023254406
+estimated_mary,Mary Ave,W,T,18:00,420,,,estimated,359,6.181674021645307
+estimated_mary,Mary Ave,E,R,18:15,41,,,estimated,43,0.6172133998483676
+estimated_mary,Mary Ave,E,T,18:15,223,,,estimated,197,3.588340908580242
+estimated_mary,Mary Ave,N,L,18:15,31,,,estimated,32,0.3563483225498992
+estimated_mary,Mary Ave,N,R,18:15,34,,,estimated,35,0.34050261230349943
+estimated_mary,Mary Ave,W,T,18:15,420,,,estimated,400,1.9754591932991792
+estimated_saich,Saich Way,E,R,16:30,5,,,estimated,3,2.0
+estimated_saich,Saich Way,E,T,16:30,129,,,estimated,132,0.5252257314388902
+estimated_saich,Saich Way,N,L,16:30,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,16:30,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,16:30,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,W,T,16:30,234,,,estimated,235,0.13060462968966785
+estimated_saich,Saich Way,E,R,16:45,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,E,T,16:45,116,,,estimated,155,6.700773761565901
+estimated_saich,Saich Way,N,L,16:45,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,16:45,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,16:45,5,,,estimated,5,0.0
+estimated_saich,Saich Way,W,T,16:45,234,,,estimated,271,4.6569441389038895
+estimated_saich,Saich Way,E,R,17:00,5,,,estimated,5,0.0
+estimated_saich,Saich Way,E,T,17:00,142,,,estimated,139,0.5061894487315174
+estimated_saich,Saich Way,N,L,17:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,17:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,W,L,17:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,W,T,17:00,258,,,estimated,265,0.8657493797443488
+estimated_saich,Saich Way,E,R,17:15,5,,,estimated,4,0.9428090415820634
+estimated_saich,Saich Way,E,T,17:15,133,,,estimated,128,0.8753762190648171
+estimated_saich,Saich Way,N,L,17:15,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,17:15,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,17:15,5,,,estimated,5,0.0
+estimated_saich,Saich Way,W,T,17:15,270,,,estimated,265,0.611417840515743
+estimated_saich,Saich Way,E,R,17:30,5,,,estimated,0,6.324555320336759
+estimated_saich,Saich Way,E,T,17:30,129,,,estimated,148,3.228930593831864
+estimated_saich,Saich Way,N,L,17:30,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,17:30,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,17:30,5,,,estimated,5,0.0
+estimated_saich,Saich Way,W,T,17:30,277,,,estimated,313,4.19200207012499
+estimated_saich,Saich Way,E,R,17:45,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,E,T,17:45,146,,,estimated,149,0.49403218175557095
+estimated_saich,Saich Way,N,L,17:45,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,17:45,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,17:45,5,,,estimated,5,0.0
+estimated_saich,Saich Way,W,T,17:45,254,,,estimated,317,7.457057447769495
+estimated_saich,Saich Way,E,R,18:00,5,,,estimated,5,0.0
+estimated_saich,Saich Way,E,T,18:00,194,,,estimated,168,3.865129560485265
+estimated_saich,Saich Way,N,L,18:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,18:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,W,L,18:00,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,W,T,18:00,214,,,estimated,259,5.852304798861196
+estimated_saich,Saich Way,E,R,18:15,5,,,estimated,5,0.0
+estimated_saich,Saich Way,E,T,18:15,137,,,estimated,135,0.3429971702850177
+estimated_saich,Saich Way,N,L,18:15,5,,,estimated,6,0.8528028654224418
+estimated_saich,Saich Way,N,R,18:15,5,,,estimated,7,1.632993161855452
+estimated_saich,Saich Way,W,L,18:15,5,,,estimated,4,0.9428090415820634
+estimated_saich,Saich Way,W,T,18:15,211,,,estimated,309,12.155403989742428
+217,Stelling Rd,E,L,16:30,40,,,measured,17,8.616589466551584
+217,Stelling Rd,E,R,16:30,37,,,measured,25,4.310527248642598
+217,Stelling Rd,E,T,16:30,161,,6,measured,104,9.90368713499798
+217,Stelling Rd,N,L,16:30,49,,,measured,50,0.2842676218074806
+217,Stelling Rd,N,R,16:30,32,,,measured,30,0.7184212081070996
+217,Stelling Rd,N,T,16:30,104,,6,measured,99,0.9925833339709302
+217,Stelling Rd,S,L,16:30,31,,,measured,30,0.3621429841700741
+217,Stelling Rd,S,R,16:30,26,,,measured,26,0.0
+217,Stelling Rd,S,T,16:30,68,,11,measured,64,0.9847319278346619
+217,Stelling Rd,W,L,16:30,71,,,measured,69,0.47809144373375745
+217,Stelling Rd,W,R,16:30,113,,,measured,94,3.7351962225907274
+217,Stelling Rd,W,T,16:30,208,,6,measured,189,2.6971390757531695
+217,Stelling Rd,E,L,16:45,42,,,measured,16,9.656157585206698
+217,Stelling Rd,E,R,16:45,31,,,measured,26,1.873171623163388
+217,Stelling Rd,E,T,16:45,133,,3,measured,97,6.714034619330259
+217,Stelling Rd,N,L,16:45,41,,,measured,42,0.3104602102825332
+217,Stelling Rd,N,R,16:45,35,,,measured,36,0.33567254331867563
+217,Stelling Rd,N,T,16:45,111,,5,measured,112,0.18940548952415134
+217,Stelling Rd,S,L,16:45,39,,,measured,38,0.3223291856101521
+217,Stelling Rd,S,R,16:45,36,,,measured,37,0.3310423554409472
+217,Stelling Rd,S,T,16:45,60,,15,measured,62,0.5121475197315839
+217,Stelling Rd,W,L,16:45,69,,,measured,74,1.1826247919781652
+217,Stelling Rd,W,R,16:45,90,,,measured,93,0.62725004818718
+217,Stelling Rd,W,T,16:45,237,,7,measured,236,0.13005121775247103
+217,Stelling Rd,E,L,17:00,42,,,measured,40,0.6246950475544243
+217,Stelling Rd,E,R,17:00,29,,,measured,12,7.509343773089565
+217,Stelling Rd,E,T,17:00,159,,10,measured,79,14.66717595245138
+217,Stelling Rd,N,L,17:00,59,,,measured,55,1.059625885652035
+217,Stelling Rd,N,R,17:00,28,,,measured,29,0.3746343246326776
+217,Stelling Rd,N,T,17:00,133,,6,measured,137,0.6885303726590963
+217,Stelling Rd,S,L,17:00,39,,,measured,41,0.6324555320336759
+217,Stelling Rd,S,R,17:00,43,,,measured,43,0.0
+217,Stelling Rd,S,T,17:00,83,,20,measured,84,0.21887026206583313
+217,Stelling Rd,W,L,17:00,65,,,measured,62,0.7529469661657903
+217,Stelling Rd,W,R,17:00,96,,,measured,88,1.6681153124565982
+217,Stelling Rd,W,T,17:00,229,,4,measured,222,0.9322980214968376
+217,Stelling Rd,E,L,17:15,68,,,measured,44,6.4142698058981855
+217,Stelling Rd,E,R,17:15,32,,,measured,16,6.531972647421808
+217,Stelling Rd,E,T,17:15,172,,3,measured,67,19.210352857346628
+217,Stelling Rd,N,L,17:15,48,,,measured,53,1.4071950894605838
+217,Stelling Rd,N,R,17:15,33,,,measured,33,0.0
+217,Stelling Rd,N,T,17:15,131,,15,measured,130,0.1750752438129634
+217,Stelling Rd,S,L,17:15,33,,,measured,33,0.0
+217,Stelling Rd,S,R,17:15,39,,,measured,40,0.31822291367029204
+217,Stelling Rd,S,T,17:15,92,,14,measured,93,0.20795009796401454
+217,Stelling Rd,W,L,17:15,78,,,measured,67,2.5837689658646954
+217,Stelling Rd,W,R,17:15,90,,,measured,94,0.8340576562282991
+217,Stelling Rd,W,T,17:15,250,,18,measured,223,3.5113828793167174
+217,Stelling Rd,E,L,17:30,65,,,measured,15,15.811388300841896
+217,Stelling Rd,E,R,17:30,35,,,measured,25,3.6514837167011076
+217,Stelling Rd,E,T,17:30,135,,7,measured,103,5.8668703809805525
+217,Stelling Rd,N,L,17:30,50,,,measured,46,1.1547005383792515
+217,Stelling Rd,N,R,17:30,36,,,measured,31,1.7277368511627202
+217,Stelling Rd,N,T,17:30,103,,8,measured,103,0.0
+217,Stelling Rd,S,L,17:30,50,,,measured,30,6.324555320336759
+217,Stelling Rd,S,R,17:30,49,,,measured,26,7.511768544535079
+217,Stelling Rd,S,T,17:30,140,,17,measured,65,14.815943949743843
+217,Stelling Rd,W,L,17:30,75,,,measured,82,1.5801314143526808
+217,Stelling Rd,W,R,17:30,72,,,measured,104,6.822422923379534
+217,Stelling Rd,W,T,17:30,243,,10,measured,252,1.1441551070947107
+217,Stelling Rd,E,L,17:45,83,,,measured,2,24.849665638654802
+217,Stelling Rd,E,R,17:45,48,,,measured,28,6.488856845230502
+217,Stelling Rd,E,T,17:45,159,,4,measured,110,8.450160025760846
+217,Stelling Rd,N,L,17:45,50,,,measured,42,2.359071298478354
+217,Stelling Rd,N,R,17:45,45,,,measured,34,3.500452050373212
+217,Stelling Rd,N,T,17:45,127,,13,measured,107,3.698001308168194
+217,Stelling Rd,S,L,17:45,63,,,measured,38,7.035975447302919
+217,Stelling Rd,S,R,17:45,48,,,measured,37,3.37464595092843
+217,Stelling Rd,S,T,17:45,87,,17,measured,61,6.0448772146786025
+217,Stelling Rd,W,L,17:45,80,,,measured,93,2.795537318966446
+217,Stelling Rd,W,R,17:45,65,,,measured,107,9.057952949088827
+217,Stelling Rd,W,T,17:45,243,,13,measured,271,3.49318402469011
+217,Stelling Rd,E,L,18:00,62,,,measured,26,10.85440840479949
+217,Stelling Rd,E,R,18:00,32,,,measured,15,7.013664474559795
+217,Stelling Rd,E,T,18:00,223,,2,measured,113,16.97336849583011
+217,Stelling Rd,N,L,18:00,40,,,measured,53,3.8128249905551854
+217,Stelling Rd,N,R,18:00,43,,,measured,29,4.666666666666667
+217,Stelling Rd,N,T,18:00,85,,6,measured,132,9.024288781861603
+217,Stelling Rd,S,L,18:00,51,,,measured,41,2.9488391230979425
+217,Stelling Rd,S,R,18:00,24,,,measured,42,6.2667956144051224
+217,Stelling Rd,S,T,18:00,96,,13,measured,82,2.967994064017808
+217,Stelling Rd,W,L,18:00,66,,,measured,59,1.7708754896942924
+217,Stelling Rd,W,R,18:00,63,,,measured,96,7.402192434014984
+217,Stelling Rd,W,T,18:00,201,,6,measured,217,2.213486284371439
+217,Stelling Rd,E,L,18:15,61,,,measured,34,7.835143501188126
+217,Stelling Rd,E,R,18:15,26,,,measured,16,4.364357804719847
+217,Stelling Rd,E,T,18:15,152,,5,measured,73,14.8963828569966
+217,Stelling Rd,N,L,18:15,31,,,measured,50,5.9711239300197345
+217,Stelling Rd,N,R,18:15,39,,,measured,34,1.655211777204736
+217,Stelling Rd,N,T,18:15,118,,15,measured,139,3.7050811676863393
+217,Stelling Rd,S,L,18:15,73,,,measured,33,10.988845115895122
+217,Stelling Rd,S,R,18:15,36,,,measured,41,1.6116459280507607
+217,Stelling Rd,S,T,18:15,87,,13,measured,95,1.6772557387550693
+217,Stelling Rd,W,L,18:15,68,,,measured,79,2.566132111487139
+217,Stelling Rd,W,R,18:15,58,,,measured,101,9.645281050383161
+217,Stelling Rd,W,T,18:15,202,,12,measured,285,10.637966179459223
+211,De Anza Blvd,W,U,16:30,3,,,measured,2,1.2649110640673518
+211,De Anza Blvd,E,U,16:30,4,,,measured,4,0.0
+211,De Anza Blvd,S,U,16:30,20,,,measured,19,0.4529108136578383
+211,De Anza Blvd,N,U,16:30,5,,,measured,2,3.2071349029490928
+211,De Anza Blvd,W,U,16:45,1,,,measured,1,0.0
+211,De Anza Blvd,E,U,16:45,3,,,measured,2,1.2649110640673518
+211,De Anza Blvd,S,U,16:45,15,,,measured,16,0.508000508000762
+211,De Anza Blvd,N,U,16:45,2,,,measured,2,0.0
+211,De Anza Blvd,W,U,17:00,1,,,measured,1,0.0
+211,De Anza Blvd,E,U,17:00,9,,,measured,1,7.155417527999327
+211,De Anza Blvd,S,U,17:00,12,,,measured,12,0.0
+211,De Anza Blvd,N,U,17:00,5,,,measured,2,3.2071349029490928
+211,De Anza Blvd,W,U,17:15,2,,,measured,0,4.0
+211,De Anza Blvd,E,U,17:15,8,,,measured,6,1.5118578920369088
+211,De Anza Blvd,S,U,17:15,13,,,measured,12,0.565685424949238
+211,De Anza Blvd,N,U,17:15,13,,,measured,2,8.033264176742437
+211,De Anza Blvd,W,U,17:30,5,,,measured,1,4.618802153517006
+211,De Anza Blvd,E,U,17:30,8,,,measured,7,0.7302967433402214
+211,De Anza Blvd,S,U,17:30,19,,,measured,20,0.4529108136578383
+211,De Anza Blvd,N,U,17:30,10,,,measured,1,7.675225788801975
+211,De Anza Blvd,W,U,17:45,2,,,measured,2,0.0
+211,De Anza Blvd,E,U,17:45,12,,,measured,3,6.572670690061994
+211,De Anza Blvd,S,U,17:45,20,,,measured,15,2.390457218668787
+211,De Anza Blvd,N,U,17:45,9,,,measured,1,7.155417527999327
+211,De Anza Blvd,W,U,18:00,1,,,measured,1,0.0
+211,De Anza Blvd,E,U,18:00,7,,,measured,4,2.5584085962673253
+211,De Anza Blvd,S,U,18:00,17,,,measured,13,2.065591117977289
+211,De Anza Blvd,N,U,18:00,5,,,measured,1,4.618802153517006
+211,De Anza Blvd,W,U,18:15,2,,,measured,0,4.0
+211,De Anza Blvd,E,U,18:15,4,,,measured,2,2.309401076758503
+211,De Anza Blvd,S,U,18:15,21,,,measured,13,3.8805700005813275
+211,De Anza Blvd,N,U,18:15,11,,,measured,2,7.060180864974625
+217,Stelling Rd,W,U,16:30,5,,,measured,5,0.0
+217,Stelling Rd,E,U,16:30,12,,,measured,8,2.5298221281347035
+217,Stelling Rd,S,U,16:30,0,,,measured,0,0.0
+217,Stelling Rd,N,U,16:30,17,,,measured,17,0.0
+217,Stelling Rd,W,U,16:45,7,,,measured,7,0.0
+217,Stelling Rd,E,U,16:45,20,,,measured,15,2.390457218668787
+217,Stelling Rd,S,U,16:45,0,,,measured,0,0.0
+217,Stelling Rd,N,U,16:45,10,,,measured,10,0.0
+217,Stelling Rd,W,U,17:00,2,,,measured,2,0.0
+217,Stelling Rd,E,U,17:00,18,,,measured,13,2.54000254000381
+217,Stelling Rd,S,U,17:00,1,,,measured,1,0.0
+217,Stelling Rd,N,U,17:00,17,,,measured,16,0.49236596391733095
+217,Stelling Rd,W,U,17:15,5,,,measured,4,0.9428090415820634
+217,Stelling Rd,E,U,17:15,20,,,measured,9,5.777483045827792
+217,Stelling Rd,S,U,17:15,3,,,measured,3,0.0
+217,Stelling Rd,N,U,17:15,19,,,measured,21,0.8944271909999159
+217,Stelling Rd,W,U,17:30,7,,,measured,5,1.632993161855452
+217,Stelling Rd,E,U,17:30,24,,,measured,10,6.790997501017324
+217,Stelling Rd,S,U,17:30,1,,,measured,0,2.8284271247461903
+217,Stelling Rd,N,U,17:30,5,,,measured,15,6.324555320336759
+217,Stelling Rd,W,U,17:45,13,,,measured,8,3.0860669992418384
+217,Stelling Rd,E,U,17:45,23,,,measured,11,5.820855000871991
+217,Stelling Rd,S,U,17:45,0,,,measured,0,0.0
+217,Stelling Rd,N,U,17:45,13,,,measured,11,1.1547005383792515
+217,Stelling Rd,W,U,18:00,8,,,measured,2,5.366563145999495
+217,Stelling Rd,E,U,18:00,29,,,measured,16,5.4812812776251905
+217,Stelling Rd,S,U,18:00,4,,,measured,1,3.794733192202055
+217,Stelling Rd,N,U,18:00,13,,,measured,15,1.0690449676496976
+217,Stelling Rd,W,U,18:15,9,,,measured,4,3.922322702763681
+217,Stelling Rd,E,U,18:15,25,,,measured,8,8.370221386594626
+217,Stelling Rd,S,U,18:15,0,,,measured,3,4.898979485566356
+217,Stelling Rd,N,U,18:15,18,,,measured,19,0.46499055497527714

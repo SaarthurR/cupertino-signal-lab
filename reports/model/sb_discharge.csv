@@ -1,0 +1,15 @@
+model,link,movement,physical_fit_hour,protected_green_s,within_green_headway_samples,median_headway_s,equivalent_3600_over_median_vph
+original_discharge,18,R,97,613,0,,
+original_discharge,19,T,267,613,35,2,1800.0
+original_discharge,20,T,267,613,32,2.0,1800.0
+original_discharge,21,T,267,613,33,2,1800.0
+original_discharge,22,T,116,613,13,2,1800.0
+original_discharge,23,L,203,417,143,2,1800.0
+original_discharge,24,U,8,417,0,,
+chosen_discharge,18,R,116,680,0,,
+chosen_discharge,19,T,307,680,60,2.0,1800.0
+chosen_discharge,20,T,308,680,61,2,1800.0
+chosen_discharge,21,T,307,680,61,2,1800.0
+chosen_discharge,22,T,198,680,29,2,1800.0
+chosen_discharge,23,L,364,326,103,2,1800.0
+chosen_discharge,24,U,11,326,0,,

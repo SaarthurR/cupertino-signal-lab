@@ -1,5 +1,7 @@
 # VTA demand and timing diagnostics
 
+Historical fit/review evidence below. The later targeted model repair and current results are in [../model/README.md](../model/README.md); comparison logs and movement_diagnosis.csv here were refreshed by that required rerun.
+
 All runs are serial, nice 15, training seed 0 unless a CSV lists seeds 0–2. No signal optimization or final-seed evaluation.
 Before files are copied from commit 47c9090. `reports/runs/fit` contains temporary raw run files (ignored); aggregate evidence is retained here.
 

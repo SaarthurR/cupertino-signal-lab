@@ -1,0 +1,50 @@
+{
+  "textbook": [
+    {
+      "seed": 0,
+      "requested": 15734,
+      "unfinished": 701,
+      "teleports": 0,
+      "crossed": 32,
+      "fit_ltr": 61,
+      "check_ltr": 48,
+      "fit_all": 89,
+      "check_all": 75
+    },
+    {
+      "seed": 1,
+      "requested": 15734,
+      "unfinished": 884,
+      "teleports": 0,
+      "crossed": 32,
+      "fit_ltr": 62,
+      "check_ltr": 45,
+      "fit_all": 89,
+      "check_all": 73
+    },
+    {
+      "seed": 2,
+      "requested": 15734,
+      "unfinished": 830,
+      "teleports": 0,
+      "crossed": 32,
+      "fit_ltr": 62,
+      "check_ltr": 45,
+      "fit_all": 89,
+      "check_all": 71
+    }
+  ],
+  "all_source_movements_cross_under_both_plans": true,
+  "source_count_rows_unchanged": true,
+  "fit_scheduled_ltr": 82,
+  "check_scheduled_ltr": 49,
+  "ltr_rows_per_period": 96,
+  "all_measured_rows_per_period": 128,
+  "overall_good_enough": false,
+  "unfinished_strict_800": [
+    true,
+    false,
+    false
+  ],
+  "count_check_note": "48/96 seed 0 is a modest gain from 43/96; fit-hour physical is 61/96 versus 64/96 before, not a repair of scheduled-fit 82/96. No held-out performance evaluation."
+}

@@ -1,7 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <connections>
+  <!-- Model choice: stop-line waits only where crossing internal lefts trap traffic.
+       De Anza N/S keep guessed internal storage; these are not surveyed wait points. -->
   <connection from="1113038411" to="157747965#0" fromLane="4" toLane="3" contPos="0" />
-  <connection from="25085669#0" to="506499370#0" fromLane="5" toLane="2" contPos="0" />
-  <connection from="317693323#0" to="498007414#0" fromLane="4" toLane="2" contPos="0" />
+  <connection from="25085669#0" to="506499370#0" fromLane="5" toLane="2" contPos="-1" />
+  <connection from="317693323#0" to="498007414#0" fromLane="4" toLane="2" contPos="-1" />
   <connection from="317693325#0" to="593271059#0" fromLane="4" toLane="2" contPos="0" />
+  <connection from="287163331#0" to="198982494#0" fromLane="2" toLane="2" contPos="0" />
+  <connection from="287163355#0" to="498007413#0" fromLane="2" toLane="2" contPos="0" />
 </connections>

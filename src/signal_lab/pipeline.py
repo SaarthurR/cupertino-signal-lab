@@ -127,7 +127,7 @@ def build_net():
             path.write_bytes(response.read())
     # Incomplete OSM turn:lanes omit real right turns; infer connections geometrically.
     tool('osmBuild.py', '-f', path, '-p', 'corridor', '-d', ROOT / 'sim', '--vehicle-classes', 'passenger', '--netconvert-options=--geometry.remove,--ramps.guess,--tls.guess-signals,--tls.discard-simple,--output.original-names,--output.street-names,--tls.default-type,actuated,--tls.yellow.time,4,--tls.allred.time,1,--junctions.join,--tls.join')
-    # Guessed internal left-turn waiting points trap crossing lefts at De Anza.
+    # Model choice: targeted wait points avoid traps without removing N/S De Anza storage.
     with tempfile.TemporaryDirectory() as tmp:
         repaired = Path(tmp)/'corridor.net.xml'
         lane_changes = {lane.get('id'): {k: v for k, v in lane.attrib.items() if k in ('changeLeft', 'changeRight')}

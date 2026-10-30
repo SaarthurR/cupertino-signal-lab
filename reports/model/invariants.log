@@ -1,0 +1,4 @@
+PASS: all external edge/lane attributes and parameters unchanged.
+PASS: all 88 TLS connection/link mappings unchanged.
+PASS: protected_before.json hashes unchanged.
+Actual build_net repair block executed; full OSM regeneration not run.

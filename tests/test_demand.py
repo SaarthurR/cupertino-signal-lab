@@ -171,16 +171,23 @@ class DemandTests(unittest.TestCase):
         self.assertEqual({r['source'] for r in rows}, {'measured'})
         self.assertEqual(len({self.mapping[r['intersection'], r['approach'], 'U'] for r in rows}), 8)
 
-    def test_deanza_lefts_wait_before_conflicting_internal_paths(self):
+    def test_targeted_left_waiting_model(self):
         root = ET.parse(p.ROOT/'sim/corridor.net.xml').getroot()
-        lefts = {pair for key, pair in self.mapping.items() if key[0] == 'De Anza Blvd' and key[2] == 'L'}
-        for connection in root.findall('connection'):
-            if (connection.get('from'), connection.get('to')) in lefts:
+        keys = ('from', 'to', 'fromLane', 'toLane')
+        connections = {tuple(c.get(k) for k in keys): c for c in root.findall('connection')}
+        overrides = ET.parse(p.ROOT/'sim/vta_stopline.con.xml').getroot().findall('connection')
+        self.assertEqual(len(overrides), 6)
+        for override in overrides:
+            connection = connections[tuple(override.get(k) for k in keys)]
+            via = connection.get('via').rsplit('_', 1)[0]
+            continuation = [c for c in root.findall('connection') if c.get('from') == via]
+            self.assertTrue(continuation)
+            if float(override.get('contPos')) == 0:
                 self.assertEqual(float(connection.get('contPos')), 0)
-                via = connection.get('via').rsplit('_', 1)[0]
-                continuation = [c for c in root.findall('connection') if c.get('from') == via]
-                self.assertTrue(continuation)
                 self.assertTrue(all(c.get('via') is None for c in continuation))
+            else:
+                self.assertIsNone(connection.get('contPos'))
+                self.assertTrue(any(c.get('via') for c in continuation))
 
     def test_network_keeps_original_lane_change_restrictions(self):
         root = ET.parse(p.ROOT/'sim/corridor.net.xml').getroot()

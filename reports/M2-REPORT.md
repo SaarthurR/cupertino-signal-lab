@@ -11,7 +11,7 @@ Simulation uses the retained textbook coordinated-actuated baseline files; timin
 
 | Scenario | Inserted | Running after drain | Waiting to insert | Teleports |
 |---|---:|---:|---:|---:|
-| pm_peak | 16173 | 144 | 1448 | 0 |
+| pm_peak | 17079 | 159 | 542 | 0 |
 | night | 460 | 0 | 0 | 0 |
 
 ## SUMO and routeSampler output
@@ -22,53 +22,52 @@ Simulation uses the retained textbook coordinated-actuated baseline files; timin
 61200: symmetric count fit; 1966 vehicles; GEH<5 44/49
 62100: symmetric count fit; 2080 vehicles; GEH<5 44/49
 82800: symmetric count fit; 378 vehicles; GEH<5 49/49
-Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (6ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (1ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_pm_peak.add.xml' ... done (13ms).
+Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (5ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (0ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_pm_peak.add.xml' ... done (14ms).
 Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/routes_pm_peak.rou.xml'
 Loading done.
 Simulation version 1.28.0 started with time: 58500.00.
 Simulation ended at time: 68400.00.
 Reason: The final simulation step has been reached.
 Performance:
- Duration: 8.05s
- Real time factor: 1230.43
- UPS: 465909.644544
+ Duration: 7.09s
+ Real time factor: 1396.14
+ UPS: 529079.678466
 Vehicles:
- Inserted: 16173 (Loaded: 17621)
- Running: 144
- Waiting: 1448
- Emergency Braking: 1
-Statistics (avg of 16029):
- RouteLength: 843.42
+ Inserted: 17079 (Loaded: 17621)
+ Running: 159
+ Waiting: 542
+Statistics (avg of 16920):
+ RouteLength: 830.60
  Speed: 5.72
- Duration: 232.67
- WaitingTime: 110.63
- TimeLoss: 178.81
- DepartDelay: 505.96
+ Duration: 220.83
+ WaitingTime: 104.59
+ TimeLoss: 167.91
+ DepartDelay: 422.40
 
-Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (6ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (1ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_night.add.xml' ... done (13ms).
+Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (5ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (0ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_night.add.xml' ... done (17ms).
 Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/routes_night.rou.xml'
 Loading done.
 Simulation version 1.28.0 started with time: 81900.00.
 Simulation ended at time: 88200.00.
 Reason: The final simulation step has been reached.
 Performance:
- Duration: 0.14s
- Real time factor: 46323.5
- UPS: 276007.352941
+ Duration: 0.15s
+ Real time factor: 42567.6
+ UPS: 253277.027027
 Vehicles:
  Inserted: 460
  Running: 0
  Waiting: 0
 Statistics (avg of 460):
  RouteLength: 1095.83
- Speed: 13.41
- Duration: 81.60
- WaitingTime: 2.38
- TimeLoss: 9.54
- DepartDelay: 0.39
+ Speed: 13.44
+ Duration: 81.49
+ WaitingTime: 2.31
+ TimeLoss: 9.46
+ DepartDelay: 0.38
 
 ```

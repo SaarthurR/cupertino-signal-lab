@@ -1,0 +1,18 @@
+211 ring 1: splits 203 s != cycle 180 s
+211 ring 2: splits 170 s != cycle 180 s
+211 SG 3: reported maximum green plus clearance exceeds split
+211 SG 8: reported maximum green plus clearance exceeds split
+211 SG 7: reported maximum green plus clearance exceeds split
+211 SG 4: reported maximum green plus clearance exceeds split
+211 SG 5: reported maximum green plus clearance exceeds split
+211 SG 2: reported maximum green plus clearance exceeds split
+211 SG 1: reported maximum green plus clearance exceeds split
+211 SG 6: reported maximum green plus clearance exceeds split
+211 SG 6: walk plus pedestrian clearance exceeds reported maximum green
+217 SG 3: reported maximum green plus clearance exceeds split
+217 SG 4: reported maximum green plus clearance exceeds split
+217 SG 5: reported maximum green plus clearance exceeds split
+217 SG 2: reported maximum green plus clearance exceeds split
+217 SG 1: reported maximum green plus clearance exceeds split
+217 SG 6: reported maximum green plus clearance exceeds split
+existing_vta: Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet

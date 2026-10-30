@@ -1,0 +1,2347 @@
+[
+  {
+    "name": "current",
+    "seed": 0,
+    "overrides": {},
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1592,
+    "teleports": 0,
+    "all_requested_delay_s": 770.378654506165,
+    "mean_depart_delay_s": 568.3772959977372,
+    "final": {
+      "teleports": 0,
+      "inserted": 16173,
+      "running": 144,
+      "waiting": 1448
+    },
+    "fit_ltr": 64,
+    "fit_all": 93,
+    "check_ltr": 43,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 203,
+      "T": 917,
+      "R": 97,
+      "U": 8
+    },
+    "network_sha256": "62714d1e52dc014c58adb65e661302af00fa042685c9890f538d1d89909d2e53",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_default",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 750,
+    "teleports": 1,
+    "all_requested_delay_s": 613.4476045506545,
+    "mean_depart_delay_s": 435.56442672183664,
+    "final": {
+      "teleports": 1,
+      "inserted": 17012,
+      "running": 141,
+      "waiting": 609
+    },
+    "fit_ltr": 63,
+    "fit_all": 91,
+    "check_ltr": 48,
+    "check_all": 74,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 366,
+      "T": 1101,
+      "R": 115,
+      "U": 11
+    },
+    "network_sha256": "f3c2450e46460c0b7f088a448ee91d7ede8f067e88a466955d09bfad2031b633",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_wait5",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "5"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1430,
+    "teleports": 0,
+    "all_requested_delay_s": 710.865779204271,
+    "mean_depart_delay_s": 530.382042785235,
+    "final": {
+      "teleports": 0,
+      "inserted": 16332,
+      "running": 141,
+      "waiting": 1289
+    },
+    "fit_ltr": 62,
+    "fit_all": 90,
+    "check_ltr": 39,
+    "check_all": 64,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 266,
+      "T": 991,
+      "R": 104,
+      "U": 8
+    },
+    "network_sha256": "900d78b5c17dd7b3fc451529cc2174e3ba20311734836fe57d35014759d4e92c",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "5"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_wait10",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "10"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 2736,
+    "teleports": 261,
+    "all_requested_delay_s": 1003.2450667344605,
+    "mean_depart_delay_s": 666.1048615171565,
+    "final": {
+      "teleports": 261,
+      "inserted": 15548,
+      "running": 663,
+      "waiting": 2073
+    },
+    "fit_ltr": 61,
+    "fit_all": 89,
+    "check_ltr": 25,
+    "check_all": 42,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 338,
+      "T": 1072,
+      "R": 112,
+      "U": 11
+    },
+    "network_sha256": "5a2d3892d37fa7c054493b849df0c733e82752748db6c0908b60b16e0a969893",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "10"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "eb_only",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "1113038411": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 876,
+    "teleports": 1,
+    "all_requested_delay_s": 536.9456749713995,
+    "mean_depart_delay_s": 371.6203028671423,
+    "final": {
+      "teleports": 1,
+      "inserted": 16861,
+      "running": 116,
+      "waiting": 760
+    },
+    "fit_ltr": 67,
+    "fit_all": 98,
+    "check_ltr": 46,
+    "check_all": 70,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 342,
+      "T": 1153,
+      "R": 117,
+      "U": 11
+    },
+    "network_sha256": "7c98d8a417170944b28ace911ecf3c8a004b05d4b109647d09649dfb31162a3f",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "-1"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_default_keepclear",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1",
+        "keepClear": "true"
+      },
+      "317693325#0": {
+        "contPos": "0",
+        "keepClear": "true"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 750,
+    "teleports": 1,
+    "all_requested_delay_s": 613.4476045506545,
+    "mean_depart_delay_s": 435.56442672183664,
+    "final": {
+      "teleports": 1,
+      "inserted": 17012,
+      "running": 141,
+      "waiting": 609
+    },
+    "fit_ltr": 63,
+    "fit_all": 91,
+    "check_ltr": 48,
+    "check_all": 74,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 366,
+      "T": 1101,
+      "R": 115,
+      "U": 11
+    },
+    "network_sha256": "f3c2450e46460c0b7f088a448ee91d7ede8f067e88a466955d09bfad2031b633",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1",
+        "keepClear": "true"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0",
+        "keepClear": "true"
+      }
+    ]
+  },
+  {
+    "name": "dual_left",
+    "seed": 0,
+    "overrides": {
+      "__dual": true
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1659,
+    "teleports": 0,
+    "all_requested_delay_s": 761.0091121138935,
+    "mean_depart_delay_s": 583.4884696269983,
+    "final": {
+      "teleports": 0,
+      "inserted": 16099,
+      "running": 137,
+      "waiting": 1522
+    },
+    "fit_ltr": 63,
+    "fit_all": 91,
+    "check_ltr": 37,
+    "check_all": 62,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 218,
+      "T": 907,
+      "R": 94,
+      "U": 7
+    },
+    "network_sha256": "d751137dda777b95dc108b16caa2ad4f3768314494d2deaebef8de104da4dae5",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_default_vis5",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1",
+        "visibility": "5"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 850,
+    "teleports": 65,
+    "all_requested_delay_s": 929.6900546587009,
+    "mean_depart_delay_s": 671.5783929051331,
+    "final": {
+      "teleports": 65,
+      "inserted": 16941,
+      "running": 170,
+      "waiting": 680
+    },
+    "fit_ltr": 44,
+    "fit_all": 70,
+    "check_ltr": 37,
+    "check_all": 61,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 385,
+      "T": 1224,
+      "R": 124,
+      "U": 12
+    },
+    "network_sha256": "f1ca3adab94f8c0c5ce996e197ef892f2242774c115b51bd8058b6af66031cec",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1",
+        "visibility": "5"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "current_states",
+    "seed": 0,
+    "overrides": {
+      "__states": true
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1592,
+    "teleports": 0,
+    "all_requested_delay_s": 770.378654506165,
+    "mean_depart_delay_s": 568.3772959977372,
+    "final": {
+      "teleports": 0,
+      "inserted": 16173,
+      "running": 144,
+      "waiting": 1448
+    },
+    "fit_ltr": 64,
+    "fit_all": 93,
+    "check_ltr": 43,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 203,
+      "T": 917,
+      "R": 97,
+      "U": 8
+    },
+    "network_sha256": "62714d1e52dc014c58adb65e661302af00fa042685c9890f538d1d89909d2e53",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_default_states",
+    "seed": 0,
+    "overrides": {
+      "__states": true,
+      "25085669#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 750,
+    "teleports": 1,
+    "all_requested_delay_s": 613.4476045506545,
+    "mean_depart_delay_s": 435.56442672183664,
+    "final": {
+      "teleports": 1,
+      "inserted": 17012,
+      "running": 141,
+      "waiting": 609
+    },
+    "fit_ltr": 63,
+    "fit_all": 91,
+    "check_ltr": 48,
+    "check_all": 74,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 366,
+      "T": 1101,
+      "R": 115,
+      "U": 11
+    },
+    "network_sha256": "f3c2450e46460c0b7f088a448ee91d7ede8f067e88a466955d09bfad2031b633",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 692,
+    "teleports": 0,
+    "all_requested_delay_s": 623.7491063937969,
+    "mean_depart_delay_s": 437.20126445951337,
+    "final": {
+      "teleports": 0,
+      "inserted": 17073,
+      "running": 144,
+      "waiting": 548
+    },
+    "fit_ltr": 65,
+    "fit_all": 94,
+    "check_ltr": 45,
+    "check_all": 71,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 375,
+      "T": 1149,
+      "R": 119,
+      "U": 12
+    },
+    "network_sha256": "2749895a307f8389b22457e818e893e79bf38c8ea0d09e50bee3937dbf060e06",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "all_keepclear_false",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      "317693323#0": {
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      "1113038411": {
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      "317693325#0": {
+        "contPos": "0",
+        "keepClear": "false"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1592,
+    "teleports": 0,
+    "all_requested_delay_s": 770.378654506165,
+    "mean_depart_delay_s": 568.3772959977372,
+    "final": {
+      "teleports": 0,
+      "inserted": 16173,
+      "running": 144,
+      "waiting": 1448
+    },
+    "fit_ltr": 64,
+    "fit_all": 93,
+    "check_ltr": 43,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 203,
+      "T": 917,
+      "R": 97,
+      "U": 8
+    },
+    "network_sha256": "e519109bb6618dff78382c4ba9b3c04e102b0f884f3d8276767ffc1d3e2d41a5",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0",
+        "keepClear": "false"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0",
+        "keepClear": "false"
+      }
+    ]
+  },
+  {
+    "name": "dual_default",
+    "seed": 0,
+    "overrides": {
+      "__dual": true,
+      "25085669#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1900,
+    "teleports": 0,
+    "all_requested_delay_s": 805.7472670649548,
+    "mean_depart_delay_s": 620.5118815960676,
+    "final": {
+      "teleports": 0,
+      "inserted": 15860,
+      "running": 139,
+      "waiting": 1761
+    },
+    "fit_ltr": 65,
+    "fit_all": 94,
+    "check_ltr": 42,
+    "check_all": 64,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 221,
+      "T": 755,
+      "R": 83,
+      "U": 7
+    },
+    "network_sha256": "03a487cc1d7de0a7079b5c7a0994ae5193fa4359b2c0eb6c889ea954497b8a0f",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "dual_both_default",
+    "seed": 0,
+    "overrides": {
+      "__dual": true,
+      "__dual_wait": "-1",
+      "25085669#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1286,
+    "teleports": 0,
+    "all_requested_delay_s": 645.6256088725054,
+    "mean_depart_delay_s": 482.8565856866002,
+    "final": {
+      "teleports": 0,
+      "inserted": 16443,
+      "running": 108,
+      "waiting": 1178
+    },
+    "fit_ltr": 60,
+    "fit_all": 89,
+    "check_ltr": 42,
+    "check_all": 69,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 466,
+      "T": 823,
+      "R": 89,
+      "U": 18
+    },
+    "network_sha256": "f8ed9ac9540cb1da695035db913aa005630b7794875be871e912c46edcbd792e",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "-1"
+      }
+    ]
+  },
+  {
+    "name": "ignore_blocker30",
+    "seed": 0,
+    "overrides": {
+      "1113038411": {
+        "contPos": "-1"
+      },
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "317693325#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [
+      "--ignore-junction-blocker",
+      "30",
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 1118,
+    "teleports": 4,
+    "all_requested_delay_s": 567.2349466124317,
+    "mean_depart_delay_s": 389.68046387520525,
+    "final": {
+      "teleports": 4,
+      "inserted": 16617,
+      "running": 114,
+      "waiting": 1004
+    },
+    "fit_ltr": 69,
+    "fit_all": 100,
+    "check_ltr": 46,
+    "check_all": 71,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 356,
+      "T": 1071,
+      "R": 110,
+      "U": 11
+    },
+    "network_sha256": "ac3e72dab8f8e30be1c790189ac95801989401a3841bdd9c1005ecc946c055fb",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "-1"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_lc2013",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [
+      "--lanechange.overtake-right",
+      "true",
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 548,
+    "teleports": 0,
+    "all_requested_delay_s": 541.7326986144656,
+    "mean_depart_delay_s": 382.43322138812067,
+    "final": {
+      "teleports": 0,
+      "inserted": 17218,
+      "running": 145,
+      "waiting": 403
+    },
+    "fit_ltr": 67,
+    "fit_all": 96,
+    "check_ltr": 41,
+    "check_all": 67,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 399,
+      "T": 1210,
+      "R": 127,
+      "U": 12
+    },
+    "network_sha256": "2749895a307f8389b22457e818e893e79bf38c8ea0d09e50bee3937dbf060e06",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_seed1",
+    "seed": 1,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 686,
+    "teleports": 1,
+    "all_requested_delay_s": 628.4588928435236,
+    "mean_depart_delay_s": 470.4637147793727,
+    "final": {
+      "teleports": 1,
+      "inserted": 17077,
+      "running": 142,
+      "waiting": 544
+    },
+    "fit_ltr": 63,
+    "fit_all": 92,
+    "check_ltr": 44,
+    "check_all": 71,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 361,
+      "T": 1074,
+      "R": 113,
+      "U": 11
+    },
+    "network_sha256": "2749895a307f8389b22457e818e893e79bf38c8ea0d09e50bee3937dbf060e06",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 799,
+    "teleports": 109,
+    "all_requested_delay_s": 684.6389735604423,
+    "mean_depart_delay_s": 459.5487820555741,
+    "final": {
+      "teleports": 109,
+      "inserted": 17173,
+      "running": 351,
+      "waiting": 448
+    },
+    "fit_ltr": 66,
+    "fit_all": 95,
+    "check_ltr": 34,
+    "check_all": 58,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 371,
+      "T": 1121,
+      "R": 116,
+      "U": 12
+    },
+    "network_sha256": "2749895a307f8389b22457e818e893e79bf38c8ea0d09e50bee3937dbf060e06",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_ew0_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "1113038413": {
+        "contPos": "0"
+      },
+      "317693332#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 719,
+    "teleports": 14,
+    "all_requested_delay_s": 720.9126770052117,
+    "mean_depart_delay_s": 495.6181431901432,
+    "final": {
+      "teleports": 14,
+      "inserted": 17054,
+      "running": 152,
+      "waiting": 567
+    },
+    "fit_ltr": 61,
+    "fit_all": 89,
+    "check_ltr": 40,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 371,
+      "T": 1114,
+      "R": 114,
+      "U": 12
+    },
+    "network_sha256": "41eb956aad4b964f1a1ae29aab6021551b8fe4cfa51586d9254643a278a81175",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "1113038413",
+        "to": "8941244#0",
+        "fromLane": "3",
+        "toLane": "1",
+        "contPos": "0"
+      },
+      {
+        "from": "317693332#0",
+        "to": "8963319#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_all0_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "1113038413": {
+        "contPos": "0"
+      },
+      "317693332#0": {
+        "contPos": "0"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 758,
+    "teleports": 4,
+    "all_requested_delay_s": 724.3526287021737,
+    "mean_depart_delay_s": 494.37969551282055,
+    "final": {
+      "teleports": 4,
+      "inserted": 17015,
+      "running": 152,
+      "waiting": 606
+    },
+    "fit_ltr": 61,
+    "fit_all": 87,
+    "check_ltr": 44,
+    "check_all": 70,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 365,
+      "T": 1122,
+      "R": 119,
+      "U": 11
+    },
+    "network_sha256": "bfd64d66b93fa91fc4e678f365271da856b7b7f47f0dcd495c47cff5d479aefd",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "1113038413",
+        "to": "8941244#0",
+        "fromLane": "3",
+        "toLane": "1",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693332#0",
+        "to": "8963319#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "sb_default_stelling_all0_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "1113038413": {
+        "contPos": "0"
+      },
+      "317693332#0": {
+        "contPos": "0"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 627,
+    "teleports": 10,
+    "all_requested_delay_s": 725.4128320833863,
+    "mean_depart_delay_s": 480.8287522340637,
+    "final": {
+      "teleports": 10,
+      "inserted": 17169,
+      "running": 175,
+      "waiting": 452
+    },
+    "fit_ltr": 56,
+    "fit_all": 81,
+    "check_ltr": 42,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 382,
+      "T": 1217,
+      "R": 129,
+      "U": 12
+    },
+    "network_sha256": "2c3c5d8f5ee912f275710de9351f1e77acfef11c0da9a7a5cc1834f326350a20",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "1113038413",
+        "to": "8941244#0",
+        "fromLane": "3",
+        "toLane": "1",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693332#0",
+        "to": "8963319#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_all0_overtake_seed0",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "1113038413": {
+        "contPos": "0"
+      },
+      "317693332#0": {
+        "contPos": "0"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--lanechange.overtake-right",
+      "true",
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 853,
+    "teleports": 3,
+    "all_requested_delay_s": 787.0824354900216,
+    "mean_depart_delay_s": 546.7278361669242,
+    "final": {
+      "teleports": 3,
+      "inserted": 16930,
+      "running": 162,
+      "waiting": 691
+    },
+    "fit_ltr": 58,
+    "fit_all": 83,
+    "check_ltr": 39,
+    "check_all": 62,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 355,
+      "T": 1105,
+      "R": 115,
+      "U": 11
+    },
+    "network_sha256": "bfd64d66b93fa91fc4e678f365271da856b7b7f47f0dcd495c47cff5d479aefd",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "1113038413",
+        "to": "8941244#0",
+        "fromLane": "3",
+        "toLane": "1",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693332#0",
+        "to": "8963319#0",
+        "fromLane": "4",
+        "toLane": "1",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_ns0_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 830,
+    "teleports": 0,
+    "all_requested_delay_s": 650.808217872124,
+    "mean_depart_delay_s": 470.07168679549113,
+    "final": {
+      "teleports": 0,
+      "inserted": 16937,
+      "running": 146,
+      "waiting": 684
+    },
+    "fit_ltr": 62,
+    "fit_all": 89,
+    "check_ltr": 45,
+    "check_all": 71,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 356,
+      "T": 1153,
+      "R": 119,
+      "U": 11
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_ns0_seed0",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 701,
+    "teleports": 0,
+    "all_requested_delay_s": 663.9728784797254,
+    "mean_depart_delay_s": 474.9916676644715,
+    "final": {
+      "teleports": 0,
+      "inserted": 17079,
+      "running": 159,
+      "waiting": 542
+    },
+    "fit_ltr": 61,
+    "fit_all": 89,
+    "check_ltr": 48,
+    "check_all": 75,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 364,
+      "T": 1120,
+      "R": 116,
+      "U": 11
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_ns0_passright_seed0",
+    "seed": 0,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--lanechange.overtake-right",
+      "true",
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 878,
+    "teleports": 0,
+    "all_requested_delay_s": 652.6482356679802,
+    "mean_depart_delay_s": 468.27610460420027,
+    "final": {
+      "teleports": 0,
+      "inserted": 16896,
+      "running": 153,
+      "waiting": 725
+    },
+    "fit_ltr": 63,
+    "fit_all": 91,
+    "check_ltr": 42,
+    "check_all": 70,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 354,
+      "T": 1082,
+      "R": 113,
+      "U": 11
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "ns_default_stelling_ns0_passright_seed2",
+    "seed": 2,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--lanechange.overtake-right",
+      "true",
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 718,
+    "teleports": 1,
+    "all_requested_delay_s": 613.0373280793187,
+    "mean_depart_delay_s": 435.60445324986676,
+    "final": {
+      "teleports": 1,
+      "inserted": 17059,
+      "running": 156,
+      "waiting": 562
+    },
+    "fit_ltr": 65,
+    "fit_all": 92,
+    "check_ltr": 44,
+    "check_all": 70,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 388,
+      "T": 1213,
+      "R": 129,
+      "U": 12
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "chosen_seed1",
+    "seed": 1,
+    "overrides": {
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [
+      "--collision.check-junctions",
+      "true"
+    ],
+    "requested": 15734,
+    "unfinished": 884,
+    "teleports": 0,
+    "all_requested_delay_s": 665.7211541883819,
+    "mean_depart_delay_s": 488.64487542087545,
+    "final": {
+      "teleports": 0,
+      "inserted": 16889,
+      "running": 152,
+      "waiting": 732
+    },
+    "fit_ltr": 62,
+    "fit_all": 89,
+    "check_ltr": 45,
+    "check_all": 73,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 359,
+      "T": 1108,
+      "R": 114,
+      "U": 11
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "deanza_all0_stelling_ns0_discharge",
+    "seed": 0,
+    "overrides": {
+      "__states": true
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1702,
+    "teleports": 0,
+    "all_requested_delay_s": 797.774534765476,
+    "mean_depart_delay_s": 585.3221764538199,
+    "final": {
+      "teleports": 0,
+      "inserted": 16060,
+      "running": 141,
+      "waiting": 1561
+    },
+    "fit_ltr": 59,
+    "fit_all": 85,
+    "check_ltr": 40,
+    "check_all": 66,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 176,
+      "T": 973,
+      "R": 102,
+      "U": 6
+    },
+    "network_sha256": "0ace39e8dd6cd04285474aa8f245646a42b18034358dea1d39cd05ec7017442b",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "chosen_discharge",
+    "seed": 0,
+    "overrides": {
+      "__states": true,
+      "25085669#0": {
+        "contPos": "-1"
+      },
+      "317693323#0": {
+        "contPos": "-1"
+      },
+      "287163331#0": {
+        "contPos": "0"
+      },
+      "287163355#0": {
+        "contPos": "0"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 701,
+    "teleports": 0,
+    "all_requested_delay_s": 663.9728784797254,
+    "mean_depart_delay_s": 474.9916676644715,
+    "final": {
+      "teleports": 0,
+      "inserted": 17079,
+      "running": 159,
+      "waiting": 542
+    },
+    "fit_ltr": 61,
+    "fit_all": 89,
+    "check_ltr": 48,
+    "check_all": 75,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 364,
+      "T": 1120,
+      "R": 116,
+      "U": 11
+    },
+    "network_sha256": "87047f19940bdbaa5559e6a7ae1468fa2ee5ba41bae4607dd0f01cfefbfcd3c1",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "0"
+      }
+    ]
+  },
+  {
+    "name": "original_discharge",
+    "seed": 0,
+    "overrides": {
+      "__states": true,
+      "287163331#0": {
+        "contPos": "-1"
+      },
+      "287163355#0": {
+        "contPos": "-1"
+      }
+    },
+    "options": [],
+    "requested": 15734,
+    "unfinished": 1592,
+    "teleports": 0,
+    "all_requested_delay_s": 770.378654506165,
+    "mean_depart_delay_s": 568.3772959977372,
+    "final": {
+      "teleports": 0,
+      "inserted": 16173,
+      "running": 144,
+      "waiting": 1448
+    },
+    "fit_ltr": 64,
+    "fit_all": 93,
+    "check_ltr": 43,
+    "check_all": 65,
+    "crossed": 32,
+    "sb_fit_crossings": {
+      "L": 203,
+      "T": 917,
+      "R": 97,
+      "U": 8
+    },
+    "network_sha256": "62714d1e52dc014c58adb65e661302af00fa042685c9890f538d1d89909d2e53",
+    "connections": [
+      {
+        "from": "1113038411",
+        "to": "157747965#0",
+        "fromLane": "4",
+        "toLane": "3",
+        "contPos": "0"
+      },
+      {
+        "from": "25085669#0",
+        "to": "506499370#0",
+        "fromLane": "5",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693323#0",
+        "to": "498007414#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "317693325#0",
+        "to": "593271059#0",
+        "fromLane": "4",
+        "toLane": "2",
+        "contPos": "0"
+      },
+      {
+        "from": "287163331#0",
+        "to": "198982494#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "-1"
+      },
+      {
+        "from": "287163355#0",
+        "to": "498007413#0",
+        "fromLane": "2",
+        "toLane": "2",
+        "contPos": "-1"
+      }
+    ]
+  }
+]
