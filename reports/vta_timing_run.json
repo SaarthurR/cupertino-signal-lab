@@ -1,0 +1,27 @@
+{
+  "basis": "Timing inputs in VTA's 2024 CMP model, not a confirmed city controller sheet",
+  "demand_basis": "2024 De Anza/Stelling L/T/R counts; 2024-based Bandley/Saich estimates; 2018 Mary estimates; U-turn demand excluded",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "window": "full PM only",
+  "warmup_s": 900,
+  "drain_s": 1800,
+  "unfinished_charge_s": 900,
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=36700259)\t77%; charging; 0:59 remaining present: true",
+  "sha256": {
+    "config/corridor.yaml": "5438835b91022e6f44aa76d80acf623060f74221ca7dc9ddfc08257bb6797c3d",
+    "sim/routes_pm_peak.rou.xml": "7b51fe13ebc2f724ad4530befc800fe5e1eef203b3e7b7f630f8260362a5f15e",
+    "sim/corridor.net.xml": "7d6367db23e4b6246a52f5a874c5c26cd43e6aa8511e98ca91d7794a6620b494",
+    "sim/detectors.add.xml": "b11e1b2e3664b76c5400551899b7508cac618b2c06d200be55abfbd877e21a2d",
+    "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
+    "sim/tls_existing_vta_pm_peak.add.xml": "8006dfc5ed27f0886a417c567625edd0b0b54836ff5f21c8620418092fbce88e",
+    "data/processed/vta_timing_2024.csv": "8bbd0a49e04c480797f037f3b9832120c3e4f64a9faaa1ac26bf220834cb408c",
+    "data/processed/vta_vistro_results_2024.csv": "f5f5ecef9ac22eb359aad41698fc3d8c0f42f28bd6c01492f52fcd954b383f3b",
+    "data/processed/tmc.csv": "5965c01872b0124476790d1e0967afc932d01fec4f6a9c729dfa742938a83ff4",
+    "data/processed/tmc_sources.csv": "057689ddc65f5d85a60bb456d237d9535b284b9b730b239a7203dc968d1503c6",
+    "data/processed/vta_counts_2024.csv": "eb76edb87efe9699e46d1b78861043b62a4b31c4f2357ab66b85267fd63c86d4"
+  }
+}

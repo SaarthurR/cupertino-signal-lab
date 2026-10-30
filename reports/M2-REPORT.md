@@ -39,18 +39,18 @@ Optimization succeeded
 Wrote 333 routes (29 distinct) achieving total count 980 (88.53%) at 41 locations. GEH<5 for 92.68%
 Warning: underflow locations: count 12, min 1.00 (('317693326#0', '5031806#0')), max 40.00 (('317693325#0', '506499370#0')), mean 10.58, Q1 2.00, median 11.00, Q3 15.00 (total 127)
 
-Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/corridor.net.xml' ... done (6ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/detectors.add.xml' ... done (1ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/tls_actuated_pm_peak.add.xml' ... done (13ms).
-Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/routes_pm_peak.rou.xml'
+Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (7ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (1ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_pm_peak.add.xml' ... done (13ms).
+Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/routes_pm_peak.rou.xml'
 Loading done.
 Simulation version 1.28.0 started with time: 58500.00.
 Simulation ended at time: 68400.00.
 Reason: The final simulation step has been reached.
 Performance:
- Duration: 5.65s
- Real time factor: 1751.9
- UPS: 488293.930278
+ Duration: 5.25s
+ Real time factor: 1887.15
+ UPS: 525991.040793
 Vehicles:
  Inserted: 16315 (Loaded: 16962)
  Running: 105
@@ -64,18 +64,18 @@ Statistics (avg of 16210):
  TimeLoss: 117.25
  DepartDelay: 347.52
 
-Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/corridor.net.xml' ... done (6ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/detectors.add.xml' ... done (0ms).
-Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/tls_actuated_night.add.xml' ... done (17ms).
-Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-counts/sim/routes_night.rou.xml'
+Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/corridor.net.xml' ... done (5ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/detectors.add.xml' ... done (1ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/tls_actuated_night.add.xml' ... done (17ms).
+Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/sim/routes_night.rou.xml'
 Loading done.
 Simulation version 1.28.0 started with time: 81900.00.
 Simulation ended at time: 88200.00.
 Reason: The final simulation step has been reached.
 Performance:
  Duration: 0.13s
- Real time factor: 48461.5
- UPS: 257861.538462
+ Real time factor: 48091.6
+ UPS: 255893.129771
 Vehicles:
  Inserted: 415
  Running: 0
