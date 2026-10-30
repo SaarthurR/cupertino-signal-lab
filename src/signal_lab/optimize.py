@@ -20,9 +20,9 @@ TRAIN_SEEDS = range(5)
 SELECTION_SEEDS = range(5, 13)
 CONSTRAINT_METRICS = ('side_all_requested_delay_s', 'mainline_travel_eb_s', 'mainline_travel_wb_s')
 
-def split_greens(cycle, split, rows, main, baseline_greens, baseline_cycle):
+def split_greens(cycle, split, rows, main, baseline_greens, baseline_cycle, max_cycle=150):
     """Scale Webster greens, using bounded phase shares and retaining nominal slack."""
-    if not 80 <= cycle <= 150 or (not isinstance(split, list) and not .6 <= split <= 1.4):
+    if not 80 <= cycle <= max_cycle or (not isinstance(split, list) and not .6 <= split <= 1.4):
         raise ValueError('Cycle/split outside M5 bounds')
     lower = [max(10., float(r['min_green_s'])+1) for r in rows]
     upper = [min(60., float(r['max_green_s'])) for r in rows]
@@ -70,14 +70,14 @@ def v2_params():
     return params
 
 
-def plan(scenario, params, path):
+def plan(scenario, params, path, version=3):
     root = ET.parse(p.ROOT/f'sim/tls_actuated_{scenario}.add.xml').getroot()
     with open(p.ROOT/'data/processed/timing_inputs.csv') as stream:
         inputs = {(r['sumo_tls_id'], int(r['phase'])): r for r in csv.DictReader(stream)}
     timing = []
     cycle = params['cycle_s']
     for index, logic in enumerate(root.findall('tlLogic')):
-        logic.set('programID', 'optuna_v3')
+        logic.set('programID', f'optuna_v{version}')
         offset = params[f'offset_{index}']*cycle
         logic.set('offset', str(offset))
         phases = logic.findall('phase')
@@ -88,7 +88,7 @@ def plan(scenario, params, path):
         shares = [params[f'share_{index}_{i}'] for i in indices] if f'share_{index}_{indices[0]}' in params else params[f'split_{index}']
         passage = params.get(f'passage_{index}', params.get('passage_s'))
         greens = split_greens(cycle, shares, rows, main,
-                              [float(phases[i].get('maxDur')) for i in indices], baseline_cycle)
+                              [float(phases[i].get('maxDur')) for i in indices], baseline_cycle, 180 if version == 4 else 150)
         requested_min = params.get(f'min_{index}', float(phases[indices[main]].get('minDur')))
         if not 7 <= requested_min <= 30:
             raise ValueError('Mainline minimum green outside v3 bounds')
@@ -109,7 +109,7 @@ def plan(scenario, params, path):
                 param.set('value', str(cycle))
             if param.get('key') == 'max-gap':
                 param.set('value', str(passage))
-    root.insert(0, ET.Comment('PM-fit Optuna v3 plan; demo assumptions, not city timing'))
+    root.insert(0, ET.Comment(f'PM-fit Optuna v{version} plan; demo assumptions, not city timing'))
     p.xml_write(root, path)
     return timing
 
@@ -173,25 +173,26 @@ def feasible(stats, baseline):
                     for key in CONSTRAINT_METRICS))
 
 
-def bounds(key):
+def bounds(key, version=3):
     """The v3 search space, in one place so write-ups cannot drift from the search."""
-    return ((80, 150) if key == 'cycle_s' else (2, 4) if key.startswith('passage_')
+    return ((80, 180 if version == 4 else 150) if key == 'cycle_s' else (2, 4) if key.startswith('passage_')
             else (.6, 1.4) if key.startswith('share_') else (7, 30) if key.startswith('min_')
             else (0, math.nextafter(1., 0.)))
 
 
-def worker(storage, count, worker_seed, baseline):
+def worker(storage, count, worker_seed, baseline, version=3):
+    train_seeds = range(3) if version == 4 else TRAIN_SEEDS
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.load_study(study_name='pm_peak', storage=storage,
                               sampler=optuna.samplers.TPESampler(seed=worker_seed))
     def objective(trial):
         params = {}
         for key in baseline_params():
-            params[key] = trial.suggest_float(key, *bounds(key))
+            params[key] = trial.suggest_float(key, *bounds(key, version))
         with tempfile.TemporaryDirectory() as temp:
             timing = Path(temp)/'plan.xml'
-            plan('pm_peak', params, timing)
-            stats = [score('pm_peak', seed, timing, temp) for seed in TRAIN_SEEDS]
+            plan('pm_peak', params, timing, version)
+            stats = [score('pm_peak', seed, timing, temp) for seed in train_seeds]
         trial.set_user_attr('stats', stats)
         if trial.number % 20 == 0:
             print(f'trial {trial.number}: loss={stats[0]["all_requested_delay_s"]:.2f}, unfinished={stats[0]["unfinished"]}, teleports={stats[0]["teleports"]}', flush=True)
@@ -199,34 +200,43 @@ def worker(storage, count, worker_seed, baseline):
     study.optimize(objective, n_trials=count, n_jobs=1, timeout=6500)
 
 
-def optimize(trials=300):
+def optimize(trials=300, version=3):
+    train_seeds = range(3) if version == 4 else TRAIN_SEEDS
+    if version == 4 and trials != 60:
+        raise ValueError("V4 preregistration requires exactly 60 trials")
     if trials < 10:
         raise ValueError('At least ten trials required for top-ten rescoring')
+    if version == 4 and (p.ROOT/'reports/optimize_v4.json').exists():
+        raise RuntimeError('Frozen v4 already exists; refusing to retune')
     start = time.monotonic()
     power = subprocess.check_output(['pmset', '-g', 'batt'], text=True)
-    workers = min(3 if "drawing from 'AC Power'" in power else 1, trials)
+    workers = 1 if version == 4 else min(3 if "drawing from 'AC Power'" in power else 1, trials)
     cfg = p.config()
     baselines = []
     for seed in range(13):
         with tempfile.TemporaryDirectory() as folder:
-            baselines.append(score('pm_peak', seed, p.ROOT/'sim/tls_actuated_pm_peak.add.xml', folder))
+            baselines.append(None if version == 4 and seed in (3, 4) else
+                             score('pm_peak', seed, p.ROOT/'sim/tls_actuated_pm_peak.add.xml', folder))
+    selection_baselines = [baselines[s] for s in SELECTION_SEEDS]
     with tempfile.TemporaryDirectory() as temp:
-        storage = f'sqlite:///{temp}/study.sqlite3'
+        database = p.ROOT/'reports/optimize_v4.sqlite3' if version == 4 else Path(temp)/'study.sqlite3'
+        storage = f'sqlite:///{database}'
         study = optuna.create_study(study_name='pm_peak', storage=storage,
                                     sampler=optuna.samplers.TPESampler(seed=0))
         study.enqueue_trial(baseline_params())
-        study.enqueue_trial(v2_params())
+        study.enqueue_trial(json.loads((p.ROOT/'reports/optimize_v3.json').read_text())['best']['params']
+                            if version == 4 else v2_params())
         with ProcessPoolExecutor(max_workers=workers) as pool:
             jobs = [pool.submit(worker, storage, trials//workers+(i < trials % workers), i,
-                                baselines[:len(TRAIN_SEEDS)]) for i in range(workers)]
+                                baselines[:len(train_seeds)], version) for i in range(workers)]
             for job in jobs:
                 job.result(timeout=max(1, 6900-(time.monotonic()-start)))
         completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
         if len(completed) != trials:
             raise RuntimeError(f'Only {len(completed)}/{trials} trials completed within laptop budget')
-        study.trials_dataframe().to_csv(p.ROOT/'reports/optimize_v3_trials.csv', index=False)
+        study.trials_dataframe().to_csv(p.ROOT/f'reports/optimize_v{version}_trials.csv', index=False)
         finalists = []
-        training_feasible = [t for t in completed if feasible(t.user_attrs['stats'], baselines[:len(TRAIN_SEEDS)])]
+        training_feasible = [t for t in completed if feasible(t.user_attrs['stats'], baselines[:len(train_seeds)])]
         candidates = sorted(training_feasible, key=lambda t: t.value)[:10]
         if completed[0] not in candidates:
             candidates.append(completed[0])
@@ -235,24 +245,24 @@ def optimize(trials=300):
             for seed in SELECTION_SEEDS:
                 with tempfile.TemporaryDirectory() as folder:
                     timing = Path(folder)/'plan.xml'
-                    plan('pm_peak', trial.params, timing)
+                    plan('pm_peak', trial.params, timing, version)
                     metrics.append(score('pm_peak', seed, timing, folder))
-            value = objective_value(metrics, baselines[len(TRAIN_SEEDS):])
+            value = objective_value(metrics, selection_baselines)
             finalists.append(dict(trial=trial.number, params=trial.params, stats=metrics,
-                                  all_seed_objective=value, feasible=(feasible(trial.user_attrs['stats'], baselines[:len(TRAIN_SEEDS)])
-                                                                   and feasible(metrics, baselines[len(TRAIN_SEEDS):]))))
+                                  all_seed_objective=value, feasible=(feasible(trial.user_attrs['stats'], baselines[:len(train_seeds)])
+                                                                   and feasible(metrics, selection_baselines))))
     best = min((t for t in finalists if t['feasible']), key=lambda t: t['all_seed_objective'])
     selected = {'pm_peak': best['stats'], 'night': []}
     for scenario in cfg['scenarios']:
-        path = p.ROOT/f'sim/tls_optuna_v3_{scenario}.add.xml'
-        timing = plan(scenario, best['params'], path)
-        p.write_csv(f'reports/timing_v3_{scenario}.csv', timing)
-        if scenario != 'pm_peak':
+        path = p.ROOT/f'sim/tls_optuna_v{version}_{scenario}.add.xml'
+        timing = plan(scenario, best['params'], path, version)
+        p.write_csv(f'reports/timing_v{version}_{scenario}.csv', timing)
+        if scenario != 'pm_peak' and version != 4:
             for seed in cfg['seeds']:
                 with tempfile.TemporaryDirectory() as folder:
                     selected[scenario].append(score(scenario, seed, path, folder))
     result = dict(trials=trials, wall_s=time.monotonic()-start, workers=workers, power=power.strip(),
-                  seeds=list(TRAIN_SEEDS), selection_seeds=list(SELECTION_SEEDS), best=best,
+                  seeds=list(train_seeds), selection_seeds=list(SELECTION_SEEDS), best=best,
                   baseline=baselines, selected=selected, finalists=finalists)
-    (p.ROOT/'reports/optimize_v3.json').write_text(json.dumps(result, indent=2)+'\n')
+    (p.ROOT/f'reports/optimize_v{version}.json').write_text(json.dumps(result, indent=2)+'\n')
     print(f'optimize: {trials} trials, {result["wall_s"]:.1f} s, {workers} processes; selected trial {best["trial"]}', flush=True)

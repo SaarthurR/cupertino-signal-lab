@@ -154,9 +154,9 @@ def constraint_check(stats, baseline):
     return stats['side_all_requested_delay_s'] <= 1.05*baseline['side_all_requested_delay_s']+1e-9
 
 
-def paired_tests(rows):
+def paired_tests(rows, controllers=EVAL_CONTROLLERS):
     results = []
-    candidates = [c for c in EVAL_CONTROLLERS if c != 'actuated' and any(r['controller'] == c for r in rows)]
+    candidates = [c for c in controllers if c != 'actuated' and any(r['controller'] == c for r in rows)]
     for scenario, window in sorted({(r['scenario'], r['window']) for r in rows}):
         groups = ('all', *sorted({r['seed_group'] for r in rows if r['seed_group'] != 'fit_used'}))
         for group in groups:
@@ -243,7 +243,9 @@ def save_media(cfg):
     return paths
 
 
-def eval():
+def eval(version=3):
+    if version == 4:
+        return eval_v4()
     start = time.monotonic()
     power = subprocess.check_output(['pmset', '-g', 'batt'], text=True).strip()
     print(power, flush=True)
@@ -292,3 +294,63 @@ def eval():
                       sha256={f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files})
     (p.ROOT/'reports/eval_v3.json').write_text(json.dumps(provenance, indent=2)+'\n')
     print(f'eval finished in {provenance["wall_s"]:.1f} s', flush=True)
+
+
+def eval_v4():
+    """One frozen four-plan test, isolated from legacy results and media."""
+    start = time.monotonic()
+    controllers = ('actuated', 'optuna_v3', 'optuna_v4', 'existing_vta')
+    seeds = range(53, 73)
+    cfg = p.config()
+    endpoints = boundaries(cfg)
+    power = p.check_battery()
+    # shortcut: only a PM VTA projection exists; reuse it at night until night timings are sourced.
+    night_projection = p.ROOT/'sim/tls_existing_vta_night.add.xml'
+    if not night_projection.exists():
+        night_projection.write_bytes((p.ROOT/'sim/tls_existing_vta_pm_peak.add.xml').read_bytes())
+    files = ['config/corridor.yaml', 'sim/corridor.net.xml', 'reports/optimize_v4.json']
+    files += [f'sim/routes_{scenario}.rou.xml' for scenario in cfg['scenarios']]
+    files += [f'sim/tls_{controller}_{scenario}.add.xml'
+              for scenario in cfg['scenarios'] for controller in controllers]
+    hashes = {f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files}
+    path = p.ROOT/'reports/results_2024.csv'
+    if path.exists():
+        raise RuntimeError('2024 results already exist; refusing to rerun final seeds')
+    rows = []
+    for scenario in cfg['scenarios']:
+        for seed in seeds:
+            paired = []
+            for controller in controllers:
+                paired.extend(simulate(scenario, controller, seed, cfg, endpoints))
+            for row in paired:
+                row['seed_group'] = 'v4_final'
+                row['projection'] = row['controller'] == 'existing_vta'
+                baseline = next(r for r in paired if r['controller'] == 'actuated' and r['window'] == row['window'])
+                for label, metric in (('side', 'side_all_requested_delay_s'),
+                                      ('eb', 'mainline_travel_eb_s'), ('wb', 'mainline_travel_wb_s')):
+                    row[f'{label}_constraint_ratio'] = row[metric]/baseline[metric]
+                    row[f'{label}_constraint_met'] = row[metric] <= 1.05*baseline[metric]+1e-9
+                row['teleport_constraint_met'] = row['teleports'] <= baseline['teleports']+2
+                row['all_constraints_met'] = all(row[k] for k in ('side_constraint_met', 'eb_constraint_met',
+                                                                 'wb_constraint_met', 'teleport_constraint_met'))
+                for charge in (0, 1800):
+                    row[f'side_all_requested_delay_{charge}_s'] = side_delay(row, charge)
+            rows.extend(paired)
+            p.write_csv('reports/results_2024.csv', rows)
+            print(f'eval v4: {scenario} seed {seed} complete (serial, nice 15)', flush=True)
+    assert len(rows) == 240
+    assert hashes == {f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files}
+    tests = paired_tests(rows, controllers)
+    provenance = dict(seeds=list(seeds), controllers=list(controllers), workers=1, power=power,
+                      time_to_teleport=cfg['time_to_teleport'], warmup_s=cfg['warmup_s'], drain_s=1800,
+                      corridor_boundaries=endpoints, wall_s=time.monotonic()-start, sha256=hashes,
+                      tests=tests, existing_vta='secondary controller projection; PM plan reused at estimated night',
+                      confirmatory='optuna_v4 vs actuated; pm_peak holdout; all_requested_delay_s; alpha .05',
+                      limits='Not fully calibrated; fixed demand; unverified waiting positions and U greens; no field benefit claim')
+    (p.ROOT/'reports/eval_v4.json').write_text(json.dumps(provenance, indent=2)+'\n')
+    print(f'eval v4 finished in {provenance["wall_s"]:.1f} s', flush=True)
+
+
+def side_delay(row, charge):
+    return (row['side_all_requested_delay_s']
+            +(charge-900)*(row['side_unfinished']+row['side_teleports'])/row['side_requested'])

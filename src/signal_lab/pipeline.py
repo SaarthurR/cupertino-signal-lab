@@ -1,6 +1,7 @@
 import os
 import csv
 import math
+import re
 import urllib.request
 import xml.etree.ElementTree as ET
 import yaml
@@ -16,7 +17,16 @@ TOOLS = Path(os.environ["SUMO_HOME"]) / "tools"
 BIN = Path(os.environ["SUMO_HOME"]) / "bin"
 
 
+def check_battery():
+    power = subprocess.check_output(["pmset", "-g", "batt"], text=True)
+    if "drawing from 'Battery Power'" in power and int(re.search(r"(\d+)%;", power)[1]) < 25:
+        raise RuntimeError("Battery below 25%; stopped before next simulation")
+    return power.strip()
+
+
 def run(args):
+    if Path(args[0]).name == "sumo":
+        check_battery()
     result = subprocess.run(["nice", "-n", "15", *[str(a) for a in args]], cwd=ROOT, text=True, capture_output=True, timeout=7200)
     if result.returncode:
         raise RuntimeError(f"Command failed: {args}\n{result.stdout}\n{result.stderr}")
