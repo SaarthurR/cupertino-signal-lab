@@ -1,50 +1,41 @@
-# Historical count sources — Round 2, October 28, 2026
+# Count sources — updated October 30, 2026
 
-**All usable turning-movement observations found are from 2018. They do not measure current traffic.** A bounded parallel search covered the requested City development/agenda and agency leads. A later report year was never treated as the date of traffic collection. It found a newer **April 25, 2018 Mary Avenue hourly sheet**, but no newer usable quarter-hour sheet for De Anza or Stelling. This does not establish that unpublished counts do not exist.
+**De Anza and Stelling now use real October 9, 2024 IDAX turn counts supplied by VTA on October 29, 2026 (Kia Sharifi, P.E., via Larissa Sanderfer). Mary remains 2018; Bandley/Saich remain estimates.** These historical counts do not measure present traffic. The earlier web search found only the public VTA sample; the emailed full sheets supersede the 2018 Vallco fallback at the two CMP sites. Previous values remain in git history (before this update: `9290ecc`).
 
 ## Selected sources
 
-| Intersection | Actual count date | PDF pages (1-based) | Use |
+| Intersection | Actual count date | Source, 1-based page | Use |
 |---|---|---|---|
-| De Anza / Stevens Creek | 2018-01-10 | Vallco 602–603 | Eight measured 15-minute bins, 16:30–18:30 |
-| Stelling / Stevens Creek | 2018-01-17 | Vallco 554–555 | Eight measured 15-minute bins, 16:30–18:30 |
-| Mary / Campus Dr / Stevens Creek | 2018-04-25 | Westport 28 | Measured hourly totals, 17:15–18:15, preserved in tmc_hourly.csv; estimated quarter-hour disaggregation in tmc.csv |
-| Bandley / Stevens Creek | None located | Vallco anchor pages above | Estimated; no claimed survey date |
-| Saich / Stevens Creek | None located | Vallco anchor pages above | Estimated; no claimed survey date |
+| De Anza / Stevens Creek (211) | 2024-10-09 | `data/raw/vta/2024-cmp/211_De_Stevens_PM.pdf`, p1 | Eight measured quarters, 16:30–18:30 |
+| Stelling / Stevens Creek (217) | 2024-10-09 | `data/raw/vta/2024-cmp/217_Stelling_Stevens_PM.pdf`, p1 | Eight measured quarters, 16:30–18:30 |
+| Mary / Campus Dr / Stevens Creek | 2018-04-25 | Westport p28 | Measured 17:15–18:15 hourly observations in tmc_hourly.csv; estimated quarters in tmc.csv |
+| Bandley / Stevens Creek | None located | Both 2024 sheets above | Estimated from neighbours; no survey date |
+| Saich / Stevens Creek | None located | Both 2024 sheets above | Estimated from neighbours; no survey date |
 
-[Vallco DEIR Appendix H / May 2018 TIA, raw-count Appendix B](https://www.cupertino.gov/files/assets/city/v/1/departments/documents/community-development/planning/major-projects/the-rise/vallco-historical-project-information/vallco-specific-plan/ceqa/appendix-h-transportation.pdf).
+The emailed PDFs are gitignored in the shared raw directory. `tmc_sources.csv` records their local source locators (no public URL was supplied), SHA256, page, count date, year and method. Estimated-node year 2024 describes the anchor vintage, not a survey at that node. Mary's quarter source remains estimated; its original hourly source remains measured.
 
-[Westport Appendix H, official CEQAnet attachment](https://files.ceqanet.lci.ca.gov/253213-3/attachment/3CrHQTT3Zg88EHdiWjlstzTVL-KKLpZvvZFxozGEyHL8gYDB-jXqEsYbOb71LBc1SMI-lwBxTq6TV4Si0). Mary sheet: National Data & Surveying Services ID 18-08195-001. Source is the field sheet, not adjacent Synchro forecast pages 26–27. Its 2018-11-27 memo date and adjacent 2019 SR-85 memo are not Mary's count date.
-
-Downloaded source copies (gitignored): `data/raw/city/vallco-appendix-h.pdf`, `data/raw/city/westport-appendix-h.pdf`.
-SHA256 respectively: `8938c669cf41f5d97f677f88516385409adc96a9c7c7e1b03784ede3295b3c3e`, `3c4798f23eaa0be7aa130c693ff88352c06ca8014163882c1c368df919d0e59c`.
-
-`tmc_sources.csv` records the source URL, 1-based PDF pages, actual count date or blank when no survey exists, historical basis year, and estimation method for every signal. Its `source` describes the quarter-hour data in `tmc.csv`. Mary's real hourly observation remains `source=measured` in `tmc_hourly.csv`; its manufactured quarters remain `source=estimated`. `year=2018` on estimated nodes describes the input vintage, not a measurement there.
+Mary source: [Westport Appendix H, official CEQAnet attachment](https://files.ceqanet.lci.ca.gov/253213-3/attachment/3CrHQTT3Zg88EHdiWjlstzTVL-KKLpZvvZFxozGEyHL8gYDB-jXqEsYbOb71LBc1SMI-lwBxTq6TV4Si0), NDS ID 18-08195-001, p28; local `data/raw/city/westport-appendix-h.pdf`, SHA256 `3c4798f23eaa0be7aa130c693ff88352c06ca8014163882c1c368df919d0e59c`. The November 2018 memo date is not the survey date. Prior De Anza/Stelling source: [Vallco Appendix H](https://www.cupertino.gov/files/assets/city/v/1/departments/documents/community-development/planning/major-projects/the-rise/vallco-historical-project-information/vallco-specific-plan/ceqa/appendix-h-transportation.pdf), pp602–603 / 554–555, January 10 / 17, 2018.
 
 ## Transcription and visual cross-check
 
-The agent rendered and visually checked the entire Stelling sheet, PDF p.554 (January 17, 2018), against the eight transcribed rows. **This is an agent visual check, not an independent human sign-off.** Raw PDF text was also extracted with native PDFKit; no OCR-imputed counts were used. The format's approach/intersection totals include pedestrians, so those totals must not be used directly as vehicle counts.
+Both scrambled-text PDFs were rendered with PyMuPDF and page 1 read by eye. `vta_counts_2024.csv` transcribes all numeric count-table cells: eight UT/LT/TH/RT quarters, 15-minute/rolling totals, Count Total, peak All/HV/HV%, heavy totals, bicycles and pedestrian crossings, including printed totals and peak rows. `period` distinguishes intervals from summary rows; `category` distinguishes counts; percent values use percentage points. `approach` is the originating compass leg (N = southbound, E = westbound); pedestrian approach means the crossing leg. `ALL` marks printed aggregate cells. Bicycles and pedestrians are excluded from vehicle totals; heavy vehicles are already included. No OCR-imputed count is used.
 
-| Interval | Vehicles (12 R/T/L cells) | Pedestrians (4 crossing legs) | PDF intersection total |
-|---|---:|---:|---:|
-| 16:30 | 1027 | 50 | 1077 |
-| 16:45 | 1011 | 45 | 1056 |
-| 17:00 | 1067 | 51 | 1118 |
-| 17:15 | 1200 | 54 | 1254 |
-| 17:30 | 1261 | 60 | 1321 |
-| 17:45 | 1175 | 36 | 1211 |
-| 18:00 | 1216 | 78 | 1294 |
-| 18:15 | 1297 | 75 | 1372 |
+`tests/test_vta_counts.py` sums every quarter across movements, every column across quarters, and every peak-hour column; checks all printed rolling hours; and matches each peak movement against separately recorded Vistro Analysis p2 Base Volume Input (`period=vistro_peak`). All checks pass. **This is an agent visual check, not independent human sign-off.**
 
-Also checked the sheet's 17:30–18:30 peak-hour movement sums by approach: north leg 962, east leg 1357, south leg 893, west leg 1737; total **4949 vehicles**. North leg 16:30 R/T/L = **29/86/62**; east leg = **17/132/68**. Tests lock these independent printed totals and selected cells.
+| Site | Sheet peak hour | All vehicles (incl UT) | UT | Modelled L/T/R | Heavy | Bikes | Ped crossings |
+|---|---|---:|---:|---:|---:|---:|---:|
+| De Anza 211 | 17:15–18:15 | 6271 | 151 | 6120 | 55 | 7 | 125 |
+| Stelling 217 | 17:00–18:00 | 4393 | 171 | 4222 | 45 | 10 | 179 |
 
-Conventions: N/S/E/W mean **originating intersection leg**, so N is southbound and E is westbound. `vehicles` is lights+buses+trucks, excluding pedestrians. Interval-specific heavy totals are unavailable on these aggregate sheets, so `heavy` is blank (unknown), not zero. Crossing-leg `peds` are stored once on the T row, not copied onto all three turns; pedestrians are not simulated in this piece. The SUMO model represents all vehicle totals with passenger vehicles.
+The production format remains unchanged. U-turns stay in the raw transcription and are excluded from L/T/R demand, as for Mary; they are never folded into left/through counts. Quarter-hour heavy counts are available by approach, but not by movement, so `heavy` stays blank in tmc.csv (unknown, not zero). Crossing-leg pedestrians are stored once on the T row. The model uses homogeneous passenger vehicles and does not simulate bicycles or pedestrians.
 
-Mary's page was also visually checked: R/T/L/U by leg are N=138/78/123/0; E=165/892/125/13; S=75/20/126/0; W=113/1680/177/48. Sum **3773**, matching the printed TEV; **61** are U-turns. The number 362 at the top is outbound flow, not the sum of the southbound approach. Only five movements exist in the current OSM Mary network (N R/L, E R/T, W T). **775 measured vehicles/hour, including 61 U-turns, cannot be represented** and remain in the hourly source file. Reconstructing Campus Drive and missing turns requires a later network review; it was not silently invented in this data piece. Rounding the five retained hourly counts to quarters adds another 2 vehicles/hour of rounding difference.
+Mary's hourly R/T/L/U by leg remain N=138/78/123/0, E=165/892/125/13, S=75/20/126/0, W=113/1680/177/48; sum 3773, including 61 U-turns. Only N R/L, E R/T, W T exist in the current OSM model: **775 observed vehicles/hour cannot be represented**. Rounding retained movements to quarters adds 2 vehicles/hour. No network changes were made.
+
+For a common **17:15–18:15** clock window, the 2024 Stelling westbound exit toward Mary is E-through 689 + N-right 157 + S-left 197 = **1043 veh/h**; Mary's 2018 east-leg L/T/R arrivals total **1182**, a **139 veh/h (13.3%)** excess at Mary. Mary's full-sheet eastbound exit is W-through 1680 + N-left 123 + S-right 75 = **1878**, versus Stelling's west-leg L/T/R arrivals **1526**: **352 veh/h (23.1%)** excess at Mary. With only modelled Mary movements the eastbound exit is 1803, still **277 veh/h (18.2%)** higher. These are mixed-year boundary mismatches, not proof of a conservation error: local access, the count years and missing topology differ. Through-only discrepancies are Mary E-through 892 vs Stelling 689 (+203), and Mary W-through 1680 vs Stelling 937 (+743). Mary is left labelled and unchanged.
 
 ## Estimation and fit/holdout separation
 
-- Bandley and Saich: mainline through volume linearly interpolated by longitude between measured De Anza and Stelling through volumes for the same quarter; each other legal movement = 5 vehicles/15 minutes (20 vehicles/hour per movement, 40 vehicles/hour from each side street). These side turns are arbitrary low-demand placeholders, not observed turns or an OD survey. All such rows are estimated. Newer segment ADT suggests side demand may be understated but cannot establish PM turns. Obtain current directional turning-movement counts before claiming calibration or field applicability.
+- Bandley and Saich: mainline through volume linearly interpolated by longitude between the replaced 2024 measured De Anza and Stelling through volumes for the same quarter; each other legal movement = 5 vehicles/15 minutes (20 vehicles/hour per movement, 40 vehicles/hour from each side street). These side turns are arbitrary low-demand placeholders, not observed turns or an OD survey. All such rows are estimated. Newer segment ADT suggests side demand may be understated but cannot establish PM turns. Obtain current directional turning-movement counts before claiming calibration or field applicability.
 - Mary: retained hourly movement / 4, rounded to integer vehicles; uniform extension across 16:30–18:30. Both temporal disaggregation and extension are estimates. No hourly value is called a measured quarter.
 - PM demand construction reads **only 16:30–17:30** rows, samples routes once (seed 0), then repeats those departures/routes one hour later. The first quarter is copied 900 seconds earlier for warmup. No 17:30–18:30 observed counts are used to generate routes. An adversarial test changes every holdout value by 100,000 and verifies byte-identical generated PM/night routes.
 - Night: 10% of fit-hour mainline-origin movement totals; 2 vehicles/hour for each side-origin turn; integer sampling. Source estimated throughout.
@@ -62,13 +53,13 @@ The [City traffic-data page](https://www.cupertino.gov/Your-City/Departments/Pub
 | De Anza, Lazaneo–Stevens Creek (north) | 31,080 | 2023 |
 | De Anza, Stevens Creek–Bollinger (south) | 30,140 / 32,720 / 34,500 | 2023; duplicate records with identical segment labels |
 
-Do not sum or arbitrarily select the duplicate De Anza south records. Stelling-adjacent records remain in the 2015–2017 bucket; no newer populated count field was found there. ADT has neither PM direction nor turn shares: it cannot replace TMCs or validate the low Bandley/Saich side-turn placeholders. No numeric changes to `tmc.csv` or `tmc_hourly.csv` are warranted by this audit.
+Do not sum or arbitrarily select the duplicate De Anza south records. Stelling-adjacent records remain in the 2015–2017 bucket; no newer populated count field was found there. ADT has neither PM direction nor turn shares: it cannot replace TMCs or validate the low Bandley/Saich side-turn placeholders. Those ADT records do not change turning counts. The separate emailed 2024 TMCs above are the basis of this update.
 
-## Rejected newer leads
+## Earlier web-search leads (before the emailed sheets)
 
 | Lead | Finding |
 |---|---|
-| [VTA 2024 CMP sample](https://www.vta.org/sites/default/files/2025-08/2024%20CMP%20Monitoring%20Appendices_Sample.pdf), [official document listing](https://www.vta.org/projects/documents?project=1116) | 11-page “Sample Only”; raw sheets are Campbell/Bascom and Hamilton/Winchester, not sites 211/217. The [127-page main report](https://www.vta.org/sites/default/files/2026-02/2024_VTA_CMP_Monitoring_Report.pdf) has LOS letters, not these raw turns. Two likely full-appendix URLs returned 404. |
+| [VTA 2024 CMP sample](https://www.vta.org/sites/default/files/2025-08/2024%20CMP%20Monitoring%20Appendices_Sample.pdf), [official document listing](https://www.vta.org/projects/documents?project=1116) | Public 11-page “Sample Only” (superseded by the emailed corridor sheets above); raw sheets are Campbell/Bascom and Hamilton/Winchester, not sites 211/217. The [127-page main report](https://www.vta.org/sites/default/files/2026-02/2024_VTA_CMP_Monitoring_Report.pdf) has LOS letters, not these raw turns. Two likely full-appendix URLs returned 404. |
 | The Rise / later Vallco modifications | Located traffic TIA has January 2018 observations; later plans/modifications do not establish newer traffic collection. |
 | Westport Appendix H, pp.49–54 | Actual May 22, 2019 quarter-hour counts, but at SR-85 ramps / De Anza College driveway, a different intersection. Excluded. |
 | [Westport 2020 memo](https://cupertino.legistar.com/View.ashx?GUID=5C387078-F558-45BD-BCF3-0F44802DEDAF&ID=9668484&M=F), [2021 memo](https://cupertino.legistar.com/View.ashx?GUID=AEFCB492-9E5F-494D-8379-739DE2F77D43&ID=9776661&M=F) | Trip-generation comparisons, not new count sheets. |
@@ -84,4 +75,6 @@ Using `--osm.turn-lanes` had suppressed all four Stelling right turns because in
 
 M3 uses SUMO induction loops at the **start of each internal turning lane**, summing `nVehEntered` by movement/quarter. These count physical entries; a teleported jump is not inferred from a planned route. A small real SUMO run verifies three vehicles produce three detector entries. See [SUMO E1 documentation](https://sumo.dlr.de/docs/Simulation/Output/Induction_Loops_Detectors_%28E1%29.html). Summary `teleports` is cumulative; a focused regression verifies it is read once from the final step.
 
-The existing M1 actuated program is provisional: the user stopped this piece before M4, so no textbook baseline, tuning, or performance comparison is claimed. Holdout results must be regenerated after the independently reviewed M4 plan exists. The poor PM count match and gridlock are disclosed in demand_check.md; the model cannot be called calibrated or successfully count-matched.
+The October 30 data rebuild used the retained textbook coordinated-actuated baseline without rewriting timing. Completed before the away-from-home stop: GEH < 5 fell from **41/96 (42.71%)** on the earlier inputs to **37/96 (38.54%)**; target 85% remains unmet. PM seed 0: **0 teleports, 105 running + 647 waiting to insert = 752 unfinished** after the 30-minute drain; **118.421 s** completed-trip time loss, 13,683 completed non-warmup departures. Build-demand also completed night with 415 inserted, zero running/waiting/teleports. No subsequent SUMO run is authorized while away.
+
+The full test suite is **NOT RUN** after the stop; only fast, SUMO-blocked checks run. Existing M4/optimization/evaluation reports, results.csv, dashboard, deck, video and their archived race evidence remain **2018-demand results** and require a separate later rerun. This update does not establish calibration, delay gains or current-city benefit.

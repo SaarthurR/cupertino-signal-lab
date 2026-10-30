@@ -1,0 +1,28 @@
+{
+  "completed_before_away_stop": true,
+  "scenario": "pm_peak",
+  "seed": 0,
+  "timing": "retained textbook coordinated-actuated baseline; not regenerated",
+  "baseline_sha256": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
+  "routes_sha256": "7b51fe13ebc2f724ad4530befc800fe5e1eef203b3e7b7f630f8260362a5f15e",
+  "geh_before": {
+    "under_5": 41,
+    "rows": 96,
+    "basis": "saved reports/demand_check.csv at 9290ecc"
+  },
+  "geh_after": {
+    "under_5": 37,
+    "rows": 96
+  },
+  "smoke": {
+    "teleports": 0,
+    "inserted": 16315,
+    "running": 105,
+    "waiting": 647,
+    "mean_time_loss_s": 118.4211985675656,
+    "completed_after_warmup": 13683
+  },
+  "unfinished_after_drain": 752,
+  "mean_basis": "completed departures within 16:30-18:30 only; warmup excluded; 30-minute drain",
+  "full_test_suite": "NOT RUN after away stop"
+}

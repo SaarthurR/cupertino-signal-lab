@@ -160,18 +160,17 @@ class DashboardTests(unittest.TestCase):
             d.typical_driver([])
         self.assertEqual(d.trip_text(206), '3 min 26 s')
 
-    def test_recorded_race_pool_matches_every_route_request(self):
-        import xml.etree.ElementTree as ET
+    def test_recorded_2018_race_pool_matches_archived_requests(self):
+        import hashlib
+        import json
         rows = d.read_csv(p.ROOT/'reports/trips_seed33.csv')
-        vehicles = {v.get('id'): v for v in ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')
-                    if 61200 <= float(v.get('depart')) < 63000}
+        # Request metadata from the 2018 routes at 9290ecc, before the 2024 demand replacement.
+        expected = 'd243bfdf01e8a4c2a892c71efaafa7c6221f0d7c2b18abb6d9a515589b9c1b1b'
         for controller in d.CONTROLLERS:
             group = [r for r in rows if r['controller'] == controller]
-            self.assertEqual(len(group), len(vehicles))
-            self.assertEqual({r['id'] for r in group}, vehicles.keys())
-            for row in group:
-                self.assertEqual(float(row['requested_s']), float(vehicles[row['id']].get('depart')))
-                self.assertEqual(row['entry'], vehicles[row['id']].find('route').get('edges').split()[0])
+            requests = sorted((r['id'], float(r['requested_s']), r['entry']) for r in group)
+            self.assertEqual(len(requests), 4171)
+            self.assertEqual(hashlib.sha256(json.dumps(requests).encode()).hexdigest(), expected)
         race = d.typical_driver(rows)
         self.assertEqual((race['id'], race['count'], race['excluded']), ('demand_7759', 4171, 0))
         self.assertEqual(race['median_saving'], 62)

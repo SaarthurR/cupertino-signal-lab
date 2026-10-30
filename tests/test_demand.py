@@ -29,24 +29,12 @@ class DemandTests(unittest.TestCase):
         with open(p.ROOT/'data/processed/tmc_sources.csv') as stream:
             sources = list(csv.DictReader(stream))
         self.assertEqual(len(sources), 5)
-        self.assertTrue(all(r['year'] == '2018' and r['method'] and r['source_url'].startswith('https://') and r['pdf_page'] for r in sources))
-        self.assertEqual({r['count_date'] for r in sources if r['source'] == 'measured'}, {'2018-01-10', '2018-01-17'})
+        self.assertTrue(all(r['method'] and r['source_url'] and r['pdf_page'] for r in sources))
+        self.assertEqual({r['intersection']: r['year'] for r in sources},
+                         {n: '2018' if n == 'Mary Ave' else '2024' for n in ('De Anza Blvd', 'Bandley Dr', 'Saich Way', 'Stelling Rd', 'Mary Ave')})
+        self.assertEqual({r['count_date'] for r in sources if r['source'] == 'measured'}, {'2024-10-09'})
         self.assertTrue(all(r['heavy'] == '' for r in self.rows))
         self.assertTrue(all(r['peds'] == '' for r in self.rows if r['movement'] != 'T' or r['source'] == 'estimated'))
-
-    def test_visually_checked_stelling_sheet(self):
-        # Independently read from rendered Vallco PDF p554; approach totals include pedestrians.
-        expected_vehicles = [1027, 1011, 1067, 1200, 1261, 1175, 1216, 1297]
-        expected_peds = [50, 45, 51, 54, 60, 36, 78, 75]
-        for i, start in enumerate(range(59400, 66600, 900)):
-            rows = [r for r in self.rows if r['intersection'] == 'Stelling Rd' and d.seconds(r['interval_start']) == start]
-            self.assertEqual(sum(int(r['vehicles']) for r in rows), expected_vehicles[i])
-            self.assertEqual(sum(int(r['peds'] or 0) for r in rows), expected_peds[i])
-        peak = [r for r in self.rows if r['intersection'] == 'Stelling Rd' and '17:30' <= r['interval_start'] < '18:30']
-        self.assertEqual({a: sum(int(r['vehicles']) for r in peak if r['approach'] == a) for a in 'NESW'},
-                         {'N': 962, 'E': 1357, 'S': 893, 'W': 1737})
-        row = next(r for r in self.rows if r['intersection'] == 'Stelling Rd' and r['approach'] == 'E' and r['movement'] == 'R' and r['interval_start'] == '16:30')
-        self.assertEqual(int(row['vehicles']), 17)
 
     def test_mary_hourly_measurements_are_not_measured_quarters(self):
         with open(p.ROOT/'data/processed/tmc_hourly.csv') as stream:

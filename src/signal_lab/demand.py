@@ -231,8 +231,8 @@ def build_demand():
               f'Fit-only input SHA256: `{fit_hash}`.', '',
               'PM fit is 16:30–17:30. The fit hour is replayed at 17:30–18:30 without reading holdout volumes; warmup replays its first 15 minutes. All scenarios have a 30-minute drain period.',
               'Night: mainline-origin movements at 10% of the PM fit-hour volume, each side-origin turn 2 veh/h. All night demand is estimated.',
-              'Vehicle types are homogeneous passenger cars: measured totals include buses/trucks; interval heavy splits are unavailable. Pedestrians are recorded but not simulated.',
-              'Simulation uses M1 generated actuated signals, not the M4 textbook coordinated-actuated baseline (not implemented in this piece).', '',
+              'Vehicle types are homogeneous passenger cars: measured totals include buses/trucks; quarter-hour per-movement heavy splits are unavailable. Pedestrians are recorded but not simulated.',
+              'Simulation uses the retained textbook coordinated-actuated baseline files; timing is unchanged by this demand rebuild.', '',
               '| Scenario | Inserted | Running after drain | Waiting to insert | Teleports |', '|---|---:|---:|---:|---:|']
     for name, stat in stats.items():
         report.append(f'| {name} | {stat["inserted"]} | {stat["running"]} | {stat["waiting"]} | {stat["teleports"]} |')
@@ -315,10 +315,10 @@ def check_demand():
     p.write_csv('reports/demand_check.csv', results)
     percentage = 100*sum(r['geh'] < 5 for r in results)/len(results)
     lines = ['# M3 independent holdout count check', '', f'**{percentage:.2f}% of {len(results)} measured movement-intervals have GEH < 5** (target 85%; reported, not a gate).', '',
-             'Observed = historical measured 17:30–18:30 sheets; simulated = physical detector entries at the start of each internal turn lane in that same clock interval. Counts converted to hourly rates before GEH.',
+             'Observed = 2024-10-09 measured De Anza/Stelling 17:30–18:30 sheets; simulated = physical detector entries at the start of each internal turn lane in that same clock interval. Counts converted to hourly rates before GEH.',
              'Fit uses only 16:30–17:30; replay supplies holdout demand. Estimated intersections are excluded from this score. This is a count-matching check, not validation of travel time or current Cupertino traffic.',
              f'{LABEL} used. PM teleports: {stat["teleports"]}; running after drain: {stat["running"]}; waiting to insert: {stat["waiting"]}. Teleports and incomplete trips limit interpretation.',
-             'A miss can reflect day-to-day differences (the two sites were counted on different dates), the repeated fit hour, assumed side-street demand, OSM geometry/connectivity, or queues under the baseline timing; this run does not isolate those causes.', '',
+             'A miss can reflect the repeated fit hour, mixed-year Mary observations, assumed side-street demand, OSM geometry/connectivity, or queues under the baseline timing; this run does not isolate those causes.', '',
              '| movement | interval | observed | simulated | geh |', '|---|---|---:|---:|---:|']
     lines.extend('| '+' | '.join(str(r[k]) for k in r)+' |' for r in results)
     (p.ROOT/'reports/demand_check.md').write_text('\n'.join(lines)+'\n')

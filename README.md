@@ -1,6 +1,6 @@
 # Cupertino Signal Lab
 
-A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Historical 2018 demand; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
+A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Current demand inputs mix 2024 De Anza/Stelling counts with 2018 Mary observations and estimates; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
 
 **Status: M0–M6 implemented.** M5 fits PM only and freezes the selected plan for night. M6 evaluates the frozen plans; offline dashboard and video are available below.
 
@@ -20,9 +20,11 @@ nice -n 15 python -m unittest discover -s tests -v
 
 M2 produces both PM/night demand through SUMO routeSampler, fits only 16:30–17:30, and replays that fit hour for holdout. Routes and data are unchanged by M4. The baseline uses Webster seeds, coordinator offsets, engineering clearance inputs, force-offs and detector-based phase skips; night rests in mainline green without a conflicting call.
 
-M4 seed 0: night inserts **439**, with **zero teleports** and **8.341 s** mean time loss. PM inserts **17,091**, with **zero teleports**, **116 running** and **792 waiting to insert** after the drain; completed-trip mean time loss is **170.622 s**. Means exclude warmup departures; unfinished trips are absent. These timing assumptions are not a successful PM calibration.
+Archived M4 seed 0 on **2018 demand**: night inserts **439**, with **zero teleports** and **8.341 s** mean time loss. PM inserts **17,091**, with **zero teleports**, **116 running** and **792 waiting to insert** after the drain; completed-trip mean time loss is **170.622 s**. Means exclude warmup departures; unfinished trips are absent. These timing assumptions are not a successful PM calibration.
 
-M3: **42.71% of 96 measured holdout movement-intervals have GEH < 5**, below the 85% target (corrected-route provisional M1 timing: 48.96%). Counts are physical turn-lane detector entries; quarter-hour observations are converted to hourly flows for GEH. This count check establishes neither delay improvement nor a paired Wilcoxon result. [Baseline details](reports/M4-REPORT.md) and [real corridor benchmark](reports/bench.md): **2.334 s per simulation hour**, approximately **21 minutes serial for 200 trials** including warmup/drain, excluding optimizer overhead and rescoring.
+M3 after the October 30 count update: **37/96 (38.54%) measured holdout movement-intervals have GEH < 5**, versus **41/96 (42.71%)** before, below the 85% target. Counts are physical turn-lane detector entries, converted to hourly rates for GEH. The retained textbook PM plan (seed 0, 30-minute drain) produced **0 teleports, 105 running, 647 waiting to insert**, and **118.421 s completed-trip mean time loss**; unfinished trips are absent from that mean. These runs completed before the away-from-home stop instruction; further SUMO runs and the full test suite are deferred. [Count check](reports/demand_check.md).
+
+**All optimization/evaluation results, dashboard, deck and video below still use 2018 demand. They have not been rerun with the new inputs.** [Archived baseline details](reports/M4-REPORT.md) and [benchmark](reports/bench.md) also use the earlier demand.
 
 ## Results (preregistered v2 and v3)
 
@@ -81,7 +83,7 @@ v1 is the frozen original trial-146 plan, preserved byte for byte as `sim/tls_op
 
 [Textbook seed-13 FCD](reports/fcd_actuated_pm_peak_seed13.xml.gz) and [selected v2 seed-13 FCD](reports/fcd_optuna_pm_peak_seed13.xml.gz) cover 17:30–17:45 at 1 s resolution after continuous simulation from 16:15. Each has 900 steps; they illustrate one seed, not the aggregate result. Dashboard/video integration is handled on the separate design branch; the existing seed-0 illustration remains unchanged.
 
-Data: De Anza (Jan 10, 2018) and Stelling (Jan 17, 2018) have measured quarter-hour turns. Mary has newer Apr 25, 2018 hourly observations, preserved separately; its quarter-hour profile is estimated. Bandley and Saich are estimated. Thus **3 of 5 quarter-hour profiles are estimated**. Mary's current OSM topology lacks movements representing 775 vehicles/hour on the sheet; those observations are retained but cannot be simulated. All dates, methods and limits: [source audit](reports/data-source-audit.md), [provenance CSV](data/processed/tmc_sources.csv). The agent visually checked Stelling PDF p.554; independent human sign-off remains pending.
+Data: De Anza and Stelling have measured **October 9, 2024** quarter-hour turns, supplied by VTA on October 29, 2026 (Kia Sharifi, P.E., via Larissa Sanderfer). The complete page-1 count tables are in [raw transcription](data/processed/vta_counts_2024.csv); tests check row/column totals, peak hours and Vistro page-2 movement volumes. U-turns are retained there but excluded from L/T/R demand, matching Mary's treatment. Bandley/Saich estimates now interpolate the 2024 neighbours. Mary retains **April 25, 2018** hourly observations and estimated quarters, so **3 of 5 quarter-hour profiles remain estimated**. Mary's missing OSM movements still omit 775 observed vehicles/hour; the mixed-year mainline mismatch is quantified in the [source audit](reports/data-source-audit.md). Dates and methods: [provenance CSV](data/processed/tmc_sources.csv). Visual transcription is an agent check; independent human sign-off remains pending.
 
 Outputs: [M4 baseline report](reports/M4-REPORT.md), [M2 report](reports/M2-REPORT.md), [M3 holdout report](reports/demand_check.md), [holdout rows](reports/demand_check.csv). Spec: [architecture](docs/ARCHITECTURE.md). M5 outputs: [search evidence](reports/optimize.json), [all trials](reports/optimize_trials.csv), and `reports/timing_{pm_peak,night}.csv`. The full 4.2 command intentionally stops at `eval`.
 

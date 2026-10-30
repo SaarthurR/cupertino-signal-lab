@@ -1,148 +1,148 @@
 site_id,intersection,approach,movement,interval_start,vehicles,heavy,peds,source
 estimated_bandley,Bandley Dr,E,R,16:30,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,16:30,136,,,estimated
+estimated_bandley,Bandley Dr,E,T,16:30,111,,,estimated
 estimated_bandley,Bandley Dr,N,L,16:30,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,16:30,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,16:30,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,16:30,237,,,estimated
+estimated_bandley,Bandley Dr,W,T,16:30,248,,,estimated
 estimated_bandley,Bandley Dr,E,R,16:45,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,16:45,130,,,estimated
+estimated_bandley,Bandley Dr,E,T,16:45,107,,,estimated
 estimated_bandley,Bandley Dr,N,L,16:45,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,16:45,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,16:45,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,16:45,207,,,estimated
+estimated_bandley,Bandley Dr,W,T,16:45,232,,,estimated
 estimated_bandley,Bandley Dr,E,R,17:00,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,17:00,166,,,estimated
+estimated_bandley,Bandley Dr,E,T,17:00,133,,,estimated
 estimated_bandley,Bandley Dr,N,L,17:00,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,17:00,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,17:00,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,17:00,272,,,estimated
+estimated_bandley,Bandley Dr,W,T,17:00,274,,,estimated
 estimated_bandley,Bandley Dr,E,R,17:15,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,17:15,151,,,estimated
+estimated_bandley,Bandley Dr,E,T,17:15,111,,,estimated
 estimated_bandley,Bandley Dr,N,L,17:15,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,17:15,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,17:15,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,17:15,243,,,estimated
+estimated_bandley,Bandley Dr,W,T,17:15,280,,,estimated
 estimated_bandley,Bandley Dr,E,R,17:30,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,17:30,164,,,estimated
+estimated_bandley,Bandley Dr,E,T,17:30,125,,,estimated
 estimated_bandley,Bandley Dr,N,L,17:30,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,17:30,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,17:30,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,17:30,273,,,estimated
+estimated_bandley,Bandley Dr,W,T,17:30,295,,,estimated
 estimated_bandley,Bandley Dr,E,R,17:45,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,17:45,191,,,estimated
+estimated_bandley,Bandley Dr,E,T,17:45,138,,,estimated
 estimated_bandley,Bandley Dr,N,L,17:45,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,17:45,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,17:45,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,17:45,256,,,estimated
+estimated_bandley,Bandley Dr,W,T,17:45,259,,,estimated
 estimated_bandley,Bandley Dr,E,R,18:00,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,18:00,158,,,estimated
+estimated_bandley,Bandley Dr,E,T,18:00,178,,,estimated
 estimated_bandley,Bandley Dr,N,L,18:00,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,18:00,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,18:00,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,18:00,213,,,estimated
+estimated_bandley,Bandley Dr,W,T,18:00,221,,,estimated
 estimated_bandley,Bandley Dr,E,R,18:15,5,,,estimated
-estimated_bandley,Bandley Dr,E,T,18:15,188,,,estimated
+estimated_bandley,Bandley Dr,E,T,18:15,129,,,estimated
 estimated_bandley,Bandley Dr,N,L,18:15,5,,,estimated
 estimated_bandley,Bandley Dr,N,R,18:15,5,,,estimated
 estimated_bandley,Bandley Dr,W,L,18:15,5,,,estimated
-estimated_bandley,Bandley Dr,W,T,18:15,223,,,estimated
-vallco_10,De Anza Blvd,E,L,16:30,61,,,measured
-vallco_10,De Anza Blvd,E,R,16:30,69,,,measured
-vallco_10,De Anza Blvd,E,T,16:30,137,,6,measured
-vallco_10,De Anza Blvd,N,L,16:30,120,,,measured
-vallco_10,De Anza Blvd,N,R,16:30,58,,,measured
-vallco_10,De Anza Blvd,N,T,16:30,361,,6,measured
-vallco_10,De Anza Blvd,S,L,16:30,84,,,measured
-vallco_10,De Anza Blvd,S,R,16:30,50,,,measured
-vallco_10,De Anza Blvd,S,T,16:30,145,,9,measured
-vallco_10,De Anza Blvd,W,L,16:30,63,,,measured
-vallco_10,De Anza Blvd,W,R,16:30,115,,,measured
-vallco_10,De Anza Blvd,W,T,16:30,216,,7,measured
-vallco_10,De Anza Blvd,E,L,16:45,64,,,measured
-vallco_10,De Anza Blvd,E,R,16:45,57,,,measured
-vallco_10,De Anza Blvd,E,T,16:45,122,,12,measured
-vallco_10,De Anza Blvd,N,L,16:45,135,,,measured
-vallco_10,De Anza Blvd,N,R,16:45,66,,,measured
-vallco_10,De Anza Blvd,N,T,16:45,377,,12,measured
-vallco_10,De Anza Blvd,S,L,16:45,97,,,measured
-vallco_10,De Anza Blvd,S,R,16:45,47,,,measured
-vallco_10,De Anza Blvd,S,T,16:45,165,,16,measured
-vallco_10,De Anza Blvd,W,L,16:45,37,,,measured
-vallco_10,De Anza Blvd,W,R,16:45,114,,,measured
-vallco_10,De Anza Blvd,W,T,16:45,179,,18,measured
-vallco_10,De Anza Blvd,E,L,17:00,75,,,measured
-vallco_10,De Anza Blvd,E,R,17:00,56,,,measured
-vallco_10,De Anza Blvd,E,T,17:00,170,,6,measured
-vallco_10,De Anza Blvd,N,L,17:00,133,,,measured
-vallco_10,De Anza Blvd,N,R,17:00,54,,,measured
-vallco_10,De Anza Blvd,N,T,17:00,386,,11,measured
-vallco_10,De Anza Blvd,S,L,17:00,87,,,measured
-vallco_10,De Anza Blvd,S,R,17:00,48,,,measured
-vallco_10,De Anza Blvd,S,T,17:00,167,,13,measured
-vallco_10,De Anza Blvd,W,L,17:00,46,,,measured
-vallco_10,De Anza Blvd,W,R,17:00,100,,,measured
-vallco_10,De Anza Blvd,W,T,17:00,281,,9,measured
-vallco_10,De Anza Blvd,E,L,17:15,70,,,measured
-vallco_10,De Anza Blvd,E,R,17:15,58,,,measured
-vallco_10,De Anza Blvd,E,T,17:15,141,,14,measured
-vallco_10,De Anza Blvd,N,L,17:15,169,,,measured
-vallco_10,De Anza Blvd,N,R,17:15,78,,,measured
-vallco_10,De Anza Blvd,N,T,17:15,448,,4,measured
-vallco_10,De Anza Blvd,S,L,17:15,116,,,measured
-vallco_10,De Anza Blvd,S,R,17:15,55,,,measured
-vallco_10,De Anza Blvd,S,T,17:15,185,,7,measured
-vallco_10,De Anza Blvd,W,L,17:15,39,,,measured
-vallco_10,De Anza Blvd,W,R,17:15,118,,,measured
-vallco_10,De Anza Blvd,W,T,17:15,234,,2,measured
-vallco_10,De Anza Blvd,E,L,17:30,73,,,measured
-vallco_10,De Anza Blvd,E,R,17:30,79,,,measured
-vallco_10,De Anza Blvd,E,T,17:30,152,,6,measured
-vallco_10,De Anza Blvd,N,L,17:30,118,,,measured
-vallco_10,De Anza Blvd,N,R,17:30,102,,,measured
-vallco_10,De Anza Blvd,N,T,17:30,460,,3,measured
-vallco_10,De Anza Blvd,S,L,17:30,108,,,measured
-vallco_10,De Anza Blvd,S,R,17:30,52,,,measured
-vallco_10,De Anza Blvd,S,T,17:30,170,,23,measured
-vallco_10,De Anza Blvd,W,L,17:30,51,,,measured
-vallco_10,De Anza Blvd,W,R,17:30,79,,,measured
-vallco_10,De Anza Blvd,W,T,17:30,262,,5,measured
-vallco_10,De Anza Blvd,E,L,17:45,63,,,measured
-vallco_10,De Anza Blvd,E,R,17:45,46,,,measured
-vallco_10,De Anza Blvd,E,T,17:45,184,,6,measured
-vallco_10,De Anza Blvd,N,L,17:45,138,,,measured
-vallco_10,De Anza Blvd,N,R,17:45,78,,,measured
-vallco_10,De Anza Blvd,N,T,17:45,430,,5,measured
-vallco_10,De Anza Blvd,S,L,17:45,117,,,measured
-vallco_10,De Anza Blvd,S,R,17:45,51,,,measured
-vallco_10,De Anza Blvd,S,T,17:45,178,,14,measured
-vallco_10,De Anza Blvd,W,L,17:45,49,,,measured
-vallco_10,De Anza Blvd,W,R,17:45,80,,,measured
-vallco_10,De Anza Blvd,W,T,17:45,246,,3,measured
-vallco_10,De Anza Blvd,E,L,18:00,69,,,measured
-vallco_10,De Anza Blvd,E,R,18:00,63,,,measured
-vallco_10,De Anza Blvd,E,T,18:00,141,,6,measured
-vallco_10,De Anza Blvd,N,L,18:00,135,,,measured
-vallco_10,De Anza Blvd,N,R,18:00,92,,,measured
-vallco_10,De Anza Blvd,N,T,18:00,449,,6,measured
-vallco_10,De Anza Blvd,S,L,18:00,89,,,measured
-vallco_10,De Anza Blvd,S,R,18:00,60,,,measured
-vallco_10,De Anza Blvd,S,T,18:00,196,,18,measured
-vallco_10,De Anza Blvd,W,L,18:00,50,,,measured
-vallco_10,De Anza Blvd,W,R,18:00,97,,,measured
-vallco_10,De Anza Blvd,W,T,18:00,200,,7,measured
-vallco_10,De Anza Blvd,E,L,18:15,62,,,measured
-vallco_10,De Anza Blvd,E,R,18:15,48,,,measured
-vallco_10,De Anza Blvd,E,T,18:15,179,,4,measured
-vallco_10,De Anza Blvd,N,L,18:15,129,,,measured
-vallco_10,De Anza Blvd,N,R,18:15,95,,,measured
-vallco_10,De Anza Blvd,N,T,18:15,382,,8,measured
-vallco_10,De Anza Blvd,S,L,18:15,75,,,measured
-vallco_10,De Anza Blvd,S,R,18:15,39,,,measured
-vallco_10,De Anza Blvd,S,T,18:15,158,,20,measured
-vallco_10,De Anza Blvd,W,L,18:15,72,,,measured
-vallco_10,De Anza Blvd,W,R,18:15,89,,,measured
-vallco_10,De Anza Blvd,W,T,18:15,214,,7,measured
+estimated_bandley,Bandley Dr,W,T,18:15,216,,,estimated
+211,De Anza Blvd,E,L,16:30,50,,,measured
+211,De Anza Blvd,E,R,16:30,34,,,measured
+211,De Anza Blvd,E,T,16:30,91,,3,measured
+211,De Anza Blvd,N,L,16:30,140,,,measured
+211,De Anza Blvd,N,R,16:30,62,,,measured
+211,De Anza Blvd,N,T,16:30,358,,0,measured
+211,De Anza Blvd,S,L,16:30,61,,,measured
+211,De Anza Blvd,S,R,16:30,53,,,measured
+211,De Anza Blvd,S,T,16:30,158,,11,measured
+211,De Anza Blvd,W,L,16:30,32,,,measured
+211,De Anza Blvd,W,R,16:30,90,,,measured
+211,De Anza Blvd,W,T,16:30,264,,7,measured
+211,De Anza Blvd,E,L,16:45,86,,,measured
+211,De Anza Blvd,E,R,16:45,34,,,measured
+211,De Anza Blvd,E,T,16:45,96,,5,measured
+211,De Anza Blvd,N,L,16:45,95,,,measured
+211,De Anza Blvd,N,R,16:45,46,,,measured
+211,De Anza Blvd,N,T,16:45,435,,0,measured
+211,De Anza Blvd,S,L,16:45,69,,,measured
+211,De Anza Blvd,S,R,16:45,41,,,measured
+211,De Anza Blvd,S,T,16:45,162,,13,measured
+211,De Anza Blvd,W,L,16:45,35,,,measured
+211,De Anza Blvd,W,R,16:45,83,,,measured
+211,De Anza Blvd,W,T,16:45,230,,8,measured
+211,De Anza Blvd,E,L,17:00,45,,,measured
+211,De Anza Blvd,E,R,17:00,28,,,measured
+211,De Anza Blvd,E,T,17:00,122,,10,measured
+211,De Anza Blvd,N,L,17:00,145,,,measured
+211,De Anza Blvd,N,R,17:00,51,,,measured
+211,De Anza Blvd,N,T,17:00,382,,6,measured
+211,De Anza Blvd,S,L,17:00,44,,,measured
+211,De Anza Blvd,S,R,17:00,74,,,measured
+211,De Anza Blvd,S,T,17:00,123,,18,measured
+211,De Anza Blvd,W,L,17:00,38,,,measured
+211,De Anza Blvd,W,R,17:00,102,,,measured
+211,De Anza Blvd,W,T,17:00,293,,9,measured
+211,De Anza Blvd,E,L,17:15,54,,,measured
+211,De Anza Blvd,E,R,17:15,31,,,measured
+211,De Anza Blvd,E,T,17:15,86,,5,measured
+211,De Anza Blvd,N,L,17:15,161,,,measured
+211,De Anza Blvd,N,R,17:15,61,,,measured
+211,De Anza Blvd,N,T,17:15,399,,5,measured
+211,De Anza Blvd,S,L,17:15,66,,,measured
+211,De Anza Blvd,S,R,17:15,95,,,measured
+211,De Anza Blvd,S,T,17:15,155,,16,measured
+211,De Anza Blvd,W,L,17:15,42,,,measured
+211,De Anza Blvd,W,R,17:15,80,,,measured
+211,De Anza Blvd,W,T,17:15,293,,7,measured
+211,De Anza Blvd,E,L,17:30,62,,,measured
+211,De Anza Blvd,E,R,17:30,30,,,measured
+211,De Anza Blvd,E,T,17:30,121,,5,measured
+211,De Anza Blvd,N,L,17:30,138,,,measured
+211,De Anza Blvd,N,R,17:30,61,,,measured
+211,De Anza Blvd,N,T,17:30,367,,3,measured
+211,De Anza Blvd,S,L,17:30,70,,,measured
+211,De Anza Blvd,S,R,17:30,60,,,measured
+211,De Anza Blvd,S,T,17:30,169,,18,measured
+211,De Anza Blvd,W,L,17:30,41,,,measured
+211,De Anza Blvd,W,R,17:30,71,,,measured
+211,De Anza Blvd,W,T,17:30,317,,9,measured
+211,De Anza Blvd,E,L,17:45,69,,,measured
+211,De Anza Blvd,E,R,17:45,41,,,measured
+211,De Anza Blvd,E,T,17:45,130,,5,measured
+211,De Anza Blvd,N,L,17:45,200,,,measured
+211,De Anza Blvd,N,R,17:45,45,,,measured
+211,De Anza Blvd,N,T,17:45,370,,0,measured
+211,De Anza Blvd,S,L,17:45,77,,,measured
+211,De Anza Blvd,S,R,17:45,76,,,measured
+211,De Anza Blvd,S,T,17:45,125,,16,measured
+211,De Anza Blvd,W,L,17:45,42,,,measured
+211,De Anza Blvd,W,R,17:45,102,,,measured
+211,De Anza Blvd,W,T,17:45,266,,4,measured
+211,De Anza Blvd,E,L,18:00,80,,,measured
+211,De Anza Blvd,E,R,18:00,32,,,measured
+211,De Anza Blvd,E,T,18:00,160,,8,measured
+211,De Anza Blvd,N,L,18:00,173,,,measured
+211,De Anza Blvd,N,R,18:00,42,,,measured
+211,De Anza Blvd,N,T,18:00,401,,0,measured
+211,De Anza Blvd,S,L,18:00,65,,,measured
+211,De Anza Blvd,S,R,18:00,74,,,measured
+211,De Anza Blvd,S,T,18:00,165,,20,measured
+211,De Anza Blvd,W,L,18:00,45,,,measured
+211,De Anza Blvd,W,R,18:00,81,,,measured
+211,De Anza Blvd,W,T,18:00,229,,4,measured
+211,De Anza Blvd,E,L,18:15,67,,,measured
+211,De Anza Blvd,E,R,18:15,28,,,measured
+211,De Anza Blvd,E,T,18:15,119,,4,measured
+211,De Anza Blvd,N,L,18:15,134,,,measured
+211,De Anza Blvd,N,R,18:15,44,,,measured
+211,De Anza Blvd,N,T,18:15,338,,0,measured
+211,De Anza Blvd,S,L,18:15,67,,,measured
+211,De Anza Blvd,S,R,18:15,58,,,measured
+211,De Anza Blvd,S,T,18:15,129,,20,measured
+211,De Anza Blvd,W,L,18:15,42,,,measured
+211,De Anza Blvd,W,R,18:15,79,,,measured
+211,De Anza Blvd,W,T,18:15,222,,4,measured
 estimated_mary,Mary Ave,E,R,16:30,41,,,estimated
 estimated_mary,Mary Ave,E,T,16:30,223,,,estimated
 estimated_mary,Mary Ave,N,L,16:30,31,,,estimated
@@ -184,146 +184,146 @@ estimated_mary,Mary Ave,N,L,18:15,31,,,estimated
 estimated_mary,Mary Ave,N,R,18:15,34,,,estimated
 estimated_mary,Mary Ave,W,T,18:15,420,,,estimated
 estimated_saich,Saich Way,E,R,16:30,5,,,estimated
-estimated_saich,Saich Way,E,T,16:30,134,,,estimated
+estimated_saich,Saich Way,E,T,16:30,129,,,estimated
 estimated_saich,Saich Way,N,L,16:30,5,,,estimated
 estimated_saich,Saich Way,N,R,16:30,5,,,estimated
 estimated_saich,Saich Way,W,L,16:30,5,,,estimated
-estimated_saich,Saich Way,W,T,16:30,255,,,estimated
+estimated_saich,Saich Way,W,T,16:30,234,,,estimated
 estimated_saich,Saich Way,E,R,16:45,5,,,estimated
-estimated_saich,Saich Way,E,T,16:45,136,,,estimated
+estimated_saich,Saich Way,E,T,16:45,116,,,estimated
 estimated_saich,Saich Way,N,L,16:45,5,,,estimated
 estimated_saich,Saich Way,N,R,16:45,5,,,estimated
 estimated_saich,Saich Way,W,L,16:45,5,,,estimated
-estimated_saich,Saich Way,W,T,16:45,231,,,estimated
+estimated_saich,Saich Way,W,T,16:45,234,,,estimated
 estimated_saich,Saich Way,E,R,17:00,5,,,estimated
-estimated_saich,Saich Way,E,T,17:00,162,,,estimated
+estimated_saich,Saich Way,E,T,17:00,142,,,estimated
 estimated_saich,Saich Way,N,L,17:00,5,,,estimated
 estimated_saich,Saich Way,N,R,17:00,5,,,estimated
 estimated_saich,Saich Way,W,L,17:00,5,,,estimated
-estimated_saich,Saich Way,W,T,17:00,264,,,estimated
+estimated_saich,Saich Way,W,T,17:00,258,,,estimated
 estimated_saich,Saich Way,E,R,17:15,5,,,estimated
-estimated_saich,Saich Way,E,T,17:15,161,,,estimated
+estimated_saich,Saich Way,E,T,17:15,133,,,estimated
 estimated_saich,Saich Way,N,L,17:15,5,,,estimated
 estimated_saich,Saich Way,N,R,17:15,5,,,estimated
 estimated_saich,Saich Way,W,L,17:15,5,,,estimated
-estimated_saich,Saich Way,W,T,17:15,250,,,estimated
+estimated_saich,Saich Way,W,T,17:15,270,,,estimated
 estimated_saich,Saich Way,E,R,17:30,5,,,estimated
-estimated_saich,Saich Way,E,T,17:30,175,,,estimated
+estimated_saich,Saich Way,E,T,17:30,129,,,estimated
 estimated_saich,Saich Way,N,L,17:30,5,,,estimated
 estimated_saich,Saich Way,N,R,17:30,5,,,estimated
 estimated_saich,Saich Way,W,L,17:30,5,,,estimated
-estimated_saich,Saich Way,W,T,17:30,283,,,estimated
+estimated_saich,Saich Way,W,T,17:30,277,,,estimated
 estimated_saich,Saich Way,E,R,17:45,5,,,estimated
-estimated_saich,Saich Way,E,T,17:45,198,,,estimated
+estimated_saich,Saich Way,E,T,17:45,146,,,estimated
 estimated_saich,Saich Way,N,L,17:45,5,,,estimated
 estimated_saich,Saich Way,N,R,17:45,5,,,estimated
 estimated_saich,Saich Way,W,L,17:45,5,,,estimated
-estimated_saich,Saich Way,W,T,17:45,264,,,estimated
+estimated_saich,Saich Way,W,T,17:45,254,,,estimated
 estimated_saich,Saich Way,E,R,18:00,5,,,estimated
-estimated_saich,Saich Way,E,T,18:00,174,,,estimated
+estimated_saich,Saich Way,E,T,18:00,194,,,estimated
 estimated_saich,Saich Way,N,L,18:00,5,,,estimated
 estimated_saich,Saich Way,N,R,18:00,5,,,estimated
 estimated_saich,Saich Way,W,L,18:00,5,,,estimated
-estimated_saich,Saich Way,W,T,18:00,224,,,estimated
+estimated_saich,Saich Way,W,T,18:00,214,,,estimated
 estimated_saich,Saich Way,E,R,18:15,5,,,estimated
-estimated_saich,Saich Way,E,T,18:15,196,,,estimated
+estimated_saich,Saich Way,E,T,18:15,137,,,estimated
 estimated_saich,Saich Way,N,L,18:15,5,,,estimated
 estimated_saich,Saich Way,N,R,18:15,5,,,estimated
 estimated_saich,Saich Way,W,L,18:15,5,,,estimated
-estimated_saich,Saich Way,W,T,18:15,231,,,estimated
-vallco_03,Stelling Rd,E,L,16:30,68,,,measured
-vallco_03,Stelling Rd,E,R,16:30,17,,,measured
-vallco_03,Stelling Rd,E,T,16:30,132,,7,measured
-vallco_03,Stelling Rd,N,L,16:30,62,,,measured
-vallco_03,Stelling Rd,N,R,16:30,29,,,measured
-vallco_03,Stelling Rd,N,T,16:30,86,,9,measured
-vallco_03,Stelling Rd,S,L,16:30,48,,,measured
-vallco_03,Stelling Rd,S,R,16:30,48,,,measured
-vallco_03,Stelling Rd,S,T,16:30,73,,16,measured
-vallco_03,Stelling Rd,W,L,16:30,66,,,measured
-vallco_03,Stelling Rd,W,R,16:30,110,,,measured
-vallco_03,Stelling Rd,W,T,16:30,288,,18,measured
-vallco_03,Stelling Rd,E,L,16:45,91,,,measured
-vallco_03,Stelling Rd,E,R,16:45,39,,,measured
-vallco_03,Stelling Rd,E,T,16:45,148,,12,measured
-vallco_03,Stelling Rd,N,L,16:45,63,,,measured
-vallco_03,Stelling Rd,N,R,16:45,36,,,measured
-vallco_03,Stelling Rd,N,T,16:45,87,,10,measured
-vallco_03,Stelling Rd,S,L,16:45,26,,,measured
-vallco_03,Stelling Rd,S,R,16:45,46,,,measured
-vallco_03,Stelling Rd,S,T,16:45,47,,16,measured
-vallco_03,Stelling Rd,W,L,16:45,68,,,measured
-vallco_03,Stelling Rd,W,R,16:45,86,,,measured
-vallco_03,Stelling Rd,W,T,16:45,274,,7,measured
-vallco_03,Stelling Rd,E,L,17:00,80,,,measured
-vallco_03,Stelling Rd,E,R,17:00,35,,,measured
-vallco_03,Stelling Rd,E,T,17:00,155,,9,measured
-vallco_03,Stelling Rd,N,L,17:00,63,,,measured
-vallco_03,Stelling Rd,N,R,17:00,44,,,measured
-vallco_03,Stelling Rd,N,T,17:00,93,,12,measured
-vallco_03,Stelling Rd,S,L,17:00,40,,,measured
-vallco_03,Stelling Rd,S,R,17:00,48,,,measured
-vallco_03,Stelling Rd,S,T,17:00,72,,17,measured
-vallco_03,Stelling Rd,W,L,17:00,77,,,measured
-vallco_03,Stelling Rd,W,R,17:00,110,,,measured
-vallco_03,Stelling Rd,W,T,17:00,250,,13,measured
-vallco_03,Stelling Rd,E,L,17:15,108,,,measured
-vallco_03,Stelling Rd,E,R,17:15,29,,,measured
-vallco_03,Stelling Rd,E,T,17:15,177,,7,measured
-vallco_03,Stelling Rd,N,L,17:15,59,,,measured
-vallco_03,Stelling Rd,N,R,17:15,37,,,measured
-vallco_03,Stelling Rd,N,T,17:15,158,,15,measured
-vallco_03,Stelling Rd,S,L,17:15,47,,,measured
-vallco_03,Stelling Rd,S,R,17:15,52,,,measured
-vallco_03,Stelling Rd,S,T,17:15,89,,16,measured
-vallco_03,Stelling Rd,W,L,17:15,79,,,measured
-vallco_03,Stelling Rd,W,R,17:15,101,,,measured
-vallco_03,Stelling Rd,W,T,17:15,264,,16,measured
-vallco_03,Stelling Rd,E,L,17:30,84,,,measured
-vallco_03,Stelling Rd,E,R,17:30,41,,,measured
-vallco_03,Stelling Rd,E,T,17:30,194,,9,measured
-vallco_03,Stelling Rd,N,L,17:30,62,,,measured
-vallco_03,Stelling Rd,N,R,17:30,49,,,measured
-vallco_03,Stelling Rd,N,T,17:30,110,,20,measured
-vallco_03,Stelling Rd,S,L,17:30,54,,,measured
-vallco_03,Stelling Rd,S,R,17:30,73,,,measured
-vallco_03,Stelling Rd,S,T,17:30,108,,14,measured
-vallco_03,Stelling Rd,W,L,17:30,97,,,measured
-vallco_03,Stelling Rd,W,R,17:30,89,,,measured
-vallco_03,Stelling Rd,W,T,17:30,300,,17,measured
-vallco_03,Stelling Rd,E,L,17:45,103,,,measured
-vallco_03,Stelling Rd,E,R,17:45,31,,,measured
-vallco_03,Stelling Rd,E,T,17:45,209,,4,measured
-vallco_03,Stelling Rd,N,L,17:45,56,,,measured
-vallco_03,Stelling Rd,N,R,17:45,49,,,measured
-vallco_03,Stelling Rd,N,T,17:45,106,,8,measured
-vallco_03,Stelling Rd,S,L,17:45,45,,,measured
-vallco_03,Stelling Rd,S,R,17:45,56,,,measured
-vallco_03,Stelling Rd,S,T,17:45,78,,17,measured
-vallco_03,Stelling Rd,W,L,17:45,101,,,measured
-vallco_03,Stelling Rd,W,R,17:45,62,,,measured
-vallco_03,Stelling Rd,W,T,17:45,279,,7,measured
-vallco_03,Stelling Rd,E,L,18:00,106,,,measured
-vallco_03,Stelling Rd,E,R,18:00,27,,,measured
-vallco_03,Stelling Rd,E,T,18:00,201,,8,measured
-vallco_03,Stelling Rd,N,L,18:00,82,,,measured
-vallco_03,Stelling Rd,N,R,18:00,38,,,measured
-vallco_03,Stelling Rd,N,T,18:00,141,,30,measured
-vallco_03,Stelling Rd,S,L,18:00,46,,,measured
-vallco_03,Stelling Rd,S,R,18:00,85,,,measured
-vallco_03,Stelling Rd,S,T,18:00,90,,18,measured
-vallco_03,Stelling Rd,W,L,18:00,88,,,measured
-vallco_03,Stelling Rd,W,R,18:00,68,,,measured
-vallco_03,Stelling Rd,W,T,18:00,244,,22,measured
-vallco_03,Stelling Rd,E,L,18:15,116,,,measured
-vallco_03,Stelling Rd,E,R,18:15,35,,,measured
-vallco_03,Stelling Rd,E,T,18:15,210,,21,measured
-vallco_03,Stelling Rd,N,L,18:15,85,,,measured
-vallco_03,Stelling Rd,N,R,18:15,47,,,measured
-vallco_03,Stelling Rd,N,T,18:15,137,,12,measured
-vallco_03,Stelling Rd,S,L,18:15,55,,,measured
-vallco_03,Stelling Rd,S,R,18:15,96,,,measured
-vallco_03,Stelling Rd,S,T,18:15,107,,31,measured
-vallco_03,Stelling Rd,W,L,18:15,77,,,measured
-vallco_03,Stelling Rd,W,R,18:15,87,,,measured
-vallco_03,Stelling Rd,W,T,18:15,245,,11,measured
+estimated_saich,Saich Way,W,T,18:15,211,,,estimated
+217,Stelling Rd,E,L,16:30,40,,,measured
+217,Stelling Rd,E,R,16:30,37,,,measured
+217,Stelling Rd,E,T,16:30,161,,6,measured
+217,Stelling Rd,N,L,16:30,49,,,measured
+217,Stelling Rd,N,R,16:30,32,,,measured
+217,Stelling Rd,N,T,16:30,104,,6,measured
+217,Stelling Rd,S,L,16:30,31,,,measured
+217,Stelling Rd,S,R,16:30,26,,,measured
+217,Stelling Rd,S,T,16:30,68,,11,measured
+217,Stelling Rd,W,L,16:30,71,,,measured
+217,Stelling Rd,W,R,16:30,113,,,measured
+217,Stelling Rd,W,T,16:30,208,,6,measured
+217,Stelling Rd,E,L,16:45,42,,,measured
+217,Stelling Rd,E,R,16:45,31,,,measured
+217,Stelling Rd,E,T,16:45,133,,3,measured
+217,Stelling Rd,N,L,16:45,41,,,measured
+217,Stelling Rd,N,R,16:45,35,,,measured
+217,Stelling Rd,N,T,16:45,111,,5,measured
+217,Stelling Rd,S,L,16:45,39,,,measured
+217,Stelling Rd,S,R,16:45,36,,,measured
+217,Stelling Rd,S,T,16:45,60,,15,measured
+217,Stelling Rd,W,L,16:45,69,,,measured
+217,Stelling Rd,W,R,16:45,90,,,measured
+217,Stelling Rd,W,T,16:45,237,,7,measured
+217,Stelling Rd,E,L,17:00,42,,,measured
+217,Stelling Rd,E,R,17:00,29,,,measured
+217,Stelling Rd,E,T,17:00,159,,10,measured
+217,Stelling Rd,N,L,17:00,59,,,measured
+217,Stelling Rd,N,R,17:00,28,,,measured
+217,Stelling Rd,N,T,17:00,133,,6,measured
+217,Stelling Rd,S,L,17:00,39,,,measured
+217,Stelling Rd,S,R,17:00,43,,,measured
+217,Stelling Rd,S,T,17:00,83,,20,measured
+217,Stelling Rd,W,L,17:00,65,,,measured
+217,Stelling Rd,W,R,17:00,96,,,measured
+217,Stelling Rd,W,T,17:00,229,,4,measured
+217,Stelling Rd,E,L,17:15,68,,,measured
+217,Stelling Rd,E,R,17:15,32,,,measured
+217,Stelling Rd,E,T,17:15,172,,3,measured
+217,Stelling Rd,N,L,17:15,48,,,measured
+217,Stelling Rd,N,R,17:15,33,,,measured
+217,Stelling Rd,N,T,17:15,131,,15,measured
+217,Stelling Rd,S,L,17:15,33,,,measured
+217,Stelling Rd,S,R,17:15,39,,,measured
+217,Stelling Rd,S,T,17:15,92,,14,measured
+217,Stelling Rd,W,L,17:15,78,,,measured
+217,Stelling Rd,W,R,17:15,90,,,measured
+217,Stelling Rd,W,T,17:15,250,,18,measured
+217,Stelling Rd,E,L,17:30,65,,,measured
+217,Stelling Rd,E,R,17:30,35,,,measured
+217,Stelling Rd,E,T,17:30,135,,7,measured
+217,Stelling Rd,N,L,17:30,50,,,measured
+217,Stelling Rd,N,R,17:30,36,,,measured
+217,Stelling Rd,N,T,17:30,103,,8,measured
+217,Stelling Rd,S,L,17:30,50,,,measured
+217,Stelling Rd,S,R,17:30,49,,,measured
+217,Stelling Rd,S,T,17:30,140,,17,measured
+217,Stelling Rd,W,L,17:30,75,,,measured
+217,Stelling Rd,W,R,17:30,72,,,measured
+217,Stelling Rd,W,T,17:30,243,,10,measured
+217,Stelling Rd,E,L,17:45,83,,,measured
+217,Stelling Rd,E,R,17:45,48,,,measured
+217,Stelling Rd,E,T,17:45,159,,4,measured
+217,Stelling Rd,N,L,17:45,50,,,measured
+217,Stelling Rd,N,R,17:45,45,,,measured
+217,Stelling Rd,N,T,17:45,127,,13,measured
+217,Stelling Rd,S,L,17:45,63,,,measured
+217,Stelling Rd,S,R,17:45,48,,,measured
+217,Stelling Rd,S,T,17:45,87,,17,measured
+217,Stelling Rd,W,L,17:45,80,,,measured
+217,Stelling Rd,W,R,17:45,65,,,measured
+217,Stelling Rd,W,T,17:45,243,,13,measured
+217,Stelling Rd,E,L,18:00,62,,,measured
+217,Stelling Rd,E,R,18:00,32,,,measured
+217,Stelling Rd,E,T,18:00,223,,2,measured
+217,Stelling Rd,N,L,18:00,40,,,measured
+217,Stelling Rd,N,R,18:00,43,,,measured
+217,Stelling Rd,N,T,18:00,85,,6,measured
+217,Stelling Rd,S,L,18:00,51,,,measured
+217,Stelling Rd,S,R,18:00,24,,,measured
+217,Stelling Rd,S,T,18:00,96,,13,measured
+217,Stelling Rd,W,L,18:00,66,,,measured
+217,Stelling Rd,W,R,18:00,63,,,measured
+217,Stelling Rd,W,T,18:00,201,,6,measured
+217,Stelling Rd,E,L,18:15,61,,,measured
+217,Stelling Rd,E,R,18:15,26,,,measured
+217,Stelling Rd,E,T,18:15,152,,5,measured
+217,Stelling Rd,N,L,18:15,31,,,measured
+217,Stelling Rd,N,R,18:15,39,,,measured
+217,Stelling Rd,N,T,18:15,118,,15,measured
+217,Stelling Rd,S,L,18:15,73,,,measured
+217,Stelling Rd,S,R,18:15,36,,,measured
+217,Stelling Rd,S,T,18:15,87,,13,measured
+217,Stelling Rd,W,L,18:15,68,,,measured
+217,Stelling Rd,W,R,18:15,58,,,measured
+217,Stelling Rd,W,T,18:15,202,,12,measured

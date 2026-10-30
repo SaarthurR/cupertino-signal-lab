@@ -1,0 +1,765 @@
+site_id,intersection,count_date,period,interval_start,category,approach,movement,value
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,W,U,3
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,W,L,32
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,W,T,264
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,W,R,90
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,E,U,4
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,E,L,50
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,E,T,91
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,E,R,34
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,S,U,20
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,S,L,61
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,S,T,158
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,S,R,53
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,N,U,5
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,N,L,140
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,N,T,358
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,N,R,62
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,W,U,1
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,W,L,35
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,W,T,230
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,W,R,83
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,E,U,3
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,E,L,86
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,E,T,96
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,E,R,34
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,S,U,15
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,S,L,69
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,S,T,162
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,S,R,41
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,N,U,2
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,N,L,95
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,N,T,435
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,N,R,46
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,W,U,1
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,W,L,38
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,W,T,293
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,W,R,102
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,E,U,9
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,E,L,45
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,E,T,122
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,E,R,28
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,S,U,12
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,S,L,44
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,S,T,123
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,S,R,74
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,N,U,5
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,N,L,145
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,N,T,382
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,N,R,51
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,W,U,2
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,W,L,42
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,W,T,293
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,W,R,80
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,E,U,8
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,E,L,54
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,E,T,86
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,E,R,31
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,S,U,13
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,S,L,66
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,S,T,155
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,S,R,95
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,N,U,13
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,N,L,161
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,N,T,399
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,N,R,61
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,W,U,5
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,W,L,41
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,W,T,317
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,W,R,71
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,E,U,8
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,E,L,62
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,E,T,121
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,E,R,30
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,S,U,19
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,S,L,70
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,S,T,169
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,S,R,60
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,N,U,10
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,N,L,138
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,N,T,367
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,N,R,61
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,W,U,2
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,W,L,42
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,W,T,266
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,W,R,102
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,E,U,12
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,E,L,69
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,E,T,130
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,E,R,41
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,S,U,20
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,S,L,77
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,S,T,125
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,S,R,76
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,N,U,9
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,N,L,200
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,N,T,370
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,N,R,45
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,W,U,1
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,W,L,45
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,W,T,229
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,W,R,81
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,E,U,7
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,E,L,80
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,E,T,160
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,E,R,32
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,S,U,17
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,S,L,65
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,S,T,165
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,S,R,74
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,N,U,5
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,N,L,173
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,N,T,401
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,N,R,42
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,W,U,2
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,W,L,42
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,W,T,222
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,W,R,79
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,E,U,4
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,E,L,67
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,E,T,119
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,E,R,28
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,S,U,21
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,S,L,67
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,S,T,129
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,S,R,58
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,N,U,11
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,N,L,134
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,N,T,338
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,N,R,44
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,W,U,17
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,W,L,317
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,W,T,2114
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,W,R,688
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,E,U,55
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,E,L,513
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,E,T,925
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,E,R,258
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,S,U,137
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,S,L,519
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,S,T,1186
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,S,R,531
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,N,U,60
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,N,L,1186
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,N,T,3050
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,N,R,412
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,W,U,10
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,W,L,170
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,W,T,1105
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,W,R,334
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,E,U,35
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,E,L,265
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,E,T,497
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,E,R,134
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,S,U,69
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,S,L,278
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,S,T,614
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,S,R,305
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,N,U,37
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,N,L,672
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,N,T,1537
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,N,R,209
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,W,U,0
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,W,L,1
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,W,T,10
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,W,R,3
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,E,U,0
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,E,L,1
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,E,T,9
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,E,R,1
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,S,U,0
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,S,L,4
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,S,T,7
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,S,R,1
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,N,U,0
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,N,L,7
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,N,T,8
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,N,R,3
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,W,U,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,W,L,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,W,T,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,W,R,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,E,U,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,E,L,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,E,T,2
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,E,R,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,S,U,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,S,L,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,S,T,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,S,R,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,N,U,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,N,L,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,N,T,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,N,R,1
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,ALL,total,1425
+211,De Anza Blvd,2024-10-09,interval,16:30,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,ALL,total,1433
+211,De Anza Blvd,2024-10-09,interval,16:45,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,ALL,total,1474
+211,De Anza Blvd,2024-10-09,interval,17:00,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,ALL,total,1559
+211,De Anza Blvd,2024-10-09,interval,17:15,vehicles,ALL,rolling_hour,5891
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,ALL,total,1549
+211,De Anza Blvd,2024-10-09,interval,17:30,vehicles,ALL,rolling_hour,6015
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,ALL,total,1586
+211,De Anza Blvd,2024-10-09,interval,17:45,vehicles,ALL,rolling_hour,6168
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,ALL,total,1577
+211,De Anza Blvd,2024-10-09,interval,18:00,vehicles,ALL,rolling_hour,6271
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,ALL,total,1365
+211,De Anza Blvd,2024-10-09,interval,18:15,vehicles,ALL,rolling_hour,6077
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,ALL,total,11968
+211,De Anza Blvd,2024-10-09,count_total,,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,ALL,total,6271
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,ALL,total,55
+211,De Anza Blvd,2024-10-09,peak_hv,17:15,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,ALL,total,1
+211,De Anza Blvd,2024-10-09,peak_hv_percent,17:15,vehicles,ALL,rolling_hour,0
+211,De Anza Blvd,2024-10-09,interval,16:30,heavy,W,total,11
+211,De Anza Blvd,2024-10-09,interval,16:30,heavy,E,total,5
+211,De Anza Blvd,2024-10-09,interval,16:30,heavy,S,total,4
+211,De Anza Blvd,2024-10-09,interval,16:30,heavy,N,total,6
+211,De Anza Blvd,2024-10-09,interval,16:30,heavy,ALL,total,26
+211,De Anza Blvd,2024-10-09,interval,16:45,heavy,W,total,1
+211,De Anza Blvd,2024-10-09,interval,16:45,heavy,E,total,5
+211,De Anza Blvd,2024-10-09,interval,16:45,heavy,S,total,8
+211,De Anza Blvd,2024-10-09,interval,16:45,heavy,N,total,8
+211,De Anza Blvd,2024-10-09,interval,16:45,heavy,ALL,total,22
+211,De Anza Blvd,2024-10-09,interval,17:00,heavy,W,total,11
+211,De Anza Blvd,2024-10-09,interval,17:00,heavy,E,total,3
+211,De Anza Blvd,2024-10-09,interval,17:00,heavy,S,total,5
+211,De Anza Blvd,2024-10-09,interval,17:00,heavy,N,total,4
+211,De Anza Blvd,2024-10-09,interval,17:00,heavy,ALL,total,23
+211,De Anza Blvd,2024-10-09,interval,17:15,heavy,W,total,2
+211,De Anza Blvd,2024-10-09,interval,17:15,heavy,E,total,3
+211,De Anza Blvd,2024-10-09,interval,17:15,heavy,S,total,2
+211,De Anza Blvd,2024-10-09,interval,17:15,heavy,N,total,3
+211,De Anza Blvd,2024-10-09,interval,17:15,heavy,ALL,total,10
+211,De Anza Blvd,2024-10-09,interval,17:30,heavy,W,total,2
+211,De Anza Blvd,2024-10-09,interval,17:30,heavy,E,total,3
+211,De Anza Blvd,2024-10-09,interval,17:30,heavy,S,total,5
+211,De Anza Blvd,2024-10-09,interval,17:30,heavy,N,total,3
+211,De Anza Blvd,2024-10-09,interval,17:30,heavy,ALL,total,13
+211,De Anza Blvd,2024-10-09,interval,17:45,heavy,W,total,2
+211,De Anza Blvd,2024-10-09,interval,17:45,heavy,E,total,3
+211,De Anza Blvd,2024-10-09,interval,17:45,heavy,S,total,0
+211,De Anza Blvd,2024-10-09,interval,17:45,heavy,N,total,5
+211,De Anza Blvd,2024-10-09,interval,17:45,heavy,ALL,total,10
+211,De Anza Blvd,2024-10-09,interval,18:00,heavy,W,total,8
+211,De Anza Blvd,2024-10-09,interval,18:00,heavy,E,total,2
+211,De Anza Blvd,2024-10-09,interval,18:00,heavy,S,total,5
+211,De Anza Blvd,2024-10-09,interval,18:00,heavy,N,total,7
+211,De Anza Blvd,2024-10-09,interval,18:00,heavy,ALL,total,22
+211,De Anza Blvd,2024-10-09,interval,18:15,heavy,W,total,3
+211,De Anza Blvd,2024-10-09,interval,18:15,heavy,E,total,2
+211,De Anza Blvd,2024-10-09,interval,18:15,heavy,S,total,3
+211,De Anza Blvd,2024-10-09,interval,18:15,heavy,N,total,5
+211,De Anza Blvd,2024-10-09,interval,18:15,heavy,ALL,total,13
+211,De Anza Blvd,2024-10-09,count_total,,heavy,W,total,40
+211,De Anza Blvd,2024-10-09,count_total,,heavy,E,total,26
+211,De Anza Blvd,2024-10-09,count_total,,heavy,S,total,32
+211,De Anza Blvd,2024-10-09,count_total,,heavy,N,total,41
+211,De Anza Blvd,2024-10-09,count_total,,heavy,ALL,total,139
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,heavy,W,total,14
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,heavy,E,total,11
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,heavy,S,total,12
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,heavy,N,total,18
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,heavy,ALL,total,55
+211,De Anza Blvd,2024-10-09,interval,16:30,bicycles,W,total,0
+211,De Anza Blvd,2024-10-09,interval,16:30,bicycles,E,total,1
+211,De Anza Blvd,2024-10-09,interval,16:30,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,16:30,bicycles,N,total,1
+211,De Anza Blvd,2024-10-09,interval,16:30,bicycles,ALL,total,2
+211,De Anza Blvd,2024-10-09,interval,16:45,bicycles,W,total,0
+211,De Anza Blvd,2024-10-09,interval,16:45,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,16:45,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,16:45,bicycles,N,total,0
+211,De Anza Blvd,2024-10-09,interval,16:45,bicycles,ALL,total,0
+211,De Anza Blvd,2024-10-09,interval,17:00,bicycles,W,total,1
+211,De Anza Blvd,2024-10-09,interval,17:00,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,17:00,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,17:00,bicycles,N,total,2
+211,De Anza Blvd,2024-10-09,interval,17:00,bicycles,ALL,total,3
+211,De Anza Blvd,2024-10-09,interval,17:15,bicycles,W,total,1
+211,De Anza Blvd,2024-10-09,interval,17:15,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,17:15,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,17:15,bicycles,N,total,3
+211,De Anza Blvd,2024-10-09,interval,17:15,bicycles,ALL,total,4
+211,De Anza Blvd,2024-10-09,interval,17:30,bicycles,W,total,0
+211,De Anza Blvd,2024-10-09,interval,17:30,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,17:30,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,17:30,bicycles,N,total,0
+211,De Anza Blvd,2024-10-09,interval,17:30,bicycles,ALL,total,0
+211,De Anza Blvd,2024-10-09,interval,17:45,bicycles,W,total,1
+211,De Anza Blvd,2024-10-09,interval,17:45,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,17:45,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,17:45,bicycles,N,total,1
+211,De Anza Blvd,2024-10-09,interval,17:45,bicycles,ALL,total,2
+211,De Anza Blvd,2024-10-09,interval,18:00,bicycles,W,total,0
+211,De Anza Blvd,2024-10-09,interval,18:00,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,18:00,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,18:00,bicycles,N,total,1
+211,De Anza Blvd,2024-10-09,interval,18:00,bicycles,ALL,total,1
+211,De Anza Blvd,2024-10-09,interval,18:15,bicycles,W,total,2
+211,De Anza Blvd,2024-10-09,interval,18:15,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,interval,18:15,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,interval,18:15,bicycles,N,total,1
+211,De Anza Blvd,2024-10-09,interval,18:15,bicycles,ALL,total,3
+211,De Anza Blvd,2024-10-09,count_total,,bicycles,W,total,5
+211,De Anza Blvd,2024-10-09,count_total,,bicycles,E,total,1
+211,De Anza Blvd,2024-10-09,count_total,,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,count_total,,bicycles,N,total,9
+211,De Anza Blvd,2024-10-09,count_total,,bicycles,ALL,total,15
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,bicycles,W,total,2
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,bicycles,E,total,0
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,bicycles,S,total,0
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,bicycles,N,total,5
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,bicycles,ALL,total,7
+211,De Anza Blvd,2024-10-09,interval,16:30,pedestrians,E,total,3
+211,De Anza Blvd,2024-10-09,interval,16:30,pedestrians,W,total,7
+211,De Anza Blvd,2024-10-09,interval,16:30,pedestrians,N,total,0
+211,De Anza Blvd,2024-10-09,interval,16:30,pedestrians,S,total,11
+211,De Anza Blvd,2024-10-09,interval,16:30,pedestrians,ALL,total,21
+211,De Anza Blvd,2024-10-09,interval,16:45,pedestrians,E,total,5
+211,De Anza Blvd,2024-10-09,interval,16:45,pedestrians,W,total,8
+211,De Anza Blvd,2024-10-09,interval,16:45,pedestrians,N,total,0
+211,De Anza Blvd,2024-10-09,interval,16:45,pedestrians,S,total,13
+211,De Anza Blvd,2024-10-09,interval,16:45,pedestrians,ALL,total,26
+211,De Anza Blvd,2024-10-09,interval,17:00,pedestrians,E,total,10
+211,De Anza Blvd,2024-10-09,interval,17:00,pedestrians,W,total,9
+211,De Anza Blvd,2024-10-09,interval,17:00,pedestrians,N,total,6
+211,De Anza Blvd,2024-10-09,interval,17:00,pedestrians,S,total,18
+211,De Anza Blvd,2024-10-09,interval,17:00,pedestrians,ALL,total,43
+211,De Anza Blvd,2024-10-09,interval,17:15,pedestrians,E,total,5
+211,De Anza Blvd,2024-10-09,interval,17:15,pedestrians,W,total,7
+211,De Anza Blvd,2024-10-09,interval,17:15,pedestrians,N,total,5
+211,De Anza Blvd,2024-10-09,interval,17:15,pedestrians,S,total,16
+211,De Anza Blvd,2024-10-09,interval,17:15,pedestrians,ALL,total,33
+211,De Anza Blvd,2024-10-09,interval,17:30,pedestrians,E,total,5
+211,De Anza Blvd,2024-10-09,interval,17:30,pedestrians,W,total,9
+211,De Anza Blvd,2024-10-09,interval,17:30,pedestrians,N,total,3
+211,De Anza Blvd,2024-10-09,interval,17:30,pedestrians,S,total,18
+211,De Anza Blvd,2024-10-09,interval,17:30,pedestrians,ALL,total,35
+211,De Anza Blvd,2024-10-09,interval,17:45,pedestrians,E,total,5
+211,De Anza Blvd,2024-10-09,interval,17:45,pedestrians,W,total,4
+211,De Anza Blvd,2024-10-09,interval,17:45,pedestrians,N,total,0
+211,De Anza Blvd,2024-10-09,interval,17:45,pedestrians,S,total,16
+211,De Anza Blvd,2024-10-09,interval,17:45,pedestrians,ALL,total,25
+211,De Anza Blvd,2024-10-09,interval,18:00,pedestrians,E,total,8
+211,De Anza Blvd,2024-10-09,interval,18:00,pedestrians,W,total,4
+211,De Anza Blvd,2024-10-09,interval,18:00,pedestrians,N,total,0
+211,De Anza Blvd,2024-10-09,interval,18:00,pedestrians,S,total,20
+211,De Anza Blvd,2024-10-09,interval,18:00,pedestrians,ALL,total,32
+211,De Anza Blvd,2024-10-09,interval,18:15,pedestrians,E,total,4
+211,De Anza Blvd,2024-10-09,interval,18:15,pedestrians,W,total,4
+211,De Anza Blvd,2024-10-09,interval,18:15,pedestrians,N,total,0
+211,De Anza Blvd,2024-10-09,interval,18:15,pedestrians,S,total,20
+211,De Anza Blvd,2024-10-09,interval,18:15,pedestrians,ALL,total,28
+211,De Anza Blvd,2024-10-09,count_total,,pedestrians,E,total,45
+211,De Anza Blvd,2024-10-09,count_total,,pedestrians,W,total,52
+211,De Anza Blvd,2024-10-09,count_total,,pedestrians,N,total,14
+211,De Anza Blvd,2024-10-09,count_total,,pedestrians,S,total,132
+211,De Anza Blvd,2024-10-09,count_total,,pedestrians,ALL,total,243
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,pedestrians,E,total,23
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,pedestrians,W,total,24
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,pedestrians,N,total,8
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,pedestrians,S,total,70
+211,De Anza Blvd,2024-10-09,peak_hour,17:15,pedestrians,ALL,total,125
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,S,U,69
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,S,L,278
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,S,T,614
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,S,R,305
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,N,U,37
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,N,L,672
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,N,T,1537
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,N,R,209
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,W,U,10
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,W,L,170
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,W,T,1105
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,W,R,334
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,E,U,35
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,E,L,265
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,E,T,497
+211,De Anza Blvd,2024-10-09,vistro_peak,17:15,vehicles,E,R,134
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,W,U,5
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,W,L,71
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,W,T,208
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,W,R,113
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,E,U,12
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,E,L,40
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,E,T,161
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,E,R,37
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,S,L,31
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,S,T,68
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,S,R,26
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,N,U,17
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,N,L,49
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,N,T,104
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,N,R,32
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,W,U,7
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,W,L,69
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,W,T,237
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,W,R,90
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,E,U,20
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,E,L,42
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,E,T,133
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,E,R,31
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,S,L,39
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,S,T,60
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,S,R,36
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,N,U,10
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,N,L,41
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,N,T,111
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,N,R,35
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,W,U,2
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,W,L,65
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,W,T,229
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,W,R,96
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,E,U,18
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,E,L,42
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,E,T,159
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,E,R,29
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,S,U,1
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,S,L,39
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,S,T,83
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,S,R,43
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,N,U,17
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,N,L,59
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,N,T,133
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,N,R,28
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,W,U,5
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,W,L,78
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,W,T,250
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,W,R,90
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,E,U,20
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,E,L,68
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,E,T,172
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,E,R,32
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,S,U,3
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,S,L,33
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,S,T,92
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,S,R,39
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,N,U,19
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,N,L,48
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,N,T,131
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,N,R,33
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,W,U,7
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,W,L,75
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,W,T,243
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,W,R,72
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,E,U,24
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,E,L,65
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,E,T,135
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,E,R,35
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,S,U,1
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,S,L,50
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,S,T,140
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,S,R,49
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,N,U,5
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,N,L,50
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,N,T,103
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,N,R,36
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,W,U,13
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,W,L,80
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,W,T,243
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,W,R,65
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,E,U,23
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,E,L,83
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,E,T,159
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,E,R,48
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,S,L,63
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,S,T,87
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,S,R,48
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,N,U,13
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,N,L,50
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,N,T,127
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,N,R,45
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,W,U,8
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,W,L,66
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,W,T,201
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,W,R,63
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,E,U,29
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,E,L,62
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,E,T,223
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,E,R,32
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,S,U,4
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,S,L,51
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,S,T,96
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,S,R,24
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,N,U,13
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,N,L,40
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,N,T,85
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,N,R,43
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,W,U,9
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,W,L,68
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,W,T,202
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,W,R,58
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,E,U,25
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,E,L,61
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,E,T,152
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,E,R,26
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,S,L,73
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,S,T,87
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,S,R,36
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,N,U,18
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,N,L,31
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,N,T,118
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,N,R,39
+217,Stelling Rd,2024-10-09,count_total,,vehicles,W,U,56
+217,Stelling Rd,2024-10-09,count_total,,vehicles,W,L,572
+217,Stelling Rd,2024-10-09,count_total,,vehicles,W,T,1813
+217,Stelling Rd,2024-10-09,count_total,,vehicles,W,R,647
+217,Stelling Rd,2024-10-09,count_total,,vehicles,E,U,171
+217,Stelling Rd,2024-10-09,count_total,,vehicles,E,L,463
+217,Stelling Rd,2024-10-09,count_total,,vehicles,E,T,1294
+217,Stelling Rd,2024-10-09,count_total,,vehicles,E,R,270
+217,Stelling Rd,2024-10-09,count_total,,vehicles,S,U,9
+217,Stelling Rd,2024-10-09,count_total,,vehicles,S,L,379
+217,Stelling Rd,2024-10-09,count_total,,vehicles,S,T,713
+217,Stelling Rd,2024-10-09,count_total,,vehicles,S,R,301
+217,Stelling Rd,2024-10-09,count_total,,vehicles,N,U,112
+217,Stelling Rd,2024-10-09,count_total,,vehicles,N,L,368
+217,Stelling Rd,2024-10-09,count_total,,vehicles,N,T,912
+217,Stelling Rd,2024-10-09,count_total,,vehicles,N,R,291
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,W,U,27
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,W,L,298
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,W,T,965
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,W,R,323
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,E,U,85
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,E,L,258
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,E,T,625
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,E,R,144
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,S,U,5
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,S,L,185
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,S,T,402
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,S,R,179
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,N,U,54
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,N,L,207
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,N,T,494
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,N,R,142
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,W,U,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,W,L,1
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,W,T,15
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,W,R,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,E,U,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,E,L,4
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,E,T,19
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,E,R,3
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,S,L,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,S,T,1
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,S,R,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,N,U,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,N,L,2
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,N,T,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,N,R,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,W,U,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,W,L,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,W,T,2
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,W,R,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,E,U,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,E,L,2
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,E,T,3
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,E,R,2
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,S,U,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,S,L,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,S,T,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,S,R,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,N,U,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,N,L,1
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,N,T,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,N,R,0
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,ALL,total,974
+217,Stelling Rd,2024-10-09,interval,16:30,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,ALL,total,961
+217,Stelling Rd,2024-10-09,interval,16:45,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,ALL,total,1043
+217,Stelling Rd,2024-10-09,interval,17:00,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,ALL,total,1113
+217,Stelling Rd,2024-10-09,interval,17:15,vehicles,ALL,rolling_hour,4091
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,ALL,total,1090
+217,Stelling Rd,2024-10-09,interval,17:30,vehicles,ALL,rolling_hour,4207
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,ALL,total,1147
+217,Stelling Rd,2024-10-09,interval,17:45,vehicles,ALL,rolling_hour,4393
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,ALL,total,1040
+217,Stelling Rd,2024-10-09,interval,18:00,vehicles,ALL,rolling_hour,4390
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,ALL,total,1003
+217,Stelling Rd,2024-10-09,interval,18:15,vehicles,ALL,rolling_hour,4280
+217,Stelling Rd,2024-10-09,count_total,,vehicles,ALL,total,8371
+217,Stelling Rd,2024-10-09,count_total,,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,ALL,total,4393
+217,Stelling Rd,2024-10-09,peak_hour,17:00,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,ALL,total,45
+217,Stelling Rd,2024-10-09,peak_hv,17:00,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,ALL,total,1
+217,Stelling Rd,2024-10-09,peak_hv_percent,17:00,vehicles,ALL,rolling_hour,0
+217,Stelling Rd,2024-10-09,interval,16:30,heavy,W,total,10
+217,Stelling Rd,2024-10-09,interval,16:30,heavy,E,total,6
+217,Stelling Rd,2024-10-09,interval,16:30,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,16:30,heavy,N,total,2
+217,Stelling Rd,2024-10-09,interval,16:30,heavy,ALL,total,18
+217,Stelling Rd,2024-10-09,interval,16:45,heavy,W,total,2
+217,Stelling Rd,2024-10-09,interval,16:45,heavy,E,total,6
+217,Stelling Rd,2024-10-09,interval,16:45,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,16:45,heavy,N,total,1
+217,Stelling Rd,2024-10-09,interval,16:45,heavy,ALL,total,9
+217,Stelling Rd,2024-10-09,interval,17:00,heavy,W,total,7
+217,Stelling Rd,2024-10-09,interval,17:00,heavy,E,total,7
+217,Stelling Rd,2024-10-09,interval,17:00,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,17:00,heavy,N,total,1
+217,Stelling Rd,2024-10-09,interval,17:00,heavy,ALL,total,15
+217,Stelling Rd,2024-10-09,interval,17:15,heavy,W,total,4
+217,Stelling Rd,2024-10-09,interval,17:15,heavy,E,total,6
+217,Stelling Rd,2024-10-09,interval,17:15,heavy,S,total,1
+217,Stelling Rd,2024-10-09,interval,17:15,heavy,N,total,0
+217,Stelling Rd,2024-10-09,interval,17:15,heavy,ALL,total,11
+217,Stelling Rd,2024-10-09,interval,17:30,heavy,W,total,4
+217,Stelling Rd,2024-10-09,interval,17:30,heavy,E,total,7
+217,Stelling Rd,2024-10-09,interval,17:30,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,17:30,heavy,N,total,1
+217,Stelling Rd,2024-10-09,interval,17:30,heavy,ALL,total,12
+217,Stelling Rd,2024-10-09,interval,17:45,heavy,W,total,1
+217,Stelling Rd,2024-10-09,interval,17:45,heavy,E,total,6
+217,Stelling Rd,2024-10-09,interval,17:45,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,17:45,heavy,N,total,0
+217,Stelling Rd,2024-10-09,interval,17:45,heavy,ALL,total,7
+217,Stelling Rd,2024-10-09,interval,18:00,heavy,W,total,6
+217,Stelling Rd,2024-10-09,interval,18:00,heavy,E,total,4
+217,Stelling Rd,2024-10-09,interval,18:00,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,18:00,heavy,N,total,2
+217,Stelling Rd,2024-10-09,interval,18:00,heavy,ALL,total,12
+217,Stelling Rd,2024-10-09,interval,18:15,heavy,W,total,3
+217,Stelling Rd,2024-10-09,interval,18:15,heavy,E,total,6
+217,Stelling Rd,2024-10-09,interval,18:15,heavy,S,total,0
+217,Stelling Rd,2024-10-09,interval,18:15,heavy,N,total,1
+217,Stelling Rd,2024-10-09,interval,18:15,heavy,ALL,total,10
+217,Stelling Rd,2024-10-09,count_total,,heavy,W,total,37
+217,Stelling Rd,2024-10-09,count_total,,heavy,E,total,48
+217,Stelling Rd,2024-10-09,count_total,,heavy,S,total,1
+217,Stelling Rd,2024-10-09,count_total,,heavy,N,total,8
+217,Stelling Rd,2024-10-09,count_total,,heavy,ALL,total,94
+217,Stelling Rd,2024-10-09,peak_hour,17:00,heavy,W,total,16
+217,Stelling Rd,2024-10-09,peak_hour,17:00,heavy,E,total,26
+217,Stelling Rd,2024-10-09,peak_hour,17:00,heavy,S,total,1
+217,Stelling Rd,2024-10-09,peak_hour,17:00,heavy,N,total,2
+217,Stelling Rd,2024-10-09,peak_hour,17:00,heavy,ALL,total,45
+217,Stelling Rd,2024-10-09,interval,16:30,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,16:30,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,16:30,bicycles,S,total,0
+217,Stelling Rd,2024-10-09,interval,16:30,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,16:30,bicycles,ALL,total,0
+217,Stelling Rd,2024-10-09,interval,16:45,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,16:45,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,16:45,bicycles,S,total,2
+217,Stelling Rd,2024-10-09,interval,16:45,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,16:45,bicycles,ALL,total,2
+217,Stelling Rd,2024-10-09,interval,17:00,bicycles,W,total,1
+217,Stelling Rd,2024-10-09,interval,17:00,bicycles,E,total,2
+217,Stelling Rd,2024-10-09,interval,17:00,bicycles,S,total,0
+217,Stelling Rd,2024-10-09,interval,17:00,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,17:00,bicycles,ALL,total,3
+217,Stelling Rd,2024-10-09,interval,17:15,bicycles,W,total,1
+217,Stelling Rd,2024-10-09,interval,17:15,bicycles,E,total,2
+217,Stelling Rd,2024-10-09,interval,17:15,bicycles,S,total,1
+217,Stelling Rd,2024-10-09,interval,17:15,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,17:15,bicycles,ALL,total,4
+217,Stelling Rd,2024-10-09,interval,17:30,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,17:30,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,17:30,bicycles,S,total,1
+217,Stelling Rd,2024-10-09,interval,17:30,bicycles,N,total,1
+217,Stelling Rd,2024-10-09,interval,17:30,bicycles,ALL,total,2
+217,Stelling Rd,2024-10-09,interval,17:45,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,17:45,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,17:45,bicycles,S,total,1
+217,Stelling Rd,2024-10-09,interval,17:45,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,17:45,bicycles,ALL,total,1
+217,Stelling Rd,2024-10-09,interval,18:00,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,18:00,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,18:00,bicycles,S,total,1
+217,Stelling Rd,2024-10-09,interval,18:00,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,18:00,bicycles,ALL,total,1
+217,Stelling Rd,2024-10-09,interval,18:15,bicycles,W,total,0
+217,Stelling Rd,2024-10-09,interval,18:15,bicycles,E,total,0
+217,Stelling Rd,2024-10-09,interval,18:15,bicycles,S,total,5
+217,Stelling Rd,2024-10-09,interval,18:15,bicycles,N,total,0
+217,Stelling Rd,2024-10-09,interval,18:15,bicycles,ALL,total,5
+217,Stelling Rd,2024-10-09,count_total,,bicycles,W,total,2
+217,Stelling Rd,2024-10-09,count_total,,bicycles,E,total,4
+217,Stelling Rd,2024-10-09,count_total,,bicycles,S,total,11
+217,Stelling Rd,2024-10-09,count_total,,bicycles,N,total,1
+217,Stelling Rd,2024-10-09,count_total,,bicycles,ALL,total,18
+217,Stelling Rd,2024-10-09,peak_hour,17:00,bicycles,W,total,2
+217,Stelling Rd,2024-10-09,peak_hour,17:00,bicycles,E,total,4
+217,Stelling Rd,2024-10-09,peak_hour,17:00,bicycles,S,total,3
+217,Stelling Rd,2024-10-09,peak_hour,17:00,bicycles,N,total,1
+217,Stelling Rd,2024-10-09,peak_hour,17:00,bicycles,ALL,total,10
+217,Stelling Rd,2024-10-09,interval,16:30,pedestrians,E,total,6
+217,Stelling Rd,2024-10-09,interval,16:30,pedestrians,W,total,6
+217,Stelling Rd,2024-10-09,interval,16:30,pedestrians,N,total,6
+217,Stelling Rd,2024-10-09,interval,16:30,pedestrians,S,total,11
+217,Stelling Rd,2024-10-09,interval,16:30,pedestrians,ALL,total,29
+217,Stelling Rd,2024-10-09,interval,16:45,pedestrians,E,total,3
+217,Stelling Rd,2024-10-09,interval,16:45,pedestrians,W,total,7
+217,Stelling Rd,2024-10-09,interval,16:45,pedestrians,N,total,5
+217,Stelling Rd,2024-10-09,interval,16:45,pedestrians,S,total,15
+217,Stelling Rd,2024-10-09,interval,16:45,pedestrians,ALL,total,30
+217,Stelling Rd,2024-10-09,interval,17:00,pedestrians,E,total,10
+217,Stelling Rd,2024-10-09,interval,17:00,pedestrians,W,total,4
+217,Stelling Rd,2024-10-09,interval,17:00,pedestrians,N,total,6
+217,Stelling Rd,2024-10-09,interval,17:00,pedestrians,S,total,20
+217,Stelling Rd,2024-10-09,interval,17:00,pedestrians,ALL,total,40
+217,Stelling Rd,2024-10-09,interval,17:15,pedestrians,E,total,3
+217,Stelling Rd,2024-10-09,interval,17:15,pedestrians,W,total,18
+217,Stelling Rd,2024-10-09,interval,17:15,pedestrians,N,total,15
+217,Stelling Rd,2024-10-09,interval,17:15,pedestrians,S,total,14
+217,Stelling Rd,2024-10-09,interval,17:15,pedestrians,ALL,total,50
+217,Stelling Rd,2024-10-09,interval,17:30,pedestrians,E,total,7
+217,Stelling Rd,2024-10-09,interval,17:30,pedestrians,W,total,10
+217,Stelling Rd,2024-10-09,interval,17:30,pedestrians,N,total,8
+217,Stelling Rd,2024-10-09,interval,17:30,pedestrians,S,total,17
+217,Stelling Rd,2024-10-09,interval,17:30,pedestrians,ALL,total,42
+217,Stelling Rd,2024-10-09,interval,17:45,pedestrians,E,total,4
+217,Stelling Rd,2024-10-09,interval,17:45,pedestrians,W,total,13
+217,Stelling Rd,2024-10-09,interval,17:45,pedestrians,N,total,13
+217,Stelling Rd,2024-10-09,interval,17:45,pedestrians,S,total,17
+217,Stelling Rd,2024-10-09,interval,17:45,pedestrians,ALL,total,47
+217,Stelling Rd,2024-10-09,interval,18:00,pedestrians,E,total,2
+217,Stelling Rd,2024-10-09,interval,18:00,pedestrians,W,total,6
+217,Stelling Rd,2024-10-09,interval,18:00,pedestrians,N,total,6
+217,Stelling Rd,2024-10-09,interval,18:00,pedestrians,S,total,13
+217,Stelling Rd,2024-10-09,interval,18:00,pedestrians,ALL,total,27
+217,Stelling Rd,2024-10-09,interval,18:15,pedestrians,E,total,5
+217,Stelling Rd,2024-10-09,interval,18:15,pedestrians,W,total,12
+217,Stelling Rd,2024-10-09,interval,18:15,pedestrians,N,total,15
+217,Stelling Rd,2024-10-09,interval,18:15,pedestrians,S,total,13
+217,Stelling Rd,2024-10-09,interval,18:15,pedestrians,ALL,total,45
+217,Stelling Rd,2024-10-09,count_total,,pedestrians,E,total,40
+217,Stelling Rd,2024-10-09,count_total,,pedestrians,W,total,76
+217,Stelling Rd,2024-10-09,count_total,,pedestrians,N,total,74
+217,Stelling Rd,2024-10-09,count_total,,pedestrians,S,total,120
+217,Stelling Rd,2024-10-09,count_total,,pedestrians,ALL,total,310
+217,Stelling Rd,2024-10-09,peak_hour,17:00,pedestrians,E,total,24
+217,Stelling Rd,2024-10-09,peak_hour,17:00,pedestrians,W,total,45
+217,Stelling Rd,2024-10-09,peak_hour,17:00,pedestrians,N,total,42
+217,Stelling Rd,2024-10-09,peak_hour,17:00,pedestrians,S,total,68
+217,Stelling Rd,2024-10-09,peak_hour,17:00,pedestrians,ALL,total,179
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,S,U,5
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,S,L,185
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,S,T,402
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,S,R,179
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,N,U,54
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,N,L,207
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,N,T,494
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,N,R,142
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,W,U,27
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,W,L,298
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,W,T,965
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,W,R,323
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,E,U,85
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,E,L,258
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,E,T,625
+217,Stelling Rd,2024-10-09,vistro_peak,17:00,vehicles,E,R,144
