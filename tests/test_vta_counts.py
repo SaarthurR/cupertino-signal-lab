@@ -5,6 +5,26 @@ from signal_lab import demand as d, pipeline as p
 
 
 class VTACountTests(unittest.TestCase):
+    def test_independent_pdf_quarter_hour_spot_checks(self):
+        # Read independently from rendered IDAX p1; column order EB/WB/NB/SB means origin W/E/S/N.
+        expected = {
+            ('211', '16:30'): [3,32,264,90,4,50,91,34,20,61,158,53,5,140,358,62,1425,0,11,5,4,6,26,0,1,0,1,2,3,7,0,11,21],
+            ('211', '17:15'): [2,42,293,80,8,54,86,31,13,66,155,95,13,161,399,61,1559,5891,2,3,2,3,10,1,0,0,3,4,5,7,5,16,33],
+            ('211', '18:15'): [2,42,222,79,4,67,119,28,21,67,129,58,11,134,338,44,1365,6077,3,2,3,5,13,2,0,0,1,3,4,4,0,20,28],
+            ('217', '16:30'): [5,71,208,113,12,40,161,37,0,31,68,26,17,49,104,32,974,0,10,6,0,2,18,0,0,0,0,0,6,6,6,11,29],
+            ('217', '17:15'): [5,78,250,90,20,68,172,32,3,33,92,39,19,48,131,33,1113,4091,4,6,1,0,11,1,2,1,0,4,3,18,15,14,50],
+            ('217', '18:15'): [9,68,202,58,25,61,152,26,0,73,87,36,18,31,118,39,1003,4280,3,6,0,1,10,0,0,5,0,5,5,12,15,13,45],
+        }
+        with open(p.ROOT/'data/processed/vta_counts_2024.csv') as stream:
+            cells = {(r['site_id'], r['interval_start'], r['category'], r['approach'], r['movement']): int(r['value'])
+                     for r in csv.DictReader(stream) if r['period'] == 'interval'}
+        columns = [('vehicles', a, m) for a in 'WESN' for m in 'ULTR']
+        columns += [('vehicles', 'ALL', m) for m in ('total', 'rolling_hour')]
+        for category in ('heavy', 'bicycles', 'pedestrians'):
+            columns += [(category, a, 'total') for a in [*('EWNS' if category == 'pedestrians' else 'WESN'), 'ALL']]
+        for (site, start), values in expected.items():
+            self.assertEqual([cells[site, start, *column] for column in columns], values, (site, start))
+
     def test_all_printed_rows_columns_and_peak_hours(self):
         with open(p.ROOT/'data/processed/vta_counts_2024.csv') as f:
             rows = list(csv.DictReader(f))

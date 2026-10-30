@@ -12,6 +12,8 @@ The two five-page image reports were emailed by VTA on October 29, 2026; generat
 
 `vta_timing_2024.csv` retains 14 nonzero signal groups exactly as printed. Movement directions describe travel (NB means originating on the south approach), unlike `demand.movement_map`'s originating-leg compass. Stelling SG3/4 occupy the through columns but their control type is **Split**: they serve the entire NB/SB approach respectively. SG2 is **EB**, SG6 **WB** at both sites. U-turn input slots have SG0; no independent U-turn timing is invented. The result CSV preserves all 16 movement columns per site, including U-turns, and uses page 5 movement delays rather than the sometimes different page 4 lane-group delays.
 
+The current demand model excludes U-turns despite four real U-turn connections at each source site. This omits 116 De Anza + 156 Stelling observed vehicles in the fit hour (617 across both recorded hours); they are not folded into left turns. Stelling's projected split states cover L/T/R only, leaving NB/SB U-turn links red despite the source's whole-approach service. Adding U-turn demand requires changing mapping, candidate routes and coverage checks, then rebuilding and validating with SUMO. This comparison is explicitly L/T/R-only.
+
 ## Source sanity, without changing printed values
 
 - De Anza: input cycle **180 s**, offset **120 s**, Lead Green - Beginning of First Green. Ring 1 is 1→2 | 3→4: **203 s**; ring 2 is 6→5 | 7→8: **170 s**. Page 4 independently reports a **203 s calculated cycle**. These cannot honestly pass an assertion that each ring sums to 180 s.
@@ -45,18 +47,23 @@ Printed offsets differ by **63 s** (De Anza minus Stelling); because 180 ≠ 140
 
 ## Deferred runtime work
 
-**NOT RUN:** existing_vta SUMO load/smoke, six PM training-seed runs, all-requested delay, EB/WB corridor travel, side delay, unfinished/stuck cars, teleports, simulated movement delay comparison, full test suite. Only the five new fast tests, Python syntax, static XML/CSV checks and diff checks were run after the stop instruction. An earlier 101-second empty static offset probe established SUMO's offset convention; it was not a comparison run.
+**NOT RUN:** existing_vta SUMO load/smoke, six PM training-seed runs, all-requested delay, EB/WB corridor travel, side delay, unfinished/stuck cars, teleports, simulated movement delay comparison, full test suite. The original timing work ran five fast tests; the merged-branch review passed 31 focused counts/timing/dashboard/demand checks with external process launches blocked, plus diff checks. No simulation or routeSampler was started during the review. An earlier 101-second empty static offset probe established SUMO's offset convention; it was not a comparison run.
 
-When Saarth is home, from `/Users/saarthranka/Documents/school/ai-club-hackathon-timing`:
+When Saarth is home, from this merged worktree (battery at least 25%, one simulation at a time):
 
 ```sh
+cd /Users/saarthranka/Documents/school/ai-club-hackathon-vta2024
+export SUMO_HOME="$(.venv/bin/python -c 'import sumo; print(sumo.__path__[0])')"
 pmset -g batt
+PYTHONPATH=src nice -n 15 .venv/bin/python -m unittest discover -s tests -p test_vta_counts.py -v
 PYTHONPATH=src nice -n 15 .venv/bin/python -m unittest discover -s tests -p test_vta_timing.py -v
+PYTHONPATH=src nice -n 15 .venv/bin/python -m signal_lab build-demand
+PYTHONPATH=src nice -n 15 .venv/bin/python -m signal_lab check-demand
 PYTHONPATH=src nice -n 15 .venv/bin/python -m signal_lab.vta_timing
 PYTHONPATH=src nice -n 15 .venv/bin/python -m signal_lab.vta_compare
 PYTHONPATH=src nice -n 15 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-The comparison command **starts SUMO** (the full test suite also starts SUMO): serial full PM only, seeds 0–2, unchanged local routes, 900 s warmup and 1800 s drain. It refuses battery below 25% or an already-running SUMO process; the shared launcher applies nice 15. It writes only `reports/vta_timing_comparison.csv`, `reports/vta_movement_comparison.csv`, and `reports/vta_timing_run.json`. No optimization or holdout evaluation is called. Review source contradictions/phase states before treating any result as meaningful. A later data rerun must rebuild the approved 2024 demand in its owning worktree, then rerun this comparison on that explicitly identified demand; this branch retains 2018 demand.
+The comparison command **starts SUMO** (the full test suite also starts SUMO): serial full PM only, seeds 0–2, this worktree's PM routes, 900 s warmup and 1800 s drain. It refuses battery below 25% or an already-running SUMO process; the shared launcher applies nice 15. It writes only `reports/vta_timing_comparison.csv`, `reports/vta_movement_comparison.csv`, and `reports/vta_timing_run.json`. No optimization or holdout evaluation is called. Review source contradictions/phase states before treating any result as meaningful. Both CSVs and the JSON identify mixed demand: 2024 De Anza/Stelling L/T/R, Bandley/Saich estimates based on those counts, and 2018 Mary estimates. JSON hashes include routes, counts and source metadata. Do not regenerate dashboard, deck or video: their generators combine live demand inputs with frozen 2018 evaluation evidence and require a separate migration.
 
-All-requested delay reuses the preregistered 900 s unfinished/teleport charge; the output also retains 0/1800 s sensitivities, side all-requested delay, completed EB/WB travel sample sizes, unfinished and teleport counts. Movement comparison uses completed local approach+departure crossing time minus external-edge freeflow, excluding teleported vehicles. It includes internal-junction traversal in the excess and is **not HCM control delay**; neither it nor completed-trip samples count blocked/unfinished crossings as observed delay. Vistro is a separate 15-minute 2024 model versus full-PM 2018-demand SUMO; numerical agreement would not establish validation. Report all results as a three-training-seed look, without significance or field-benefit claims.
+All-requested delay reuses the preregistered 900 s unfinished/teleport charge; the output also retains 0/1800 s sensitivities, side all-requested delay, completed EB/WB travel sample sizes, unfinished and teleport counts. Movement comparison uses completed local approach+departure crossing time minus external-edge freeflow, excluding teleported vehicles. It includes internal-junction traversal in the excess and is **not HCM control delay**; neither it nor completed-trip samples count blocked/unfinished crossings as observed delay. Vistro is a separate 15-minute 2024 model versus full-PM mixed-year L/T/R-demand SUMO; numerical agreement would not establish validation. Report all results as a three-training-seed look, without significance or field-benefit claims.

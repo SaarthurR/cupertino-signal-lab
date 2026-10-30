@@ -74,8 +74,10 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(len(signals), 5)
         self.assertGreater(len(offsets), 5)
         html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
+        measured_year = next(r['year'] for r in d.read_csv(p.ROOT/'data/processed/tmc_sources.csv') if r['source'] == 'measured')
         for text in ('22.7%','16.5%','35.6%','15.0%','185 → 17','18 of the 20','7,980.0','836.77',
-                     '646.74','0.000052','2018','2026-10-28','Completed-only'):
+                     '646.74','0.000052',measured_year,
+                     '2026-10-28','Completed-only'):
             self.assertIn(text, html)
         self.assertNotIn('https://', html)
         self.assertNotIn('137.1122804334809', html)
@@ -107,7 +109,7 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn('Promising', deck)
         self.assertIn('Every direction improved on average.', deck)
         self.assertNotIn('short of the usual target', deck)
-        self.assertIn('Only 41 of 96 counted movements matched closely (GEH under 5)', deck)
+        self.assertIn(f"Only {facts['close']} of {len(facts['checks'])} counted movements matched closely (GEH under 5)", deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
 
     def test_tuner_slides_quote_the_search_space_and_the_two_real_scores(self):

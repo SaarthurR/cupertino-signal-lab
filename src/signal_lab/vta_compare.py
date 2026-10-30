@@ -14,6 +14,8 @@ from .demand import movement_map, network, seconds, summary_stats
 from .evaluate import boundaries, command, corridor_times, mean, metrics
 from .vta_timing import LABEL
 
+DEMAND_BASIS = '2024 De Anza/Stelling L/T/R counts; 2024-based Bandley/Saich estimates; 2018 Mary estimates; U-turn demand excluded'
+
 
 def movement_delays(path, net, mapping, requested, teleported):
     """Local crossing proxy from route exits, not total-trip loss or HCM control delay."""
@@ -79,7 +81,7 @@ def compare():
                 trips = {t.get('id'): dict(t.attrib) for t in ET.parse(folder/'trips.xml').getroot().findall('tripinfo')}
                 travels = corridor_times(folder/'routes.xml', endpoints, set(cfg['mainline_edges']), set(teleports))
                 rows.append(dict(controller=controller, seed=seed, scenario='pm_peak', window='full',
-                                 seed_group='training', basis=LABEL,
+                                 seed_group='training', basis=LABEL, demand_basis=DEMAND_BASIS,
                                  **metrics(requested, trips, travels, teleports, begin, end)))
                 cohort = {v for v, (depart, _) in requested.items() if begin <= depart < end}
                 delays = movement_delays(folder/'routes.xml', net, mapping, cohort, set(teleports))
@@ -92,14 +94,15 @@ def compare():
                                       sample_status='observed' if values else 'no observed crossing; U-turns not mapped' if movement == 'U' else 'no observed crossing',
                                       vistro_hcm_delay_s=source['delay_s_per_vehicle'], vistro_los=source['los'],
                                       metric_note='Completed local crossings excluding teleports; approach+departure excess over external-edge freeflow, not HCM control delay',
-                                      basis=LABEL))
+                                      basis=LABEL, demand_basis=DEMAND_BASIS))
             print(f'{controller} seed {seed}: full PM training look complete', flush=True)
     p.write_csv('reports/vta_timing_comparison.csv', rows)
     p.write_csv('reports/vta_movement_comparison.csv', local)
     files = ['config/corridor.yaml', 'sim/routes_pm_peak.rou.xml', 'sim/corridor.net.xml',
              'sim/detectors.add.xml', 'sim/tls_actuated_pm_peak.add.xml', 'sim/tls_existing_vta_pm_peak.add.xml',
-             'data/processed/vta_timing_2024.csv', 'data/processed/vta_vistro_results_2024.csv']
-    provenance = dict(basis=LABEL, seeds=[0, 1, 2], window='full PM only', warmup_s=cfg['warmup_s'],
+             'data/processed/vta_timing_2024.csv', 'data/processed/vta_vistro_results_2024.csv',
+             'data/processed/tmc.csv', 'data/processed/tmc_sources.csv', 'data/processed/vta_counts_2024.csv']
+    provenance = dict(basis=LABEL, demand_basis=DEMAND_BASIS, seeds=[0, 1, 2], window='full PM only', warmup_s=cfg['warmup_s'],
                       drain_s=1800, unfinished_charge_s=900, power=power.strip(),
                       sha256={f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files})
     (p.ROOT/'reports/vta_timing_run.json').write_text(json.dumps(provenance, indent=2)+'\n')

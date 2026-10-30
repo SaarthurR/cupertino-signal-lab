@@ -2,6 +2,7 @@
 import contextlib
 import csv
 import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -12,9 +13,61 @@ from signal_lab import pipeline as p
 from signal_lab.demand import movement_map, network
 from signal_lab.vta_timing import LABEL, existing_vta, source_issues, timing_rows
 from signal_lab.vta_compare import movement_delays
+from signal_lab import vta_compare as comparison
 
 
 class VtaTimingTests(unittest.TestCase):
+    def test_independently_read_timing_inputs(self):
+        # All nonzero SG columns read from rendered Vistro p3, direction order from p1.
+        expected = {
+            '211': [(3,32,8,3.5,1.5,0,0,4), (8,67,8,4.3,1.5,5,31,6),
+                    (7,40,8,3.5,1,0,0,4), (4,75,8,4.3,1.5,5,37,6),
+                    (5,23,8,3.5,1.5,0,0,3.5), (2,46,8,4.1,1,5,38,2.5),
+                    (1,50,8,3.5,1.5,0,0,3.5), (6,40,8,4.1,1.5,5,37,2.5)],
+            '217': [(3,38,10,4.1,1,5,27,2), (4,37,10,4.1,1,5,26,4),
+                    (5,33,8,3.5,1,0,0,3), (2,40,10,4,1,5,21,8),
+                    (1,25,8,3.5,1,0,0,3), (6,32,10,4,1,5,21,8)],
+        }
+        fields = ('signal_group', 'split_s', 'min_green_s', 'amber_s', 'all_red_s',
+                  'walk_s', 'ped_clearance_s', 'vehicle_extension_s')
+        for site, values in expected.items():
+            rows = [r for r in timing_rows() if r['site_id'] == site]
+            self.assertEqual([tuple(float(r[k]) for k in fields) for r in rows], values)
+            self.assertEqual({(float(r['cycle_s']), float(r['offset_s'])) for r in rows},
+                             {(180,120) if site == '211' else (140,57)})
+
+    def test_comparison_labels_and_hashes_merged_demand_without_simulation(self):
+        original = p.ROOT
+        def fake_run(args):
+            outputs = {'--summary-output': '<summary><step teleports="0" inserted="0" running="0" waiting="0"/></summary>',
+                       '--tripinfo-output': '<tripinfos/>', '--vehroute-output': '<routes/>', '--error-log': ''}
+            for flag, value in outputs.items():
+                Path(args[args.index(flag)+1]).write_text(value)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for name in ('config', 'sim', 'data'):
+                (root/name).symlink_to(original/name, target_is_directory=True)
+            (root/'reports').mkdir()
+            with patch.object(p, 'ROOT', root), patch.object(p, 'run', side_effect=fake_run) as run, \
+                 patch.object(comparison.subprocess, 'check_output', return_value='100%; AC Power'), \
+                 patch.object(comparison.subprocess, 'run') as process, \
+                 patch.object(comparison, 'metrics', return_value={'requested': 1}), contextlib.redirect_stdout(io.StringIO()):
+                process.return_value.returncode = 1
+                comparison.compare()
+            self.assertEqual(run.call_count, 6)
+            for call in run.call_args_list:
+                args = call.args[0]
+                self.assertEqual(Path(args[args.index('-r')+1]), root/'sim/routes_pm_peak.rou.xml')
+            for name in ('vta_timing_comparison.csv', 'vta_movement_comparison.csv'):
+                with open(root/'reports'/name) as stream:
+                    rows = list(csv.DictReader(stream))
+                self.assertTrue(rows)
+                self.assertEqual({r['demand_basis'] for r in rows}, {comparison.DEMAND_BASIS})
+            provenance = json.loads((root/'reports/vta_timing_run.json').read_text())
+            self.assertEqual(provenance['demand_basis'], comparison.DEMAND_BASIS)
+            self.assertTrue({'data/processed/tmc.csv', 'data/processed/tmc_sources.csv',
+                             'data/processed/vta_counts_2024.csv', 'sim/routes_pm_peak.rou.xml'} <= provenance['sha256'].keys())
+
     def test_source_sanity_preserves_and_exposes_contradictions(self):
         rows = timing_rows()
         self.assertEqual(len(rows), 14)
