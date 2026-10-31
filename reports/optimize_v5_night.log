@@ -1,0 +1,12 @@
+[32m[I 2026-10-30 18:39:59,575][0m A new study created in RDB with name: pm_peak[0m
+trial 0: loss=10.36, unfinished=0, teleports=0
+trial 20: loss=10.31, unfinished=0, teleports=0
+trial 40: loss=10.27, unfinished=0, teleports=0
+trial 60: loss=9.96, unfinished=0, teleports=0
+trial 80: loss=10.10, unfinished=0, teleports=0
+trial 100: loss=10.15, unfinished=0, teleports=0
+trial 120: loss=10.37, unfinished=0, teleports=0
+trial 140: loss=10.19, unfinished=0, teleports=0
+trial 160: loss=10.37, unfinished=0, teleports=0
+trial 180: loss=10.68, unfinished=0, teleports=0
+optimize: 200 trials, 139.7 s, 3 processes; selected trial 147 (tiebreak_band)
