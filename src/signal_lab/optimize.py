@@ -236,12 +236,13 @@ def select_v5(finalists, v4_trial=None):
     return best, 'tiebreak_band' if best['selection_primary_s'] > lowest else 'lowest'
 
 
-def optimize(trials=300, version=3, scenario='pm_peak'):
+def optimize(trials=300, version=3, scenario='pm_peak', resume=False):
+    """resume: v5 timeout contingency; select from the saved study's completed trials, no more search."""
     train_seeds = range(3) if version == 4 else TRAIN_SEEDS
     name = f'v{version}' + ('_night' if scenario == 'night' else '')
     if version == 4 and trials != 60:
         raise ValueError("V4 preregistration requires exactly 60 trials")
-    if version == 5 and trials != V5_TRIALS[scenario]:
+    if version == 5 and trials != V5_TRIALS[scenario] and not resume:
         raise ValueError(f'V5 preregistration requires exactly {V5_TRIALS[scenario]} {scenario} trials')
     if version != 5 and scenario != 'pm_peak':
         raise ValueError('Only v5 tunes a separate night plan')
@@ -262,23 +263,25 @@ def optimize(trials=300, version=3, scenario='pm_peak'):
     with tempfile.TemporaryDirectory() as temp:
         database = p.ROOT/f'reports/optimize_{name}.sqlite3' if version >= 4 else Path(temp)/'study.sqlite3'
         storage = f'sqlite:///{database}'
-        study = optuna.create_study(study_name='pm_peak', storage=storage,
-                                    sampler=optuna.samplers.TPESampler(seed=0))
+        study = (optuna.load_study if resume else optuna.create_study)(
+            study_name='pm_peak', storage=storage, sampler=optuna.samplers.TPESampler(seed=0))
         frozen = lambda v: json.loads((p.ROOT/f'reports/optimize_v{v}.json').read_text())['best']['params']
         enqueued = ([baseline_params(scenario)] if scenario == 'night' else
                     [baseline_params(), frozen(3), frozen(4)] if version == 5 else
                     [baseline_params(), frozen(3) if version == 4 else v2_params()])
-        for params in enqueued:
+        for params in [] if resume else enqueued:
             study.enqueue_trial(params)
         # SQLite ignores row locks, so parallel workers can both claim one queued trial; run the queue here.
-        worker(storage, len(enqueued), 0, baselines[:len(train_seeds)], version, scenario)
-        remaining = trials-len(enqueued)
+        if not resume:
+            worker(storage, len(enqueued), 0, baselines[:len(train_seeds)], version, scenario)
+        remaining = 0 if resume else trials-len(enqueued)
         with ProcessPoolExecutor(max_workers=workers) as pool:
-            jobs = [pool.submit(worker, storage, remaining//workers+(i < remaining % workers), i,
+            jobs = [] if resume else [pool.submit(worker, storage, remaining//workers+(i < remaining % workers), i,
                                 baselines[:len(train_seeds)], version, scenario) for i in range(workers)]
             for job in jobs:
                 job.result(timeout=max(1, 6900-(time.monotonic()-start)))
         completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+        trials = len(completed) if resume else trials
         if len(completed) != trials:
             raise RuntimeError(f'Only {len(completed)}/{trials} trials completed within laptop budget')
         study.trials_dataframe().to_csv(p.ROOT/f'reports/optimize_{name}_trials.csv', index=False)
@@ -319,7 +322,8 @@ def optimize(trials=300, version=3, scenario='pm_peak'):
                     selected[target].append(score(target, seed, path, folder))
     result = dict(trials=trials, wall_s=time.monotonic()-start, workers=workers, power=power.strip(),
                   scenario=scenario, seeds=list(train_seeds), selection_seeds=list(SELECTION_SEEDS),
-                  enqueued=len(enqueued), selection_rule=rule, best=best,
+                  enqueued=len(enqueued), selection_rule=rule, best=best, resumed_from_saved_study=resume,
+                  preregistered_trials=V5_TRIALS[scenario] if version == 5 else trials,
                   baseline=baselines, selected=selected, finalists=finalists)
     (p.ROOT/f'reports/optimize_{name}.json').write_text(json.dumps(result, indent=2)+'\n')
     print(f'optimize: {trials} trials, {result["wall_s"]:.1f} s, {workers} processes; selected trial {best["trial"]} ({rule})', flush=True)

@@ -49,6 +49,6 @@ class V5Tests(unittest.TestCase):
             with patch('sys.argv', ['signal_lab', 'optimize', '--version', '5', '--scenario', scenario]), \
                  patch.object(o, 'optimize') as run:
                 main.main()
-                run.assert_called_once_with(trials=trials, version=5, scenario=scenario)
+                run.assert_called_once_with(trials=trials, version=5, scenario=scenario, resume=False)
             with self.assertRaisesRegex(ValueError, 'preregistration'):
                 o.optimize(trials=trials+1, version=5, scenario=scenario)

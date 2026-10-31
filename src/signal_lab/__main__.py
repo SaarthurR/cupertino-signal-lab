@@ -12,13 +12,14 @@ def main():
         if name == "optimize":
             sub.add_argument("--trials", type=int, default=None)
             sub.add_argument('--scenario', choices=('pm_peak', 'night'), default='pm_peak')
+            sub.add_argument('--resume', action='store_true', help='v5 timeout contingency: select from saved study')
         if name in ('optimize', 'eval'):
             sub.add_argument('--version', type=int, choices=(3, 4, 5), default=3)
     args = parser.parse_args()
     if args.verb == "optimize" and args.trials is None:
         args.trials = 60 if args.version == 4 else optimize.V5_TRIALS[args.scenario] if args.version == 5 else 300
     module = evaluate if args.verb == 'eval' else optimize if args.verb == 'optimize' else baseline if args.verb == 'baseline' else demand if args.verb in ('build-demand', 'check-demand') else pipeline
-    getattr(module, args.verb.replace("-", "_"))(**({"trials": args.trials, "version": args.version, "scenario": args.scenario} if args.verb == "optimize" else {"version": args.version} if args.verb == "eval" else {"skip_video": args.skip_video} if args.verb == "dashboard" else {}))
+    getattr(module, args.verb.replace("-", "_"))(**({"trials": args.trials, "version": args.version, "scenario": args.scenario, "resume": args.resume} if args.verb == "optimize" else {"version": args.version} if args.verb == "eval" else {"skip_video": args.skip_video} if args.verb == "dashboard" else {}))
 
 
 if __name__ == "__main__":
