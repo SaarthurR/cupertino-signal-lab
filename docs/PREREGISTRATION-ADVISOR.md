@@ -27,9 +27,11 @@ Registered before any piece-3 simulation or test run. Synthetic counts only.
   using the existing profile/range/margin fitting procedure. No new thresholds,
   candidate search, retuning, or rule changes after inspecting test seeds.
 - Switch all five signals to the approved program at one simulation time.
-  Preserve the new plan's absolute cycle offsets by selecting its phase and
-  remaining duration at that time. Log before/after phases and remaining
-  durations. Abrupt transitions can truncate greens or clearance intervals;
+  Retain each program's configured offset and coordinated actuated settings,
+  but explicitly restart at phase zero with its nominal duration. Log
+  before/after phases and remaining durations. This loses phase continuity
+  and does not promise immediate offset coordination. Abrupt transitions
+  can truncate greens or clearance intervals;
   this simulator operation is not a deployable field-controller transition.
   All consequences remain in trip metrics. No real signals or network touched.
 - Sanity gates: one short real run compares TraCI counts and occupancy against
