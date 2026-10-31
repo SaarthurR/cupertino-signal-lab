@@ -1,4 +1,4 @@
-"""2024 judge pages from saved results, plus the unchanged archived video renderer."""
+"""2024 judge pages and video from saved, frozen-plan results."""
 import csv
 import gzip
 from html import escape
@@ -24,9 +24,9 @@ from .optimize import bounds as knob_bounds
 # One neutral grey for the textbook plan, one accent for ours, everywhere.
 COLORS = ('#636f78', '#0b7d73')
 INK = ('var(--plan)', 'var(--accent)')
-LABELS = ('Textbook plan', 'Our plan')
-CONTROLLERS = ('actuated', 'optuna_v3')
-FCD_SEED = 33  # The recorded evening; one of the preregistered test rush hours.
+LABELS = ('Textbook plan', 'Our plan (v4)')
+CONTROLLERS = ('actuated', 'optuna_v4')
+FCD_SEED = 53  # The recorded evening; one of the preregistered test rush hours.
 VIDEO = (58500, 66600)  # 16:15 to 18:30, the whole evening the frames cover
 STEP = 4  # simulated seconds per video frame; the saved frames are 2 s apart
 FPS = 25  # STEP x FPS = 100x real time, so the evening runs in about 81 s
@@ -37,7 +37,7 @@ def read_csv(path):
         return list(csv.DictReader(stream))
 
 
-def cohort(rows, scenario='pm_peak', window='holdout', controllers=CONTROLLERS):
+def cohort(rows, scenario='pm_peak', window='holdout', controllers=('actuated', 'optuna_v3')):
     selected = [[r for r in rows if r['controller'] == c and r['scenario'] == scenario
                  and r['window'] == window and r['seed_group'] == 'v3_final'] for c in controllers]
     for group in selected:
@@ -84,10 +84,10 @@ def fcd(path, offsets):
     return frames, paths, tracks
 
 
-def typical_driver(rows):
+def typical_driver(rows, controllers=CONTROLLERS):
     """Nearest median saving across all entries, including pre-insertion waits."""
     groups = [{r['id']: r for r in rows if r['controller'] == c
-               and 61200 <= float(r['requested_s']) < 63000} for c in CONTROLLERS]
+               and 61200 <= float(r['requested_s']) < 63000} for c in controllers]
     if groups[0].keys() != groups[1].keys():
         raise ValueError('Race trips must have the same requested vehicles in both runs')
     candidates = []
@@ -96,7 +96,8 @@ def typical_driver(rows):
         if pair[0]['requested_s'] != pair[1]['requested_s']:
             raise ValueError('Race requested departure differs between runs')
         request = float(pair[0]['requested_s'])
-        if not all(request <= float(r['depart_s']) <= float(r['arrival_s']) < VIDEO[1] for r in pair):
+        if not all(request <= float(r['depart_s']) <= float(r['arrival_s']) < VIDEO[1]
+                   and r.get('teleported', '0') == '0' for r in pair):
             continue
         durations = [float(r['arrival_s'])-request for r in pair]
         candidates.append(dict(id=vid, requested=request, entry=pair[0]['entry'], durations=durations,
@@ -120,7 +121,7 @@ def trip_text(seconds):
 def timeline():
     """Per-second counters for both plans, straight from the evaluation's own timeline."""
     series = {c: {} for c in CONTROLLERS}
-    for row in read_csv(p.ROOT/'reports/timeline_seed33.csv'):
+    for row in read_csv(p.ROOT/f'reports/timeline_seed{FCD_SEED}.csv'):
         series[row['controller']][int(row['time_s'])] = tuple(
             int(row[k]) for k in ('waiting_on_road', 'blocked_from_entering', 'trips_finished'))
     for counts in series.values():
@@ -162,34 +163,40 @@ def clock_text(time, seconds=True):
 
 
 def caption_script(counters):
-    """On-screen lines for the silent video; each one is dropped unless the timeline backs it up."""
+    """Silent-video claims from this seed's saved counters, crossings and paired trips."""
     textbook, ours = counters
-    def shut(t): return textbook[t][1], ours[t][1]
-    def ahead(t): return ours[t][2]-textbook[t][2]
-    script = [(VIDEO[0], VIDEO[0]+300,
-               'Both roads are full at rush hour. The difference: how many cars get through,\nand how long the line outside is.'),
-              (VIDEO[0]+300, VIDEO[0]+800,
-               'Red = cars stopped on the road. Our plan lets more cars onto the road,\nso it can look just as busy. Watch the line outside and trips finished.')]
-    # First sustained backlog outside the textbook corridor while ours still lets everyone in.
-    begins = next((t for t in range(*VIDEO) if all(textbook[s][1] >= 25 for s in range(t, t+300))), None)
-    if begins and shut(begins)[0] > shut(begins)[1]:
-        script.append((begins, begins+720, f'{clock_text(begins, False)} — the queue outside the textbook plan '
-                                           f'starts growing: {shut(begins)[0]} cars shut out, {shut(begins)[1]} on ours.'))
-    for t, window in ((60300, 900), (63000, 900)):  # 4:45 and 5:30, while the rush is building
-        if shut(t)[0] > shut(t)[1]:
-            script.append((t, t+window, f'{clock_text(t, False)} — {shut(t)[0]:,} cars shut out of the corridor '
-                                        f'on the left, {shut(t)[1]:,} on ours.'))
-    if ahead(64800) > 0:
-        script.append((64800, 65700, f'{clock_text(64800, False)} — our plan has finished {ahead(64800):,} more trips.'))
-    if ahead(66000) > 0 and shut(66000)[0] > shut(66000)[1]:
-        script.append((66000, VIDEO[1], f'{clock_text(66000, False)} — {ahead(66000):,} more trips finished, '
-                                       f'{shut(66000)[0]-shut(66000)[1]:,} fewer cars shut out.'))
-    return script
+    crossings = read_csv(p.ROOT/f'reports/corridor_trips_seed{FCD_SEED}.csv')
+    travel = [[np.mean([float(r['travel_s']) for r in crossings
+                        if r['controller'] == c and r['direction'] == direction
+                        and 63000 <= float(r['requested_s']) < VIDEO[1]])
+               for c in CONTROLLERS] for direction in ('eb', 'wb')]
+    rows = read_csv(p.ROOT/f'reports/trips_seed{FCD_SEED}.csv')
+    groups = [{r['id']: r for r in rows if r['controller'] == c} for c in CONTROLLERS]
+    pairs = [(a, groups[1][vid]) for vid, a in groups[0].items()
+             if all(float(r['arrival_s']) >= 0 and r['teleported'] == '0'
+                    for r in (a, groups[1][vid]))]
+    worse = sum(float(b['arrival_s']) > float(a['arrival_s']) for a, b in pairs)
+    return [(58500, 58800,
+             f'One simulated rush hour, seed {FCD_SEED}. Same requests and roads, two light plans.\nWatch the line outside and the gap in trips finished.'),
+            (58800, 59400,
+             'Red = cars stopped on the road. A busy road alone does not tell the story.\nWatch the line outside and trips finished.'),
+            (60300, 61200,
+             f'4:45 PM, this seed: {textbook[60300][1]:,} cars waiting outside textbook, {ours[60300][1]:,} with v4.'),
+            (63000, 63900,
+             f'5:30 PM, this seed: {textbook[63000][1]:,} cars waiting outside textbook, {ours[63000][1]:,} with v4.'),
+            (64800, 65400,
+             f'Seed {FCD_SEED}, crossings requested after 5:30 and finished by 6:30 PM:\n'
+             f'Eastbound {travel[0][0]:.0f} to {travel[0][1]:.0f} s; westbound {travel[1][0]:.0f} to {travel[1][1]:.0f} s (worse).'),
+            (65400, 66000,
+             f'Seed {FCD_SEED}: {worse:,} of {len(pairs):,} paired trips took longer with v4.\n'
+             'Trips requested 5:00 to 5:30 PM; clocks include waiting outside.'),
+            (66000, VIDEO[1],
+             "This is a simulation with limits. Textbook is not the city's plan.\nSome trips get worse; this model needs more calibration before any street trial.")]
 
 
 def render_media(roads, signals, offsets, distance):
     data = [fcd(p.ROOT/f'reports/fcd_{c}_pm_peak_seed{FCD_SEED}.xml.gz', offsets) for c in CONTROLLERS]
-    race = typical_driver(read_csv(p.ROOT/'reports/trips_seed33.csv'))
+    race = typical_driver(read_csv(p.ROOT/f'reports/trips_seed{FCD_SEED}.csv'))
     print('Median driver:', race, flush=True)
     (p.ROOT/'reports/race.json').write_text(json.dumps(race, indent=2)+'\n')
     counters = timeline()
@@ -233,7 +240,7 @@ def render_media(roads, signals, offsets, distance):
     fig.text(.03, .962, 'Cupertino Signal Lab', fontsize=32, fontweight='bold', va='center')
     clock = fig.text(.97, .958, '', fontsize=42, family='monospace', fontweight='bold', ha='right', va='center')
     speed = fig.text(.97, .920, '', fontsize=24, fontweight='bold', ha='right', va='center', color='#0b5f58')
-    fig.text(.03, .920, 'One evening on Stevens Creek Boulevard, two traffic light plans',
+    fig.text(.03, .920, f'2024 model, seed {FCD_SEED}: one evening, two traffic light plans',
              fontsize=19, color='#53687a', va='center')
     for ax, label, color in zip(axes, LABELS, plan_colors):
         ax.set_facecolor('#f7f8fa')
@@ -265,33 +272,47 @@ def render_media(roads, signals, offsets, distance):
     textbook, ours = counters
     minutes = [(t-VIDEO[0])/60 for t, _ in data[0][0]]
     queues_over_time = [[c[t][1] for t, _ in data[0][0]] for c in counters]
-    chart_ax = fig.add_axes([.105, .095, .72, .16])
+    chart_ax = fig.add_axes([.06, .095, .37, .15])
     chart_ax.set_facecolor('#f7f8fa')
     chart_ax.set(xlim=(0, span), ylim=(0, max_blocked*1.16),
                  xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
     chart_ax.set_ylabel('Cars', fontsize=17)
-    chart_ax.set_title('Cars stuck waiting to get onto Stevens Creek',
-                       loc='left', fontsize=21, fontweight='bold', pad=10)
+    chart_ax.set_title('Cars waiting to get onto Stevens Creek',
+                       loc='left', fontsize=18, fontweight='bold', pad=10)
     chart_ax.grid(axis='y', alpha=.18)
     chart_ax.tick_params(labelsize=16)
     for spine in ('top', 'right'):
         chart_ax.spines[spine].set_visible(False)
     growth = [chart_ax.plot([], [], color=color, lw=4)[0] for color in plan_colors]
-    end_labels = [chart_ax.annotate('', (0, 0), xytext=(8, dy), textcoords='offset points',
-                                   ha='left', va='center', fontsize=17, fontweight='bold', color=color,
+    end_labels = [chart_ax.annotate('', (0, 0), xytext=(-8, dy), textcoords='offset points',
+                                   ha='right', va='center', fontsize=13, fontweight='bold', color=color,
                                    bbox=dict(facecolor='#f7f8fa', edgecolor='none', pad=2))
                   for color, dy in zip(plan_colors, (28, 6))]
+    gap_ax = fig.add_axes([.59, .095, .36, .15])
+    gap_ax.set_facecolor('#f7f8fa')
+    gap = [ours[t][2]-textbook[t][2] for t, _ in data[0][0]]
+    gap_ax.set(xlim=(0, span), ylim=(min(0, min(gap))-30, max(gap)+80),
+               xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
+    gap_ax.set_title('More trips finished with v4', loc='left', fontsize=18, fontweight='bold', pad=10)
+    gap_ax.axhline(0, color='#636f78', lw=1)
+    gap_ax.grid(axis='y', alpha=.18)
+    gap_ax.tick_params(labelsize=16)
+    for spine in ('top', 'right'):
+        gap_ax.spines[spine].set_visible(False)
+    gap_line, = gap_ax.plot([], [], color=COLORS[1], lw=4)
+    gap_label = gap_ax.text(.98, .87, '', transform=gap_ax.transAxes, ha='right', fontsize=17, color=COLORS[1])
     fig.text(.5, .048, 'Red = stopped, yellow = slow, green = moving   |   North up', ha='center', fontsize=16)
-    fig.text(.5, .019, 'One of the 20 test rush hours. North to south scale expanded. Exact trip clocks; positions every 2 s. Signal states not recorded. 2018 demand assumptions.', ha='center', fontsize=13, color='#53687a')
+    fig.text(.5, .019, f'2024 model, seed {FCD_SEED}. North to south scale expanded. Exact trip clocks; positions every 2 s. Signal states not recorded.', ha='center', fontsize=13, color='#53687a')
 
     script = caption_script(counters)
     race_start = race['requested']
     race_end = max(race['arrivals'])
-    script.append((race_start, race_end,
+    script.insert(0, (race_start, race_end,
                    f'Median-saving trip: {trip_text(race["durations"][0])} vs {trip_text(race["durations"][1])}, including the wait outside.\nClock starts at the same request; selected nearest the median saving.'))
-    script.append((race_end, race_end+600,
+    script.insert(1, (race_end, race_end+600,
                    f'This driver saved {race["durations"][0]-race["durations"][1]:g} seconds from request to arrival.\n'
-                   f'A typical driver: half of all {race["count"]:,} drivers saved more, half saved less.'))
+                   f'Nearest median saving among {race["count"]:,} complete paired trips; {race["excluded"]:,} excluded.'))
+    (p.ROOT/f'reports/video_captions_seed{FCD_SEED}.json').write_text(json.dumps(script, indent=2)+'\n')
     writer = FFMpegWriter(fps=FPS, codec='libx264', extra_args=['-threads', '1', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart'])
     output = p.ROOT/'reports/side_by_side.mp4'
     with writer.saving(fig, str(output), dpi=100):
@@ -329,7 +350,6 @@ def render_media(roads, signals, offsets, distance):
                     end_labels[i].set_text(f'{LABELS[i]}: {blocked:,}')
                 for _ in range(FPS):
                     writer.grab_frame()
-                fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
             clock.set_text(clock_text(time))
             speed.set_text('SLOW MOTION 20x - following one driver' if race_start <= time <= race_end else '100x speed')
             caption.set_text(next((line for start, stop, line in script if start <= time < stop), ''))
@@ -360,11 +380,17 @@ def render_media(roads, signals, offsets, distance):
                 else:
                     text = f'Arrived: {trip_text(arrive-race_start)}'
                 timers[i].set_text(text)
+            gap_line.set_data(minutes[:index+1], gap[:index+1])
+            gap_label.set_text(f'{gap[index]:+,} trips')
             for line, series, label, name in zip(growth, queues_over_time, end_labels, LABELS):
                 line.set_data(minutes[:index+1], series[:index+1])
                 label.xy = (minutes[index], series[index])
                 label.set_text(f'{name}: {series[index]:,}')
+                label.set_ha('left' if minutes[index] < 45 else 'right')
+                label.set_position((8 if minutes[index] < 45 else -8, label.get_position()[1]))
                 label.set_visible(index > 0)
+            if time <= (race_start+min(race['arrivals']))/2 < time+STEP:
+                fig.savefig(p.ROOT/'reports/side_by_side_poster.png', dpi=100)
             if time-STEP <= race_end < time:
                 caption.set_text('Back to 100x speed.')
                 for _ in range(FPS):
@@ -372,8 +398,8 @@ def render_media(roads, signals, offsets, distance):
             for _ in range(3*FPS if shot == 0 else 5 if race_start <= time <= race_end else 1):
                 writer.grab_frame()
     plt.close(fig)
-    if output.stat().st_size >= 50_000_000:
-        raise ValueError('Video exceeds 50 MB')
+    if output.stat().st_size >= 25_000_000:
+        raise ValueError('Video exceeds 25 MB')
 
 
 def map_svg(roads, signals):
@@ -783,6 +809,9 @@ def build_deck(rows, roads, signals):
         (f'<h2>{f["n_signals"]} lights on Stevens Creek</h2><div class="fill" style="--fw:1664px">{map_svg(roads, signals)}</div>'
          '<p class="under">Mary Avenue to De Anza Boulevard.</p>',
          'The real map comes from OpenStreetMap. SUMO moves each car through these mapped roads and modeled lights.'),
+        ('<h2>One rush hour, two plans</h2><video controls preload="metadata" poster="../reports/side_by_side_poster.png" src="../reports/side_by_side.mp4"></video>'
+         '<p class="under">2024 model, final-test seed 53. Textbook versus frozen v4.</p>',
+         'Same requests and clock. The race includes waiting outside; the captions show the gains and the trips that get worse. This is one simulated seed.'),
         (f'<h2>We asked VTA for real data</h2><div class="two" style="--cols:1000px 592px"><div class="fill">'
          f'{bars_svg(sorted(f["counts"].items()), "De Anza: counted cars per 15 minutes")}</div><div>'
          f'<p>IDAX counts<br>{f["count_date"]}</p><p>VTA also sent its model timing for De Anza and Stelling.</p>'
@@ -1053,6 +1082,10 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 <div class="scores"><div class="score pair"><strong>{pair(f['eb'])} s</strong><span>eastbound travel</span></div><div class="score pair"><strong>{pair(f['side'])} s</strong><span>side-street delay</span></div><div class="score pair cost"><strong>{pair(f['wb'])} s</strong><span>westbound travel, slightly worse</span></div></div>
 <p>Means across the final rush-hour test, textbook → v4. Directional travel counts completed nonteleported corridor crossings and excludes waiting to enter. Side-street delay counts all requested side-origin trips.</p>
 <figure><div class="card wide" tabindex="0">{paired_svg(f['groups'], PRIMARY, 'Delay per requested car (seconds)')}</div><figcaption>Each line pairs both plans on the same random seed.</figcaption></figure></section>
+
+<section class="step"><h2>One rush hour, two plans</h2>
+<video controls preload="metadata" poster="../reports/side_by_side_poster.png" src="../reports/side_by_side.mp4"></video>
+<p>2024 model, final-test seed 53. Textbook versus frozen v4. The race includes waiting outside; captions show gains and costs in this one simulated seed.</p></section>
 
 <section class="step"><h2>We asked VTA for real data</h2>
 <p>VTA sent IDAX counts from {f['count_date']} and its model timing for De Anza and Stelling. Thank you to VTA, Kia Sharifi, P.E., and Larissa Sanderfer.</p>

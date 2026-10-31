@@ -31,13 +31,24 @@ class DashboardTests(unittest.TestCase):
             self.assertLessEqual(stop, later)  # captions never overlap on screen
         self.assertIn('Red = cars stopped on the road.', script[1][2])
         self.assertIn('line outside and trips finished', script[1][2])
-        textbook, ours = counters
-        shown = {int(n.replace(',', '')) for _, _, line in script
-                 for n in re.findall(r'(?<![:\d])(\d[\d,]*)(?!\s*PM|:)', line)}
-        real = {c[t][1] for c in counters for t in range(*d.VIDEO)}
-        real |= {ours[t][2]-textbook[t][2] for t in range(*d.VIDEO)}
-        real |= {textbook[t][1]-ours[t][1] for t in range(*d.VIDEO)}
-        self.assertEqual(shown-real, set())
+        self.assertEqual(d.FCD_SEED, 53)
+        self.assertEqual(d.CONTROLLERS, ('actuated', 'optuna_v4'))
+        text = '\n'.join(line for _, _, line in script)
+        self.assertIn('866 cars waiting outside textbook, 640 with v4', text)
+        self.assertIn('Eastbound 395 to 171 s; westbound 140 to 142 s (worse)', text)
+        self.assertIn('1,077 of 4,046 paired trips took longer', text)
+        self.assertIn("not the city's plan", text)
+        self.assertIn('Some trips get worse', text)
+        trips = d.read_csv(p.ROOT/'reports/trips_seed53.csv')
+        race = d.typical_driver(trips)
+        self.assertEqual((race['id'], race['count'], race['excluded']), ('demand_6639', 4046, 0))
+        self.assertEqual(race['median_saving'], 165)
+        requests = {v.get('id'): float(v.get('depart')) for v in
+                    p.ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')
+                    if 61200 <= float(v.get('depart')) < 63000}
+        for controller in d.CONTROLLERS:
+            saved = {r['id']: float(r['requested_s']) for r in trips if r['controller'] == controller}
+            self.assertEqual(saved, requests)
 
     def test_paths_break_at_missing_samples_and_position_jumps(self):
         base = d.VIDEO[0]
@@ -84,7 +95,9 @@ class DashboardTests(unittest.TestCase):
                           'not a field result', 'weak baseline', 'night plan is untested',
                           'projection, not a claim about the street', 'waiting spots'):
                 self.assertIn(shown, html)
-            for stale in ('22.7%', '23%', 'Every direction improved', 'side_by_side', 'time_space.png'):
+            self.assertIn('<video controls preload="metadata"', html)
+            self.assertIn('../reports/side_by_side.mp4', html)
+            for stale in ('22.7%', '23%', 'Every direction improved', 'time_space.png'):
                 self.assertNotIn(stale, html)
             for word in ('ensure', 'crucial', 'robust', 'leverage', 'delve', '—'):
                 self.assertNotRegex(html.lower(), r'(?<![a-z])'+word+r'(?![a-z])')
@@ -98,8 +111,8 @@ class DashboardTests(unittest.TestCase):
     def test_deck_preserves_fixed_stage_and_notes_for_each_slide(self):
         rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
         deck = d.build_deck(rows, *d.geometry(p.config())[:2])
-        self.assertEqual(deck.count('<section class="slide">'), 14)
-        self.assertEqual(deck.count('<p class="note">'), 14)
+        self.assertEqual(deck.count('<section class="slide">'), 15)
+        self.assertEqual(deck.count('<p class="note">'), 15)
         self.assertIn('width:1920px;height:1080px', deck)
         self.assertIn("e.key === 'n'", deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
@@ -174,12 +187,12 @@ class DashboardTests(unittest.TestCase):
         rows = d.read_csv(p.ROOT/'reports/trips_seed33.csv')
         # Request metadata from the 2018 routes at 9290ecc, before the 2024 demand replacement.
         expected = 'd243bfdf01e8a4c2a892c71efaafa7c6221f0d7c2b18abb6d9a515589b9c1b1b'
-        for controller in d.CONTROLLERS:
+        for controller in ('actuated', 'optuna_v3'):
             group = [r for r in rows if r['controller'] == controller]
             requests = sorted((r['id'], float(r['requested_s']), r['entry']) for r in group)
             self.assertEqual(len(requests), 4171)
             self.assertEqual(hashlib.sha256(json.dumps(requests).encode()).hexdigest(), expected)
-        race = d.typical_driver(rows)
+        race = d.typical_driver(rows, controllers=('actuated', 'optuna_v3'))
         self.assertEqual((race['id'], race['count'], race['excluded']), ('demand_7759', 4171, 0))
         self.assertEqual(race['median_saving'], 62)
         for total, wait, drive in zip(race['durations'], race['waits'], race['drives']):

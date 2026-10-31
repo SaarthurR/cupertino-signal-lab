@@ -195,29 +195,39 @@ def paired_tests(rows, controllers=EVAL_CONTROLLERS):
     return results
 
 
-def save_media(cfg):
+def save_media(cfg, seed=33, controllers=('actuated', 'optuna_v3')):
     paths = []
     timeline = []
     trips = []
     requested = {v.get('id'): v for v in ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')
                  if 61200 <= float(v.get('depart')) < 63000}
     begin, end = map(seconds, ('16:15', '18:30'))
-    for controller in ('actuated', 'optuna_v3'):
-        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed33.xml.gz'
+    crossings = []
+    all_requests = {v.get('id'): float(v.get('depart')) for v in ET.parse(p.ROOT/'sim/routes_pm_peak.rou.xml').getroot().findall('vehicle')}
+    for controller in controllers:
+        path = p.ROOT/f'reports/fcd_{controller}_pm_peak_seed{seed}.xml.gz'
         with tempfile.TemporaryDirectory() as folder:
             summary = Path(folder)/'summary.xml'
             tripinfo = Path(folder)/'trips.xml'
-            p.run([*command('pm_peak', controller, 33, cfg), '-e', end,
+            p.run([*command('pm_peak', controller, seed, cfg), '-e', end,
                    '--summary-output', summary, '--fcd-output', path,
                    '--tripinfo-output', tripinfo, '--tripinfo-output.write-unfinished', 'true',
-                   '--device.fcd.begin', begin, '--device.fcd.period', 2])
+                   '--device.fcd.begin', begin, '--device.fcd.period', 2,
+                   '--vehroute-output', Path(folder)/'routes.xml', '--vehroute-output.exit-times', 'true',
+                   '--vehroute-output.write-unfinished', 'true', '--error-log', Path(folder)/'warnings.txt'])
+            teleported = set(re.findall(r"Teleporting vehicle '([^']+)'", (Path(folder)/'warnings.txt').read_text()))
+            travels = corridor_times(Path(folder)/'routes.xml', boundaries(cfg), set(cfg['mainline_edges']), teleported)
+            crossings.extend(dict(controller=controller, id=vid, requested_s=all_requests[vid],
+                                  direction=direction, travel_s=duration)
+                             for vid, (direction, duration) in travels.items())
             records = {t.get('id'): t for t in ET.parse(tripinfo).getroot().findall('tripinfo')}
             for vid, vehicle in requested.items():
                 record = records.get(vid)
                 trips.append(dict(controller=controller, id=vid, requested_s=vehicle.get('depart'),
                                   entry=vehicle.find('route').get('edges').split()[0],
                                   depart_s=record.get('depart') if record is not None else -1,
-                                  arrival_s=record.get('arrival') if record is not None else -1))
+                                  arrival_s=record.get('arrival') if record is not None else -1,
+                                  teleported=int(vid in teleported)))
             steps = ET.parse(summary).getroot().findall('step')
             if [float(step.get('time')) for step in steps] != list(range(begin, end)):
                 raise ValueError('Timeline must cover every second from 16:15 to 18:30')
@@ -238,8 +248,9 @@ def save_media(cfg):
                           begin_s=begin, end_s=end, steps=steps, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
     if sum(row['bytes'] for row in paths) >= 150_000_000:
         raise ValueError('FCD pair must stay below 150 MB')
-    p.write_csv('reports/timeline_seed33.csv', timeline)
-    p.write_csv('reports/trips_seed33.csv', trips)
+    p.write_csv(f'reports/timeline_seed{seed}.csv', timeline)
+    p.write_csv(f'reports/trips_seed{seed}.csv', trips)
+    p.write_csv(f'reports/corridor_trips_seed{seed}.csv', crossings)
     return paths
 
 

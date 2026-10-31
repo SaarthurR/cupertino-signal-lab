@@ -1,0 +1,47 @@
+[
+  [
+    61628.4689,
+    62015.0,
+    "Median-saving trip: 6 min 27 s vs 3 min 42 s, including the wait outside.\nClock starts at the same request; selected nearest the median saving."
+  ],
+  [
+    62015.0,
+    62615.0,
+    "This driver saved 165 seconds from request to arrival.\nNearest median saving among 4,046 complete paired trips; 0 excluded."
+  ],
+  [
+    58500,
+    58800,
+    "One simulated rush hour, seed 53. Same requests and roads, two light plans.\nWatch the line outside and the gap in trips finished."
+  ],
+  [
+    58800,
+    59400,
+    "Red = cars stopped on the road. A busy road alone does not tell the story.\nWatch the line outside and trips finished."
+  ],
+  [
+    60300,
+    61200,
+    "4:45 PM, this seed: 226 cars waiting outside textbook, 108 with v4."
+  ],
+  [
+    63000,
+    63900,
+    "5:30 PM, this seed: 866 cars waiting outside textbook, 640 with v4."
+  ],
+  [
+    64800,
+    65400,
+    "Seed 53, crossings requested after 5:30 and finished by 6:30 PM:\nEastbound 395 to 171 s; westbound 140 to 142 s (worse)."
+  ],
+  [
+    65400,
+    66000,
+    "Seed 53: 1,077 of 4,046 paired trips took longer with v4.\nTrips requested 5:00 to 5:30 PM; clocks include waiting outside."
+  ],
+  [
+    66000,
+    66600,
+    "This is a simulation with limits. Textbook is not the city's plan.\nSome trips get worse; this model needs more calibration before any street trial."
+  ]
+]
