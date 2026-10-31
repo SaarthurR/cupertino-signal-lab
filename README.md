@@ -23,7 +23,31 @@ M2 produces both PM/night demand through nonnegative least-squares route fitting
 
 The current physical count check remains below the calibration target; the 2024 timing results and limits are reported first below. [Count check](reports/demand_check.md).
 
-## Results (2024 model, preregistered v4)
+## Results (2024 model, preregistered v5)
+
+v5 is one policy with two plans: the v5 rush-hour plan runs in PM, the v5 night plan at night. **The switch between them is not simulated.** On brand-new paired seeds **73–102** (30 seeds), v5 changed PM-holdout all-requested delay by **-40.73%** versus textbook (one-sided paired Wilcoxon **p=9.31e-10**, alpha .05, confirmed); frozen v4 changed it by -31.25%. At night, v5 side-origin delay was **+2.98%** versus textbook (19.46 → 20.04 s), inside the 5% cap, but the preregistered non-inferiority test (v5 side − 1.05 × textbook side < 0) gave **p=0.079**, so the night result is **not confirmed**. v5 passed every hard constraint in every window; frozen v4 also passed them all on these seeds (night side +4.41%).
+
+Rush-hour search: v4 space, seeds 0–4, textbook/v3/v4 enqueued, three workers. The preregistered 600 trials hit the existing 6500 s timeout at **585** after the laptop slept and switched to battery; selection then ran on those 585 under a contingency written down before the outcome (logged in the [preregistration](docs/PREREGISTRATION.md), with a SQLite queued-trial double-claim bug fix and a restart before any selection). Trial **561** (cycle 171.99 s vs v4 167.00 s) beat v4 on seeds 0–4 (224.88 vs 272.58 s) and 5–12 (230.09 vs 258.81 s), so v4 was not kept; its worst origin-group change on 5–12 was +20.6 s (v4 +20.7 s). Night search: 200 trials on night demand, cycle 66.9–180 s, textbook enqueued; trial **147** (cycle 97.4 s) chosen by the 1% origin-group tiebreak. [Rush-hour search](reports/optimize_v5.json), [night search](reports/optimize_v5_night.json), [per-seed results](reports/results_v5.csv), [tests and provenance](reports/eval_v5.json).
+
+Means over 30 seeds; delay/EB/WB/side are seconds, 900 s charge. Unfinished and teleports are **totals over 30 runs**.
+
+| Window | Plan | All-requested delay | Unfinished | Teleports | EB | WB | Side |
+|---|---|---:|---:|---:|---:|---:|---:|
+| PM holdout | Textbook | 829.14 | 21847 | 0 | 348.61 | 139.86 | 995.40 |
+| PM holdout | v4 | 570.04 | 1166 | 0 | 174.27 | 142.58 | 695.65 |
+| PM holdout | v5 | 491.44 | 189 | 0 | 177.89 | 145.36 | 576.53 |
+| Full PM | Textbook | 654.93 | 21847 | 0 | 317.19 | 139.38 | 772.28 |
+| Full PM | v4 | 429.51 | 1166 | 0 | 175.61 | 142.36 | 506.55 |
+| Full PM | v5 | 375.73 | 189 | 0 | 178.18 | 144.34 | 425.66 |
+| Estimated night | Textbook | 10.38 | 0 | 0 | 116.34 | 99.19 | 19.46 |
+| Estimated night | v4 | 10.50 | 0 | 0 | 116.45 | 99.10 | 20.32 |
+| Estimated night | v5 | 10.31 | 0 | 0 | 116.53 | 99.59 | 20.04 |
+
+v5 mean ratios versus textbook (side / EB / WB): PM holdout 0.579 / 0.510 / 1.039, full PM 0.551 / 0.562 / 1.036, night 1.030 / 1.002 / 1.004; every seed within textbook+2 teleports. WB is the tightest PM constraint: v5 passes on the mean, and 23/30 holdout seeds individually. Delay with 0 s / 1800 s charges, textbook/v4/v5: holdout 745.83/565.59/490.72 and 912.45/574.48/492.16; night is unchanged by charge (nothing unfinished).
+
+Per origin group (first modeled approach edge), PM-holdout mean all-requested delay, textbook → v5, 30 seeds ([file](reports/origin_v5.csv)): better for North De Anza (1933.8 → 979.8 s), Stevens Creek entry 526011476 (367.1 → 59.6), Mary (136.7 → 40.9), Stevens Creek entry 1113038418 (76.8 → 38.6) and South De Anza (81.2 → 75.0); worse for Stevens Creek entry 593271049#0 (1033.9 → 1082.5), North Stelling (651.8 → 683.4), South Stelling (72.6 → 100.0), Saich (34.8 → 43.1), Bandley (71.5 → 78.7) and Stevens Creek entry 1113038412#0 (53.2 → 57.0). At night, North and South De Anza each rise about 2.7–2.8 s; other groups change by under 2.5 s. The aggregate gain does not mean every group benefits. Same limits as v4 below: not fully calibrated, fixed replayed demand, estimated night, weak textbook comparator, no field-benefit claim. **The dashboard, deck, page and video still show earlier results.**
+
+## Earlier results (2024 model, preregistered v4)
 
 On brand-new paired seeds **53–72**, v4 changed PM-holdout all-requested delay by **-30.28%** versus textbook (one-sided paired Wilcoxon **p=9.53674316e-07**, alpha .05). v4 passed all PM constraints but failed the night side-origin constraint (**+6.67%**, above the +5% cap; 18.99 → 20.26 s). Textbook remains the feasible fallback. Significance and feasibility are judged separately.
 
