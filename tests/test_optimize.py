@@ -131,8 +131,9 @@ class OptimizeTests(unittest.TestCase):
             vehicles = ET.parse(path).getroot().findall('vehicle')
             self.assertTrue(all(58500 <= float(v.get('depart')) < 63000 for v in vehicles))
             self.assertEqual(set(requested), {v.get('id') for v in vehicles if float(v.get('depart')) >= begin})
-            self.assertTrue(any(requested.values()))
-            self.assertFalse(all(requested.values()))
+            side = [a in p.config()['side_edges'] for a in requested.values()]
+            self.assertTrue(any(side))
+            self.assertFalse(all(side))
 
     def test_score_penalizes_uninserted_unfinished_and_teleports(self):
         def run(args):
@@ -146,12 +147,13 @@ class OptimizeTests(unittest.TestCase):
             self.assertEqual(args[args.index('--seed')+1], 2)
             self.assertEqual(args[args.index('-e')+1], 64800)
         with tempfile.TemporaryDirectory() as temp:
-            with patch.object(o, 'fit_routes', return_value=(59400, 63000, {'done': True, 'running': False, 'waiting': False})), patch.object(p, 'run', side_effect=run):
+            with patch.object(o, 'fit_routes', return_value=(59400, 63000, {'done': '25085669#0', 'running': '526011476', 'waiting': '526011476'})), patch.object(p, 'run', side_effect=run):
                 stats = o.score('pm_peak', 2, 'plan.xml', temp)
         self.assertEqual(stats['unfinished'], 2)
         self.assertEqual(stats['mean_time_loss_s'], 20)
         self.assertEqual(stats['all_requested_delay_s'], (50+900*3)/3)
         self.assertEqual(stats['side_all_requested_delay_s'], 950)
+        self.assertEqual(stats['origin_delay_s'], {'25085669#0': 950, '526011476': 900})
         constrained = dict(stats, mainline_travel_eb_s=100, mainline_travel_wb_s=100)
         self.assertEqual(o.objective_value([constrained], [constrained]), stats['all_requested_delay_s'])
 

@@ -110,6 +110,18 @@ def metrics(requested, trips, travels, teleports, begin, end):
                 mainline_eb_n=len(directions['eb']), mainline_wb_n=len(directions['wb']), **extra)
 
 
+def origin_delays(origins, trips, teleports, begin, end):
+    """All-requested delay (900 s charges) per origin approach edge, same numerator as the primary."""
+    groups = {}
+    for vid, (depart, origin) in origins.items():
+        if begin <= depart < end:
+            trip = trips.get(vid)
+            done = trip is not None and float(trip['arrival']) >= 0
+            delay = float(trip['timeLoss'])+float(trip['departDelay']) if done else 900
+            groups.setdefault(origin, []).append(delay+900*teleports.count(vid))
+    return {o: sum(v)/len(v) for o, v in groups.items()}
+
+
 def command(scenario, controller, seed, cfg):
     period = cfg['scenarios'][scenario]
     return [p.BIN/'sumo', '-c', p.ROOT/'sim/corridor.sumocfg',
@@ -122,11 +134,12 @@ def command(scenario, controller, seed, cfg):
 def simulate(scenario, controller, seed, cfg, endpoints):
     period = cfg['scenarios'][scenario]
     begin, end = seconds(period['begin']), seconds(period['end'])
-    requested = {}
+    requested, origins = {}, {}
     for v in ET.parse(p.ROOT/f'sim/routes_{scenario}.rou.xml').getroot().findall('vehicle'):
         edges = v.find('route').get('edges').split()
         approach = next(e for e in edges if e in cfg['mainline_edges'] or e in cfg['side_edges'])
         requested[v.get('id')] = float(v.get('depart')), approach in cfg['side_edges']
+        origins[v.get('id')] = float(v.get('depart')), approach
     with tempfile.TemporaryDirectory() as folder:
         folder = Path(folder)
         p.run([*command(scenario, controller, seed, cfg), '-e', end+1800,
@@ -147,6 +160,7 @@ def simulate(scenario, controller, seed, cfg, endpoints):
                  seed_group=('fit_used' if seed in cfg['seeds'] else
                              'v3_final' if seed in FINAL_SEEDS else 'out_of_sample'),
                  begin_s=a, end_s=b, **metrics(requested, trips, travels, teleports, a, b),
+                 origin_delay_s=origin_delays(origins, trips, teleports, a, b),
                  run_teleports_including_warmup=total) for window, a, b in windows]
 
 
@@ -257,6 +271,8 @@ def save_media(cfg, seed=33, controllers=('actuated', 'optuna_v3')):
 def eval(version=3):
     if version == 4:
         return eval_v4()
+    if version == 5:
+        return eval_v5()
     start = time.monotonic()
     power = subprocess.check_output(['pmset', '-g', 'batt'], text=True).strip()
     print(power, flush=True)
@@ -334,18 +350,10 @@ def eval_v4():
             for controller in controllers:
                 paired.extend(simulate(scenario, controller, seed, cfg, endpoints))
             for row in paired:
+                row.pop('origin_delay_s', None)
                 row['seed_group'] = 'v4_final'
                 row['projection'] = row['controller'] == 'existing_vta'
-                baseline = next(r for r in paired if r['controller'] == 'actuated' and r['window'] == row['window'])
-                for label, metric in (('side', 'side_all_requested_delay_s'),
-                                      ('eb', 'mainline_travel_eb_s'), ('wb', 'mainline_travel_wb_s')):
-                    row[f'{label}_constraint_ratio'] = row[metric]/baseline[metric]
-                    row[f'{label}_constraint_met'] = row[metric] <= 1.05*baseline[metric]+1e-9
-                row['teleport_constraint_met'] = row['teleports'] <= baseline['teleports']+2
-                row['all_constraints_met'] = all(row[k] for k in ('side_constraint_met', 'eb_constraint_met',
-                                                                 'wb_constraint_met', 'teleport_constraint_met'))
-                for charge in (0, 1800):
-                    row[f'side_all_requested_delay_{charge}_s'] = side_delay(row, charge)
+            add_constraints(paired)
             rows.extend(paired)
             p.write_csv('reports/results_2024.csv', rows)
             print(f'eval v4: {scenario} seed {seed} complete (serial, nice 15)', flush=True)
@@ -360,6 +368,85 @@ def eval_v4():
                       limits='Not fully calibrated; fixed demand; unverified waiting positions and U greens; no field benefit claim')
     (p.ROOT/'reports/eval_v4.json').write_text(json.dumps(provenance, indent=2)+'\n')
     print(f'eval v4 finished in {provenance["wall_s"]:.1f} s', flush=True)
+
+
+def add_constraints(paired):
+    for row in paired:
+        baseline = next(r for r in paired if r['controller'] == 'actuated' and r['window'] == row['window'])
+        for label, metric in (('side', 'side_all_requested_delay_s'),
+                              ('eb', 'mainline_travel_eb_s'), ('wb', 'mainline_travel_wb_s')):
+            row[f'{label}_constraint_ratio'] = row[metric]/baseline[metric]
+            row[f'{label}_constraint_met'] = row[metric] <= 1.05*baseline[metric]+1e-9
+        row['teleport_constraint_met'] = row['teleports'] <= baseline['teleports']+2
+        row['all_constraints_met'] = all(row[k] for k in ('side_constraint_met', 'eb_constraint_met',
+                                                         'wb_constraint_met', 'teleport_constraint_met'))
+        for charge in (0, 1800):
+            row[f'side_all_requested_delay_{charge}_s'] = side_delay(row, charge)
+
+
+def eval_v5():
+    """One frozen test on seeds 73-102: textbook, v4, v5 policy (PM plan in PM, night plan at night)."""
+    start = time.monotonic()
+    controllers = ('actuated', 'optuna_v4', 'optuna_v5')
+    seeds = range(73, 103)
+    cfg = p.config()
+    endpoints = boundaries(cfg)
+    power = p.check_battery()
+    files = ['config/corridor.yaml', 'sim/corridor.net.xml', 'reports/optimize_v5.json', 'reports/optimize_v5_night.json']
+    files += [f'sim/routes_{scenario}.rou.xml' for scenario in cfg['scenarios']]
+    files += [f'sim/tls_{controller}_{scenario}.add.xml'
+              for scenario in cfg['scenarios'] for controller in controllers]
+    hashes = {f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files}
+    path = p.ROOT/'reports/results_v5.csv'
+    if path.exists():
+        raise RuntimeError('v5 results already exist; refusing to rerun final seeds')
+    rows, origins = [], []
+    for scenario in cfg['scenarios']:
+        for seed in seeds:
+            paired = []
+            for controller in controllers:
+                paired.extend(simulate(scenario, controller, seed, cfg, endpoints))
+            for row in paired:
+                row['seed_group'] = 'v5_final'
+                origins.extend(dict(scenario=scenario, window=row['window'], controller=row['controller'], seed=seed,
+                                    origin=o, delay_s=d) for o, d in sorted(row.pop('origin_delay_s').items()))
+            add_constraints(paired)
+            rows.extend(paired)
+            p.write_csv('reports/results_v5.csv', rows)
+            print(f'eval v5: {scenario} seed {seed} complete (serial, nice 15)', flush=True)
+    assert len(rows) == len(controllers)*len(seeds)*sum(2 if 'holdout' in s else 1 for s in cfg['scenarios'].values())
+    assert hashes == {f: hashlib.sha256((p.ROOT/f).read_bytes()).hexdigest() for f in files}
+    p.write_csv('reports/origin_v5_seeds.csv', origins)
+    names = {e.getID(): e.getName() for e in network().getEdges()} if origins else {}
+    summary = []
+    for key in sorted({(o['scenario'], o['window'], o['origin']) for o in origins}):
+        means = {c: mean([o['delay_s'] for o in origins if (o['scenario'], o['window'], o['origin']) == key
+                          and o['controller'] == c]) for c in controllers}
+        summary.append(dict(scenario=key[0], window=key[1], origin=key[2], name=names.get(key[2], ''),
+                            **{f'{c}_delay_s': means[c] for c in controllers},
+                            v5_minus_textbook_s=means['optuna_v5']-means['actuated'],
+                            v5_minus_v4_s=means['optuna_v5']-means['optuna_v4']))
+    if summary:
+        p.write_csv('reports/origin_v5.csv', summary)
+    tests = paired_tests(rows, controllers)
+    pick = lambda scenario, window, c, s: next(r['side_all_requested_delay_s'] for r in rows if (
+        r['scenario'], r['window'], r['controller'], r['seed']) == (scenario, window, c, s))
+    margin = [pick('night', 'full', 'optuna_v5', s)-1.05*pick('night', 'full', 'actuated', s) for s in seeds]
+    night = wilcoxon(margin, alternative='less', method='auto') if any(margin) else None
+    primary = next(t for t in tests if (t['scenario'], t['window'], t['seed_group'], t['metric'], t['controller'])
+                   == ('pm_peak', 'holdout', 'all', 'all_requested_delay_s', 'optuna_v5'))
+    confirmatory = dict(pm_holdout_primary_p=primary['p_value'],
+                        night_side_noninferiority_p=float(night.pvalue) if night else 1.,
+                        pm_confirmed=primary['p_value'] < .05,
+                        night_confirmed=primary['p_value'] < .05 and (float(night.pvalue) if night else 1.) < .05)
+    provenance = dict(seeds=list(seeds), controllers=list(controllers), workers=1, power=power,
+                      time_to_teleport=cfg['time_to_teleport'], warmup_s=cfg['warmup_s'], drain_s=1800,
+                      corridor_boundaries=endpoints, wall_s=time.monotonic()-start, sha256=hashes,
+                      tests=tests, confirmatory=confirmatory, origin_summary=summary,
+                      policy='optuna_v5 = v5 rush-hour plan in PM, v5 night plan at night; transition between plans not simulated',
+                      limits='Not fully calibrated; fixed demand; estimated night; no field benefit claim')
+    (p.ROOT/'reports/eval_v5.json').write_text(json.dumps(provenance, indent=2)+'\n')
+    print(f'eval v5 finished in {provenance["wall_s"]:.1f} s', flush=True)
 
 
 def side_delay(row, charge):

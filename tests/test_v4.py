@@ -88,6 +88,6 @@ class V4Tests(unittest.TestCase):
         from signal_lab.__main__ import main
         with patch('sys.argv', ['signal_lab', 'optimize', '--version', '4']), patch.object(o, 'optimize') as run:
             main()
-            run.assert_called_once_with(trials=60, version=4)
+            run.assert_called_once_with(trials=60, version=4, scenario='pm_peak')
         with self.assertRaisesRegex(ValueError, 'exactly 60'):
             o.optimize(trials=300, version=4)
