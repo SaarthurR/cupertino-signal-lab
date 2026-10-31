@@ -69,73 +69,86 @@ class DashboardTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             d.best_so_far([{'state': 'RUNNING', 'value': '1'}])
 
-    def test_page_and_deck_use_the_2024_cohort_and_saved_facts(self):
-        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
+    def test_page_and_deck_use_the_v5_cohort_and_saved_facts(self):
+        rows = d.read_csv(p.ROOT/'reports/results_v5.csv')
         f = d.facts(rows)
-        self.assertEqual([int(r['seed']) for r in f['groups'][0]], list(range(53, 73)))
-        self.assertAlmostEqual(f['delay_cut'], 30.280939443593336)
-        self.assertEqual(f['unfinished'], [14344, 703])
-        self.assertEqual(f['teleports'], [3, 0])
-        self.assertEqual((f['close'], len(f['checks']), f['old_close']), (48, 96, 41))
-        self.assertEqual(f['rings'], [203, 170])
-        self.assertEqual(f['missing_turns'], 3)
+        self.assertEqual([int(r['seed']) for r in f['groups'][0]], list(range(73, 103)))
+        self.assertAlmostEqual(f['delay_cut'], 40.72940163924989)
+        self.assertEqual(f['unfinished'], [21847, 189])
+        self.assertEqual((f['close'], len(f['checks'])), (48, 96))
+        self.assertEqual((f['n_worse'], len(f['origins'])), (6, 11))
+        self.assertAlmostEqual(f['night_rise'], 2.978932567381798)
+        self.assertFalse(f['night_confirmed'])
         with self.assertRaises(ValueError):
             d.facts(rows + [f['groups'][0][0]])
         with self.assertRaises(ValueError):
-            d.facts(d.read_csv(p.ROOT/'reports/results.csv'))
+            d.facts(d.read_csv(p.ROOT/'reports/results_2024.csv'))
         differences = [float(b[d.PRIMARY])-float(a[d.PRIMARY]) for a,b in zip(*f['groups'])]
         self.assertAlmostEqual(f['primary_p'], wilcoxon(differences, alternative='less').pvalue)
         roads, signals, _, _ = d.geometry(p.config())
         for html in (d.build_page(rows, roads, signals), d.build_deck(rows, roads, signals)):
-            for shown in ('30.3%', '14,344 → 703', '3 → 0', '351 → 173', '985 → 705',
-                          '139 → 142', '48 of 96', 'up from 41', '19.0 to 20.3 s',
-                          '+104 s', '203/170 s', '117.9 s', '167 s', '730 s',
-                          '2024-10-09', 'Kia Sharifi, P.E.', 'Larissa Sanderfer',
-                          'IDAX', 'U-turn', 'Bandley Dr and Saich Way', 'Mary uses 2018',
-                          'not a field result', 'weak baseline', 'night plan is untested',
-                          'projection, not a claim about the street', 'waiting spots'):
+            for shown in ('40.7%', '829 → 491', '21,847 → 189', '349 → 178', '995 → 577', '140 → 145',
+                          d.RESULT_NOTE, 'rose about 3%', 'did not establish that the increase stayed within 5%',
+                          'switch between them was not simulated', '+49 s', '+32 s', '+27 s', '+8 s', '+7 s', '+4 s',
+                          '48 of 96', '6 of 11 groups wait longer', "city's real signal timing", 'on the street with the city',
+                          'This plan is tuned for this corridor only', '2024-10-09', 'Kia Sharifi, P.E.', 'Larissa Sanderfer',
+                          'IDAX', 'Bandley Dr and Saich Way', 'Mary uses 2018', 'Gap-out', 'Min green', 'Max green',
+                          'Offset', 'Green split', 'Rush hours 73 to 102', '585 tries'):
                 self.assertIn(shown, html)
             self.assertIn('<video controls preload="metadata"', html)
             self.assertIn('../reports/side_by_side.mp4', html)
-            for stale in ('22.7%', '23%', 'Every direction improved', 'time_space.png'):
-                self.assertNotIn(stale, html)
+            for stale in ('v4', 'v3', 'U-turn', 'repair', 'close copy', 'projection', 'jams', 'passed every rule',
+                          'beat', 'better for everyone.', 'any intersection', 'one tested policy', '30.3%', 'time_space.png'):
+                self.assertNotIn(stale, html.replace('not better for everyone', ''))
             for word in ('ensure', 'crucial', 'robust', 'leverage', 'delve', '—'):
                 self.assertNotRegex(html.lower(), r'(?<![a-z])'+word+r'(?![a-z])')
             self.assertNotIn('https://', html)
             for link in re.findall(r'(?:href|src|poster)="([^"#]+)"', html):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
-            # The gain leads; all limitations share the final next-steps section.
-            self.assertLess(html.index('30.3%'), html.index('We asked VTA'))
-            self.assertLess(html.index('What we would do next'), html.index('48 of 96'))
+            order = [html.index(s) for s in ('Rush hour on Stevens Creek', 'How a traffic light works',
+                                              'The data we got from VTA', 'How the tuner works', 'Results by direction',
+                                              'Why the test is fair', 'What we would do next')]
+            self.assertEqual(order, sorted(order))
+        # The deck teaches lights before our solution; the page leads with the headline.
+        self.assertLess(html.index('How a traffic light works'), html.index('829 → 491'))
+        self.assertLess(html.index('829 → 491'), html.index('The data we got from VTA'))
 
     def test_deck_preserves_fixed_stage_and_notes_for_each_slide(self):
-        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
+        rows = d.read_csv(p.ROOT/'reports/results_v5.csv')
         deck = d.build_deck(rows, *d.geometry(p.config())[:2])
-        self.assertEqual(deck.count('<section class="slide">'), 15)
-        self.assertEqual(deck.count('<p class="note">'), 15)
+        self.assertEqual(deck.count('<section class="slide">'), 14)
+        self.assertEqual(deck.count('<p class="note">'), 14)
         self.assertIn('width:1920px;height:1080px', deck)
         self.assertIn("e.key === 'n'", deck)
+        self.assertIn('In this fixed-demand simulation, v5 cut PM-holdout delay 40.7% against textbook, '
+                      'while several origins waited longer.', deck)
+        for diagram in ('The whole system', 'From count sheet to cars', 'Inside one signal',
+                        'How the tuner works', 'Why the test is fair', 'Lights work as a team'):
+            self.assertIn(diagram, deck)
+        # Marker ids must be unique: every slide lives in one document.
+        markers = re.findall(r'<marker id="([^"]+)"', deck)
+        self.assertEqual(len(markers), len(set(markers)))
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
 
-    def test_tuner_slides_use_v4_search_space_and_scores(self):
-        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
+    def test_tuner_slides_use_v5_search_space_and_scores(self):
+        rows = d.read_csv(p.ROOT/'reports/results_v5.csv')
         f = d.facts(rows)
-        trials = d.read_csv(p.ROOT/'reports/optimize_v4_trials.csv')
+        trials = d.read_csv(p.ROOT/'reports/optimize_v5_trials.csv')
         self.assertEqual([count for count, _, _ in f['knobs']], [1, 5, 16, 5, 5])
         self.assertEqual(sum(count for count, _, _ in f['knobs']),
                          sum(c.startswith('params_') for c in trials[0]))
-        self.assertEqual((len(f['curve']), f['kept'], f['thrown_out']), (60, 39, 24))
+        self.assertEqual((len(f['curve']), f['pm_trials'], f['night_trials'], f['kept'], f['thrown_out']),
+                         (585, 585, 200, 561, 201))
         self.assertAlmostEqual(f['try0'], float(trials[0]['value']))
         self.assertAlmostEqual(f['kept_score'], float(trials[f['kept']]['value']))
         self.assertEqual((f['train_range'], f['pick_range'], f['test_range']),
-                         ('0 to 2', '5 to 12', '53 to 72'))
-        self.assertLess(min(f['curve']), f['kept_score'])
+                         ('0 to 4', '5 to 12', '73 to 102'))
         deck = d.build_deck(rows, *d.geometry(p.config())[:2])
-        for shown in ('466 s', '287 s', 'Try 39, the plan we kept', '32 numbers in all',
-                      '24 of the 60 tries broke a rule', '3 practice', '80 to 180 s',
-                      '2026-10-30', 'best on practice', 'not a neural network'):
+        for shown in ('457 s', '225 s', 'Try 561, the plan we kept', '32 numbers in all',
+                      '201 of the 585 tries broke a rule', '5 practice', '80 to 180 s', '110 minutes on a laptop',
+                      '2026-10-30', 'not a neural network', 'night search ran 200 tries'):
             self.assertIn(shown, deck)
-        self.assertNotIn('5 practice', deck)
+        self.assertNotIn('3 practice', deck)
 
     def test_dashboard_skip_video_builds_html_without_calling_media(self):
         import tempfile
