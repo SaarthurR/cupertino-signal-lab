@@ -27,7 +27,11 @@ A CSV or stream of rows. The advisor reads only this, so real city data can repl
 | `site` | Signal name from `config/`, such as `De Anza Blvd` |
 | `approach` | Compass leg: N, S, E or W |
 | `count` | Vehicles counted in the window |
+| `occupancy` | Percent of the window the upstream loop was covered by a vehicle, averaged across lanes |
 | `ok` | `1` good, `0` sensor missing or suspect |
+
+Why occupancy: stop-line counts top out when a road is full. In the first test, a 40% south surge raised stop-line
+counts by only 10%, and 5-minute counts swung from 125 to 259 by chance. Counts alone cannot see a queue.
 
 ## Pieces, one builder each
 
@@ -39,7 +43,8 @@ A CSV or stream of rows. The advisor reads only this, so real city data can repl
 ## Rules for piece 2 (fixed now so it stays simple)
 
 - Plan library: frozen plans only. Textbook, v5 rush hour, v5 night, and at most one surge plan.
-- Compare each approach count to the profile each plan was tuned for. Recommend the closest plan.
+- Compare smoothed counts and occupancy (15-minute rolling) to the profile each plan was tuned for. Recommend the closest plan.
+- Thresholds come from seeds 0-4 only. If a scenario cannot be told apart from `calm`, report it and do not force it.
 - Needs 2 windows in a row before recommending. At least 15 minutes between switches.
 - Over 25% of rows `ok=0` or a stale feed: recommend nothing, say why.
 - Approval delay in simulation: 5 minutes. The switch itself must be simulated, including its disruption.
