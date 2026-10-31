@@ -8,25 +8,73 @@ A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boule
 source .venv/bin/activate
 # Fresh environments: uv venv --python 3.12; uv pip install -r requirements.txt
 uv pip install -e .
+export PYTHONPATH=src  # Keep shared virtual environments on this worktree.
 nice -n 15 python -m signal_lab build-net
 nice -n 15 python -m signal_lab build-demand
 nice -n 15 python -m signal_lab baseline
 nice -n 15 python -m signal_lab check-demand
 nice -n 15 python -m signal_lab bench
-nice -n 15 python -m signal_lab optimize --trials 300
-nice -n 15 python -m signal_lab eval
+nice -n 15 python -m signal_lab optimize --version 4 --trials 60
+nice -n 15 python -m signal_lab eval --version 4
 nice -n 15 python -m unittest discover -s tests -v
 ```
 
-M2 produces both PM/night demand through SUMO routeSampler, fits only 16:30–17:30, and replays that fit hour for holdout. Routes and data are unchanged by M4. The baseline uses Webster seeds, coordinator offsets, engineering clearance inputs, force-offs and detector-based phase skips; night rests in mainline green without a conflicting call.
+M2 produces both PM/night demand through nonnegative least-squares route fitting, fits only 16:30–17:30, and replays that fit hour for holdout. Routes and data are unchanged by M4. The baseline uses Webster seeds, coordinator offsets, engineering clearance inputs, force-offs and detector-based phase skips; night rests in mainline green without a conflicting call.
+
+The current physical count check remains below the calibration target; the 2024 timing results and limits are reported first below. [Count check](reports/demand_check.md).
+
+## Results (2024 model, preregistered v4)
+
+On brand-new paired seeds **53–72**, v4 changed PM-holdout all-requested delay by **-30.28%** versus textbook (one-sided paired Wilcoxon **p=9.53674316e-07**, alpha .05). v4 passed all PM constraints but failed the night side-origin constraint (**+6.67%**, above the +5% cap; 18.99 → 20.26 s). Textbook remains the feasible fallback. Significance and feasibility are judged separately.
+
+The preregistered **60 trials** used seeds 0–2 on one worker; seeds 3–4 stayed unused. The ten best training-feasible trials plus textbook were rescored on seeds 5–12. Trial **39** was selected after **17.58 minutes** and frozen before final testing. Its shared cycle is **167.00 s**, versus **137.11 s** for frozen v3 and **117.90 s** for textbook; offsets, phase shares, passage gaps and mainline minima were retuned. Final evaluation took **13.33 minutes**. [Preregistration](docs/PREREGISTRATION.md), [search evidence](reports/optimize_v4.json), [trials](reports/optimize_v4_trials.csv).
+
+Means over 20 seeds; delay/EB/WB/side are seconds. Unfinished and teleports are **totals over 20 runs**, not averages. Delay and side use the preregistered 900 s charge per unfinished vehicle and teleport event.
+
+| Window | Plan | All-requested delay | Unfinished | Teleports | EB | WB | Side |
+|---|---|---:|---:|---:|---:|---:|---:|
+| PM holdout | Textbook | 826.23 | 14344 | 3 | 350.93 | 139.41 | 985.39 |
+| PM holdout | Frozen v3 | 729.53 | 6734 | 0 | 298.15 | 142.00 | 876.80 |
+| PM holdout | v4 | 576.04 | 703 | 0 | 173.14 | 142.26 | 704.80 |
+| PM holdout | existing_vta (projection) | 623.35 | 26599 | 1861 | 987.19 | 1350.84 | 443.44 |
+| Full PM | Textbook | 654.85 | 14344 | 3 | 318.37 | 138.76 | 763.77 |
+| Full PM | Frozen v3 | 557.16 | 6734 | 0 | 279.02 | 141.50 | 651.74 |
+| Full PM | v4 | 433.26 | 703 | 0 | 175.08 | 142.26 | 513.02 |
+| Full PM | existing_vta (projection) | 688.92 | 35829 | 2594 | 758.71 | 756.85 | 495.70 |
+| Estimated night | Textbook | 10.44 | 0 | 0 | 116.45 | 98.26 | 18.99 |
+| Estimated night | Frozen v3 | 10.44 | 0 | 0 | 116.16 | 98.14 | 19.88 |
+| Estimated night | v4 | 10.61 | 0 | 0 | 116.55 | 98.68 | 20.26 |
+| Estimated night | existing_vta (projection) | 17.40 | 0 | 0 | 125.90 | 108.58 | 25.49 |
+
+Hard constraints: paired **mean** side/EB/WB must each be ≤105% of textbook, and teleports must be ≤textbook+2 **on every seed**. Per-seed side/EB/WB pass counts below are descriptive; their hard rules use cohort means.
+
+| v4 window | Mean side / EB / WB / every-seed teleport | Per-seed side / EB / WB / teleport passes |
+|---|---|---|
+| PM holdout | PASS / PASS / PASS / PASS | 20/20 / 20/20 / 19/20 / 20/20 |
+| Full PM | PASS / PASS / PASS / PASS | 20/20 / 20/20 / 20/20 / 20/20 |
+| Estimated night | FAIL / PASS / PASS / PASS | 9/20 / 20/20 / 20/20 / 20/20 |
+
+Sensitivity: delay vectors list **textbook / v3 / v4 / existing_vta projection**. Zero charge omits unfinished/teleport charges and can reward noncompletion; 1800 s is another scoring convention.
+
+| Window | Delay, 0 s | Delay, 1800 s | v4 change / p, 0 s | v4 change / p, 1800 s |
+|---|---|---|---|---|
+| PM holdout | 744.16 / 691.01 / 572.02 / 460.56 | 908.30 / 768.05 / 580.06 / 786.15 | -23.13% / 9.53674316e-07 | -36.14% / 9.53674316e-07 |
+| Full PM | 613.82 / 537.90 / 431.25 / 579.03 | 695.88 / 576.42 / 435.27 / 798.81 | -29.74% / 9.53674316e-07 | -37.45% / 9.53674316e-07 |
+| Estimated night | 10.44 / 10.44 / 10.61 / 17.40 | 10.44 / 10.44 / 10.61 / 17.40 | +1.71% / 0.968138695 | +1.71% / 0.968138695 |
+
+At 0 s, v4 mean-side/EB/WB/every-seed-teleport constraints: PM holdout: PASS/PASS/PASS/PASS, side 20/20 seeds; Full PM: PASS/PASS/PASS/PASS, side 20/20 seeds; Estimated night: FAIL/PASS/PASS/PASS, side 9/20 seeds. EB/WB/teleport per-seed counts are unchanged by charge.
+
+At 1800 s, v4 mean-side/EB/WB/every-seed-teleport constraints: PM holdout: PASS/PASS/PASS/PASS, side 20/20 seeds; Full PM: PASS/PASS/PASS/PASS, side 20/20 seeds; Estimated night: FAIL/PASS/PASS/PASS, side 9/20 seeds. EB/WB/teleport per-seed counts are unchanged by charge.
+
+The PM primary comparison alone is confirmatory. Full PM, night, frozen v3, existing_vta and sensitivity tests are descriptive and unadjusted. Full PM and holdout overlap. `existing_vta` is a secondary controller **projection**, including assumed U-turn service; its PM plan is reused unchanged at estimated night because no independent night projection exists.
+
+This model retains the supplied 2024 De Anza/Stelling movements but remains incompletely calibrated: physical L/T/R GEH<5 is **48/96** on seed 0 (45/96 on seeds 1–2), versus **41/96** on the old model. Mixed-year Mary data, estimated neighbour/night demand, unverified internal waiting positions, lane storage, U-turn greens and controller semantics limit interpretation. Holdout demand replays the fitted hour, testing simulation randomness and later queues rather than unseen measured traffic. EB/WB use completed nonteleported corridor crossings and omit insertion delay; completed-only loss is survivor-biased. **These are simulation results, not field benefit estimates.** [Source dates and methods](data/processed/tmc_sources.csv); [2024 raw transcription](data/processed/vta_counts_2024.csv).
+
+[2024 per-seed results](reports/results_2024.csv) include requested/completed counts, completed-only loss, insertion delay, corridor sample counts and constraint checks. [Final provenance and paired tests](reports/eval_v4.json) contain input/plan hashes and all secondary tests. [Frozen PM](sim/tls_optuna_v4_pm_peak.add.xml) and [night](sim/tls_optuna_v4_night.add.xml) plans preserve the selected parameters. Legacy results and frozen v3 artifacts remain unchanged. **The dashboard, deck, page and video still show archived 2018 results.**
+
+## Archived results (2018 demand, v2 and v3)
 
 Archived M4 seed 0 on **2018 demand**: night inserts **439**, with **zero teleports** and **8.341 s** mean time loss. PM inserts **17,091**, with **zero teleports**, **116 running** and **792 waiting to insert** after the drain; completed-trip mean time loss is **170.622 s**. Means exclude warmup departures; unfinished trips are absent. These timing assumptions are not a successful PM calibration.
-
-M3 after the October 30 count update: **37/96 (38.54%) measured holdout movement-intervals have GEH < 5**, versus **41/96 (42.71%)** before, below the 85% target. Counts are physical turn-lane detector entries, converted to hourly rates for GEH. The retained textbook PM plan (seed 0, 30-minute drain) produced **0 teleports, 105 running, 647 waiting to insert**, and **118.421 s completed-trip mean time loss**; unfinished trips are absent from that mean. These runs completed before the away-from-home stop instruction; further SUMO runs and the full test suite are deferred. [Count check](reports/demand_check.md).
-
-**All optimization/evaluation results, dashboard, deck and video below still use 2018 demand. They have not been rerun with the new inputs.** [Archived baseline details](reports/M4-REPORT.md) and [benchmark](reports/bench.md) also use the earlier demand.
-
-## Results (preregistered v2 and v3)
 
 On brand-new seeds 33–52, v3 cut PM-holdout all-requested delay 22.7% (836.77 to 646.74 s/vehicle), EB travel 16.5%, WB travel 35.6%, and teleports from 185 to 17 (one-sided paired Wilcoxon primary p=0.0000524521), but it exceeded textbook +2 teleports on seed 37, so it was not a feasible winner under the preregistered rule.
 
@@ -82,8 +130,6 @@ v1 is the frozen original trial-146 plan, preserved byte for byte as `sim/tls_op
 [Results CSV](reports/results.csv) identifies textbook as `actuated`, v1 as `optuna_v1`, and v2 as `optuna`. [Paired tests](reports/wilcoxon.csv) retains its original columns and adds `controller` to identify the candidate plus aggregate side-constraint fields; `optuna_mean` is that candidate mean and `actuated_mean` is textbook. Consumers must filter `controller` when looking up a p-value. [Evaluation provenance](reports/eval.json) records input hashes, seeds, boundaries and laptop settings; [v2 search evidence](reports/optimize.json) and [all trials](reports/optimize_trials.csv) retain training and selection metrics.
 
 [Textbook seed-13 FCD](reports/fcd_actuated_pm_peak_seed13.xml.gz) and [selected v2 seed-13 FCD](reports/fcd_optuna_pm_peak_seed13.xml.gz) cover 17:30–17:45 at 1 s resolution after continuous simulation from 16:15. Each has 900 steps; they illustrate one seed, not the aggregate result. Dashboard/video integration is handled on the separate design branch; the existing seed-0 illustration remains unchanged.
-
-Data: De Anza and Stelling have measured **October 9, 2024** quarter-hour turns, supplied by VTA on October 29, 2026 (Kia Sharifi, P.E., via Larissa Sanderfer). The complete page-1 count tables are in [raw transcription](data/processed/vta_counts_2024.csv); tests check row/column totals, peak hours and Vistro page-2 movement volumes. U-turns are retained there but excluded from L/T/R demand, matching Mary's treatment. Bandley/Saich estimates now interpolate the 2024 neighbours. Mary retains **April 25, 2018** hourly observations and estimated quarters, so **3 of 5 quarter-hour profiles remain estimated**. Mary's missing OSM movements still omit 775 observed vehicles/hour; the mixed-year mainline mismatch is quantified in the [source audit](reports/data-source-audit.md). Dates and methods: [provenance CSV](data/processed/tmc_sources.csv). Visual transcription is an agent check; independent human sign-off remains pending.
 
 Outputs: [M4 baseline report](reports/M4-REPORT.md), [M2 report](reports/M2-REPORT.md), [M3 holdout report](reports/demand_check.md), [holdout rows](reports/demand_check.csv). Spec: [architecture](docs/ARCHITECTURE.md). M5 outputs: [search evidence](reports/optimize.json), [all trials](reports/optimize_trials.csv), and `reports/timing_{pm_peak,night}.csv`. The full 4.2 command intentionally stops at `eval`.
 
