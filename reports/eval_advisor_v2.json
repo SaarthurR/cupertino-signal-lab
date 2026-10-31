@@ -1,0 +1,272 @@
+{
+  "seeds": [
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142
+  ],
+  "fit_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "workers": 3,
+  "primary": "full PM all_requested_delay_s",
+  "alternative": "less",
+  "alpha": 0.05,
+  "correction": "Holm across four scenarios",
+  "tests": [
+    {
+      "scenario": "calm",
+      "n": 20,
+      "p_value": 1.0,
+      "statistic": 0.0,
+      "means": {
+        "fixed_v5": {
+          "all_requested_delay_s": 376.3088611287657,
+          "unfinished": 2.75,
+          "teleports": 0,
+          "mainline_travel_eb_s": 177.02619496855345,
+          "mainline_travel_wb_s": 144.13286026200873,
+          "side_all_requested_delay_s": 423.1852032535885,
+          "worst_origin_delay_s": 933.6825330668605,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        },
+        "advisor": {
+          "all_requested_delay_s": 376.3088611287657,
+          "unfinished": 2.75,
+          "teleports": 0,
+          "mainline_travel_eb_s": 177.02619496855345,
+          "mainline_travel_wb_s": 144.13286026200873,
+          "side_all_requested_delay_s": 423.1852032535885,
+          "worst_origin_delay_s": 933.6825330668605,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        }
+      },
+      "change": {
+        "all_requested_delay_s": 0.0,
+        "unfinished": 0.0,
+        "teleports": 0,
+        "mainline_travel_eb_s": 0.0,
+        "mainline_travel_wb_s": 0.0,
+        "side_all_requested_delay_s": 0.0,
+        "worst_origin_delay_s": 0.0,
+        "switches": 0,
+        "recommendations": 0,
+        "false_switches": 0
+      },
+      "adjusted_p": 1.0,
+      "significant": false
+    },
+    {
+      "scenario": "east_surge",
+      "n": 20,
+      "p_value": 1.0,
+      "statistic": 0.0,
+      "means": {
+        "fixed_v5": {
+          "all_requested_delay_s": 398.09590671758593,
+          "unfinished": 11.05,
+          "teleports": 0,
+          "mainline_travel_eb_s": 183.22112144102266,
+          "mainline_travel_wb_s": 144.3349344978166,
+          "side_all_requested_delay_s": 455.77464167464115,
+          "worst_origin_delay_s": 967.7845083575581,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        },
+        "advisor": {
+          "all_requested_delay_s": 398.09590671758593,
+          "unfinished": 11.05,
+          "teleports": 0,
+          "mainline_travel_eb_s": 183.22112144102266,
+          "mainline_travel_wb_s": 144.3349344978166,
+          "side_all_requested_delay_s": 455.77464167464115,
+          "worst_origin_delay_s": 967.7845083575581,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        }
+      },
+      "change": {
+        "all_requested_delay_s": 0.0,
+        "unfinished": 0.0,
+        "teleports": 0,
+        "mainline_travel_eb_s": 0.0,
+        "mainline_travel_wb_s": 0.0,
+        "side_all_requested_delay_s": 0.0,
+        "worst_origin_delay_s": 0.0,
+        "switches": 0,
+        "recommendations": 0,
+        "false_switches": 0
+      },
+      "adjusted_p": 1.0,
+      "significant": false
+    },
+    {
+      "scenario": "drop",
+      "n": 20,
+      "p_value": 0.2979097366333008,
+      "statistic": 90.0,
+      "means": {
+        "fixed_v5": {
+          "all_requested_delay_s": 220.9575877754821,
+          "unfinished": 0,
+          "teleports": 0,
+          "mainline_travel_eb_s": 173.95630568882797,
+          "mainline_travel_wb_s": 142.68009153318079,
+          "side_all_requested_delay_s": 220.95347066763577,
+          "worst_origin_delay_s": 700.9151883830456,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        },
+        "advisor": {
+          "all_requested_delay_s": 219.97166280991735,
+          "unfinished": 0,
+          "teleports": 1.45,
+          "mainline_travel_eb_s": 173.98934201507882,
+          "mainline_travel_wb_s": 142.39553775743707,
+          "side_all_requested_delay_s": 223.8856813415014,
+          "worst_origin_delay_s": 666.8384870486657,
+          "switches": 2,
+          "recommendations": 2,
+          "false_switches": 0
+        }
+      },
+      "change": {
+        "all_requested_delay_s": -0.9859249655647488,
+        "unfinished": 0,
+        "teleports": 1.45,
+        "mainline_travel_eb_s": 0.03303632625085129,
+        "mainline_travel_wb_s": -0.2845537757437171,
+        "side_all_requested_delay_s": 2.932210673865626,
+        "worst_origin_delay_s": -34.07670133437989,
+        "switches": 2,
+        "recommendations": 2,
+        "false_switches": 0
+      },
+      "adjusted_p": 0.8937292098999023,
+      "significant": false
+    },
+    {
+      "scenario": "all_drop",
+      "n": 20,
+      "p_value": 0.0004253387451171875,
+      "statistic": 21.0,
+      "means": {
+        "fixed_v5": {
+          "all_requested_delay_s": 77.83381692229472,
+          "unfinished": 0,
+          "teleports": 0,
+          "mainline_travel_eb_s": 155.31544481054365,
+          "mainline_travel_wb_s": 133.89588068181817,
+          "side_all_requested_delay_s": 70.4645442273078,
+          "worst_origin_delay_s": 253.9694522029511,
+          "switches": 0,
+          "recommendations": 0,
+          "false_switches": 0
+        },
+        "advisor": {
+          "all_requested_delay_s": 69.03538348445048,
+          "unfinished": 0,
+          "teleports": 0.65,
+          "mainline_travel_eb_s": 154.77973640856672,
+          "mainline_travel_wb_s": 134.14886363636364,
+          "side_all_requested_delay_s": 70.27901157109797,
+          "worst_origin_delay_s": 154.6691933071196,
+          "switches": 1,
+          "recommendations": 1,
+          "false_switches": 0
+        }
+      },
+      "change": {
+        "all_requested_delay_s": -8.798433437844238,
+        "unfinished": 0,
+        "teleports": 0.65,
+        "mainline_travel_eb_s": -0.5357084019769331,
+        "mainline_travel_wb_s": 0.25298295454547315,
+        "side_all_requested_delay_s": -0.18553265620982984,
+        "worst_origin_delay_s": -99.30025889583149,
+        "switches": 1,
+        "recommendations": 1,
+        "false_switches": 0
+      },
+      "adjusted_p": 0.00170135498046875,
+      "significant": true
+    }
+  ],
+  "sha256": {
+    "src/signal_lab/advisor.py": "d5c5e075bc0a7d4c9559f00daf31d96472d07452251bb69307d82649e9d73f52",
+    "src/signal_lab/advisor_profiles.json": "d9c2312103c5a671b650030d36b2c9f8118a0447e418adc6482c00139ebd7312",
+    "src/signal_lab/closed_loop.py": "dbac089268cc7db8698679579dd94a4e28d64307bcb4f8f65ddbb0ded34f59c4",
+    "tools/eval_advisor.py": "22a03bb2dd548085bfe15feb956b880255dd8f81e27a401ccc1d5f7089cb48c1",
+    "docs/PREREGISTRATION-ADVISOR.md": "29de84a6ca453fa4983a406486e2bcbd71af5928b3f4a146c18c9d6e3ca9ea9e",
+    "sim/routes_pm_peak.rou.xml": "817f29ca521f2e841ba80156cf5e51b24427077ce348fd5b908f46da58dd8e08",
+    "sim/corridor.net.xml": "8f6cacd3b60b701798853e52586eec0f7f8b21f35fb821cb34e8146b3269253f",
+    "config/corridor.yaml": "5438835b91022e6f44aa76d80acf623060f74221ca7dc9ddfc08257bb6797c3d",
+    "sim/tls_optuna_v5_night.add.xml": "415f8d2c6bf879682fb5a5831bdf973ef09a1eabdc070359b5a76d92aa267a1a",
+    "sim/tls_advisor_light.add.xml": "93e3036a5a9e7174d96bb9f9abffbd1e2bab2ec6b1925be1a8e58c491d50d50a",
+    "sim/tls_optuna_v5_pm_peak.add.xml": "027ec54940d36ec88ad03cea8707a17a5cadb0faa6928e6870e4d0ec88fa448b",
+    "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59"
+  },
+  "sanity": {
+    "feed_rows": 34,
+    "max_occupancy_error_pp": 2.8693794291619774,
+    "mean_occupancy_error_pp": 0.7372950195638528,
+    "metrics_equal": [
+      "seed",
+      "all_vehicle_delay_s",
+      "all_vehicle_delay_zero_unfinished_s",
+      "requested",
+      "completed",
+      "unfinished",
+      "mean_time_loss_s",
+      "mean_waiting_count",
+      "mainline_travel_s",
+      "side_time_loss_s",
+      "teleports",
+      "teleported_vehicles",
+      "mean_depart_delay_s",
+      "mainline_travel_eb_s",
+      "mainline_travel_wb_s",
+      "mainline_eb_n",
+      "mainline_wb_n",
+      "all_requested_delay_0_s",
+      "all_requested_delay_s",
+      "all_requested_delay_1800_s",
+      "side_requested",
+      "side_unfinished",
+      "side_teleports",
+      "side_all_requested_delay_s",
+      "origin_delay_s"
+    ]
+  },
+  "wall_s": 956.6258352090081,
+  "disruption": "All five programs restart at phase 0 and nominal phase duration. Configured offsets retained; phase continuity and immediate coordination lost. Abrupt clearance/green truncation possible. Not field-deployable.",
+  "logs": "reports/advisor_loop/<scenario>_<seed>_<arm>/events.jsonl",
+  "development_switches": 15
+}
