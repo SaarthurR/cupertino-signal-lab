@@ -6,6 +6,7 @@ __pycache__/
 
 *.egg-info/
 reports/runs/
+reports/feed/
 *.sqlite3
 # v5 video seed: regenerate with the command in reports/video73/generation.json
 reports/fcd_*_seed73.xml.gz
