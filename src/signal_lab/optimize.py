@@ -115,12 +115,12 @@ def plan(scenario, params, path, version=3):
     return timing
 
 
-def fit_routes(scenario, path):
+def fit_routes(scenario, path, routes_source=None):
     """Exclude holdout departures even during the drain; keep routes/IDs unchanged."""
     cfg = p.config()
     period = cfg['scenarios'][scenario]
     begin, end = map(seconds, period.get('fit', [period['begin'], period['end']]))
-    root = ET.parse(p.ROOT/f'sim/routes_{scenario}.rou.xml').getroot()
+    root = ET.parse(routes_source or p.ROOT/f'sim/routes_{scenario}.rou.xml').getroot()
     requested = {}
     for vehicle in list(root):
         if vehicle.tag != 'vehicle':
@@ -140,10 +140,10 @@ def fit_routes(scenario, path):
     return begin, end, requested
 
 
-def score(scenario, seed, timing, folder):
+def score(scenario, seed, timing, folder, routes_source=None):
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    begin, end, approaches = fit_routes(scenario, folder/'routes.xml')
+    begin, end, approaches = fit_routes(scenario, folder/'routes.xml', routes_source)
     cfg = p.config()
     p.run([p.BIN/'sumo', '-c', p.ROOT/'sim/corridor.sumocfg', '-r', folder/'routes.xml',
            '-a', f'{p.ROOT}/sim/detectors.add.xml,{timing}', '-b', begin-cfg['warmup_s'],

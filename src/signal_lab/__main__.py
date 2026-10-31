@@ -1,14 +1,16 @@
 import argparse
-from . import pipeline, demand, baseline, optimize, evaluate, feed
+from . import advisor
 
 
 def main():
     parser = argparse.ArgumentParser(description="Cupertino Signal Lab")
     verbs = parser.add_subparsers(dest="verb", required=True)
-    for name in ("build-net", "build-demand", "check-demand", "baseline", "optimize", "eval", "bench", "dashboard", "feed"):
+    for name in ("build-net", "build-demand", "check-demand", "baseline", "optimize", "eval", "bench", "dashboard", "feed", "advise"):
         sub = verbs.add_parser(name)
+        if name == 'advise':
+            sub.add_argument('--feed', required=True)
         if name == 'feed':
-            sub.add_argument('--scenario', choices=feed.SCENARIOS, default='calm')
+            sub.add_argument('--scenario', default='calm')
             sub.add_argument('--seed', type=int, default=0)
         if name == 'dashboard':
             sub.add_argument('--skip-video', action='store_true', help='Build only the page and deck from saved results')
@@ -19,6 +21,10 @@ def main():
         if name in ('optimize', 'eval'):
             sub.add_argument('--version', type=int, choices=(3, 4, 5), default=3)
     args = parser.parse_args()
+    if args.verb == 'advise':
+        advisor.advise(args.feed)
+        return
+    from . import pipeline, demand, baseline, optimize, evaluate, feed
     if args.verb == 'feed':
         feed.feed(args.scenario, args.seed)
         return

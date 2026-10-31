@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
-from signal_lab import optimize as o, pipeline as p
+from signal_lab import feed as f, optimize as o, pipeline as p
 
 
 class OptimizeTests(unittest.TestCase):
@@ -134,6 +134,16 @@ class OptimizeTests(unittest.TestCase):
             side = [a in p.config()['side_edges'] for a in requested.values()]
             self.assertTrue(any(side))
             self.assertFalse(all(side))
+
+    def test_fit_derived_surge_routes_without_changing_source(self):
+        source = p.ROOT/'sim/routes_pm_peak.rou.xml'
+        original = source.read_bytes()
+        with tempfile.TemporaryDirectory() as temp:
+            surge, fitted = Path(temp)/'surge.xml', Path(temp)/'fit.xml'
+            f.scenario_routes('east_surge', surge)
+            _, _, requested = o.fit_routes('pm_peak', fitted, surge)
+            self.assertEqual(sum(v.startswith('east_surge_') for v in requested), 239)
+            self.assertEqual(source.read_bytes(), original)
 
     def test_score_penalizes_uninserted_unfinished_and_teleports(self):
         def run(args):

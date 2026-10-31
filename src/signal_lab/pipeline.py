@@ -5,6 +5,7 @@ import re
 import urllib.request
 import xml.etree.ElementTree as ET
 import yaml
+import sumo  # establishes SUMO_HOME for simulation commands
 import sumolib
 from pathlib import Path
 import subprocess

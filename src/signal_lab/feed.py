@@ -53,7 +53,7 @@ def scenario_routes(scenario, output):
 
 
 def feed_detectors(folder):
-    """Copy only stop-line loops; upstream loops would double-count vehicles."""
+    """Copy stop-line count loops and upstream occupancy loops separately."""
     net = d.network()
     mapping = d.movement_map(net)
     edges = {}
@@ -69,7 +69,7 @@ def feed_detectors(folder):
         if edge not in edges:
             unmapped.append(detector.get('id'))
             continue
-        if not detector.get('id').startswith('stop_'):
+        if not detector.get('id').startswith(('stop_', 'upstream_')):
             continue
         detector.set('freq', '300')
         detector.set('file', str(Path(folder)/'counts.xml'))
@@ -82,6 +82,7 @@ def feed_detectors(folder):
 
 def feed_rows(path, ids, begin, end, sensor_failure=False):
     counts = Counter()
+    occupancies = defaultdict(list)
     seen = set()
     for interval in ET.parse(path).getroot().findall('interval'):
         a, b = float(interval.get('begin')), float(interval.get('end'))
@@ -93,12 +94,17 @@ def feed_rows(path, ids, begin, end, sensor_failure=False):
         if key in seen or key[1] not in ids:
             raise ValueError(f'Duplicate or unknown detector interval: {key}')
         seen.add(key)
-        counts[(int(b), *ids[key[1]])] += int(interval.get('nVehEntered'))
+        approach = (int(b), *ids[key[1]])
+        if key[1].startswith('stop_'):
+            counts[approach] += int(interval.get('nVehEntered'))
+        else:
+            occupancies[approach].append(float(interval.get('occupancy')))
     expected = {(t, detector) for t in range(begin+300, end+1, 300) for detector in ids}
     if seen != expected:
         raise ValueError('Missing detector windows; cannot label missing data ok=1')
     return [dict(window_end=(CLOCK+timedelta(seconds=t)).isoformat(), site=site,
                  approach=approach, count=counts[t, site, approach],
+                 occupancy=sum(occupancies[t, site, approach])/len(occupancies[t, site, approach]),
                  ok=int(not (sensor_failure and (site, approach) == ('De Anza Blvd', 'N')
                              and CHANGE_START < t <= FAILURE_END)))
             for t in range(begin+300, end+1, 300) for site, approach in sorted(set(ids.values()))]

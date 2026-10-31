@@ -64,7 +64,7 @@ class FeedTests(unittest.TestCase):
             p.xml_write(root, routes)
             detectors, ids, unmapped = f.feed_detectors(folder)
             self.assertEqual(unmapped, [])
-            self.assertEqual(len(ids), 67)
+            self.assertEqual(len(ids), 134)
             self.assertEqual(len(set(ids.values())), 17)
             p.run([p.BIN/'sumo', '-c', p.ROOT/'sim/corridor.sumocfg', '-r', routes,
                    '-a', f'{detectors},{p.ROOT}/sim/tls_optuna_v5_pm_peak.add.xml',
@@ -79,10 +79,17 @@ class FeedTests(unittest.TestCase):
             self.assertEqual(len(crossed), 3)
             self.assertEqual(sum(r['count'] for r in rows), len(crossed))
             self.assertEqual(sum(r['count'] for r in rows if (r['site'], r['approach']) == ('De Anza Blvd', 'N')), 3)
+            raw = ET.parse(folder/'counts.xml').getroot().findall('interval')
+            for row in rows:
+                end_s = int((datetime.fromisoformat(row['window_end'])-f.CLOCK).total_seconds())
+                lanes = [float(i.get('occupancy')) for i in raw
+                         if i.get('id').startswith('upstream_') and float(i.get('end')) == end_s
+                         and ids[i.get('id')] == (row['site'], row['approach'])]
+                self.assertAlmostEqual(row['occupancy'], sum(lanes)/len(lanes))
             p.write_csv(folder/'feed.csv', rows)
             with open(folder/'feed.csv', newline='') as stream:
                 reader = csv.DictReader(stream)
-                self.assertEqual(reader.fieldnames, ['window_end', 'site', 'approach', 'count', 'ok'])
+                self.assertEqual(reader.fieldnames, ['window_end', 'site', 'approach', 'count', 'occupancy', 'ok'])
                 saved = list(reader)
             self.assertEqual(len(saved), 7*17)
             for row in saved:
@@ -90,6 +97,8 @@ class FeedTests(unittest.TestCase):
                 self.assertIn(row['site'], {s['name'] for s in p.config()['signals']})
                 self.assertIn(row['approach'], 'NSEW')
                 self.assertGreaterEqual(int(row['count']), 0)
+                self.assertGreaterEqual(float(row['occupancy']), 0)
+                self.assertLessEqual(float(row['occupancy']), 100)
                 self.assertEqual(row['ok'], '1')
             failed = f.feed_rows(folder/'counts.xml', ids, begin, end, sensor_failure=True)
             self.assertEqual(sum(r['ok'] == 0 for r in failed), 4)

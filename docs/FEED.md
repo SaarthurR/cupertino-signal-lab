@@ -17,14 +17,15 @@ Saturation can prevent extra requests from inserting; metadata reports the chang
 insertions during the change and by the end of the drain, including added vehicles separately.
 These are network insertions, distinct from counts at a downstream signal.
 
-Feed columns are `window_end,site,approach,count,ok`. Windows are 300 seconds, PM only.
+Feed columns are `window_end,site,approach,count,occupancy,ok`. Windows are 300 seconds, PM only.
 ISO timestamps use a fixed **synthetic** date, 2026-10-31, and offset -07:00.
 N/S/E/W mean originating compass legs; N is southbound, W is eastbound.
 Site names come from config. Mapping uses network TLS connections and incoming-edge coordinates through
 `demand.movement_map`, never a hand-entered detector table. Metadata lists unmapped original detectors.
 
-Each run makes a private copy of the 67 `stop_*` E1 loops at 300-second frequency.
-The 67 `upstream_*` loops are excluded to prevent double counting. Counts sum `nVehEntered`
+Each run makes a private copy of the 67 `stop_*` and 67 `upstream_*` E1 loops at 300-second frequency.
+`occupancy` is the arithmetic mean of upstream lane occupancy percentages for each approach.
+Upstream crossings are excluded from `count` to prevent double counting. Counts sum `nVehEntered`
 (front crossings, including zero counts) across stop-line lanes for each site/approach.
 These measure arrivals at loops one metre before the signal; they are not completed trips.
 Missing detector intervals fail extraction instead of becoming good zero counts.
