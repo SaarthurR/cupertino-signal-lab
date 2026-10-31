@@ -1,0 +1,44 @@
+[32m[I 2026-10-30 18:58:20,377][0m A new study created in RDB with name: pm_peak[0m
+trial 0: loss=468.19, unfinished=21, teleports=0
+trial 20: loss=419.49, unfinished=0, teleports=0
+trial 40: loss=299.21, unfinished=0, teleports=0
+trial 60: loss=276.65, unfinished=0, teleports=0
+trial 80: loss=250.43, unfinished=0, teleports=0
+trial 100: loss=277.27, unfinished=0, teleports=0
+trial 120: loss=291.92, unfinished=0, teleports=0
+trial 140: loss=247.95, unfinished=0, teleports=0
+trial 160: loss=273.69, unfinished=0, teleports=0
+trial 180: loss=270.70, unfinished=0, teleports=0
+trial 200: loss=266.71, unfinished=0, teleports=0
+trial 220: loss=260.33, unfinished=0, teleports=0
+trial 240: loss=238.98, unfinished=0, teleports=0
+trial 260: loss=256.22, unfinished=0, teleports=0
+trial 280: loss=245.48, unfinished=0, teleports=0
+trial 300: loss=266.44, unfinished=0, teleports=0
+trial 320: loss=279.71, unfinished=0, teleports=0
+trial 340: loss=266.77, unfinished=0, teleports=0
+trial 360: loss=285.54, unfinished=0, teleports=0
+trial 380: loss=259.56, unfinished=0, teleports=0
+trial 400: loss=255.24, unfinished=0, teleports=0
+trial 420: loss=263.68, unfinished=0, teleports=0
+trial 440: loss=273.03, unfinished=0, teleports=0
+trial 460: loss=267.42, unfinished=0, teleports=0
+trial 480: loss=271.48, unfinished=0, teleports=0
+trial 500: loss=284.84, unfinished=0, teleports=0
+trial 520: loss=271.92, unfinished=0, teleports=0
+trial 540: loss=261.68, unfinished=0, teleports=0
+trial 560: loss=239.34, unfinished=0, teleports=0
+trial 580: loss=216.18, unfinished=0, teleports=0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/src/signal_lab/__main__.py", line 25, in <module>
+    if __name__ == "__main__":
+        ^^^^^^
+  File "/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/src/signal_lab/__main__.py", line 21, in main
+    module = evaluate if args.verb == 'eval' else optimize if args.verb == 'optimize' else baseline if args.verb == 'baseline' else demand if args.verb in ('build-demand', 'check-demand') else pipeline
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/saarthranka/Documents/school/ai-club-hackathon-vta2024/src/signal_lab/optimize.py", line 283, in optimize
+    completed = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Only 585/600 trials completed within laptop budget

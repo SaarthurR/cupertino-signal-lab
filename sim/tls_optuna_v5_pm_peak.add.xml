@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+  <!--PM-fit Optuna v5 plan; demo assumptions, not city timing-->
+  <tlLogic id="GS_cluster_13085002621_272273326_65431022" type="actuated" programID="optuna_v5" offset="126.56271972084261">
+    <phase duration="60.0" state="rrrrGGGGGgGGG" minDur="16.273396681446325" maxDur="60.0" name="mainline" latestEnd="60.0" next="0 6" />
+    <phase duration="3.6" state="rrrryyyyyyyyy" next="2" />
+    <phase duration="2.1" state="rrrrrrrrrrrrr" next="3" />
+    <phase duration="51.65544888940594" state="GGGGGGrrrrrrr" minDur="5.0" maxDur="51.65544888940594" name="phase_3" latestEnd="117.355" next="8" />
+    <phase duration="3.6" state="yyyyyyrrrrrrr" next="5" />
+    <phase duration="2.3" state="rrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="rrrryyyyyyyyy" next="7" />
+    <phase duration="2.1" state="rrrrrrrrrrrrr" next="3" />
+    <phase duration="3.6" state="yyyyyyrrrrrrr" next="9" />
+    <phase duration="2.3" state="rrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="2.765511692195612" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="171.99154347221423" />
+  </tlLogic>
+  <tlLogic id="GS_cluster_2069326235_65431012" type="actuated" programID="optuna_v5" offset="49.72413230574804">
+    <phase duration="60.0" state="GGGGgGGGggrrrr" minDur="20.535045584402923" maxDur="60.0" name="mainline" latestEnd="60.0" next="0 8 10" />
+    <phase duration="3.6" state="yyyyyGGGggrrrr" next="2" />
+    <phase duration="58.80187903248735" state="rrrrrGGGGGrrrr" minDur="7.0" maxDur="58.80187903248735" name="phase_2" latestEnd="123.702" next="12 14" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="4" />
+    <phase duration="1.8" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="15.911132013193221" state="GrrrrrrrrrGGGg" minDur="5.0" maxDur="15.911132013193221" name="phase_5" latestEnd="145.013" next="16" />
+    <phase duration="3.6" state="yrrrrrrrrryyyy" next="7" />
+    <phase duration="2.1" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyyyyyyyrrrr" next="9" />
+    <phase duration="1.3" state="rrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyyyyyyyyrrrr" next="11" />
+    <phase duration="1.3" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="13" />
+    <phase duration="1.8" state="rrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="15" />
+    <phase duration="1.8" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yrrrrrrrrryyyy" next="17" />
+    <phase duration="2.1" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="2.2360039949638453" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="171.99154347221423" />
+  </tlLogic>
+  <tlLogic id="GS_cluster_2471567001_2471567002_65431017_917880337" type="actuated" programID="optuna_v5" offset="92.56541438272991">
+    <phase duration="60.0" state="GGGGggrrrrrGGGGggrrrrr" minDur="22.99383778986031" maxDur="60.0" name="mainline" latestEnd="60.0" next="0 10 12 14" />
+    <phase duration="3.6" state="yyyyggrrrrryyyyggrrrrr" next="2" />
+    <phase duration="32.771288076764456" state="rrrrGGrrrrrrrrrGGrrrrr" minDur="5.0" maxDur="32.771288076764456" name="phase_2" latestEnd="98.571" next="16 18 20" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrryyrrrrr" next="4" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="35.44697110255068" state="rrrrrrGGGggrrrrrrGGGgg" minDur="7.0" maxDur="35.44697110255068" name="phase_5" latestEnd="139.918" next="22 24" />
+    <phase duration="3.6" state="rrrrrryyyggrrrrrryyygg" next="7" />
+    <phase duration="15.25861135342997" state="rrrrrrrrrGGrrrrrrrrrGG" minDur="5.0" maxDur="15.25861135342997" name="phase_7" latestEnd="161.677" next="26" />
+    <phase duration="3.6" state="rrrrrrrrryyrrrrrrrrryy" next="9" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyyyrrrrryyyyyyrrrrr" next="11" />
+    <phase duration="2.2" state="rrrrrrrrrrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyyyyrrrrryyyyyyrrrrr" next="13" />
+    <phase duration="2.2" state="rrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yyyyyyrrrrryyyyyyrrrrr" next="15" />
+    <phase duration="2.2" state="rrrrrrrrrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrryyrrrrr" next="17" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrryyrrrrr" next="19" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrryyrrrrr" next="21" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrrrryyyyyrrrrrryyyyy" next="23" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrrrryyyyyrrrrrryyyyy" next="25" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrrrrrrryyrrrrrrrrryy" next="27" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="3.8315411225166347" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="171.99154347221423" />
+  </tlLogic>
+  <tlLogic id="GS_cluster_258972910_3369079743_518311316_65426566" type="actuated" programID="optuna_v5" offset="56.7923285443424">
+    <phase duration="52.555820012345315" state="rrrrrrGGGGggrrrrrrGGGGGgg" minDur="7.0" maxDur="52.555820012345315" name="phase_0" latestEnd="52.556" next="22 24" />
+    <phase duration="3.6" state="rrrrrryyyyggrrrrrryyyyygg" next="2" />
+    <phase duration="54.01016458716372" state="rrrrrrrrrrGGrrrrrrrrrrrGG" minDur="5.0" maxDur="54.01016458716372" name="phase_2" latestEnd="113.466" next="26" />
+    <phase duration="3.6" state="rrrrrrrrrryyrrrrrrrrrrryy" next="4" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="24.69406472407239" state="GGGGggrrrrrrGGGGggrrrrrrr" minDur="7.0660626459041325" maxDur="24.69406472407239" name="mainline" latestEnd="144.66" next="5 10 12 14" />
+    <phase duration="3.6" state="yyyyggrrrrrryyyyggrrrrrrr" next="7" />
+    <phase duration="13.831494148632768" state="rrrrGGrrrrrrrrrrGGrrrrrrr" minDur="5.0" maxDur="13.831494148632768" name="phase_7" latestEnd="165.492" next="16 18 20" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrrryyrrrrrrr" next="9" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyyyrrrrrryyyyyyrrrrrrr" next="11" />
+    <phase duration="3.4" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="yyyyyyrrrrrryyyyyyrrrrrrr" next="13" />
+    <phase duration="3.4" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="yyyyyyrrrrrryyyyyyrrrrrrr" next="15" />
+    <phase duration="3.4" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrrryyrrrrrrr" next="17" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrrryyrrrrrrr" next="19" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrryyrrrrrrrrrryyrrrrrrr" next="21" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="rrrrrryyyyyyrrrrrryyyyyyy" next="23" />
+    <phase duration="3.3" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrrrryyyyyyrrrrrryyyyyyy" next="25" />
+    <phase duration="3.3" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="rrrrrrrrrryyrrrrrrrrrrryy" next="27" />
+    <phase duration="2.9" state="rrrrrrrrrrrrrrrrrrrrrrrrr" next="5" />
+    <param key="max-gap" value="2.012335668612131" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="171.99154347221423" />
+  </tlLogic>
+  <tlLogic id="GS_cluster_3355011980_917880334" type="actuated" programID="optuna_v5" offset="56.300576556725304">
+    <phase duration="60.0" state="GGGGgGGGggrrrr" minDur="8.187776418971506" maxDur="60.0" name="mainline" latestEnd="60.0" next="0 8 10" />
+    <phase duration="3.6" state="yyyyyGGGggrrrr" next="2" />
+    <phase duration="60.0" state="rrrrrGGGGGrrrr" minDur="7.0" maxDur="60.0" name="phase_2" latestEnd="125.1" next="12 14" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="4" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="22.512928572007084" state="GrrrrrrrrrGGGg" minDur="5.0" maxDur="22.512928572007084" name="phase_5" latestEnd="153.113" next="16" />
+    <phase duration="3.6" state="yrrrrrrrrryyyy" next="7" />
+    <phase duration="2.1" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyyyyyyyrrrr" next="9" />
+    <phase duration="1.5" state="rrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyyyyyyyyrrrr" next="11" />
+    <phase duration="1.5" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="13" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrrryyyyyrrrr" next="15" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yrrrrrrrrryyyy" next="17" />
+    <phase duration="2.1" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="2.264426181430925" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="171.99154347221423" />
+  </tlLogic>
+</additional>
