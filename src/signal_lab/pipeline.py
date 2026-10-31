@@ -76,9 +76,9 @@ One simulation hour: {wall:.3f} wall seconds.
     print(f'bench: {wall:.3f} wall seconds; 200-trial serial estimate {estimate:.1f} seconds')
 
 
-def dashboard():
+def dashboard(skip_video=False):
     from .dashboard import dashboard as build
-    build()
+    build(skip_video=skip_video)
 
 
 

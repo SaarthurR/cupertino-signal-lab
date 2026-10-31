@@ -58,83 +58,89 @@ class DashboardTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             d.best_so_far([{'state': 'RUNNING', 'value': '1'}])
 
-    def test_page_walks_the_steps_in_order_without_jargon(self):
+    def test_page_and_deck_use_the_2024_cohort_and_saved_facts(self):
+        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
+        f = d.facts(rows)
+        self.assertEqual([int(r['seed']) for r in f['groups'][0]], list(range(53, 73)))
+        self.assertAlmostEqual(f['delay_cut'], 30.280939443593336)
+        self.assertEqual(f['unfinished'], [14344, 703])
+        self.assertEqual(f['teleports'], [3, 0])
+        self.assertEqual((f['close'], len(f['checks']), f['old_close']), (48, 96, 41))
+        self.assertEqual(f['rings'], [203, 170])
+        self.assertEqual(f['missing_turns'], 3)
+        with self.assertRaises(ValueError):
+            d.facts(rows + [f['groups'][0][0]])
+        with self.assertRaises(ValueError):
+            d.facts(d.read_csv(p.ROOT/'reports/results.csv'))
+        differences = [float(b[d.PRIMARY])-float(a[d.PRIMARY]) for a,b in zip(*f['groups'])]
+        self.assertAlmostEqual(f['primary_p'], wilcoxon(differences, alternative='less').pvalue)
         roads, signals, _, _ = d.geometry(p.config())
-        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
-        flow, extras = html.split('<details>', 1)
-        for word in ('Optuna', 'Wilcoxon', 'FCD', 'p=', '—', '–'):
-            self.assertNotIn(word, flow)
-        self.assertEqual([int(n) for n in re.findall(r'<span class="n">(\d)</span>', flow)], list(range(1, 8)))
-        for word in ('Optuna', 'Wilcoxon', 'p='):
-            self.assertIn(word, extras)
-
-    def test_page_uses_csvs_and_only_local_assets(self):
-        roads, signals, offsets, distance = d.geometry(p.config())
-        self.assertGreater(distance, 1000)
-        self.assertEqual(len(signals), 5)
-        self.assertGreater(len(offsets), 5)
-        html = d.build_page(d.read_csv(p.ROOT/'reports/results.csv'), roads, signals)
-        measured_year = next(r['year'] for r in d.read_csv(p.ROOT/'data/processed/tmc_sources.csv') if r['source'] == 'measured')
-        for text in ('22.7%','16.5%','35.6%','15.0%','185 → 17','18 of the 20','7,980.0','836.77',
-                     '646.74','0.000052',measured_year,
-                     '2026-10-28','Completed-only'):
-            self.assertIn(text, html)
-        self.assertNotIn('https://', html)
-        self.assertNotIn('137.1122804334809', html)
-        self.assertNotIn('3.4873149533668006', html)
-        self.assertEqual(html.count('<td>137.1</td>'), 10)
-        self.assertIn('shut out of the corridor', html)
-        for link in re.findall(r'(?:href|src|poster)="([^"]+)"', html):
-            if link.endswith(('.csv', '.md')):
+        for html in (d.build_page(rows, roads, signals), d.build_deck(rows, roads, signals)):
+            for shown in ('30.3%', '14,344 → 703', '3 → 0', '351 → 173', '985 → 705',
+                          '139 → 142', '48 of 96', 'up from 41', '19.0 to 20.3 s',
+                          '+104 s', '203/170 s', '117.9 s', '167 s', '730 s',
+                          '2024-10-09', 'Kia Sharifi, P.E.', 'Larissa Sanderfer',
+                          'IDAX', 'U-turn', 'Bandley Dr and Saich Way', 'Mary uses 2018',
+                          'not a field result', 'weak baseline', 'night plan is untested',
+                          'projection, not a claim about the street', 'waiting spots'):
+                self.assertIn(shown, html)
+            for stale in ('22.7%', '23%', 'Every direction improved', 'side_by_side', 'time_space.png'):
+                self.assertNotIn(stale, html)
+            for word in ('ensure', 'crucial', 'robust', 'leverage', 'delve', '—'):
+                self.assertNotRegex(html.lower(), r'(?<![a-z])'+word+r'(?![a-z])')
+            self.assertNotIn('https://', html)
+            for link in re.findall(r'(?:href|src|poster)="([^"#]+)"', html):
                 self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
+            # The gain leads; all limitations share the final next-steps section.
+            self.assertLess(html.index('30.3%'), html.index('We asked VTA'))
+            self.assertLess(html.index('What we would do next'), html.index('48 of 96'))
 
-    def test_deck_is_eleven_offline_slides_with_a_spoken_note_each(self):
-        roads, signals, _, _ = d.geometry(p.config())
-        rows = d.read_csv(p.ROOT/'reports/results.csv')
-        deck = d.build_deck(rows, roads, signals)
-        self.assertEqual(deck.count('<section class="slide">'), 11)
-        self.assertEqual(deck.count('<p class="note">'), 11)
-        self.assertNotIn('https://', deck)
-        for link in re.findall(r'(?:href|src|poster)="([^"]+)"', deck):
-            self.assertTrue((p.ROOT/'dashboard'/link).resolve().is_file(), link)
-        facts = d.facts(rows)
-        for text in (f'{facts["delay_cut"]:.1f}%', f'{facts["wb_cut"]:.1f}%', f'{facts["faster"]:.1f}%',
-                     f'{facts["teleports"][0]} &rarr; {facts["teleports"][1]}',
-                     str(facts['close']), f'{facts["trips"]:,}'):
-            self.assertIn(text, deck)
-        # The closing limit and spoken note name the rule we broke.
-        self.assertEqual(deck.count('That broke a rule we set before testing, so finding out why comes first.'), 2)
-        self.assertIn('In 1 of the 20 test rush hours our plan left 15 cars stuck where the textbook plan left 0.', deck)
-        self.assertNotIn('We cannot declare an overall feasible winner.', deck)
-        self.assertNotIn('Promising', deck)
-        self.assertIn('Every direction improved on average.', deck)
-        self.assertNotIn('short of the usual target', deck)
-        self.assertIn(f"Only {facts['close']} of {len(facts['checks'])} counted movements matched closely (GEH under 5)", deck)
+    def test_deck_preserves_fixed_stage_and_notes_for_each_slide(self):
+        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
+        deck = d.build_deck(rows, *d.geometry(p.config())[:2])
+        self.assertEqual(deck.count('<section class="slide">'), 14)
+        self.assertEqual(deck.count('<p class="note">'), 14)
+        self.assertIn('width:1920px;height:1080px', deck)
+        self.assertIn("e.key === 'n'", deck)
         self.assertIn('96 counted movements', d.grid_svg(41, 96))
 
-    def test_tuner_slides_quote_the_search_space_and_the_two_real_scores(self):
-        """The knob list and both scores must come out of the optimizer's own record."""
-        rows = d.read_csv(p.ROOT/'reports/results.csv')
+    def test_tuner_slides_use_v4_search_space_and_scores(self):
+        rows = d.read_csv(p.ROOT/'reports/results_2024.csv')
         f = d.facts(rows)
-        trials = d.read_csv(p.ROOT/'reports/optimize_v3_trials.csv')
+        trials = d.read_csv(p.ROOT/'reports/optimize_v4_trials.csv')
         self.assertEqual([count for count, _, _ in f['knobs']], [1, 5, 16, 5, 5])
         self.assertEqual(sum(count for count, _, _ in f['knobs']),
                          sum(c.startswith('params_') for c in trials[0]))
-        # Trial 0 is the textbook plan the optimizer enqueued, so its score is textbook's.
-        from signal_lab.optimize import baseline_params
-        for key, value in baseline_params().items():
-            self.assertAlmostEqual(float(trials[0]['params_'+key]), value)
-        self.assertAlmostEqual(f['try0'], 396.4492997493734)
-        self.assertEqual(f['kept'], 224)
-        self.assertAlmostEqual(f['kept_score'], 269.85603007518796)
-        # The kept plan won a run-off on fresh seeds; it is not the lowest point on the curve.
+        self.assertEqual((len(f['curve']), f['kept'], f['thrown_out']), (60, 39, 24))
+        self.assertAlmostEqual(f['try0'], float(trials[0]['value']))
+        self.assertAlmostEqual(f['kept_score'], float(trials[f['kept']]['value']))
+        self.assertEqual((f['train_range'], f['pick_range'], f['test_range']),
+                         ('0 to 2', '5 to 12', '53 to 72'))
         self.assertLess(min(f['curve']), f['kept_score'])
         deck = d.build_deck(rows, *d.geometry(p.config())[:2])
-        for shown in ('396 s', '270 s', 'Try 224, the plan we kept', '32 numbers in all',
-                      '181 of the 300 tries broke a rule', 'best on practice'):
+        for shown in ('466 s', '287 s', 'Try 39, the plan we kept', '32 numbers in all',
+                      '24 of the 60 tries broke a rule', '3 practice', '80 to 180 s',
+                      '2026-10-30', 'best on practice', 'not a neural network'):
             self.assertIn(shown, deck)
-        self.assertNotIn('neural network', d.build_page(rows, *d.geometry(p.config())[:2]))
-        self.assertIn('not a neural network', deck)
+        self.assertNotIn('5 practice', deck)
+
+    def test_dashboard_skip_video_builds_html_without_calling_media(self):
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from signal_lab import __main__ as cli
+        with patch('sys.argv', ['signal_lab', 'dashboard', '--skip-video']), \
+             patch.object(p, 'dashboard') as build:
+            cli.main()
+            build.assert_called_once_with(skip_video=True)
+        with tempfile.TemporaryDirectory() as temp, \
+             patch.object(p, 'ROOT', Path(temp)), patch.object(d.os, 'nice'), \
+             patch.object(p, 'config', return_value={}), patch.object(d, 'geometry', return_value=([], [], {}, 0)), \
+             patch.object(d, 'read_csv', return_value=[]), patch.object(d, 'build_page', return_value='page'), \
+             patch.object(d, 'build_deck', return_value='deck'), patch.object(d, 'render_media') as media:
+            d.dashboard(skip_video=True)
+            media.assert_not_called()
+            self.assertEqual((Path(temp)/'dashboard/deck.html').read_text(), 'deck')
 
     def test_driver_selection_uses_all_entries_waits_and_counts_unfinished(self):
         rows = []

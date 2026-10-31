@@ -1,4 +1,4 @@
-"""Offline judge demo from frozen evaluation CSVs and seed-33 trip records."""
+"""2024 judge pages from saved results, plus the unchanged archived video renderer."""
 import csv
 import gzip
 from html import escape
@@ -535,14 +535,14 @@ LOOP = (('Pick a plan', '32 numbers that set', 'all five lights'),
         ('Narrow it down', 'the tuner learns which', 'settings scored well'))
 
 
-def knobs(trials):
+def knobs(trials, version=3):
     """What the tuner may change: counted from the search's own record, ranged from its search space."""
     families = {}
     for column in trials[0]:
         if column.startswith('params_'):
             key = column[len('params_'):]
             families.setdefault(key.split('_')[0], []).append(key)
-    rows = [(len(families[family]), name, detail(*knob_bounds(families[family][0])))
+    rows = [(len(families[family]), name, detail(*knob_bounds(families[family][0], version)))
             for family, name, detail in KNOBS]
     if sum(count for count, _, _ in rows) != sum(map(len, families.values())):
         raise ValueError('Knob families do not cover the recorded search space')
@@ -554,8 +554,8 @@ def tuner_loop_svg(f):
     box, pitch = 345, 385
     parts = ['<defs><marker id="loop" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
              '<polygon points="0 0, 9 3.5, 0 7" fill="var(--road)"/></marker></defs>']
-    for i, (title, first, second) in enumerate((('Pick a plan', '32 numbers', '5 lights'),
-                                                ('Run it', '5 practice', 'rush hours'),
+    for i, (title, first, second) in enumerate((('Pick a plan', f'{sum(c for c, _, _ in f["knobs"])} numbers', f'{f["n_signals"]} lights'),
+                                                ('Run it', f'{f["search_seeds"]} practice', 'rush hours'),
                                                 ('Score it', 'Seconds lost', 'per car'),
                                                 ('Learn', 'Use scores', 'to try again'))):
         x = i*pitch
@@ -698,7 +698,7 @@ def pipeline_svg(steps, groups):
 def system_svg(f):
     """One shared overview for the pitch and the page, in the existing theme."""
     boxes = [
-        ('Real counts', ['City traffic reports:', 'cars per turn,', 'every 15 min']),
+        ('Real counts', ['VTA field counts:', 'cars per turn,', 'every 15 min']),
         ('Virtual street', ['Real map in SUMO,', 'a traffic simulator', '(like a video game)']),
         ('Virtual cars', [f'{f["trips"]:,} cars made', 'to match the counts']),
         ('Tuner', ['Tries a light timing,', 'watches the simulator,', 'scores and learns;', f'{len(f["curve"])} tries in all']),
@@ -718,17 +718,6 @@ def system_svg(f):
                  + text(828, 394, 'try → score → learn', 32, 'middle', 'var(--accent)', 600))
     return svg(''.join(parts), 1656, 424,
                'Real counts to virtual street to virtual cars to tuner to fair test. The tuner loops back to the simulator: try, score, learn.')
-
-
-SYSTEM_OUTPUT = 'Output: a timing plan an engineer can load into the real lights.'
-
-
-def prereg():
-    """Date, side-street cap and stuck-car allowance come from the committed file, not from memory."""
-    words = (p.ROOT/'docs/PREREGISTRATION.md').read_text()
-    return (re.search(r'\d{4}-\d{2}-\d{2}', words).group(),
-            int(re.search(r'at most (\d+)% above', words).group(1)),
-            int(re.search(r'baseline \+ (\d+) teleports', words).group(1)))
 
 
 def rules_svg(f):
@@ -755,82 +744,87 @@ def rules_svg(f):
 
 
 def next_steps(f):
-    """The honest limits, worded as the work that follows. Every one names a real shortcoming."""
-    steps = [f'Only {f["close"]} of {len(f["checks"])} counted movements matched closely (GEH under 5); better counts come first.',
-             f'Get real counts for {" and ".join(escape(n) for n in f["guessed"])}. Our source reports have no counts for those two '
-             'side streets, so we estimated them.',
-             'Take it outside the simulator: current counts from VTA, pedestrians and bikes in the model, and a '
-             'supervised pilot before any real light changes.']
-    for seed, before, after in f['cap_fail_seeds']:
-        steps.insert(0, f'In 1 of the {f["n_test"]} test rush hours our plan left {after} cars stuck where the textbook '
-                        f'plan left {before}. That broke a rule we set before testing, so finding out why comes first.')
-    return steps
+    """One closing section, shared by the page and the deck."""
+    return [
+        f'Calibrate the model: {f["close"]} of {len(f["checks"])} counted turn slots match closely, up from {f["old_close"]} of {len(f["checks"])}. It is not fully calibrated.',
+        "Test against a stronger baseline. Textbook is a weak baseline, not the city's real plan.",
+        f'Use a separate night plan: side-street delay rises {f["night_side"][0]:.1f} to {f["night_side"][1]:.1f} s, failing our {f["cap"]}% rule. Rush-hour v4 with a separate night plan is untested.',
+        f'Protect each trip group. One-seed check: South Stelling mean delay rises {f["south_harm"]:+.0f} s. Some trip groups get much worse.',
+        f'Resolve the timing report: De Anza rings total {f["rings"][0]:g}/{f["rings"][1]:g} s against a {f["vta_cycles"]["De Anza Blvd"]:g} s cycle.',
+        'Check U-turn greens and waiting spots on the street. Both are model assumptions.',
+        f'Get counts for {" and ".join(f["guessed"])}. Both are estimates. Mary uses {f["mary_year"]} data.',
+        'Test outside the simulator. This is a simulation, not a field result. Demand replays the fitted hour, with new randomness.',
+    ]
 
 
 def build_deck(rows, roads, signals):
-    """Eleven slides for the live pitch, on the page's own look and the page's own numbers."""
+    """The saved 2024 result, using the existing slide layouts and visual system."""
     f = facts(rows)
+    def pair(values, digits=0):
+        return ' → '.join(f'{v:,.{digits}f}' for v in values)
+    limits = next_steps(f)
     slides = [
-        ('<h1>Cupertino Signal Lab</h1><p class="lead">Five traffic lights on Stevens Creek, retimed in a simulator '
-         'and tested on rush hours it had never seen.</p><p class="hint">Arrow keys to move. Press N for notes.</p>',
-         'Hi, we are Cupertino Signal Lab. We modeled five real traffic lights near school in SUMO, a simulator that moves each car through mapped roads and traffic lights, then asked a computer to retime them.'),
-        (f'<h2>Rush hour barely moves.</h2><div class="fill" style="--fw:1664px">{map_svg(roads, signals)}</div>'
-         '<p class="under">Mary Avenue to De Anza Boulevard. Five signals in about two kilometres.</p>',
-         'This is the stretch we studied. Five lights in a row, and at five thirty the eastbound line barely moves.'),
-        (f'<h2>What if the five lights worked as a team?</h2><div class="fill" style="--fw:940px">{team_svg()}</div>',
-         'Coordinating green start times can help cars reach the next light on green. We compare two coordinated plans in a simulator, using the same cars.'),
+        (f'<h1>{f["delay_cut"]:.1f}% less rush-hour delay</h1>'
+         f'<p class="lead">Against the textbook plan on {f["n_test"]} unseen simulated rush hours.</p>'
+         f'<p>Cupertino Signal Lab · VTA {f["year"]} counts<br>Paired test p ≈ {f["primary_p"]:.0e}</p>',
+         'We retimed five Stevens Creek lights in SUMO. The score counts every car that asked to drive, including waiting to enter and unfinished trips. This is a fixed-demand simulation result versus textbook.'),
+        (f'<h2>More cars finish the rush hour</h2><div class="scores">'
+         f'<div class="score pair"><strong>{pair(f["unfinished"])}</strong><span>unfinished cars</span></div>'
+         f'<div class="score pair"><strong>{pair(f["teleports"])}</strong><span>stuck-car events</span></div></div>'
+         f'<p class="under">Totals across {f["n_test"]} paired runs. Textbook → v4.</p>'
+         f'<p>Average delay per requested car: {pair(f["delay"])} s.</p>',
+         f'Unfinished includes cars still driving and cars waiting to enter after the drain. Each unfinished trip or teleport receives a {f["miss_charge"]:g} second scoring charge. It is a convention, not observed delay.'),
+        (f'<h2>Eastbound and side streets gain</h2><div class="scores">'
+         f'<div class="score pair"><strong>{pair(f["eb"])}</strong><span>eastbound travel, s</span></div>'
+         f'<div class="score pair"><strong>{pair(f["side"])}</strong><span>side-street delay, s</span></div>'
+         f'<div class="score pair cost"><strong>{pair(f["wb"])}</strong><span>westbound travel, s</span></div></div>'
+         '<p class="under">Textbook → v4. Westbound is slightly slower.</p>',
+         'These are means across the final test. Directional travel covers completed, nonteleported corridor crossings and excludes waiting to enter. Side-street delay counts every requested side-origin trip. Aggregate gains can hide harm to particular trip groups.'),
+        (f'<h2>{f["n_signals"]} lights on Stevens Creek</h2><div class="fill" style="--fw:1664px">{map_svg(roads, signals)}</div>'
+         '<p class="under">Mary Avenue to De Anza Boulevard.</p>',
+         'The real map comes from OpenStreetMap. SUMO moves each car through these mapped roads and modeled lights.'),
+        (f'<h2>We asked VTA for real data</h2><div class="two" style="--cols:1000px 592px"><div class="fill">'
+         f'{bars_svg(sorted(f["counts"].items()), "De Anza: counted cars per 15 minutes")}</div><div>'
+         f'<p>IDAX counts<br>{f["count_date"]}</p><p>VTA also sent its model timing for De Anza and Stelling.</p>'
+         '<p>Thank you to VTA:<br>Kia Sharifi, P.E.<br>Larissa Sanderfer</p></div></div>',
+         'We asked VTA and received its 2024 counts and Vistro model reports. These are historical field counts and model timing inputs, not a confirmed current city controller sheet.'),
+        (f'<h2>Better data exposed our model’s gaps</h2>'
+         f'<p class="lead">The old model sent no cars on {f["missing_turns"]} counted turns.</p>'
+         '<p>We fixed the allocation and added U-turns. We kept the observed counts.</p>'
+         '<p class="under">New evidence helped us find and repair a real model problem.</p>',
+         'The missing allocations were De Anza eastbound left and Stelling westbound left and right. They already had legal connections. We repaired the demand allocation, modeled U-turns separately, and corrected modeled waiting positions. These changes do not establish full calibration.'),
         (f'<h2>How it works</h2><div class="fill">{system_svg(f)}</div>'
-         f'<p class="under" style="max-width:none">{SYSTEM_OUTPUT}</p>',
-         'Think of the simulator as a video game of Stevens Creek, and the tuner as a player who keeps changing the light timings and remembers what worked.'),
-        (f'<h2>Real city counts become simulated cars.</h2><div class="two" style="--cols:1000px 592px"><div class="fill">'
-         f'{bars_svg(sorted(f["counts"].items()), "De Anza Blvd: counted cars per 15 minutes")}</div><div>'
-         f'<p>City of Cupertino, Vallco traffic report, pp. {f["measured"][0]["pdf_page"]}. '
-         f'De Anza count date: {f["measured"][0]["count_date"]}.</p>'
-         f'<p>These turn counts generate {f["trips"]:,} requested trips in SUMO: each car follows a mapped route and obeys the modeled lights.</p></div></div>'
-         '<p class="under">Source: data/processed/tmc_sources.csv. Counts: data/processed/tmc.csv.</p>',
-         'The city reports contain the original field sheets, with a count for each turn every fifteen minutes at De Anza and Stelling. Mary has hourly observations. We turn the counts into scheduled car trips, then SUMO simulates each trip. These are historical counts replayed with different random seeds; they are not recordings of twenty different evenings.'),
-        (f'<h2>The tuner learns from its own tries.</h2>'
-         f'<div class="fill" style="--fw:1664px">{tuner_loop_svg(f)}</div>'
-         f'<p class="under">Try 0 was the textbook plan. Final selection used fresh simulation runs.</p>',
-         f'This is the loop. The computer sets the five lights, runs {f["search_seeds"]} whole practice rush hours '
-         f'in the simulator, and gets back one score: the seconds an average car loses. Then the tuner looks at '
-         f'every try so far, builds a picture of which settings scored well, and aims the next try at the promising '
-         f'part, {len(f["curve"])} times. Where is the AI? It is not a neural network. It is machine learning '
-         f'search, called Bayesian optimization: it learns from its own tries instead of guessing at random. '
-         f'The textbook plan was try 0 at {f["try0"]:,.0f} seconds a car, and the plan we kept scored '
-         f'{f["kept_score"]:,.0f}.'),
-        (f'<h2>What it can change, and how we score it.</h2>'
-         f'<div class="fill" style="--fw:1664px">{plan_space_svg(f)}</div>',
-         f'The tuner only ever touches these {sum(c for c, _, _ in f["knobs"])} numbers: one cycle length shared by '
-         f'all five lights, when each light starts its green, how long each phase of green runs, the shortest green '
-         f'the main road may get, and how much quiet traffic ends a green early. It is scored on one number, the '
-         f'scored seconds lost per requested car, counting every car that asked to drive, including the ones that never got '
-         f'in. And it may not win by hurting anybody: no direction more than {f["cap"]}% slower than textbook, and no '
-         f'more cars left stuck. That threw out {f["thrown_out"]} of the {len(f["curve"])} tries.'),
-        (f'<h2>{len(f["curve"])} plans tried, then a test it could not study for.</h2>'
-         f'<div class="two" style="--cols:1020px 600px"><div class="fill">{curve_svg(f["curve"])}</div>'
-         f'<div class="fill">{seeds_svg(((f["search_seeds"], "var(--road)", f"{f['search_seeds']} rush hours to practise on"), (f["pick_seeds"], "var(--road)", f"{f['pick_seeds']} more to pick the finalist"), (f["n_test"], "var(--accent)", f"{f['n_test']} brand new ones for the fair test")))}</div></div>'
-         f'<p class="under">The best ten tried {f["pick_seeds"]} fresh runs; try {f["kept"]} won. Final test: {f["n_test"]} new random seeds, same historical demand.</p>',
-         f'A tuning tool tried {len(f["curve"])} timing plans on {f["search_seeds"]} practice rush hours. The ten best were then run again on {f["pick_seeds"]} fresh ones, and the winner of that run off is the plan we kept, which is why it is not the very lowest point on this curve. Then, before the final test, we wrote down what would count as a win, so we could not pick a flattering number afterwards.'),
-        ('<h2>The same evening, run twice.</h2><div class="fill video">'
-         '<video controls playsinline preload="none" poster="../reports/side_by_side_poster.png">'
-         '<source src="../reports/side_by_side.mp4" type="video/mp4"></video></div>'
-         '<p class="under">Left: the textbook plan. Right: our plan. Same cars, same clock.</p>',
-         'Here they are side by side, the whole evening sped up. Same cars, same clock. Watch the chart at the bottom: cars waiting outside, textbook in red and ours in teal. The typical-driver clock starts when the car asks to drive, including the wait to get on.'),
-        (f'<h2>Every direction improved on average.</h2><div class="scores">'
-         f'<div class="score"><strong>{f["delay_cut"]:.1f}%</strong><span>less scored time lost per requested car</span></div>'
-         f'<div class="score"><strong>{f["faster"]:.1f}%</strong><span>less eastbound corridor travel time</span></div>'
-         f'<div class="score"><strong>{f["wb_cut"]:.1f}%</strong><span>less westbound corridor travel time</span></div>'
-         f'<div class="score"><strong>{f["side_cut"]:.1f}%</strong><span>less time lost on the side streets</span></div>'
-         f'<div class="score pair"><strong>{f["teleports"][0]} &rarr; {f["teleports"][1]}</strong><span>stuck-car events, total over 20 runs</span></div></div>'
-         f'<p class="under">Across {f["n_test"]} new simulation seeds. Corridor times exclude waiting to enter; the all-requested score includes it.</p>',
-         f'Our plan cut the time an average car loses by about {f["delay_cut"]:.0f} percent across {f["n_test"]} rush hours it had never seen, and it was better in {f["verdict"]}. Both directions of Stevens Creek got faster, and so did the side streets, which was the thing we were most worried about breaking.'),
-        (f'<h2>What we would do next</h2><ul class="notes">'
-         + ''.join(f'<li>{step}</li>' for step in next_steps(f))
-         + '</ul><p class="under">Nothing here was tested on a real street. Road data from OpenStreetMap, counts from '
-         'City of Cupertino traffic reports, simulated in SUMO. Thank you.</p>',
-         f'Four honest limits, as next steps. {next_steps(f)[0]} Our sources have no counts for two side streets, and none of this has been '
-         'tested on a real street. Thanks for listening.'),
+         '<p class="under">Output: a candidate timing plan for an engineer to review.</p>',
+         'The simulator is like a video game of Stevens Creek. The tuner changes the lights, watches the score, and learns which settings to try next.'),
+        (f'<h2>The tuner learns from its own tries</h2><div class="fill" style="--fw:1664px">{tuner_loop_svg(f)}</div>'
+         '<p class="under">Try 0 was textbook. Fresh runs picked the finalist.</p>',
+         f'Bayesian optimization learns from its own trials. It is not a neural network. Each trial runs {f["search_seeds"]} practice rush hours. Try 0 scored {f["try0"]:,.0f} seconds per car, and selected try {f["kept"]} scored {f["kept_score"]:,.0f} on practice.'),
+        (f'<h2>What it can change, and how we score it</h2><div class="fill" style="--fw:1664px">{plan_space_svg(f)}</div>',
+         f'The tuner changes {sum(c for c, _, _ in f["knobs"])} settings. The score counts every requested car. Mean side-street, eastbound and westbound results must stay within {f["cap"]}% of textbook. Every seed must have at most {f["slack"]} extra stuck-car events. Rush hour passes these aggregate rules, night does not.'),
+        (f'<h2>{len(f["curve"])} trials, then an unseen test</h2><div class="two" style="--cols:992px 600px">'
+         f'<div class="fill">{curve_svg(f["curve"])}</div><div class="fill">{seeds_svg(((f["search_seeds"], "var(--road)", "Practice: " + f["train_range"]), (f["pick_seeds"], "var(--road)", "Selection: " + f["pick_range"]), (f["n_test"], "var(--accent)", "Final test: " + f["test_range"])))}</div></div>'
+         f'<p class="under">Rules committed first, {f["prereg_date"]}. Selected try {f["kept"]}.</p>',
+         'We wrote the rules before the optimizer ran, froze the selected plan, then ran the final test. The final seeds were held out of tuning and selection. These are repeats of historical demand with new randomness, not separately measured evenings.'),
+        (f'<h2>v4 improves on v3 too</h2><div class="scores">'
+         f'<div class="score"><strong>{f["delay"][0]:.0f} s</strong><span>textbook delay</span></div>'
+         f'<div class="score"><strong>{f["v3_delay"]:.0f} s</strong><span>frozen v3 delay</span></div>'
+         f'<div class="score"><strong>{f["delay"][1]:.0f} s</strong><span>v4 delay</span></div></div>'
+         f'<p>Cycle: v4 {f["cycle"]:.0f} s, textbook {f["base_cycle"]:.1f} s.</p>'
+         '<p class="under">Same final rush-hour test. Mean delay per requested car.</p>',
+         'Frozen v3 also beats textbook on the new data. v4 has the lowest delay of these three. The confirmatory paired test is v4 versus textbook, not v4 versus v3.'),
+        (f'<h2>VTA’s timing inputs in our model</h2><div class="scores">'
+         f'<div class="score"><strong>{f["vta_cycles"]["De Anza Blvd"]:g} s</strong><span>De Anza input cycle</span></div>'
+         f'<div class="score"><strong>{f["vta_cycles"]["Stelling Rd"]:g} s</strong><span>Stelling input cycle</span></div></div>'
+         '<p>Our close copy jams in the model.</p>'
+         '<p class="under">A projection, not a claim about the street. We do not claim to beat VTA or the city.</p>',
+         'VTA supplied Vistro inputs. Our SUMO copy cannot reproduce independent rings, overlaps and every controller detail. Its congestion is a projection failure to investigate, not evidence that the street fails.'),
+        ('<h2>What we would do next</h2><ul class="notes">'
+         + ''.join(f'<li>{step}</li>' for step in limits[:4]) + '</ul>',
+         'The aggregate rush-hour win is only the start. ' + ' '.join(limits[:4])),
+        ('<h2>What we would do next</h2><ul class="notes">'
+         + ''.join(f'<li>{step}</li>' for step in limits[4:])
+         + '</ul><p class="under">Roads: OpenStreetMap. Counts and timing inputs: VTA. Thank you.</p>',
+         'Before any street trial, resolve these model and source limits. ' + ' '.join(limits[4:])),
     ]
     body = ''.join(f'<section class="slide"><div class="inner">{html}</div>'
                    f'<p class="note">{escape(note)}</p></section>' for html, note in slides)
@@ -908,98 +902,83 @@ PRIMARY = 'all_requested_delay_s'  # The preregistered score: delay per requeste
 
 
 def facts(rows):
-    """Every derived number the page and the deck quote, read once from the project's own files."""
-    groups = cohort(rows)
-    with open(p.ROOT/'sim/routes_pm_peak.rou.xml') as stream:
-        trips = sum(1 for line in stream if '<vehicle ' in line)
-    trials = read_csv(p.ROOT/'reports/optimize_v3_trials.csv')
-    scores = {int(t['number']): float(t['value']) for t in trials}  # trial number, not row order
-    search = json.loads((p.ROOT/'reports/optimize_v3.json').read_text())
-    checks = read_csv(p.ROOT/'reports/demand_check.csv')
+    """All quoted numbers come from saved project artifacts, never a new simulation."""
+    evaluation = json.loads((p.ROOT/'reports/eval_v4.json').read_text())
+    search = json.loads((p.ROOT/'reports/optimize_v4.json').read_text())
+    seeds = evaluation['seeds']
+    def groups_for(controller='optuna_v4', scenario='pm_peak', window='holdout'):
+        groups = [[r for r in rows if r['controller'] == c and r['scenario'] == scenario
+                   and r['window'] == window and r['seed_group'] == 'v4_final']
+                  for c in ('actuated', controller)]
+        for group in groups:
+            group.sort(key=lambda r: int(r['seed']))
+            if [int(r['seed']) for r in group] != seeds:
+                raise ValueError(f'Expected exactly v4 final seeds: {controller}/{scenario}/{window}')
+        if any(a['requested'] != b['requested'] for a, b in zip(*groups)):
+            raise ValueError('Paired plans must have identical requested demand')
+        return groups
+    groups = groups_for()
+    trials = read_csv(p.ROOT/'reports/optimize_v4_trials.csv')
+    scores = {int(t['number']): float(t['value']) for t in trials if t['state'] == 'COMPLETE'}
     sources = read_csv(p.ROOT/'data/processed/tmc_sources.csv')
     measured = [r for r in sources if r['source'] == 'measured']
-    counts = {}  # 15-minute totals at the first measured intersection
+    counts = {}
     for row in read_csv(p.ROOT/'data/processed/tmc.csv'):
         if row['intersection'] == measured[0]['intersection']:
             counts[row['interval_start']] = counts.get(row['interval_start'], 0)+int(row['vehicles'])
+    checks = [r for r in read_csv(p.ROOT/'reports/model/physical_training.csv')
+              if r['seed'] == '0' and r['source'] == 'measured' and r['movement'] != 'U'
+              and r['interval_start'] >= '17:30']
+    missing = [r for r in read_csv(p.ROOT/'reports/fit/movement_summary.csv')
+               if r['source'] == 'measured' and r['period'] == 'fit' and r['movement'] != 'U'
+               and float(r['observed']) > 0 and float(r['before_scheduled']) == 0]
+    protocol = (p.ROOT/'docs/PREREGISTRATION.md').read_text().split('## Optimization v4 preregistration')[1]
+    timing_doc = (p.ROOT/'docs/vta-timing.md').read_text()
+    readme = (p.ROOT/'README.md').read_text()
+    south = re.search(r'South Stelling-origin.*?mean delay rose \*\*([\d.]+) → ([\d.]+) s', readme)
+    vta_cycles = {r['intersection']: float(r['cycle_s']) for r in read_csv(p.ROOT/'data/processed/vta_timing_2024.csv')}
     base_cycle, base_svg = offset_svg(p.ROOT/'sim/tls_actuated_pm_peak.add.xml')
-    wins = sum(float(b[PRIMARY]) < float(a[PRIMARY]) for a, b in zip(*groups))
-    delay, side, eb, wb, stuck = (stats(groups, k)[0] for k in
-                                  (PRIMARY, 'side_all_requested_delay_s', 'mainline_travel_eb_s',
-                                   'mainline_travel_wb_s', 'unfinished'))
-    # The unfinished charge is a scoring convention; recover it from the two charge levels.
+    def means(metric): return stats(groups, metric)[0]
+    delay = means(PRIMARY)
+    test = next(t for t in evaluation['tests'] if t['controller'] == 'optuna_v4'
+                and t['scenario'] == 'pm_peak' and t['window'] == 'holdout' and t['metric'] == PRIMARY)
     row = groups[0][0]
     charge = ((float(row[PRIMARY])-float(row['all_requested_delay_0_s']))*float(row['requested'])
               / (float(row['unfinished'])+float(row['teleports'])))
-    prereg_date, cap, slack = prereg()
-    tests = read_csv(p.ROOT/'reports/wilcoxon.csv')
-    def pvalue(metric, window='holdout', controller=CONTROLLERS[1]):
-        matches = [r for r in tests if r['scenario'] == 'pm_peak' and r['window'] == window
-                   and r['seed_group'] == 'v3_final' and r['metric'] == metric
-                   and r['controller'] == controller]
-        if len(matches) != 1 or int(matches[0]['n']) != len(groups[0]):
-            raise ValueError(f'Missing paired test: {metric}')
-        return float(matches[0]['p_value'])
+    def seed_range(values): return f'{min(values)} to {max(values)}'
     return {
-        'groups': groups, 'cfg': p.config(), 'trips': trips, 'curve': best_so_far(trials),
+        'groups': groups, 'trips': int(row['requested']), 'curve': best_so_far(trials),
         'thrown_out': sum(float(r['value']) >= 1e9 for r in trials if r['state'] == 'COMPLETE'),
         'search_seeds': len(search['seeds']), 'pick_seeds': len(search['selection_seeds']),
-        'knobs': knobs(trials), 'try0': scores[0], 'kept': int(search['best']['trial']),
-        'kept_score': scores[int(search['best']['trial'])],
-        'search_minutes': search['wall_s']/60,
-        'miss_charge': charge, 'prereg_date': prereg_date, 'cap': cap, 'slack': slack, 'pvalue': pvalue,
+        'train_range': seed_range(search['seeds']), 'pick_range': seed_range(search['selection_seeds']),
+        'test_range': seed_range(seeds), 'knobs': knobs(trials, version=4),
+        'try0': scores[0], 'kept': int(search['best']['trial']),
+        'kept_score': scores[int(search['best']['trial'])], 'search_minutes': search['wall_s']/60,
+        'miss_charge': charge, 'prereg_date': re.search(r'\d{4}-\d{2}-\d{2}', protocol).group(),
+        'cap': int(re.search(r'<=([\d]+)%', protocol).group(1))-100,
+        'slack': int(re.search(r'textbook\+(\d+)', protocol).group(1)),
         'checks': checks, 'close': sum(float(r['geh']) < 5 for r in checks),
-        'target': round(len(checks)*.85), 'measured': measured,
-        'hourly': [r['intersection'] for r in sources if r['source'] != 'measured' and r['count_date']],
+        'old_close': int(re.search(r'old-model (\d+)/', protocol).group(1)),
+        'missing_turns': len(missing), 'year': measured[0]['year'],
+        'count_date': measured[0]['count_date'], 'counts': counts,
+        'mary_year': next(r['year'] for r in sources if r['intersection'].startswith('Mary')),
         'guessed': [r['intersection'] for r in sources if not r['count_date']],
-        'counts': counts, 'base_cycle': base_cycle, 'base_svg': base_svg, 'n_test': len(groups[0]),
-        'verdict': f'all {wins}' if wins == len(groups[0]) else f'{wins} of the {len(groups[0])}',
-        'delay_cut': (1-delay[1]/delay[0])*100, 'side_cut': (1-side[1]/side[0])*100,
-        'faster': (1-eb[1]/eb[0])*100, 'wb_cut': (1-wb[1]/wb[0])*100,
-        'unstuck': stuck[0]-stuck[1], 'odds': round(1/pvalue(PRIMARY), -2),
-        'cap_fail_seeds': [(int(b['seed']), int(a['teleports']), int(b['teleports']))
-                           for a, b in zip(*groups) if int(b['teleports']) > int(a['teleports'])+slack],
-        'cap_fails': sum(int(b['teleports']) > int(a['teleports'])+slack for a, b in zip(*groups)),
+        'base_cycle': base_cycle, 'base_svg': base_svg, 'cycle': search['best']['params']['cycle_s'],
+        'n_signals': len(p.config()['signals']), 'n_test': len(seeds), 'delay': delay, 'delay_cut': (1-delay[1]/delay[0])*100,
+        'eb': means('mainline_travel_eb_s'), 'wb': means('mainline_travel_wb_s'),
+        'side': means('side_all_requested_delay_s'), 'primary_p': float(test['p_value']),
+        'v3_delay': stats(groups_for('optuna_v3'), PRIMARY)[0][1],
+        'unfinished': [sum(int(r['unfinished']) for r in group) for group in groups],
         'teleports': [sum(int(r['teleports']) for r in group) for group in groups],
+        'night_side': stats(groups_for(scenario='night', window='full'), 'side_all_requested_delay_s')[0],
+        'south_harm': float(south[2])-float(south[1]), 'vta_cycles': vta_cycles,
+        'rings': [float(v) for v in re.findall(r'ring [12].*?\*\*(\d+) s\*\*', timing_doc, re.I)[:2]],
     }
 
 
 def build_page(rows, roads, signals):
     f = facts(rows)
-    groups = f['groups']
-    def means(key): return stats(groups, key)[0]
-    def pair(key): return ' → '.join(f'{v:,.1f}' for v in means(key))
-    def pv(key): return f'{f["pvalue"](key):.6f}'
-    v2 = cohort(rows, controllers=('actuated', 'optuna'))
-    delay, side = means(PRIMARY), means('side_all_requested_delay_s')
-    verdict_line = (f'Across {f["n_test"]} brand new rush hours our plan cut the time an average car loses by '
-                    f'{f["delay_cut"]:.1f}%, and it beat the textbook plan in {f["verdict"]}.')
-    headline = (f'On the {f["n_test"]} preregistered test seeds, the optimized plan cuts rush-hour holdout '
-                f'all-requested delay from {delay[0]:,.2f} to {delay[1]:,.2f} s per requested vehicle '
-                f'({f["delay_cut"]:.1f}%, one-sided paired Wilcoxon p={pv(PRIMARY)}), improves the side-origin '
-                f'constraint to ratio {side[1]/side[0]:.3f} and cuts both directions of corridor travel, but the '
-                f'training teleport cap fails on {f["cap_fails"]} of {f["n_test"]} seeds, so no overall feasible '
-                'winner is established under the preregistered rule.')
-    tables=[]
-    for scenario in ('pm_peak','night'):
-        timing=read_csv(p.ROOT/f'reports/timing_v3_{scenario}.csv')
-        names={s['sumo_tls_id']:s['name'] for s in p.config()['signals']}
-        body = ''
-        seen = set()
-        for r in timing:
-            signal = r['sumo_tls_id']
-            first = signal not in seen
-            seen.add(signal)
-            values = (names[signal] if first else '', f"{float(r['cycle_s']):.1f}" if first else '',
-                      f"{float(r['offset_s']):.1f}" if first else '', r['phase'],
-                      f"{float(r['min_green_s']):.1f}", f"{float(r['max_green_s']):.1f}",
-                      f"{float(r['passage_s']):.1f}")
-            body += '<tr>'+''.join(f'<td>{escape(v)}</td>' for v in values)+'</tr>'
-        tables.append(f'<details{" open" if scenario == "pm_peak" else ""}><summary>{"Rush-hour" if scenario=="pm_peak" else "Night"} optimized timing · phase rows</summary><div class="scroll"><table><thead><tr><th>Signal</th><th>Cycle (s)</th><th>Offset (s)</th><th>Phase</th><th>Min green (s)</th><th>Max green (s)</th><th>Passage (s)</th></tr></thead><tbody>{body}</tbody></table></div></details>')
-    trips, curve = f['trips'], f['curve']
-    miss_charge, checks, close = f['miss_charge'], f['checks'], f['close']
-    measured, hourly, guessed, counts = f['measured'], f['hourly'], f['guessed'], f['counts']
-    base_cycle, base_svg, verdict = f['base_cycle'], f['base_svg'], f['verdict']
+    def pair(values, digits=0): return ' → '.join(f'{v:,.{digits}f}' for v in values)
     limits = ''.join(f'<li>{step}</li>' for step in next_steps(f))
     return f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cupertino Signal Lab</title>
@@ -1063,95 +1042,64 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 @media(max-width:720px){{.card:has(>svg){{overflow-x:auto}}.card>svg{{min-width:560px}}.card:has(>svg)::after{{content:"Swipe diagram sideways to read";display:block;font-size:13px;color:var(--muted);margin-top:10px}}main{{padding:0 18px 52px}}.step{{padding:52px 0}}.scores{{grid-template-columns:1fr;gap:26px}}.card{{padding:16px}}}}
 </style><main>
 <p class="masthead">Cupertino Signal Lab<span>AI Club hackathon project</span></p>
-<header><h1>Rush hour on Stevens Creek.</h1><p class="lead">Five traffic lights in a row, and a line of cars that barely moves.</p>
-<figure><div class="card tight wide" tabindex="0">{map_svg(roads, signals)}</div><figcaption>The stretch we studied, drawn from the real street map. Eastbound runs from Mary Avenue to De Anza Boulevard. North is up, and the north to south distance is stretched so the names fit.</figcaption></figure></header>
+<header><h1>{f['delay_cut']:.1f}% less rush-hour delay</h1>
+<p class="lead">{f['n_signals']} Stevens Creek lights, retimed in a simulator. Against textbook on {f['n_test']} unseen simulated rush hours using VTA {f['year']} counts.</p>
+<p>Mean delay per requested car: {pair(f['delay'])} s. Paired test p ≈ {f['primary_p']:.0e}.</p>
+<div class="scores"><div class="score pair"><strong>{pair(f['unfinished'])}</strong><span>unfinished cars</span></div><div class="score pair"><strong>{pair(f['teleports'])}</strong><span>stuck-car events</span></div></div>
+<small>Textbook → v4. Counts total all {f['n_test']} runs. Unseen means new random seeds, with historical demand replayed.</small>
+<figure><div class="card tight wide" tabindex="0">{map_svg(roads, signals)}</div><figcaption>Mary Avenue to De Anza Boulevard. Road geometry from OpenStreetMap. North is up, with the north to south scale stretched so names fit.</figcaption></figure></header>
 
-<section class="step"><h2>What if the five lights worked as a team?</h2>
-<p>Coordinating green start times can help cars reach the next light on green. We compare a textbook coordinated plan with one learned by a computer, in the same simulator.</p>
-<figure><div class="card">{team_svg()}</div></figure></section>
+<section class="step"><h2>Eastbound and side streets gain</h2>
+<div class="scores"><div class="score pair"><strong>{pair(f['eb'])} s</strong><span>eastbound travel</span></div><div class="score pair"><strong>{pair(f['side'])} s</strong><span>side-street delay</span></div><div class="score pair cost"><strong>{pair(f['wb'])} s</strong><span>westbound travel, slightly worse</span></div></div>
+<p>Means across the final rush-hour test, textbook → v4. Directional travel counts completed nonteleported corridor crossings and excludes waiting to enter. Side-street delay counts all requested side-origin trips.</p>
+<figure><div class="card wide" tabindex="0">{paired_svg(f['groups'], PRIMARY, 'Delay per requested car (seconds)')}</div><figcaption>Each line pairs both plans on the same random seed.</figcaption></figure></section>
 
-<section class="step"><h2>How it works</h2>
-<figure><div class="card wide flow" tabindex="0">{system_svg(f)}</div></figure>
-<p>{SYSTEM_OUTPUT}</p></section>
+<section class="step"><h2>We asked VTA for real data</h2>
+<p>VTA sent IDAX counts from {f['count_date']} and its model timing for De Anza and Stelling. Thank you to VTA, Kia Sharifi, P.E., and Larissa Sanderfer.</p>
+<figure><div class="card wide" tabindex="0">{bars_svg(sorted(f['counts'].items()), 'De Anza: counted cars per 15 minutes')}</div><figcaption><a href="../data/processed/tmc_sources.csv">Count sources and dates</a> and <a href="../data/processed/vta_counts_2024.csv">transcribed VTA counts</a>.</figcaption></figure>
+<p>The new data exposed {f['missing_turns']} counted turns where the old model sent no cars. We fixed the allocation and added U-turns. Better evidence helped us find and repair a real model problem.</p></section>
 
-<section class="step"><span class="n">1</span><h2>The car counts come from City of Cupertino traffic reports.</h2>
-<p>People stood at the intersections and wrote down every turn, every 15 minutes. We model the historical {measured[0]['year']} counts from the Vallco and Westport reports.</p>
-<figure><div class="card wide" tabindex="0">{bars_svg(sorted(counts.items()), 'cars through ' + measured[0]['intersection'] + ' per 15 minutes')}</div><figcaption>Counted at {escape(measured[0]['intersection'])} and Stevens Creek on {measured[0]['count_date']}. Vallco traffic report, pp. {measured[0]['pdf_page']}. <a href="../data/processed/tmc_sources.csv">Source ledger with original report URLs</a> and <a href="../data/processed/tmc.csv">transcribed counts</a>.</figcaption></figure>
-<ul class="chips"><li>Counted every 15 minutes: {', '.join(escape(r['intersection']) for r in measured)}</li><li>Counted by the hour: {', '.join(escape(n) for n in hourly)}</li><li>Modeled entries: {', '.join(escape(n) for n in guessed)}</li></ul></section>
+<section class="step"><h2>How it works</h2><figure><div class="card wide flow" tabindex="0">{system_svg(f)}</div></figure>
+<p>Output: a candidate timing plan for an engineer to review.</p>
+<figure><div class="card">{team_svg()}</div><figcaption>Green start times let the lights work as a team.</figcaption></figure></section>
 
-<section class="step"><div class="split"><div><span class="n">2</span><h2>We rebuilt the real street inside a traffic simulator.</h2>
-<p>SUMO is a traffic simulator: it moves each car along a mapped route, braking and waiting at modeled traffic lights. Road geometry comes from OpenStreetMap; five signals control the corridor.</p></div>
-<figure><div class="card tight"><img width="1002" height="638" src="../reports/network.png" alt="Close view of one intersection showing every road and turning path the simulated cars can use"></div><figcaption>Inside one of the five intersections. Every short curve is a turn a simulated car can take.</figcaption></figure></div></section>
+<section class="step"><h2>The tuner learns from its own tries</h2>
+<p>Pick a timing plan, run {f['search_seeds']} practice rush hours, score it, then use those results to choose the next try. This is Bayesian optimization: learning which settings worked so far.</p>
+<figure><div class="card wide" tabindex="0">{tuner_loop_svg(f)}</div></figure>
+<figure><div class="card wide" tabindex="0">{plan_space_svg(f)}</div></figure>
+<p>The score counts every car that asked to drive, including waiting to enter. Each unfinished trip or stuck-car event adds a {f['miss_charge']:.0f} s charge. That charge is a scoring rule, not measured delay.</p></section>
 
-<section class="step"><div class="split"><div><span class="n">3</span><h2>Those counts become {trips:,} car trips.</h2>
-<p>Every counted turn becomes cars with a real route through the corridor, released across the two hour rush. Each trip has a requested departure, a wait to enter, and a drive to its destination.</p></div>
-<figure><div class="card">{pipeline_svg((("Request", "clock starts"), ("Wait outside", "until space"), ("Drive", "until arrival")), (("One simulated trip", 3),))}</div><figcaption>The clock starts at the request, before the car gets onto the road.</figcaption></figure></div></section>
+<section class="step"><h2>Rules committed before the search</h2>
+<p>We committed the rules on {f['prereg_date']}. The tuner tried {len(f['curve'])} plans on seeds {f['train_range']}, picked the finalist on {f['pick_range']}, then tested on {f['test_range']}. Settings froze before the final test.</p>
+<figure><div class="card wide" tabindex="0">{curve_svg(f['curve'])}</div><figcaption>Best practice score so far. Fresh selection runs chose try {f['kept']}, which need not be the lowest point on this curve.</figcaption></figure>
+<figure><div class="card tight wide" tabindex="0">{rules_svg(f)}</div></figure>
+<p>v3 beats textbook too: {f['v3_delay']:.0f} s versus {f['delay'][0]:.0f} s per requested car. v4 lowers that to {f['delay'][1]:.0f} s. Its cycle is {f['cycle']:.0f} s, against {f['base_cycle']:.1f} s for textbook.</p></section>
 
-<section class="step"><span class="n">4</span><h2>First we built the plan an engineer would use.</h2>
-<p>A standard textbook formula gives all five lights one shared {base_cycle:.0f} second cycle and starts each main green at a different moment. That plan is what we have to beat. It is not Cupertino's current timing.</p>
-<figure><div class="card wide" tabindex="0">{base_svg}</div><figcaption>Each bar is the main road's green time at that light through one cycle. Going east, each green starts later than the one before, and the last one wraps into the next cycle.</figcaption></figure></section>
+<section class="step"><h2>VTA’s timing inputs in our model</h2>
+<p>De Anza: {f['vta_cycles']['De Anza Blvd']:g} s. Stelling: {f['vta_cycles']['Stelling Rd']:g} s. These are VTA model inputs, not confirmed current city controller settings.</p>
+<p>Our close copy jams in the model. This is a projection, not a claim about the street. We do not claim to beat VTA or the city.</p>
+<p><a href="../docs/vta-timing.md">Source timing and projection choices</a></p></section>
 
-<section class="step"><span class="n">5</span><h2>The computer tried {len(curve)} timing plans and kept the best.</h2>
-<p>One try goes like this: pick a timing plan, run {f['search_seeds']} practice rush hours with it in the simulator, score the result, then let the tuner choose what to try next. It is not a brain and it is not guessing at random. It builds a picture of which settings scored well so far and aims the next try at the promising part, which is a kind of machine learning called Bayesian optimization. Try 0 was the textbook plan and scored {f['try0']:,.0f} seconds lost per car; {len(curve)} tries later we kept try {f['kept']}, at {f['kept_score']:,.0f}. Our first search sped up eastbound but left westbound drivers worse off, so we gave the tuner stricter rules and searched again.</p>
-<figure><div class="card wide" tabindex="0">{curve_svg(curve)}</div><figcaption>The best score so far across {len(curve)} tries. Lower is better: the score adds up the time every car loses. Most of the gain arrives early, then the tool fine tunes. The lowest point here is not the plan we kept: the ten best were run again on {f['pick_seeds']} fresh rush hours, and try {f['kept']} won that run off.</figcaption></figure>
-<p>It may change {sum(c for c, _, _ in f['knobs'])} numbers, and nothing else:</p>
-<ul class="chips">{''.join(f'<li>{count} &middot; {escape(name.lower())}, {escape(detail)}</li>' for count, name, detail in f['knobs'])}</ul>
-<p>The score is one number: the scored seconds lost per requested car, counting every car that asked to drive. That is what stops a plan winning by holding cars out of the corridor, because every trip that never finished was charged {miss_charge/60:.0f} minutes. On top of that, no direction of Stevens Creek and no side street may come out more than {f['cap']}% slower than the textbook plan, and no plan may leave more than {f['slack']} extra cars stuck. Breaking any of those threw a try out on the spot, which is what happened to {f['thrown_out']} of the {len(curve)} tries.</p></section>
+<section class="step"><h2>What we would do next</h2><ul class="notes">{limits}</ul></section>
 
-<section class="step"><span class="n">6</span><h2>We wrote the rules down before the test.</h2>
-<p>It is easy to run a test, look at twenty numbers and announce whichever one looks best. So on {f['prereg_date']} we wrote down what would count as a win, saved it in the project's history, and only then ran the final test. Everything below is scored against this, using the same saved rules.</p>
-<figure><div class="card tight wide" tabindex="0">{rules_svg(f)}</div></figure></section>
-
-<section class="step"><div class="split"><div><span class="n">7</span><h2>Then we tested both plans on {f['n_test']} rush hours the tuner never saw.</h2>
-<p>The computer searched on {f['search_seeds']} practice rush hours and used {f['pick_seeds']} more to choose between its best plans. The final {f['n_test']} were kept out of all of that: same road, historical demand replayed, new random seeds. These are simulation repeats, not 20 separately measured evenings. Our plan could not win by memorising its practice runs.</p></div>
-<figure><div class="card">{seeds_svg(((f['search_seeds'], 'var(--road)', f'{f["search_seeds"]} rush hours to practise on'), (f['pick_seeds'], 'var(--road)', f'{f["pick_seeds"]} more to pick the finalist'), (f['n_test'], 'var(--accent)', f'{f["n_test"]} brand new ones for the fair test')))}</div></figure></div></section>
-
-<section class="step"><h2>Watch the same evening twice.</h2>
-<figure><div class="card tight"><video controls playsinline preload="none" poster="../reports/side_by_side_poster.png" aria-label="Side by side traffic simulation of the textbook plan and our plan"><source src="../reports/side_by_side.mp4" type="video/mp4">Open <a href="../reports/side_by_side.mp4">the video</a>.</video></div></figure>
-<p><a href="../reports/side_by_side.mp4">Open video full size to read the race clocks</a>.</p>
-<ul class="notes"><li>Left is the textbook plan. Right is our plan. Same cars, same clock.</li><li>Red dots are cars that have stopped. Green dots are moving.</li><li>The chart at the bottom shows cars waiting outside: textbook in red, ours in teal. The race clock includes the wait to get on.</li></ul>
-<small>{clock_text(VIDEO[0], False)} to {clock_text(VIDEO[1], False)} at {STEP*FPS}x speed (race at 20x), from one of the {f['n_test']} test rush hours. One run shows what the plans look like; it does not prove anything on its own, and the numbers below come from all {f['n_test']}. The north to south scale is stretched and signal states were not recorded.</small></section>
-
-<section class="step"><h2>The result</h2>
-<p>{verdict_line}</p>
-<div class="scores"><div class="score"><strong>{f['delay_cut']:.1f}%</strong><span>less scored time lost per requested car</span></div><div class="score"><strong>{f['faster']:.1f}%</strong><span>less eastbound corridor travel time</span></div><div class="score"><strong>{f['wb_cut']:.1f}%</strong><span>less westbound corridor travel time</span></div><div class="score"><strong>{f['side_cut']:.1f}%</strong><span>less time lost by side street cars</span></div><div class="score pair"><strong>{f['teleports'][0]} → {f['teleports'][1]}</strong><span>stuck-car events, total across 20 runs</span></div></div>
-<p>The first number is the score we promised to judge on: it includes waiting to enter and charges each unfinished trip or stuck-car event {miss_charge/60:.0f} minutes. The two directional times cover completed corridor crossings and exclude waiting to enter. If our plan were really no better, a gap this one sided would turn up in about one test out of {f['odds']:,.0f}. The side streets improved too, which was the thing we were most afraid of breaking.</p>
-<figure><div class="card wide" tabindex="0">{paired_svg(groups, PRIMARY, 'Time lost per car, counting every car (seconds)')}</div><figcaption>Each line is one of the {f['n_test']} test rush hours, with both plans run on the same randomness. Our plan loses less time in {verdict}.</figcaption></figure></section>
-
-<section class="step"><h2>What we would do next</h2>
-<ul class="notes">{limits}</ul></section>
-
-<details><summary>For the curious: full numbers, tests and method</summary>
-<p>{headline}</p>
-<p class="muted">The three counters in the video come from the simulator's own per-second summary for seed {FCD_SEED} (<a href="../reports/timeline_seed33.csv">CSV</a>): waiting on the road counts halting vehicles, under 0.1 m/s; shut out of the corridor counts vehicles whose scheduled departure has passed with no insertion yet; trips finished counts arrivals so far. The chart compares the number waiting outside under each plan, textbook in red and ours in teal, on the same scale as the outside-line bars. The ring follows the car nearest the median request-to-arrival saving across ALL trips requested between 5:00 and 5:30 PM, all entries and routes. Pairs unfinished by 6:30 PM are excluded and counted in the video. Exact departure and arrival times come from <a href="../reports/trips_seed33.csv">SUMO trip records</a>; selection and wait/drive breakdown are saved in <a href="../reports/race.json">race.json</a>. Positions alone use two-second samples.</p>
-<p class="muted">Preregistered on {f['prereg_date']} in <a href="../docs/PREREGISTRATION.md">docs/PREREGISTRATION.md</a>, before the optimizer or the test ran: the primary endpoint, the {f['cap']}% side-origin cap, the baseline + {f['slack']} teleport rule, the untouched seeds {min(SEEDS)} to {max(SEEDS)}, and a promise to report whichever way it went. The confirmatory comparison is the single test above; everything else here is descriptive and unadjusted.</p>
-<p class="counts">Requested: <strong>{pair('requested')}</strong><br>Completed: <strong>{pair('completed')}</strong><br>Unfinished: <strong>{pair('unfinished')}</strong> (still running or never inserted).</p>
-<div class="card wide" tabindex="0">{chart(groups,[('all_requested_delay_0_s','All-requested delay, no unfinished or teleport charge'),(PRIMARY,f'All-requested delay, {miss_charge:.0f} s charge (preregistered primary)'),('all_requested_delay_1800_s','All-requested delay, 1800 s charge')],'Preregistered primary and its sensitivity')}<small>Lower is better. Zero-charge p={pv('all_requested_delay_0_s')}; primary p={pv(PRIMARY)}; 1800 s p={pv('all_requested_delay_1800_s')}. Score = [completed time loss + completed insertion delay + charge x (unfinished + teleport events)] / requested vehicles. The charge is a scoring convention, not measured delay; the direction holds at all three levels.</small></div>
-<div class="card wide" tabindex="0">{chart(groups,[('side_all_requested_delay_s','Side-origin all-requested delay')],'Side-origin constraint')}{chart(groups,[('unfinished','Unfinished vehicles')],'Unfinished vehicles',unit='')}{chart(groups,[('teleports','Teleport events')],'Teleport events',unit='')}<small>Side-origin p={pv('side_all_requested_delay_s')} at paired-mean ratio {side[1]/side[0]:.3f}, inside the {f['cap']}% cap. Unfinished p={pv('unfinished')}. Teleports p={pv('teleports')} tested for improvement: they fall overall, {f['teleports'][0]} to {f['teleports'][1]} events over {f['n_test']} seeds, but still exceed baseline + {f['slack']} on {f['cap_fails']} of {f['n_test']} seeds ({', '.join(f'seed {s}: {a} to {b}' for s, a, b in f['cap_fail_seeds'])}). That is the preregistered feasibility rule failing on the final test, so no feasible winner is declared.</small></div>
-<div class="card wide" tabindex="0">{chart(groups,[('mainline_travel_eb_s','Eastbound corridor travel'),('mainline_travel_wb_s','Westbound corridor travel')],'Corridor travel')}<small>EB p={pv('mainline_travel_eb_s')}; WB p={pv('mainline_travel_wb_s')}; both directions improve, EB {f['faster']:.1f}% and WB {f['wb_cut']:.1f}%, and both are descriptive secondary endpoints rather than the confirmatory test. Directional travel excludes pre-insertion delay and teleported vehicles.</small></div>
-<div class="card wide" tabindex="0">{chart(groups,[('mean_time_loss_s','Completed-only time loss'),('side_time_loss_s','Completed-only side-origin time loss'),('mean_depart_delay_s','Completed-only insertion delay')],'Completed-only outcomes')}<small>Completed-only loss p={pv('mean_time_loss_s')} for improvement: that original outcome worsens, because the optimized plan completes trips the textbook plan never starts. Side-origin completed-only loss has p={pv('side_time_loss_s')} for improvement. These omit unfinished demand and carry survivor bias, which is why the preregistered primary counts every requested vehicle.</small></div>
-<small>Bars show mean plus or minus one sample standard deviation across seeds {min(SEEDS)} to {max(SEEDS)}, not confidence intervals and not real-world uncertainty. P-values are paired one-sided Wilcoxon tests, optimized below textbook. Full PM and holdout windows overlap and are not independent replications. Fitted-hour demand is replayed, so these seeds test randomness and later operating conditions, not unseen measured demand.</small>
-<p class="muted">Earlier try, kept for the record: the previous plan was frozen before this search and tested on the same {f['n_test']} seeds. It scored the primary endpoint lower still, {stats(v2, PRIMARY)[0][1]:,.2f} s, which is {(1-stats(v2, PRIMARY)[0][1]/delay[0])*100:.1f}% below textbook (p={f['pvalue'](PRIMARY, controller='optuna'):.6f}), but it left {sum(int(r['teleports']) for r in v2[1])} stuck cars against the textbook plan's {f['teleports'][0]} and broke the baseline + {f['slack']} teleport rule on {sum(int(b['teleports']) > int(a['teleports'])+f['slack'] for a, b in zip(*v2))} of {f['n_test']} seeds, and on its own earlier test cohort it had left westbound travel worse than textbook. The plan on this page is the third search, which added per-direction travel caps and a per-signal minimum mainline green.</p>
-<p class="muted">Night is estimated demand and shows no supported gain: all-requested delay {' to '.join(f'{v:.2f}' for v in stats(cohort(rows,'night','full'),PRIMARY)[0])} s.</p>
-<figure><img src="../reports/time_space.png" alt="Eastbound car trajectories for the textbook and optimized plans" loading="lazy"><figcaption>One path per car while it is on the eastbound corridor, across the busiest quarter hour. Rising lines mean movement, flat lines mean waiting. Same single test rush hour (seed {FCD_SEED}) as the video, not aggregate evidence.</figcaption></figure>
-<p class="muted">Data and limits in full: public counts are from {measured[0]['year']}. {' and '.join(escape(r['intersection']) for r in measured)} have measured quarter-hour counts; {', '.join(escape(n) for n in guessed)} and {', '.join(escape(n) for n in hourly)} profiles are estimated, with {', '.join(escape(n) for n in hourly)} built from hourly observations. This is not a picture of current traffic. Mary's mapped layout omits movements totaling 775 vehicles per hour.</p>
-<p class="muted">Teleports have not gone away: holdout totals {f['teleports'][0]} to {f['teleports'][1]} across {f['n_test']} seeds; full PM totals {sum(int(r['teleports']) for r in cohort(rows,window='full')[0])} to {sum(int(r['teleports']) for r in cohort(rows,window='full')[1])}. SUMO can relocate stuck cars after 300 s, which distorts congestion. Completing more trips does not prove more cars entered the road. The simulated counts matched the measured ones on {close} of {len(checks)} movement intervals, below the {round(len(checks)*.85)} an engineer would expect.</p>
-<p class="muted">No field testing was done. An engineer would need current counts, the actual timing sheets and a supervised pilot before considering any real change. The timing below is a demo proposal; phase order and clearance rules are preserved and nothing is sent to city lights.</p>
-{''.join(tables)}
-<p class="muted"><a href="../reports/results.csv">All results (CSV)</a> · <a href="../reports/wilcoxon.csv">Paired tests (CSV)</a> · <a href="../data/processed/tmc_sources.csv">Count sources (CSV)</a></p>
+<details><summary>Saved results and test method</summary>
+<p>One-sided paired Wilcoxon p={f['primary_p']:.9f} for v4 versus textbook, rush-hour holdout delay per requested car. This is the single confirmatory test. Other endpoints and comparisons are descriptive. Full PM overlaps the holdout.</p>
+<p>The score adds completed time loss and insertion delay, plus {f['miss_charge']:.0f} s per unfinished trip and teleport event, then divides by all requested cars. Each holdout run requests {f['trips']:,} trips. The night demand is estimated.</p>
+<p><a href="../reports/results_2024.csv">2024 results CSV</a> · <a href="../reports/eval_v4.json">Frozen evaluation</a> · <a href="../reports/optimize_v4.json">Search and selection</a> · <a href="../docs/PREREGISTRATION.md">Committed rules</a> · <a href="../reports/timing_v4_pm_peak.csv">Rush-hour timing</a></p>
 </details>
-<footer><strong>Cupertino Signal Lab</strong>, a student hackathon project. Road data from OpenStreetMap contributors (ODbL). Counts from City of Cupertino Vallco and Westport traffic reports. Simulation in SUMO, tuning with Optuna, built with Python, Matplotlib and ffmpeg.</footer>
+<footer>Cupertino Signal Lab, a student hackathon project. Road data © OpenStreetMap contributors (ODbL). VTA supplied IDAX counts and Vistro timing inputs. Simulated in SUMO, tuned with Optuna. Mary retains older source data as disclosed above.</footer>
 </main></html>'''
 
-def dashboard():
+def dashboard(skip_video=False):
     os.nice(15)
     cfg = p.config()
     roads, signals, offsets, distance = geometry(cfg)
-    rows = read_csv(p.ROOT/'reports/results.csv')
+    rows = read_csv(p.ROOT/'reports/results_2024.csv')
     page = build_page(rows, roads, signals)
     deck = build_deck(rows, roads, signals)
-    render_media(roads, signals, offsets, distance)
+    if not skip_video:
+        render_media(roads, signals, offsets, distance)
     (p.ROOT/'dashboard').mkdir(exist_ok=True)
     (p.ROOT/'dashboard/index.html').write_text(page)
     (p.ROOT/'dashboard/deck.html').write_text(deck)
-    print('Built dashboard/index.html, dashboard/deck.html, side_by_side.mp4, side_by_side_poster.png, time_space.png')
+    print('Built dashboard/index.html and dashboard/deck.html' + ('' if skip_video else ' and media'))
