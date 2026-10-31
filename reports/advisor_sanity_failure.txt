@@ -1,0 +1,8 @@
+ Retrying in 1 seconds
+Traceback (most recent call last):
+  File "/Users/saarthranka/Documents/school/ai-club-hackathon/tools/eval_advisor.py", line 130, in <module>
+    {'sanity': sanity, 'fit': fit_light, 'test': experiment}[sys.argv[1]]()
+  File "/Users/saarthranka/Documents/school/ai-club-hackathon/tools/eval_advisor.py", line 55, in sanity
+    assert error <= .0051, error
+           ^^^^^^^^^^^^^^
+AssertionError: 15.548664470631756

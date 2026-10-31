@@ -13,3 +13,5 @@ reports/fcd_*_seed73.xml.gz
 
 reports/advisor_surge/
 reports/drift/
+
+reports/advisor_loop/

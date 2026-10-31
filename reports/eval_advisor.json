@@ -1,0 +1,25 @@
+{
+  "status": "stopped_at_sanity_gate",
+  "test_seeds_run": [],
+  "development_cohort_run": false,
+  "light_profile_fitted": false,
+  "primary_results": [],
+  "sanity": {
+    "scenario": "calm",
+    "seed": 0,
+    "begin_s": 59400,
+    "end_s": 60000,
+    "count_and_row_fields_equal": true,
+    "feed_rows": 34,
+    "max_occupancy_difference_percentage_points": 15.548664470631756,
+    "allowed_xml_rounding_difference": 0.0051,
+    "fixed_v5_metric_parity": "not reached"
+  },
+  "failure": "Live TraCI occupancy did not match piece-1 detector XML. Stopped as preregistered. Cause not established.",
+  "implementation": "Partial and unvalidated; do not run final test until sanity passes.",
+  "log": "reports/advisor_sanity_failure.txt",
+  "preregistration_commits": [
+    "4a4078a",
+    "aa20f03"
+  ]
+}
