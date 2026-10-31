@@ -270,8 +270,11 @@ def optimize(trials=300, version=3, scenario='pm_peak'):
                     [baseline_params(), frozen(3) if version == 4 else v2_params()])
         for params in enqueued:
             study.enqueue_trial(params)
+        # SQLite ignores row locks, so parallel workers can both claim one queued trial; run the queue here.
+        worker(storage, len(enqueued), 0, baselines[:len(train_seeds)], version, scenario)
+        remaining = trials-len(enqueued)
         with ProcessPoolExecutor(max_workers=workers) as pool:
-            jobs = [pool.submit(worker, storage, trials//workers+(i < trials % workers), i,
+            jobs = [pool.submit(worker, storage, remaining//workers+(i < remaining % workers), i,
                                 baselines[:len(train_seeds)], version, scenario) for i in range(workers)]
             for job in jobs:
                 job.result(timeout=max(1, 6900-(time.monotonic()-start)))
