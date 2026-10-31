@@ -1,5 +1,0 @@
-[I 2026-10-30 16:34:43,341] A new study created in RDB with name: pm_peak
-trial 0: loss=468.19, unfinished=21, teleports=0
-trial 20: loss=318.90, unfinished=0, teleports=0
-trial 40: loss=363.69, unfinished=0, teleports=0
-optimize: 60 trials, 1054.6 s, 1 processes; selected trial 39

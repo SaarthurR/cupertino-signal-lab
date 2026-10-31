@@ -1,8 +1,0 @@
-test_exact_paired_cohort_and_uncertainty (tests.test_dashboard.DashboardTests.test_exact_paired_cohort_and_uncertainty) ... ok
-test_page_uses_csvs_and_only_local_assets (tests.test_dashboard.DashboardTests.test_page_uses_csvs_and_only_local_assets) ... ok
-test_paths_break_at_missing_samples_and_position_jumps (tests.test_dashboard.DashboardTests.test_paths_break_at_missing_samples_and_position_jumps) ... ok
-
-----------------------------------------------------------------------
-Ran 3 tests in 0.018s
-
-OK

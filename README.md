@@ -1,5 +1,7 @@
 # Cupertino Signal Lab
 
+> Saved: the simulation-only project is frozen at tag `sim-v5-final`. Earlier work: branch `old-2018-model`, tag `calib-probe`.
+
 A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Current demand inputs mix 2024 De Anza/Stelling counts with 2018 Mary observations and estimates; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
 
 **Result:** in this fixed-demand simulation on 2024 VTA counts, a tuned plan cut rush-hour delay 40.7% against a textbook timing plan (829 → 491 s, 30 unseen rush hours, p = 9.31e-10), while several trip-start groups waited longer and westbound got slightly slower (140 → 145 s). The night plan was not a confirmed win. This is not a comparison with the city's or VTA's timing, and nothing has been tested on the street. Thank you to Kia Sharifi, P.E., and Larissa Sanderfer at VTA for the 2024 counts.
