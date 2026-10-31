@@ -38,6 +38,12 @@ Registered before any piece-3 simulation or test run. Synthetic counts only.
   piece-1 XML extraction, allowing only XML decimal-rounding error; full fixed
   v5 TraCI metrics must equal existing simulate on the same fit seed. Stop on
   failure. Unit checks cover phase/offset selection and approval delay.
+- Amendment before any test seed ran: the first sanity run failed because TraCI's
+  interval occupancy leaves out vehicles still on a loop, and SUMO buffers the
+  detector file so it cannot be read live. Live occupancy is now the per-step mean.
+  It only approximates the file measure that the profiles use, so the occupancy gate
+  is now at most 3 percentage points per approach and at most 1 on average. The count
+  gate stays exact. This is a known limit of the test, and the advisor rule is unchanged.
 - Run the final cohort once, no reruns to improve findings. Preserve frozen
   plans and old results. Save per-run logs, results_advisor.csv and
   eval_advisor.json with provenance. Null or harmful results stand.

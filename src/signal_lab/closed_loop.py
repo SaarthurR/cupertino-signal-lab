@@ -87,18 +87,24 @@ def run(scenario, seed, arm, folder, calibration=None, stop=None):
     traci.start(list(map(str, args)), label=str(folder), stdout=open(folder/'sumo.log', 'w'), doSwitch=False)
     connection = traci.getConnection(str(folder))
     counts, previous = Counter(), {}
+    # shortcut: per-step occupancy approximates the detector file, which SUMO buffers and cannot be read live.
+    occupied, steps = Counter(), 0
     history, rows = [], []
     state, pending, last_switch = a.State(), None, None
     switches = recommendations = 0
     try:
         for detector in ids:
-            if detector.startswith('stop_'):
-                connection.inductionloop.subscribe(detector, [tc.LAST_STEP_VEHICLE_ID_LIST])
+            connection.inductionloop.subscribe(detector, [
+                tc.LAST_STEP_VEHICLE_ID_LIST if detector.startswith('stop_') else tc.LAST_STEP_OCCUPANCY])
         with (folder/'events.jsonl').open('w') as events:
             while connection.simulation.getTime() < finish:
                 connection.simulationStep()
                 time = int(connection.simulation.getTime())
+                steps += 1
                 for detector, values in connection.inductionloop.getAllSubscriptionResults().items():
+                    if detector.startswith('upstream_'):
+                        occupied[detector] += values[tc.LAST_STEP_OCCUPANCY]
+                        continue
                     current = set(values[tc.LAST_STEP_VEHICLE_ID_LIST])
                     counts[ids[detector]] += len(current-previous.get(detector, set()))
                     previous[detector] = current
@@ -121,12 +127,14 @@ def run(scenario, seed, arm, folder, calibration=None, stop=None):
                     occupancy = defaultdict(list)
                     for detector, key in ids.items():
                         if detector.startswith('upstream_'):
-                            occupancy[key].append(connection.inductionloop.getLastIntervalOccupancy(detector))
+                            occupancy[key].append(occupied[detector]/steps)
                     batch = [dict(window_end=(f.CLOCK+timedelta(seconds=time)).isoformat(),
                                   site=site, approach=approach, count=counts[site, approach],
                                   occupancy=sum(occupancy[site, approach])/len(occupancy[site, approach]), ok=1)
                              for site, approach in sorted(set(ids.values()))]
                     counts.clear()
+                    occupied.clear()
+                    steps = 0
                     if begin < time <= end:
                         rows.extend(batch)
                         history = [r for r in history if r.window_end > f.CLOCK+timedelta(seconds=time-900)]
