@@ -47,3 +47,15 @@ Registered before any piece-3 simulation or test run. Synthetic counts only.
 - Run the final cohort once, no reruns to improve findings. Preserve frozen
   plans and old results. Save per-run logs, results_advisor.csv and
   eval_advisor.json with provenance. Null or harmful results stand.
+
+## Version 2, registered after seeing version 1
+
+Version 1 (seeds 103-122, `reports/results_advisor.csv`) stands as run. All traffic -25%: 77.6 to 67.5 s, one switch per
+run. It also switched by mistake in 7 of 20 calm runs and recommended the light plan in 7 of 20 east surge runs.
+Profiles came from the detector file, but the live loop reads a different occupancy. That mismatch is the suspected
+cause, not a proven one.
+
+Only change: refit the pm, east_surge and light profiles and margins from live occupancy on seeds 0-4, with the same
+procedure. Night stays file-based because the closed loop has no night run. Same scenarios, arms, metric, test and Holm
+correction, on new seeds 123-142, once. Both versions get reported. Adopt version 2 only if calm false switches fall
+and all_drop keeps a confirmed gain. A calm "gain" from a false switch is not counted as a benefit in either version.
