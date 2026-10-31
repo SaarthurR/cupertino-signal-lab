@@ -25,9 +25,9 @@ from .optimize import bounds as knob_bounds
 # One neutral grey for the textbook plan, one accent for ours, everywhere.
 COLORS = ('#636f78', '#0b7d73')
 INK = ('var(--plan)', 'var(--accent)')
-LABELS = ('Textbook plan', 'Our plan (v4)')
-CONTROLLERS = ('actuated', 'optuna_v4')
-FCD_SEED = 53  # The recorded evening; one of the preregistered test rush hours.
+LABELS = ('Textbook plan', 'Our plan (v5)')
+CONTROLLERS = ('actuated', 'optuna_v5')
+FCD_SEED = 73  # The recorded evening; one of the preregistered test rush hours.
 VIDEO = (58500, 66600)  # 16:15 to 18:30, the whole evening the frames cover
 STEP = 4  # simulated seconds per video frame; the saved frames are 2 s apart
 FPS = 25  # STEP x FPS = 100x real time, so the evening runs in about 81 s
@@ -182,14 +182,14 @@ def caption_script(counters):
             (58800, 59400,
              'Red = cars stopped on the road. A busy road alone does not tell the story.\nWatch the line outside and trips finished.'),
             (60300, 61200,
-             f'4:45 PM, this seed: {textbook[60300][1]:,} cars waiting outside textbook, {ours[60300][1]:,} with v4.'),
+             f'4:45 PM, this seed: {textbook[60300][1]:,} cars waiting outside textbook, {ours[60300][1]:,} with v5.'),
             (63000, 63900,
-             f'5:30 PM, this seed: {textbook[63000][1]:,} cars waiting outside textbook, {ours[63000][1]:,} with v4.'),
+             f'5:30 PM, this seed: {textbook[63000][1]:,} cars waiting outside textbook, {ours[63000][1]:,} with v5.'),
             (64800, 65400,
              f'Seed {FCD_SEED}, crossings requested after 5:30 and finished by 6:30 PM:\n'
-             f'Eastbound {travel[0][0]:.0f} to {travel[0][1]:.0f} s; westbound {travel[1][0]:.0f} to {travel[1][1]:.0f} s (worse).'),
+             f'Eastbound {travel[0][0]:.0f} to {travel[0][1]:.0f} s; westbound {travel[1][0]:.0f} to {travel[1][1]:.0f} s{" (worse)" if travel[1][1] > travel[1][0] else ""}.'),
             (65400, 66000,
-             f'Seed {FCD_SEED}: {worse:,} of {len(pairs):,} paired trips took longer with v4.\n'
+             f'Seed {FCD_SEED}: {worse:,} of {len(pairs):,} paired trips took longer with v5.\n'
              'Trips requested 5:00 to 5:30 PM; clocks include waiting outside.'),
             (66000, VIDEO[1],
              "This is a simulation with limits. Textbook is not the city's plan.\nSome trips get worse; this model needs more calibration before any street trial.")]
@@ -268,7 +268,7 @@ def render_media(roads, signals, offsets, distance):
                  fontsize=16, color='#53687a', va='top')
         finished_counts.append(fig.text(.03+len(readouts)*.495, .392, '', fontsize=21, fontweight='bold', color=color))
         readouts.append(fig.text(.03+len(readouts)*.495, .363, '', fontsize=16, color='#53687a'))
-    caption = fig.text(.5, .333, '', fontsize=21, ha='center', va='center', color='#0b5f58')
+    caption = fig.text(.5, .326, '', fontsize=21, ha='center', va='center', color='#0b5f58')
 
     textbook, ours = counters
     minutes = [(t-VIDEO[0])/60 for t, _ in data[0][0]]
@@ -292,9 +292,9 @@ def render_media(roads, signals, offsets, distance):
     gap_ax = fig.add_axes([.59, .095, .36, .15])
     gap_ax.set_facecolor('#f7f8fa')
     gap = [ours[t][2]-textbook[t][2] for t, _ in data[0][0]]
-    gap_ax.set(xlim=(0, span), ylim=(min(0, min(gap))-30, max(gap)+80),
+    gap_ax.set(xlim=(0, span), ylim=(min(0, min(gap))-30, max(gap)*1.3),
                xticks=ticks, xticklabels=[clock_text(VIDEO[0]+t*60, False) for t in ticks])
-    gap_ax.set_title('More trips finished with v4', loc='left', fontsize=18, fontweight='bold', pad=10)
+    gap_ax.set_title('More trips finished with v5', loc='left', fontsize=18, fontweight='bold', pad=10)
     gap_ax.axhline(0, color='#636f78', lw=1)
     gap_ax.grid(axis='y', alpha=.18)
     gap_ax.tick_params(labelsize=16)

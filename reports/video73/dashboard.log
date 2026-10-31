@@ -1,0 +1,2 @@
+Median driver: {'id': 'demand_5720', 'requested': 61206.45933, 'entry': '526011476', 'durations': [351.54067000000214, 177.54067000000214], 'waits': [0.5406700000021374, 0.5406700000021374], 'drives': [351.0, 177.0], 'departures': [61207.0, 61207.0], 'arrivals': [61558.0, 61384.0], 'median_saving': 174.0, 'count': 4016, 'excluded': 30, 'requested_count': 4046}
+Built dashboard/index.html and dashboard/deck.html and media

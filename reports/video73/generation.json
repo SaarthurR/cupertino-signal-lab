@@ -1,0 +1,21 @@
+{
+  "seed": 73,
+  "controllers": [
+    "actuated",
+    "optuna_v5"
+  ],
+  "model": "2024",
+  "command": "PYTHONPATH=src nice -n 15 .venv/bin/python -c 'from signal_lab.evaluate import save_media; from signal_lab import pipeline as p; print(save_media(p.config(), seed=73, controllers=(\"actuated\",\"optuna_v5\")))'",
+  "inputs": {
+    "sim/routes_pm_peak.rou.xml": "817f29ca521f2e841ba80156cf5e51b24427077ce348fd5b908f46da58dd8e08",
+    "sim/corridor.net.xml": "8f6cacd3b60b701798853e52586eec0f7f8b21f35fb821cb34e8146b3269253f",
+    "sim/tls_actuated_pm_peak.add.xml": "6909d5fbd145df2ac67e7111dbf2c9edd0ce4e204beb78b442cb273685a27c59",
+    "sim/tls_optuna_v5_pm_peak.add.xml": "027ec54940d36ec88ad03cea8707a17a5cadb0faa6928e6870e4d0ec88fa448b"
+  },
+  "frames_checked_s": [
+    2,
+    50,
+    80,
+    100
+  ]
+}

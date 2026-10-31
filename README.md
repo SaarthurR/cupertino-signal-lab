@@ -2,7 +2,9 @@
 
 A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Current demand inputs mix 2024 De Anza/Stelling counts with 2018 Mary observations and estimates; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
 
-**Status: M0–M6 implemented.** M5 fits PM only and freezes the selected plan for night. M6 evaluates the frozen plans; offline dashboard and video are available below.
+**Result:** in this fixed-demand simulation on 2024 VTA counts, a tuned plan cut rush-hour delay 40.7% against a textbook timing plan (829 → 491 s, 30 unseen rush hours, p = 9.31e-10), while several trip-start groups waited longer and westbound got slightly slower (140 → 145 s). The night plan was not a confirmed win. This is not a comparison with the city's or VTA's timing, and nothing has been tested on the street. Thank you to Kia Sharifi, P.E., and Larissa Sanderfer at VTA for the 2024 counts.
+
+Demo: [deck](dashboard/deck.html), [page](dashboard/index.html), [video](reports/side_by_side.mp4). Details below.
 
 ```sh
 source .venv/bin/activate
@@ -14,8 +16,9 @@ nice -n 15 python -m signal_lab build-demand
 nice -n 15 python -m signal_lab baseline
 nice -n 15 python -m signal_lab check-demand
 nice -n 15 python -m signal_lab bench
-nice -n 15 python -m signal_lab optimize --version 4 --trials 60
-nice -n 15 python -m signal_lab eval --version 4
+nice -n 15 python -m signal_lab optimize --version 5 --scenario night
+nice -n 15 python -m signal_lab optimize --version 5
+nice -n 15 python -m signal_lab eval --version 5
 nice -n 15 python -m unittest discover -s tests -v
 ```
 
@@ -161,17 +164,14 @@ Outputs: [M4 baseline report](reports/M4-REPORT.md), [M2 report](reports/M2-REPO
 
 SUMO jobs run at nice 15, with at most three separate worker processes on AC (one on battery) and a two-hour child timeout; the heat guard may pause them. Follow [laptop limits](reports/bench.md) before long jobs. No dependencies were added for M4/M5. `smoke_test.py` remains unchanged.
 
-Roads © [OpenStreetMap contributors, ODbL](https://www.openstreetmap.org/copyright). Counts: City of Cupertino / Vallco TIA (Traffic Data Service), Westport CEQAnet appendix (National Data & Surveying Services). VTA sample was audited but does not supply corridor counts.
+Roads © [OpenStreetMap contributors, ODbL](https://www.openstreetmap.org/copyright). 2024 counts and timing reports: VTA (IDAX, Oct 9, 2024), shared by Kia Sharifi, P.E., and Larissa Sanderfer. 2018 counts: City of Cupertino / Vallco TIA (Traffic Data Service), Westport CEQAnet appendix (National Data & Surveying Services). VTA sample was audited but does not supply corridor counts.
 
 ## Offline judge demo
 
 Run `.venv/bin/python -m signal_lab dashboard` (headless; requires the installed
 `ffmpeg` on PATH). This builds `dashboard/index.html`, `reports/side_by_side.mp4`,
 `reports/side_by_side_poster.png`, and `reports/time_space.png` from the frozen
-results, paired tests, timing CSVs, SUMO network, and the two seed-0 FCD archives.
-It also replays the two frozen seed-0 plans serially to recover insertion/arrival
-timestamps before the FCD window and writes `reports/video_counts.csv`. Counters
-include warmup trips; teleport gaps are not counted as new insertion queues or finishes.
+results and seed 73, the first final-test seed. The seed 73 traffic files are not in git; `reports/video73/generation.json` has the command that remakes them.
 Open `dashboard/index.html` directly in a browser; keep its sibling `reports/`
 and `data/processed/` folders with it. No server, CDN, or network is needed.
 The 15-minute seed-0 illustration plays at 8×; the page's aggregate evidence uses
