@@ -1,0 +1,329 @@
+site_id,intersection,approach,movement,interval_start,vehicles,heavy,peds,source,requested,crossed,requested_error,crossed_error,requested_geh,crossed_geh
+estimated_bandley,Bandley Dr,E,R,16:30,5,,,estimated,5,2,0,-3,0.0,3.2071349029490928
+estimated_bandley,Bandley Dr,E,T,16:30,136,,,estimated,136,128,0,-8,0.0,1.3926212476455828
+estimated_bandley,Bandley Dr,N,L,16:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,16:30,5,,,estimated,3,3,-2,-2,2.0,2.0
+estimated_bandley,Bandley Dr,W,L,16:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,16:30,237,,,estimated,237,202,0,-35,0.0,4.724771149439789
+estimated_bandley,Bandley Dr,E,R,16:45,5,,,estimated,5,4,0,-1,0.0,0.9428090415820634
+estimated_bandley,Bandley Dr,E,T,16:45,130,,,estimated,130,140,0,10,0.0,1.7213259316477407
+estimated_bandley,Bandley Dr,N,L,16:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,16:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,L,16:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,16:45,207,,,estimated,207,229,0,22,0.0,2.980056030505824
+estimated_bandley,Bandley Dr,E,R,17:00,5,,,estimated,5,4,0,-1,0.0,0.9428090415820634
+estimated_bandley,Bandley Dr,E,T,17:00,166,,,estimated,166,161,0,-5,0.0,0.7820618870057751
+estimated_bandley,Bandley Dr,N,L,17:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,17:00,5,,,estimated,1,2,-4,-3,4.618802153517006,3.2071349029490928
+estimated_bandley,Bandley Dr,W,L,17:00,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_bandley,Bandley Dr,W,T,17:00,272,,,estimated,269,239,-3,-33,0.36481074018628895,4.129034230793039
+estimated_bandley,Bandley Dr,E,R,17:15,5,,,estimated,5,2,0,-3,0.0,3.2071349029490928
+estimated_bandley,Bandley Dr,E,T,17:15,151,,,estimated,151,159,0,8,0.0,1.2851509262439982
+estimated_bandley,Bandley Dr,N,L,17:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,17:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,L,17:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,17:15,243,,,estimated,243,243,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,E,R,17:30,5,,,estimated,5,3,0,-2,0.0,2.0
+estimated_bandley,Bandley Dr,E,T,17:30,164,,,estimated,136,135,-28,-29,4.572380853195265,4.7435927566352785
+estimated_bandley,Bandley Dr,N,L,17:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,17:30,5,,,estimated,3,2,-2,-3,2.0,3.2071349029490928
+estimated_bandley,Bandley Dr,W,L,17:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,17:30,273,,,estimated,237,244,-36,-29,4.508814895813076,3.607428398712513
+estimated_bandley,Bandley Dr,E,R,17:45,5,,,estimated,5,3,0,-2,0.0,2.0
+estimated_bandley,Bandley Dr,E,T,17:45,191,,,estimated,130,133,-61,-58,9.629911863159073,9.11382073529328
+estimated_bandley,Bandley Dr,N,L,17:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,17:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,L,17:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,17:45,256,,,estimated,207,243,-49,-13,6.440959643027594,1.646031238365588
+estimated_bandley,Bandley Dr,E,R,18:00,5,,,estimated,5,2,0,-3,0.0,3.2071349029490928
+estimated_bandley,Bandley Dr,E,T,18:00,158,,,estimated,166,171,8,13,1.2570787221094177,2.0271710565221714
+estimated_bandley,Bandley Dr,N,L,18:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,18:00,5,,,estimated,1,2,-4,-3,4.618802153517006,3.2071349029490928
+estimated_bandley,Bandley Dr,W,L,18:00,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_bandley,Bandley Dr,W,T,18:00,213,,,estimated,269,240,56,27,7.214554215689305,3.588059668599515
+estimated_bandley,Bandley Dr,E,R,18:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,E,T,18:15,188,,,estimated,151,144,-37,-44,5.683905757555007,6.830124626215729
+estimated_bandley,Bandley Dr,N,L,18:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,N,R,18:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,L,18:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_bandley,Bandley Dr,W,T,18:15,223,,,estimated,243,224,20,1,2.6204871283216735,0.13378001241813023
+vallco_10,De Anza Blvd,E,L,16:30,61,,,measured,61,62,0,1,0.0,0.25503068522533534
+vallco_10,De Anza Blvd,E,R,16:30,69,,,measured,69,66,0,-3,0.0,0.7302967433402214
+vallco_10,De Anza Blvd,E,T,16:30,137,,6,measured,124,125,-13,-12,2.2759781695685244,2.0968897359864913
+vallco_10,De Anza Blvd,N,L,16:30,120,,,measured,120,88,0,-32,0.0,6.275716324421889
+vallco_10,De Anza Blvd,N,R,16:30,58,,,measured,5,2,-53,-56,18.886461095144657,20.4483088135262
+vallco_10,De Anza Blvd,N,T,16:30,361,,6,measured,361,241,0,-120,0.0,13.833370024901638
+vallco_10,De Anza Blvd,S,L,16:30,84,,,measured,12,12,-72,-72,20.784609690826528,20.784609690826528
+vallco_10,De Anza Blvd,S,R,16:30,50,,,measured,50,50,0,0,0.0,0.0
+vallco_10,De Anza Blvd,S,T,16:30,145,,9,measured,145,151,0,6,0.0,0.9863939238321437
+vallco_10,De Anza Blvd,W,L,16:30,63,,,measured,0,0,-63,-63,22.44994432064365,22.44994432064365
+vallco_10,De Anza Blvd,W,R,16:30,115,,,measured,115,102,0,-13,0.0,2.4960798758340603
+vallco_10,De Anza Blvd,W,T,16:30,216,,7,measured,127,101,-89,-115,13.592143160117583,18.268933828159366
+vallco_10,De Anza Blvd,E,L,16:45,64,,,measured,64,62,0,-2,0.0,0.5039526306789697
+vallco_10,De Anza Blvd,E,R,16:45,57,,,measured,57,58,0,1,0.0,0.2637521893583148
+vallco_10,De Anza Blvd,E,T,16:45,122,,12,measured,122,126,0,4,0.0,0.7184212081070996
+vallco_10,De Anza Blvd,N,L,16:45,135,,,measured,135,76,0,-59,0.0,11.488300250865157
+vallco_10,De Anza Blvd,N,R,16:45,66,,,measured,5,4,-61,-62,20.476025142439212,20.95982551726721
+vallco_10,De Anza Blvd,N,T,16:45,377,,12,measured,377,260,0,-117,0.0,13.111764463524304
+vallco_10,De Anza Blvd,S,L,16:45,97,,,measured,8,8,-89,-89,24.56633391258781,24.56633391258781
+vallco_10,De Anza Blvd,S,R,16:45,47,,,measured,47,50,0,3,0.0,0.8615497903412858
+vallco_10,De Anza Blvd,S,T,16:45,165,,16,measured,165,175,0,10,0.0,1.5339299776947408
+vallco_10,De Anza Blvd,W,L,16:45,37,,,measured,0,0,-37,-37,17.204650534085253,17.204650534085253
+vallco_10,De Anza Blvd,W,R,16:45,114,,,measured,114,122,0,8,0.0,1.4729193886373173
+vallco_10,De Anza Blvd,W,T,16:45,179,,18,measured,98,123,-81,-56,13.76544095265163,9.114430738236985
+vallco_10,De Anza Blvd,E,L,17:00,75,,,measured,75,73,0,-2,0.0,0.46499055497527714
+vallco_10,De Anza Blvd,E,R,17:00,56,,,measured,56,55,0,-1,0.0,0.2684624220856097
+vallco_10,De Anza Blvd,E,T,17:00,170,,6,measured,149,141,-21,-29,3.3255918463525624,4.651176250634828
+vallco_10,De Anza Blvd,N,L,17:00,133,,,measured,133,93,0,-40,0.0,7.525766947068779
+vallco_10,De Anza Blvd,N,R,17:00,54,,,measured,5,4,-49,-50,18.04326251080714,18.569533817705185
+vallco_10,De Anza Blvd,N,T,17:00,386,,11,measured,386,256,0,-130,0.0,14.511784876834637
+vallco_10,De Anza Blvd,S,L,17:00,87,,,measured,17,17,-70,-70,19.41450686788302,19.41450686788302
+vallco_10,De Anza Blvd,S,R,17:00,48,,,measured,48,47,0,-1,0.0,0.29019050004400465
+vallco_10,De Anza Blvd,S,T,17:00,167,,13,measured,167,157,0,-10,0.0,1.5713484026367723
+vallco_10,De Anza Blvd,W,L,17:00,46,,,measured,0,0,-46,-46,19.183326093250876,19.183326093250876
+vallco_10,De Anza Blvd,W,R,17:00,100,,,measured,100,94,0,-6,0.0,1.218415398160343
+vallco_10,De Anza Blvd,W,T,17:00,281,,9,measured,174,139,-107,-142,14.188061844420432,19.59786188532286
+vallco_10,De Anza Blvd,E,L,17:15,70,,,measured,70,73,0,3,0.0,0.7095748751868992
+vallco_10,De Anza Blvd,E,R,17:15,58,,,measured,58,55,0,-3,0.0,0.7982281262852872
+vallco_10,De Anza Blvd,E,T,17:15,141,,14,measured,141,148,0,7,0.0,1.164646463130784
+vallco_10,De Anza Blvd,N,L,17:15,169,,,measured,169,91,0,-78,0.0,13.682105101189656
+vallco_10,De Anza Blvd,N,R,17:15,78,,,measured,5,2,-73,-76,22.66359535062492,24.033310217279684
+vallco_10,De Anza Blvd,N,T,17:15,448,,4,measured,448,267,0,-181,0.0,19.14566904959561
+vallco_10,De Anza Blvd,S,L,17:15,116,,,measured,10,10,-106,-106,26.709489425985392,26.709489425985392
+vallco_10,De Anza Blvd,S,R,17:15,55,,,measured,55,57,0,2,0.0,0.5345224838248488
+vallco_10,De Anza Blvd,S,T,17:15,185,,7,measured,185,172,0,-13,0.0,1.9460510902693113
+vallco_10,De Anza Blvd,W,L,17:15,39,,,measured,0,0,-39,-39,17.663521732655695,17.663521732655695
+vallco_10,De Anza Blvd,W,R,17:15,118,,,measured,118,103,0,-15,0.0,2.853908964926964
+vallco_10,De Anza Blvd,W,T,17:15,234,,2,measured,130,136,-104,-98,15.417985786550904,14.410206593038632
+vallco_10,De Anza Blvd,E,L,17:30,73,,,measured,61,61,-12,-12,2.9320666645513254,2.9320666645513254
+vallco_10,De Anza Blvd,E,R,17:30,79,,,measured,69,74,-10,-5,2.3249527748763854,1.1433239009500589
+vallco_10,De Anza Blvd,E,T,17:30,152,,6,measured,124,123,-28,-29,4.767036572248992,4.946256619450162
+vallco_10,De Anza Blvd,N,L,17:30,118,,,measured,120,86,2,-32,0.36667939881128453,6.3369442750507154
+vallco_10,De Anza Blvd,N,R,17:30,102,,,measured,5,3,-97,-99,26.523133968556934,27.326596149957226
+vallco_10,De Anza Blvd,N,T,17:30,460,,3,measured,361,255,-99,-205,9.772565940785023,21.684321299265747
+vallco_10,De Anza Blvd,S,L,17:30,108,,,measured,12,12,-96,-96,24.78709341572747,24.78709341572747
+vallco_10,De Anza Blvd,S,R,17:30,52,,,measured,50,48,-2,-4,0.5601120336112039,1.131370849898476
+vallco_10,De Anza Blvd,S,T,17:30,170,,23,measured,145,171,-25,1,3.984095364447979,0.1531679162134967
+vallco_10,De Anza Blvd,W,L,17:30,51,,,measured,0,0,-51,-51,20.199009876724155,20.199009876724155
+vallco_10,De Anza Blvd,W,R,17:30,79,,,measured,115,128,36,49,7.310492388962057,9.632874468786612
+vallco_10,De Anza Blvd,W,T,17:30,262,,5,measured,127,132,-135,-130,19.359937963316018,18.524232996856508
+vallco_10,De Anza Blvd,E,L,17:45,63,,,measured,64,63,1,0,0.25098232205526344,0.0
+vallco_10,De Anza Blvd,E,R,17:45,46,,,measured,57,56,11,10,3.0656252628831178,2.8005601680560197
+vallco_10,De Anza Blvd,E,T,17:45,184,,6,measured,122,124,-62,-60,10.024805834835096,9.669875568304564
+vallco_10,De Anza Blvd,N,L,17:45,138,,,measured,135,86,-3,-52,0.5135525910130955,9.827076298239907
+vallco_10,De Anza Blvd,N,R,17:45,78,,,measured,5,3,-73,-75,22.66359535062492,23.570226039551585
+vallco_10,De Anza Blvd,N,T,17:45,430,,5,measured,377,217,-53,-213,5.276963566839332,23.684949146540056
+vallco_10,De Anza Blvd,S,L,17:45,117,,,measured,8,8,-109,-109,27.57506119666827,27.57506119666827
+vallco_10,De Anza Blvd,S,R,17:45,51,,,measured,47,46,-4,-5,1.1428571428571428,1.435916317235476
+vallco_10,De Anza Blvd,S,T,17:45,178,,14,measured,165,152,-13,-26,1.9853692256351525,4.048194509639919
+vallco_10,De Anza Blvd,W,L,17:45,49,,,measured,0,0,-49,-49,19.79898987322333,19.79898987322333
+vallco_10,De Anza Blvd,W,R,17:45,80,,,measured,114,117,34,37,6.9043539229086095,7.4561322835262
+vallco_10,De Anza Blvd,W,T,17:45,246,,3,measured,98,122,-148,-124,22.56978840922549,18.282802563207245
+vallco_10,De Anza Blvd,E,L,18:00,69,,,measured,75,75,6,6,1.4142135623730951,1.4142135623730951
+vallco_10,De Anza Blvd,E,R,18:00,63,,,measured,56,57,-7,-6,1.8149704259460602,1.5491933384829668
+vallco_10,De Anza Blvd,E,T,18:00,141,,6,measured,149,152,8,11,1.3287276776598396,1.8176232464984607
+vallco_10,De Anza Blvd,N,L,18:00,135,,,measured,133,93,-2,-42,0.34554737023254406,7.867320817286229
+vallco_10,De Anza Blvd,N,R,18:00,92,,,measured,5,2,-87,-90,24.984943919897287,26.25569846962102
+vallco_10,De Anza Blvd,N,T,18:00,449,,6,measured,386,227,-63,-222,6.166550681328195,24.1504162189867
+vallco_10,De Anza Blvd,S,L,18:00,89,,,measured,17,17,-72,-72,19.77992120861122,19.77992120861122
+vallco_10,De Anza Blvd,S,R,18:00,60,,,measured,48,45,-12,-15,3.265986323710904,4.140393356054125
+vallco_10,De Anza Blvd,S,T,18:00,196,,18,measured,167,157,-29,-39,4.305163790346192,5.871137450060855
+vallco_10,De Anza Blvd,W,L,18:00,50,,,measured,0,0,-50,-50,20.0,20.0
+vallco_10,De Anza Blvd,W,R,18:00,97,,,measured,100,103,3,6,0.6045512662318541,1.2
+vallco_10,De Anza Blvd,W,T,18:00,200,,7,measured,174,151,-26,-49,3.8026166054610795,7.397543289744692
+vallco_10,De Anza Blvd,E,L,18:15,62,,,measured,70,71,8,9,1.9694638556693238,2.2073016221458768
+vallco_10,De Anza Blvd,E,R,18:15,48,,,measured,58,54,10,6,2.7472112789737806,1.6803361008336117
+vallco_10,De Anza Blvd,E,T,18:15,179,,4,measured,141,133,-38,-46,6.008327554319921,7.365895075034008
+vallco_10,De Anza Blvd,N,L,18:15,129,,,measured,169,71,40,-58,6.553855364152324,11.6
+vallco_10,De Anza Blvd,N,R,18:15,95,,,measured,5,5,-90,-90,25.45584412271571,25.45584412271571
+vallco_10,De Anza Blvd,N,T,18:15,382,,8,measured,448,242,66,-140,6.479625156494371,15.85187847802434
+vallco_10,De Anza Blvd,S,L,18:15,75,,,measured,10,10,-65,-65,19.94108971003163,19.94108971003163
+vallco_10,De Anza Blvd,S,R,18:15,39,,,measured,55,61,16,22,4.667679727932626,6.222539674441618
+vallco_10,De Anza Blvd,S,T,18:15,158,,20,measured,185,161,27,3,4.123459160934547,0.4750845494789375
+vallco_10,De Anza Blvd,W,L,18:15,72,,,measured,0,0,-72,-72,24.0,24.0
+vallco_10,De Anza Blvd,W,R,18:15,89,,,measured,118,101,29,12,5.701088971322689,2.46234804500437
+vallco_10,De Anza Blvd,W,T,18:15,214,,7,measured,130,124,-84,-90,12.809879907938793,13.846153846153845
+estimated_mary,Mary Ave,E,R,16:30,41,,,estimated,41,42,0,1,0.0,0.3104602102825332
+estimated_mary,Mary Ave,E,T,16:30,223,,,estimated,223,223,0,0,0.0,0.0
+estimated_mary,Mary Ave,N,L,16:30,31,,,estimated,31,30,0,-1,0.0,0.3621429841700741
+estimated_mary,Mary Ave,N,R,16:30,34,,,estimated,34,30,0,-4,0.0,1.4142135623730951
+estimated_mary,Mary Ave,W,T,16:30,420,,,estimated,420,348,0,-72,0.0,7.3484692283495345
+estimated_mary,Mary Ave,E,R,16:45,41,,,estimated,41,40,0,-1,0.0,0.31426968052735443
+estimated_mary,Mary Ave,E,T,16:45,223,,,estimated,223,234,0,11,0.0,1.4553906436423696
+estimated_mary,Mary Ave,N,L,16:45,31,,,estimated,31,32,0,1,0.0,0.3563483225498992
+estimated_mary,Mary Ave,N,R,16:45,34,,,estimated,34,35,0,1,0.0,0.34050261230349943
+estimated_mary,Mary Ave,W,T,16:45,420,,,estimated,397,372,-23,-48,2.2759452015783497,4.824181513244218
+estimated_mary,Mary Ave,E,R,17:00,41,,,estimated,41,40,0,-1,0.0,0.31426968052735443
+estimated_mary,Mary Ave,E,T,17:00,223,,,estimated,223,225,0,2,0.0,0.2672612419124244
+estimated_mary,Mary Ave,N,L,17:00,31,,,estimated,31,32,0,1,0.0,0.3563483225498992
+estimated_mary,Mary Ave,N,R,17:00,34,,,estimated,34,37,0,3,0.0,1.007017629956027
+estimated_mary,Mary Ave,W,T,17:00,420,,,estimated,406,365,-14,-55,1.3777899276543442,5.552299116375757
+estimated_mary,Mary Ave,E,R,17:15,41,,,estimated,41,42,0,1,0.0,0.3104602102825332
+estimated_mary,Mary Ave,E,T,17:15,223,,,estimated,223,207,0,-16,0.0,2.182381886305515
+estimated_mary,Mary Ave,N,L,17:15,31,,,estimated,31,30,0,-1,0.0,0.3621429841700741
+estimated_mary,Mary Ave,N,R,17:15,34,,,estimated,34,34,0,0,0.0,0.0
+estimated_mary,Mary Ave,W,T,17:15,420,,,estimated,413,357,-7,-63,0.6859943405700354,6.392563246841196
+estimated_mary,Mary Ave,E,R,17:30,41,,,estimated,41,41,0,0,0.0,0.0
+estimated_mary,Mary Ave,E,T,17:30,223,,,estimated,223,224,0,1,0.0,0.13378001241813023
+estimated_mary,Mary Ave,N,L,17:30,31,,,estimated,31,31,0,0,0.0,0.0
+estimated_mary,Mary Ave,N,R,17:30,34,,,estimated,34,34,0,0,0.0,0.0
+estimated_mary,Mary Ave,W,T,17:30,420,,,estimated,420,347,0,-73,0.0,7.455386649347213
+estimated_mary,Mary Ave,E,R,17:45,41,,,estimated,41,40,0,-1,0.0,0.31426968052735443
+estimated_mary,Mary Ave,E,T,17:45,223,,,estimated,223,226,0,3,0.0,0.40044518655959993
+estimated_mary,Mary Ave,N,L,17:45,31,,,estimated,31,29,0,-2,0.0,0.7302967433402214
+estimated_mary,Mary Ave,N,R,17:45,34,,,estimated,34,32,0,-2,0.0,0.6963106238227914
+estimated_mary,Mary Ave,W,T,17:45,420,,,estimated,397,387,-23,-33,2.2759452015783497,3.2856565604848673
+estimated_mary,Mary Ave,E,R,18:00,41,,,estimated,41,41,0,0,0.0,0.0
+estimated_mary,Mary Ave,E,T,18:00,223,,,estimated,223,236,0,13,0.0,1.716255741159569
+estimated_mary,Mary Ave,N,L,18:00,31,,,estimated,31,22,0,-9,0.0,3.4966291044861513
+estimated_mary,Mary Ave,N,R,18:00,34,,,estimated,34,28,0,-6,0.0,2.155263624321299
+estimated_mary,Mary Ave,W,T,18:00,420,,,estimated,406,390,-14,-30,1.3777899276543442,2.9814239699997196
+estimated_mary,Mary Ave,E,R,18:15,41,,,estimated,41,42,0,1,0.0,0.3104602102825332
+estimated_mary,Mary Ave,E,T,18:15,223,,,estimated,223,210,0,-13,0.0,1.7670319316795204
+estimated_mary,Mary Ave,N,L,18:15,31,,,estimated,31,43,0,12,0.0,3.945575695328575
+estimated_mary,Mary Ave,N,R,18:15,34,,,estimated,34,42,0,8,0.0,2.5955427380922007
+estimated_mary,Mary Ave,W,T,18:15,420,,,estimated,413,332,-7,-88,0.6859943405700354,9.076506967077382
+estimated_saich,Saich Way,E,R,16:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,E,T,16:30,134,,,estimated,134,135,0,1,0.0,0.17245224542369073
+estimated_saich,Saich Way,N,L,16:30,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,16:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,16:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,T,16:30,255,,,estimated,242,207,-13,-48,1.649339847208433,6.316336271613782
+estimated_saich,Saich Way,E,R,16:45,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,E,T,16:45,136,,,estimated,135,153,-1,17,0.17181471183502312,2.8284271247461903
+estimated_saich,Saich Way,N,L,16:45,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,16:45,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,16:45,5,,,estimated,5,7,0,2,0.0,1.632993161855452
+estimated_saich,Saich Way,W,T,16:45,231,,,estimated,212,245,-19,14,2.553269934596904,1.8149704259460602
+estimated_saich,Saich Way,E,R,17:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,E,T,17:00,162,,,estimated,162,159,0,-3,0.0,0.47360222277831504
+estimated_saich,Saich Way,N,L,17:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,N,R,17:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,17:00,5,,,estimated,5,2,0,-3,0.0,3.2071349029490928
+estimated_saich,Saich Way,W,T,17:00,264,,,estimated,264,228,0,-36,0.0,4.590552334056036
+estimated_saich,Saich Way,E,R,17:15,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,E,T,17:15,161,,,estimated,156,161,-5,0,0.7943014707895376,0.0
+estimated_saich,Saich Way,N,L,17:15,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,17:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,17:15,5,,,estimated,5,6,0,1,0.0,0.8528028654224418
+estimated_saich,Saich Way,W,T,17:15,250,,,estimated,248,247,-2,-3,0.25348970020979117,0.3806168878173307
+estimated_saich,Saich Way,E,R,17:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,E,T,17:30,175,,,estimated,134,125,-41,-50,6.597047491014863,8.16496580927726
+estimated_saich,Saich Way,N,L,17:30,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,17:30,5,,,estimated,5,4,0,-1,0.0,0.9428090415820634
+estimated_saich,Saich Way,W,L,17:30,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,T,17:30,283,,,estimated,242,250,-41,-33,5.0611498787566145,4.042921686089146
+estimated_saich,Saich Way,E,R,17:45,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,E,T,17:45,198,,,estimated,135,149,-63,-49,9.76480165448082,7.440058256411009
+estimated_saich,Saich Way,N,L,17:45,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,17:45,5,,,estimated,5,6,0,1,0.0,0.8528028654224418
+estimated_saich,Saich Way,W,L,17:45,5,,,estimated,5,7,0,2,0.0,1.632993161855452
+estimated_saich,Saich Way,W,T,17:45,264,,,estimated,212,245,-52,-19,6.74131872494251,2.3819887350674462
+estimated_saich,Saich Way,E,R,18:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,E,T,18:00,174,,,estimated,162,167,-12,-7,1.8516401995451028,1.072175413494477
+estimated_saich,Saich Way,N,L,18:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,N,R,18:00,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,18:00,5,,,estimated,5,2,0,-3,0.0,3.2071349029490928
+estimated_saich,Saich Way,W,T,18:00,224,,,estimated,264,234,40,10,5.1214751973158394,1.3216372009101796
+estimated_saich,Saich Way,E,R,18:15,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,E,T,18:15,196,,,estimated,156,152,-40,-44,6.030226891555273,6.67126278349435
+estimated_saich,Saich Way,N,L,18:15,5,,,estimated,0,0,-5,-5,6.324555320336759,6.324555320336759
+estimated_saich,Saich Way,N,R,18:15,5,,,estimated,5,5,0,0,0.0,0.0
+estimated_saich,Saich Way,W,L,18:15,5,,,estimated,5,6,0,1,0.0,0.8528028654224418
+estimated_saich,Saich Way,W,T,18:15,231,,,estimated,248,233,17,2,2.1969802771542106,0.2626128657194451
+vallco_03,Stelling Rd,E,L,16:30,68,,,measured,7,6,-61,-62,19.922516574636514,20.385474425864302
+vallco_03,Stelling Rd,E,R,16:30,17,,,measured,0,0,-17,-17,11.661903789690601,11.661903789690601
+vallco_03,Stelling Rd,E,T,16:30,132,,7,measured,132,131,0,-1,0.0,0.17440828807877892
+vallco_03,Stelling Rd,N,L,16:30,62,,,measured,62,61,0,-1,0.0,0.25503068522533534
+vallco_03,Stelling Rd,N,R,16:30,29,,,measured,29,28,0,-1,0.0,0.3746343246326776
+vallco_03,Stelling Rd,N,T,16:30,86,,9,measured,86,84,0,-2,0.0,0.4338609156373123
+vallco_03,Stelling Rd,S,L,16:30,48,,,measured,48,47,0,-1,0.0,0.29019050004400465
+vallco_03,Stelling Rd,S,R,16:30,48,,,measured,48,48,0,0,0.0,0.0
+vallco_03,Stelling Rd,S,T,16:30,73,,16,measured,73,72,0,-1,0.0,0.23488808780588138
+vallco_03,Stelling Rd,W,L,16:30,66,,,measured,66,60,0,-6,0.0,1.5118578920369088
+vallco_03,Stelling Rd,W,R,16:30,110,,,measured,110,77,0,-33,0.0,6.825557507934253
+vallco_03,Stelling Rd,W,T,16:30,288,,18,measured,275,232,-13,-56,1.5496518832135895,6.9459451369956735
+vallco_03,Stelling Rd,E,L,16:45,91,,,measured,0,2,-91,-89,26.981475126464083,26.103186473800886
+vallco_03,Stelling Rd,E,R,16:45,39,,,measured,0,0,-39,-39,17.663521732655695,17.663521732655695
+vallco_03,Stelling Rd,E,T,16:45,148,,12,measured,140,150,-8,2,1.3333333333333333,0.32769276820761617
+vallco_03,Stelling Rd,N,L,16:45,63,,,measured,63,66,0,3,0.0,0.7470873676376284
+vallco_03,Stelling Rd,N,R,16:45,36,,,measured,36,40,0,4,0.0,1.2977713690461004
+vallco_03,Stelling Rd,N,T,16:45,87,,10,measured,87,86,0,-1,0.0,0.21504133222818814
+vallco_03,Stelling Rd,S,L,16:45,26,,,measured,26,29,0,3,0.0,1.1441551070947107
+vallco_03,Stelling Rd,S,R,16:45,46,,,measured,46,44,0,-2,0.0,0.5962847939999439
+vallco_03,Stelling Rd,S,T,16:45,47,,16,measured,47,48,0,1,0.0,0.29019050004400465
+vallco_03,Stelling Rd,W,L,16:45,68,,,measured,68,63,0,-5,0.0,1.235604126430431
+vallco_03,Stelling Rd,W,R,16:45,86,,,measured,86,75,0,-11,0.0,2.4520241353315524
+vallco_03,Stelling Rd,W,T,16:45,274,,7,measured,274,239,0,-35,0.0,4.370733787381239
+vallco_03,Stelling Rd,E,L,17:00,80,,,measured,12,12,-68,-68,20.05210603706601,20.05210603706601
+vallco_03,Stelling Rd,E,R,17:00,35,,,measured,0,0,-35,-35,16.73320053068151,16.73320053068151
+vallco_03,Stelling Rd,E,T,17:00,155,,9,measured,155,158,0,3,0.0,0.4796164601864589
+vallco_03,Stelling Rd,N,L,17:00,63,,,measured,63,63,0,0,0.0,0.0
+vallco_03,Stelling Rd,N,R,17:00,44,,,measured,44,41,0,-3,0.0,0.9203579866168445
+vallco_03,Stelling Rd,N,T,17:00,93,,12,measured,93,96,0,3,0.0,0.6172133998483676
+vallco_03,Stelling Rd,S,L,17:00,40,,,measured,40,35,0,-5,0.0,1.632993161855452
+vallco_03,Stelling Rd,S,R,17:00,48,,,measured,48,48,0,0,0.0,0.0
+vallco_03,Stelling Rd,S,T,17:00,72,,17,measured,72,73,0,1,0.0,0.23488808780588138
+vallco_03,Stelling Rd,W,L,17:00,77,,,measured,77,71,0,-6,0.0,1.3949716649258315
+vallco_03,Stelling Rd,W,R,17:00,110,,,measured,110,68,0,-42,0.0,8.903982192053423
+vallco_03,Stelling Rd,W,T,17:00,250,,13,measured,250,261,0,11,0.0,1.3763447435976797
+vallco_03,Stelling Rd,E,L,17:15,108,,,measured,0,0,-108,-108,29.393876913398138,29.393876913398138
+vallco_03,Stelling Rd,E,R,17:15,29,,,measured,0,0,-29,-29,15.231546211727817,15.231546211727817
+vallco_03,Stelling Rd,E,T,17:15,177,,7,measured,161,147,-16,-30,2.4615384615384617,4.714045207910317
+vallco_03,Stelling Rd,N,L,17:15,59,,,measured,59,59,0,0,0.0,0.0
+vallco_03,Stelling Rd,N,R,17:15,37,,,measured,37,38,0,1,0.0,0.32659863237109044
+vallco_03,Stelling Rd,N,T,17:15,158,,15,measured,158,157,0,-1,0.0,0.15936381457791915
+vallco_03,Stelling Rd,S,L,17:15,47,,,measured,47,48,0,1,0.0,0.29019050004400465
+vallco_03,Stelling Rd,S,R,17:15,52,,,measured,52,52,0,0,0.0,0.0
+vallco_03,Stelling Rd,S,T,17:15,89,,16,measured,89,87,0,-2,0.0,0.4264014327112209
+vallco_03,Stelling Rd,W,L,17:15,79,,,measured,79,65,0,-14,0.0,3.2998316455372216
+vallco_03,Stelling Rd,W,R,17:15,101,,,measured,101,75,0,-26,0.0,5.5432186252458715
+vallco_03,Stelling Rd,W,T,17:15,264,,16,measured,264,236,0,-28,0.0,3.541750979388585
+vallco_03,Stelling Rd,E,L,17:30,84,,,measured,7,5,-77,-79,22.83047895316192,23.68520137226922
+vallco_03,Stelling Rd,E,R,17:30,41,,,measured,0,0,-41,-41,18.110770276274835,18.110770276274835
+vallco_03,Stelling Rd,E,T,17:30,194,,9,measured,132,140,-62,-54,9.71242957985067,8.357290911368677
+vallco_03,Stelling Rd,N,L,17:30,62,,,measured,62,62,0,0,0.0,0.0
+vallco_03,Stelling Rd,N,R,17:30,49,,,measured,29,29,-20,-20,6.4051261522034855,6.4051261522034855
+vallco_03,Stelling Rd,N,T,17:30,110,,20,measured,86,87,-24,-23,4.848732213850612,4.634893041110881
+vallco_03,Stelling Rd,S,L,17:30,54,,,measured,48,50,-6,-4,1.6803361008336117,1.1094003924504583
+vallco_03,Stelling Rd,S,R,17:30,73,,,measured,48,50,-25,-23,6.42824346533225,5.8657057601827125
+vallco_03,Stelling Rd,S,T,17:30,108,,14,measured,73,74,-35,-34,7.358236637186914,7.128336889709044
+vallco_03,Stelling Rd,W,L,17:30,97,,,measured,66,83,-31,-14,6.86772481770922,2.9514591494904874
+vallco_03,Stelling Rd,W,R,17:30,89,,,measured,110,84,21,-5,4.210539539783518,1.0752066611409408
+vallco_03,Stelling Rd,W,T,17:30,300,,17,measured,275,226,-25,-74,2.9488391230979425,9.12607095647747
+vallco_03,Stelling Rd,E,L,17:45,103,,,measured,0,2,-103,-101,28.705400188814647,27.87864859743111
+vallco_03,Stelling Rd,E,R,17:45,31,,,measured,0,0,-31,-31,15.748015748023622,15.748015748023622
+vallco_03,Stelling Rd,E,T,17:45,209,,4,measured,140,145,-69,-64,10.446754064641611,9.621069158436208
+vallco_03,Stelling Rd,N,L,17:45,56,,,measured,63,63,7,7,1.8149704259460602,1.8149704259460602
+vallco_03,Stelling Rd,N,R,17:45,49,,,measured,36,36,-13,-13,3.9882179420063264,3.9882179420063264
+vallco_03,Stelling Rd,N,T,17:45,106,,8,measured,87,83,-19,-23,3.8682981490505854,4.731969398837485
+vallco_03,Stelling Rd,S,L,17:45,45,,,measured,26,28,-19,-17,6.377778323054837,5.627720042496102
+vallco_03,Stelling Rd,S,R,17:45,56,,,measured,46,43,-10,-13,2.8005601680560197,3.6954790834972475
+vallco_03,Stelling Rd,S,T,17:45,78,,17,measured,47,47,-31,-31,7.84244859721758,7.84244859721758
+vallco_03,Stelling Rd,W,L,17:45,101,,,measured,68,63,-33,-38,7.17985347050956,8.392795981688337
+vallco_03,Stelling Rd,W,R,17:45,62,,,measured,86,74,24,12,5.579886659703326,2.9104275004359956
+vallco_03,Stelling Rd,W,T,17:45,279,,7,measured,274,280,-5,1,0.6013847793242637,0.11962972091091584
+vallco_03,Stelling Rd,E,L,18:00,106,,,measured,12,12,-94,-94,24.475515264394886,24.475515264394886
+vallco_03,Stelling Rd,E,R,18:00,27,,,measured,0,0,-27,-27,14.696938456699069,14.696938456699069
+vallco_03,Stelling Rd,E,T,18:00,201,,8,measured,155,162,-46,-39,6.895691538761925,5.789703028396603
+vallco_03,Stelling Rd,N,L,18:00,82,,,measured,63,63,-19,-19,4.4628736683117465,4.4628736683117465
+vallco_03,Stelling Rd,N,R,18:00,38,,,measured,44,43,6,5,1.8740851426632728,1.5713484026367723
+vallco_03,Stelling Rd,N,T,18:00,141,,30,measured,93,97,-48,-44,8.875203139603666,8.06694677384826
+vallco_03,Stelling Rd,S,L,18:00,46,,,measured,40,38,-6,-8,1.829982843991256,2.4688535993934706
+vallco_03,Stelling Rd,S,R,18:00,85,,,measured,48,45,-37,-40,9.074462224377493,9.922778767136677
+vallco_03,Stelling Rd,S,T,18:00,90,,18,measured,72,73,-18,-17,4.0,3.7661716742276368
+vallco_03,Stelling Rd,W,L,18:00,88,,,measured,77,69,-11,-19,2.422120283277993,4.288928124671562
+vallco_03,Stelling Rd,W,R,18:00,68,,,measured,110,92,42,24,8.903982192053423,5.366563145999495
+vallco_03,Stelling Rd,W,T,18:00,244,,22,measured,250,248,6,4,0.7635417155709333,0.5100613704506707
+vallco_03,Stelling Rd,E,L,18:15,116,,,measured,0,0,-116,-116,30.463092423455635,30.463092423455635
+vallco_03,Stelling Rd,E,R,18:15,35,,,measured,0,0,-35,-35,16.73320053068151,16.73320053068151
+vallco_03,Stelling Rd,E,T,18:15,210,,21,measured,161,153,-49,-57,7.195386362500653,8.461873656887342
+vallco_03,Stelling Rd,N,L,18:15,85,,,measured,59,58,-26,-27,6.128258770283412,6.386173876682092
+vallco_03,Stelling Rd,N,R,18:15,47,,,measured,37,38,-10,-9,3.0860669992418384,2.7610739598505334
+vallco_03,Stelling Rd,N,T,18:15,137,,12,measured,158,156,21,19,3.458225272288997,3.1395310621337047
+vallco_03,Stelling Rd,S,L,18:15,55,,,measured,47,43,-8,-12,2.2404481344448155,3.428571428571429
+vallco_03,Stelling Rd,S,R,18:15,96,,,measured,52,56,-44,-40,10.229792209456097,9.17662935482247
+vallco_03,Stelling Rd,S,T,18:15,107,,31,measured,89,84,-18,-23,3.636549160387959,4.707129492889188
+vallco_03,Stelling Rd,W,L,18:15,77,,,measured,79,73,2,-4,0.4529108136578383,0.9237604307034013
+vallco_03,Stelling Rd,W,R,18:15,87,,,measured,101,52,14,-35,2.887979489524622,8.39664201465694
+vallco_03,Stelling Rd,W,T,18:15,245,,11,measured,264,247,19,2,2.3819887350674462,0.25503068522533534

@@ -1,0 +1,22 @@
+[
+  {
+    "begin": 59400,
+    "cost": 51.5054917623354,
+    "maximum_residual": 58.0
+  },
+  {
+    "begin": 60300,
+    "cost": 62.25626268767098,
+    "maximum_residual": 49.0
+  },
+  {
+    "begin": 61200,
+    "cost": 53.39904586880299,
+    "maximum_residual": 76.0
+  },
+  {
+    "begin": 62100,
+    "cost": 73.51594590749613,
+    "maximum_residual": 62.0
+  }
+]

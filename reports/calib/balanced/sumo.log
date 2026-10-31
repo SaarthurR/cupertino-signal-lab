@@ -1,0 +1,25 @@
+Loading net-file from '/Users/saarthranka/Documents/school/ai-club-hackathon-calib/sim/corridor.net.xml' ... done (7ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-calib/sim/detectors.add.xml' ... done (1ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-calib/sim/tls_actuated_pm_peak.add.xml' ... done (15ms).
+Loading additional-files from '/Users/saarthranka/Documents/school/ai-club-hackathon-calib/reports/calib/balanced/turn_detectors.add.xml' ... done (2ms).
+Loading route-files incrementally from '/Users/saarthranka/Documents/school/ai-club-hackathon-calib/reports/calib/routes_balanced.rou.xml'
+Loading done.
+Simulation version 1.28.0 started with time: 58500.00.
+Simulation ended at time: 68400.00.
+Reason: The final simulation step has been reached.
+Performance:
+ Duration: 25.95s
+ Real time factor: 381.562
+ UPS: 358271.756726
+Vehicles:
+ Inserted: 8517 (Loaded: 19317)
+ Running: 1004
+ Waiting: 10800
+ Teleports: 817 (Jam: 221, Yield: 596)
+Statistics (avg of 7513):
+ RouteLength: 736.59
+ Speed: 6.62
+ Duration: 657.71
+ WaitingTime: 543.20
+ TimeLoss: 605.47
+ DepartDelay: 186.30

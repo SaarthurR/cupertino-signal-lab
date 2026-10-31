@@ -1,0 +1,11 @@
+{
+  "teleports": 817,
+  "inserted": 8517,
+  "running": 1004,
+  "waiting": 10800,
+  "mean_time_loss_s": 658.4118178526164,
+  "completed_after_warmup": 5523,
+  "fit_requested": 72,
+  "holdout_requested": 51,
+  "holdout_detector": 17
+}
