@@ -47,7 +47,7 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 2. **Recommend:** an engineer enters an approved change by hand. No connection to the lights is needed.
 3. **Automatic:** only with city approval, much later.
 
-We do not know yet what system runs these lights today. We asked the city.
+The city told us on Nov 1 that Stevens Creek runs time-of-day plans, not adaptive timing. We do not know yet how the city system is set up.
 
 ## What we do in hackathon week
 
