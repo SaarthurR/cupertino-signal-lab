@@ -1,0 +1,18 @@
+{
+  "road": "deanza",
+  "watched_days": 3,
+  "quarter_hours": 8,
+  "exact_turn_relations": 22,
+  "copy_vehicles": 14154,
+  "routesampler_log": [
+    "Warning: underflow locations: count 3, min 1.00 (('-754815173#2', '20540091#0')), max 1.00 (('-754815173#2', '20540091#0')), mean 1.00, Q1 1.00, median 1.00, Q3 1.00 (total 3)",
+    "avg interval input count: count 9, min 5705.00 (58500.0), max 7212.00 (63900.0), mean 6616.67, Q1 6224.00, median 6945.00, Q3 7119.00",
+    "avg interval written vehs: count 9, min 1368.00 (58500.0), max 1753.00 (63000.0), mean 1572.67, Q1 1413.00, median 1620.00, Q3 1706.00",
+    "avg interval underflow: count 9, min 0.00 (58500.0), max 3.00 (62100.0), mean 1.33, Q1 0.00, median 1.00, Q3 2.00",
+    "avg interval overflow: count 9, min 0.00 (58500.0), max 0.00 (58500.0), mean 0.00, Q1 0.00, median 0.00, Q3 0.00",
+    "avg interval GEH%: count 9, min 100.00 (58500.0), max 100.00 (58500.0), mean 100.00, Q1 100.00, median 100.00, Q3 100.00"
+  ],
+  "geh_under_5_share": 0.26785714285714285,
+  "count_error_share": 0.5318412846378355,
+  "occupancy_mean_abs_diff": 23.325357142857143
+}

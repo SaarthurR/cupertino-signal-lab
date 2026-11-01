@@ -1,0 +1,523 @@
+{
+  "decision": "no change",
+  "learner": {
+    "all_requested_delay_s": {
+      "mean": 269.9063462643678,
+      "sd": 32.078884175289765,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    },
+    "unfinished": {
+      "mean": 0,
+      "sd": 0.0,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "teleports": {
+      "mean": 1.5,
+      "sd": 3.6674241641784495,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "worst_origin_delay_s": {
+      "mean": 524.9297131112535,
+      "sd": 66.47210067027419,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    }
+  },
+  "fresh": {
+    "all_requested_delay_s": {
+      "mean": 481.3999300136116,
+      "sd": 48.65569301209553,
+      "diff_mean": 211.4935837492438,
+      "diff_sd": 61.86661586650262,
+      "diff_min": 70.54193360556565,
+      "diff_max": 339.9405429522081,
+      "p_less": 1.0
+    },
+    "unfinished": {
+      "mean": 0,
+      "sd": 0.0,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "teleports": {
+      "mean": 2.4,
+      "sd": 5.651548460377916,
+      "diff_mean": 0.9,
+      "diff_sd": 7.098591409568521,
+      "diff_min": -16,
+      "diff_max": 21,
+      "p_less": 0.6607988120739059
+    },
+    "worst_origin_delay_s": {
+      "mean": 1091.4149357249626,
+      "sd": 82.62575564932925,
+      "diff_mean": 566.4852226137092,
+      "diff_sd": 116.6428838797747,
+      "diff_min": 348.53622464232353,
+      "diff_max": 805.6495494341234,
+      "p_less": 1.0
+    }
+  },
+  "go_back": {
+    "runs": [
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 220,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -4.7 points; approaches up over 25 points: none; served count -17% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 646.6189564428312,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1142.2470275464445
+        },
+        "with_rule": {
+          "all_requested_delay_s": 385.3624629461585,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 783.5957527226137
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 221,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -5.6 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 648.9281261343012,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1094.977185564809
+        },
+        "with_rule": {
+          "all_requested_delay_s": 393.8240388687235,
+          "unfinished": 0,
+          "teleports": 2,
+          "worst_origin_delay_s": 721.8773585308563
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 222,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -4.3 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 666.6850120992135,
+          "unfinished": 24,
+          "teleports": 0,
+          "worst_origin_delay_s": 1183.0204142643604
+        },
+        "with_rule": {
+          "all_requested_delay_s": 516.7384770114943,
+          "unfinished": 0,
+          "teleports": 7,
+          "worst_origin_delay_s": 937.4429041212898
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 223,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -5.7 points; approaches up over 25 points: none; served count -22% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 654.2585700241984,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1142.4595430279735
+        },
+        "with_rule": {
+          "all_requested_delay_s": 413.41012099213555,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 752.8503437967115
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 224,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -4.1 points; approaches up over 25 points: none; served count -16% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 600.4845130066545,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1022.0166944266496
+        },
+        "with_rule": {
+          "all_requested_delay_s": 365.61612295825773,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 698.4724108477471
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 225,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -5.3 points; approaches up over 25 points: none; served count -21% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 630.4686433756806,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1064.4451847106554
+        },
+        "with_rule": {
+          "all_requested_delay_s": 406.4655958862674,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 712.0950053384582
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 226,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -0.6 points; approaches up over 25 points: none; served count -18% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 730.5707130973987,
+          "unfinished": 120,
+          "teleports": 11,
+          "worst_origin_delay_s": 1311.2275165492206
+        },
+        "with_rule": {
+          "all_requested_delay_s": 513.4743239564428,
+          "unfinished": 0,
+          "teleports": 11,
+          "worst_origin_delay_s": 988.1111830023489
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 227,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -4.1 points; approaches up over 25 points: none; served count -17% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 622.7541439806413,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1050.069730941704
+        },
+        "with_rule": {
+          "all_requested_delay_s": 381.2549697519661,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 697.4577941490497
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 228,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -6.1 points; approaches up over 25 points: none; served count -21% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 654.5079643073201,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1082.7021866325006
+        },
+        "with_rule": {
+          "all_requested_delay_s": 387.71717937084094,
+          "unfinished": 0,
+          "teleports": 1,
+          "worst_origin_delay_s": 702.4821524663677
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "bad",
+        "seed": 229,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy -3.8 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 626.9749130369026,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1093.7122741832159
+        },
+        "with_rule": {
+          "all_requested_delay_s": 378.47396702964306,
+          "unfinished": 0,
+          "teleports": 1,
+          "worst_origin_delay_s": 674.1952893444374
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 220,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 270.8309460072595,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 576.1662395900064
+        },
+        "with_rule": {
+          "all_requested_delay_s": 270.8309460072595,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 576.1662395900064
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 221,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 66600,
+        "reason": "mean occupancy +5.7 points; approaches up over 25 points: Mariani Ave S, Lazaneo Dr N; served count -3% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 280.0959777676951,
+          "unfinished": 0,
+          "teleports": 7,
+          "worst_origin_delay_s": 558.2207559256886
+        },
+        "with_rule": {
+          "all_requested_delay_s": 280.0959777676951,
+          "unfinished": 0,
+          "teleports": 7,
+          "worst_origin_delay_s": 558.2207559256886
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 222,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 283.8877608892922,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 568.6218471065556
+        },
+        "with_rule": {
+          "all_requested_delay_s": 283.8877608892922,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 568.6218471065556
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 223,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 255.2805769812462,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 463.41856502242155
+        },
+        "with_rule": {
+          "all_requested_delay_s": 255.2805769812462,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 463.41856502242155
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 224,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 65700,
+        "reason": "mean occupancy +5.3 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N; served count -22% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 287.4624016938899,
+          "unfinished": 0,
+          "teleports": 7,
+          "worst_origin_delay_s": 514.8836258808457
+        },
+        "with_rule": {
+          "all_requested_delay_s": 287.4624016938899,
+          "unfinished": 0,
+          "teleports": 7,
+          "worst_origin_delay_s": 514.8836258808457
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 225,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 65700,
+        "reason": "mean occupancy +3.6 points; approaches up over 25 points: Mariani Ave S; served count -12% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 289.4072360859044,
+          "unfinished": 0,
+          "teleports": 12,
+          "worst_origin_delay_s": 572.1011659192825
+        },
+        "with_rule": {
+          "all_requested_delay_s": 289.4072360859044,
+          "unfinished": 0,
+          "teleports": 12,
+          "worst_origin_delay_s": 572.1011659192825
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 226,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 66000,
+        "reason": "mean occupancy +10.8 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N, Mariani Ave N; served count -14% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 306.24071309739867,
+          "unfinished": 0,
+          "teleports": 9,
+          "worst_origin_delay_s": 446.77105701473414
+        },
+        "with_rule": {
+          "all_requested_delay_s": 306.24071309739867,
+          "unfinished": 0,
+          "teleports": 9,
+          "worst_origin_delay_s": 446.77105701473414
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 227,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 244.00792422867514,
+          "unfinished": 0,
+          "teleports": 2,
+          "worst_origin_delay_s": 478.06836429639117
+        },
+        "with_rule": {
+          "all_requested_delay_s": 244.00792422867514,
+          "unfinished": 0,
+          "teleports": 2,
+          "worst_origin_delay_s": 478.06836429639117
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 228,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 237.27373790078647,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 476.1080162289131
+        },
+        "with_rule": {
+          "all_requested_delay_s": 237.27373790078647,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 476.1080162289131
+        }
+      },
+      {
+        "road": "deanza",
+        "program": "noop",
+        "seed": 229,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 262.94496370235936,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 462.5592867819774
+        },
+        "with_rule": {
+          "all_requested_delay_s": 262.94496370235936,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 462.5592867819774
+        }
+      }
+    ],
+    "bad_go_back_rate": 1,
+    "noop_go_back_rate": 0.4,
+    "bad_held_delay_s": 648.2251555505143,
+    "bad_with_rule_delay_s": 414.23372587719297,
+    "passed": false
+  },
+  "copy_vs_truth": {
+    "road": "deanza",
+    "turn_quarters": 304,
+    "geh_under_5_share": 0.694078947368421,
+    "truth_trips": 37598,
+    "copy_trips": 36039,
+    "abs_error_share": 0.30248949412202775
+  },
+  "steps_s": {
+    "watch": 7.5,
+    "learn": 33.1,
+    "practice": 4866.1,
+    "recommend": 0.0
+  },
+  "wall_s": 5146.531281167001
+}

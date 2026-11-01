@@ -1,0 +1,8 @@
+{
+  "road": "wolfe",
+  "turn_quarters": 272,
+  "geh_under_5_share": 0.5073529411764706,
+  "truth_trips": 38959,
+  "copy_trips": 29633,
+  "abs_error_share": 0.25703945173130727
+}

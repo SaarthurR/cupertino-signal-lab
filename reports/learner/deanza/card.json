@@ -1,0 +1,344 @@
+{
+  "road": "deanza",
+  "label": "SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.",
+  "decision": "no change",
+  "why": "No change: the copy predicts no clear gain over the old timing.",
+  "expected_in_copy": {
+    "copy_seeds": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "old_delay_s": 1740.0,
+    "new_delay_s": 1544.4,
+    "change_s": -195.7,
+    "change_range_s": [
+      -403.0,
+      7.8
+    ],
+    "change_share": -0.1125,
+    "p_value": 0.002
+  },
+  "limits": "Phase order, clearances and minimum greens are unchanged. Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check rule goes back to old timing if the feed shows traffic clearly worse.",
+  "signals": [
+    {
+      "signal": "Lazaneo Dr",
+      "sumo_tls_id": "GS_cluster_258972911_65426563",
+      "old": {
+        "cycle_s": 94.3,
+        "offset_s": 4.9,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 17.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 94.3,
+        "offset_s": 4.9,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 17.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "reason": "no material change"
+    },
+    {
+      "signal": "Mariani Ave",
+      "sumo_tls_id": "GS_cluster_220217924_65426561",
+      "old": {
+        "cycle_s": 94.3,
+        "offset_s": 31.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 15.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 94.3,
+        "offset_s": 31.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 15.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "reason": "no material change"
+    },
+    {
+      "signal": "I-280 south ramps",
+      "sumo_tls_id": "GS_cluster_255655914_255655915",
+      "old": {
+        "cycle_s": 94.3,
+        "offset_s": 7.1,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 13.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 17.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 94.3,
+        "offset_s": 7.1,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 13.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 17.0
+          }
+        ]
+      },
+      "reason": "no material change"
+    },
+    {
+      "signal": "I-280 north ramps",
+      "sumo_tls_id": "GS_cluster_220218003_65383026",
+      "old": {
+        "cycle_s": 94.3,
+        "offset_s": 0.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:RT",
+              "S:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 42.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "S:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 94.3,
+        "offset_s": 0.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:RT",
+              "S:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 42.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "S:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.0
+          }
+        ]
+      },
+      "reason": "no material change"
+    }
+  ]
+}

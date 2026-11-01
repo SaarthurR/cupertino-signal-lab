@@ -1,0 +1,8 @@
+{
+  "road": "deanza",
+  "turn_quarters": 304,
+  "geh_under_5_share": 0.694078947368421,
+  "truth_trips": 37598,
+  "copy_trips": 36039,
+  "abs_error_share": 0.30248949412202775
+}

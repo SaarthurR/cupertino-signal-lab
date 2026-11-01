@@ -1,0 +1,121 @@
+quarter_start_s,site,approach,mean_count,sd_count
+59400,Apple Park Way,E,100.0,0.82
+59400,Apple Park Way,N,292.67,4.92
+59400,Apple Park Way,S,281.33,7.32
+59400,I-280 north ramps,N,219.67,3.68
+59400,I-280 north ramps,S,464.33,7.32
+59400,I-280 south ramps,N,321.33,1.89
+59400,I-280 south ramps,S,258.67,4.03
+59400,I-280 south ramps,W,107.67,0.47
+59400,Pruneridge Ave,E,25.0,2.83
+59400,Pruneridge Ave,N,261.0,4.55
+59400,Pruneridge Ave,S,321.33,6.24
+59400,Pruneridge Ave,W,40.0,2.83
+59400,Vallco Pkwy,E,124.67,0.47
+59400,Vallco Pkwy,N,347.67,4.78
+59400,Vallco Pkwy,S,347.0,1.63
+60300,Apple Park Way,E,112.33,0.47
+60300,Apple Park Way,N,297.33,7.04
+60300,Apple Park Way,S,294.67,4.78
+60300,I-280 north ramps,N,224.0,9.9
+60300,I-280 north ramps,S,472.67,12.71
+60300,I-280 south ramps,N,329.67,9.57
+60300,I-280 south ramps,S,226.33,5.73
+60300,I-280 south ramps,W,114.33,2.87
+60300,Pruneridge Ave,E,26.0,2.16
+60300,Pruneridge Ave,N,269.0,6.98
+60300,Pruneridge Ave,S,329.0,7.48
+60300,Pruneridge Ave,W,51.0,2.94
+60300,Vallco Pkwy,E,137.67,1.25
+60300,Vallco Pkwy,N,362.67,5.44
+60300,Vallco Pkwy,S,337.33,4.03
+61200,Apple Park Way,E,111.67,5.79
+61200,Apple Park Way,N,359.67,6.13
+61200,Apple Park Way,S,301.67,7.85
+61200,I-280 north ramps,N,254.67,3.4
+61200,I-280 north ramps,S,497.33,18.26
+61200,I-280 south ramps,N,360.33,7.93
+61200,I-280 south ramps,S,213.0,8.16
+61200,I-280 south ramps,W,132.67,8.81
+61200,Pruneridge Ave,E,27.33,1.7
+61200,Pruneridge Ave,N,303.33,4.03
+61200,Pruneridge Ave,S,340.0,10.8
+61200,Pruneridge Ave,W,56.33,1.25
+61200,Vallco Pkwy,E,154.33,2.05
+61200,Vallco Pkwy,N,403.0,7.12
+61200,Vallco Pkwy,S,332.67,9.46
+62100,Apple Park Way,E,126.33,22.17
+62100,Apple Park Way,N,283.67,11.81
+62100,Apple Park Way,S,283.33,5.56
+62100,I-280 north ramps,N,234.0,2.16
+62100,I-280 north ramps,S,501.67,9.53
+62100,I-280 south ramps,N,357.0,9.27
+62100,I-280 south ramps,S,202.67,7.59
+62100,I-280 south ramps,W,156.67,7.41
+62100,Pruneridge Ave,E,36.33,5.56
+62100,Pruneridge Ave,N,246.33,9.57
+62100,Pruneridge Ave,S,330.0,3.74
+62100,Pruneridge Ave,W,52.67,5.31
+62100,Vallco Pkwy,E,163.33,1.89
+62100,Vallco Pkwy,N,407.0,6.68
+62100,Vallco Pkwy,S,360.33,10.27
+63000,Apple Park Way,E,160.0,6.68
+63000,Apple Park Way,N,308.67,14.52
+63000,Apple Park Way,S,291.67,12.12
+63000,I-280 north ramps,N,209.67,6.94
+63000,I-280 north ramps,S,488.0,6.48
+63000,I-280 south ramps,N,340.67,1.89
+63000,I-280 south ramps,S,206.33,2.49
+63000,I-280 south ramps,W,153.67,13.77
+63000,Pruneridge Ave,E,31.0,8.6
+63000,Pruneridge Ave,N,293.0,2.16
+63000,Pruneridge Ave,S,334.0,2.83
+63000,Pruneridge Ave,W,48.33,4.92
+63000,Vallco Pkwy,E,164.0,0.0
+63000,Vallco Pkwy,N,390.67,2.62
+63000,Vallco Pkwy,S,387.33,4.71
+63900,Apple Park Way,E,161.0,5.72
+63900,Apple Park Way,N,273.67,7.72
+63900,Apple Park Way,S,283.33,12.04
+63900,I-280 north ramps,N,222.33,3.09
+63900,I-280 north ramps,S,489.67,5.31
+63900,I-280 south ramps,N,349.33,8.65
+63900,I-280 south ramps,S,210.33,6.85
+63900,I-280 south ramps,W,134.67,10.87
+63900,Pruneridge Ave,E,30.0,3.27
+63900,Pruneridge Ave,N,270.67,9.29
+63900,Pruneridge Ave,S,343.67,9.74
+63900,Pruneridge Ave,W,47.0,6.38
+63900,Vallco Pkwy,E,161.33,1.89
+63900,Vallco Pkwy,N,395.67,3.68
+63900,Vallco Pkwy,S,400.67,3.86
+64800,Apple Park Way,E,148.0,7.26
+64800,Apple Park Way,N,267.33,8.73
+64800,Apple Park Way,S,340.67,6.24
+64800,I-280 north ramps,N,227.67,6.02
+64800,I-280 north ramps,S,492.0,8.83
+64800,I-280 south ramps,N,345.0,5.35
+64800,I-280 south ramps,S,206.0,10.2
+64800,I-280 south ramps,W,115.33,5.31
+64800,Pruneridge Ave,E,32.67,4.78
+64800,Pruneridge Ave,N,271.67,2.05
+64800,Pruneridge Ave,S,342.33,12.97
+64800,Pruneridge Ave,W,45.0,3.27
+64800,Vallco Pkwy,E,145.0,2.45
+64800,Vallco Pkwy,N,397.0,0.82
+64800,Vallco Pkwy,S,407.67,8.18
+65700,Apple Park Way,E,144.0,10.2
+65700,Apple Park Way,N,261.67,6.94
+65700,Apple Park Way,S,325.0,7.79
+65700,I-280 north ramps,N,227.0,4.08
+65700,I-280 north ramps,S,482.0,9.27
+65700,I-280 south ramps,N,351.33,2.87
+65700,I-280 south ramps,S,193.33,3.68
+65700,I-280 south ramps,W,95.67,6.18
+65700,Pruneridge Ave,E,43.0,2.94
+65700,Pruneridge Ave,N,279.33,4.5
+65700,Pruneridge Ave,S,319.33,6.6
+65700,Pruneridge Ave,W,32.67,0.94
+65700,Vallco Pkwy,E,139.0,1.63
+65700,Vallco Pkwy,N,394.0,4.55
+65700,Vallco Pkwy,S,391.0,4.97

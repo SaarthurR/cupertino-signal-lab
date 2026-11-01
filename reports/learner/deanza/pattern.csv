@@ -1,0 +1,113 @@
+quarter_start_s,site,approach,mean_count,sd_count
+59400,I-280 north ramps,E,67.0,3.27
+59400,I-280 north ramps,N,524.33,5.31
+59400,I-280 north ramps,S,361.67,4.19
+59400,I-280 south ramps,N,472.0,6.48
+59400,I-280 south ramps,S,382.67,2.62
+59400,I-280 south ramps,W,94.33,0.47
+59400,Lazaneo Dr,E,28.67,0.47
+59400,Lazaneo Dr,N,403.67,4.5
+59400,Lazaneo Dr,S,500.0,9.27
+59400,Lazaneo Dr,W,32.0,0.0
+59400,Mariani Ave,E,39.0,0.0
+59400,Mariani Ave,N,412.33,6.02
+59400,Mariani Ave,S,425.67,3.3
+59400,Mariani Ave,W,83.33,1.25
+60300,I-280 north ramps,E,80.67,1.25
+60300,I-280 north ramps,N,575.67,4.03
+60300,I-280 north ramps,S,384.33,4.99
+60300,I-280 south ramps,N,513.33,1.25
+60300,I-280 south ramps,S,414.0,8.6
+60300,I-280 south ramps,W,114.0,1.41
+60300,Lazaneo Dr,E,38.0,0.0
+60300,Lazaneo Dr,N,463.33,4.78
+60300,Lazaneo Dr,S,528.0,21.46
+60300,Lazaneo Dr,W,45.0,0.0
+60300,Mariani Ave,E,46.0,0.0
+60300,Mariani Ave,N,490.0,4.55
+60300,Mariani Ave,S,485.67,14.34
+60300,Mariani Ave,W,94.33,0.94
+61200,I-280 north ramps,E,87.67,1.25
+61200,I-280 north ramps,N,685.33,2.36
+61200,I-280 north ramps,S,427.33,23.34
+61200,I-280 south ramps,N,607.33,5.73
+61200,I-280 south ramps,S,450.0,22.55
+61200,I-280 south ramps,W,120.33,2.62
+61200,Lazaneo Dr,E,43.0,0.0
+61200,Lazaneo Dr,N,505.67,8.06
+61200,Lazaneo Dr,S,569.0,24.54
+61200,Lazaneo Dr,W,47.0,0.0
+61200,Mariani Ave,E,53.33,0.47
+61200,Mariani Ave,N,541.33,10.34
+61200,Mariani Ave,S,498.0,21.65
+61200,Mariani Ave,W,116.67,2.05
+62100,I-280 north ramps,E,92.67,2.36
+62100,I-280 north ramps,N,699.67,20.29
+62100,I-280 north ramps,S,386.67,17.63
+62100,I-280 south ramps,N,614.33,25.04
+62100,I-280 south ramps,S,410.0,20.61
+62100,I-280 south ramps,W,136.33,3.86
+62100,Lazaneo Dr,E,46.0,0.82
+62100,Lazaneo Dr,N,540.33,11.67
+62100,Lazaneo Dr,S,490.33,23.33
+62100,Lazaneo Dr,W,46.33,0.94
+62100,Mariani Ave,E,56.0,0.82
+62100,Mariani Ave,N,548.33,12.23
+62100,Mariani Ave,S,444.67,18.37
+62100,Mariani Ave,W,139.0,2.16
+63000,I-280 north ramps,E,85.0,2.94
+63000,I-280 north ramps,N,686.67,10.14
+63000,I-280 north ramps,S,415.67,12.39
+63000,I-280 south ramps,N,611.67,7.41
+63000,I-280 south ramps,S,440.33,10.34
+63000,I-280 south ramps,W,128.67,1.25
+63000,Lazaneo Dr,E,46.33,0.94
+63000,Lazaneo Dr,N,536.33,15.58
+63000,Lazaneo Dr,S,558.67,23.89
+63000,Lazaneo Dr,W,46.67,0.47
+63000,Mariani Ave,E,50.33,0.47
+63000,Mariani Ave,N,568.0,22.11
+63000,Mariani Ave,S,506.0,20.85
+63000,Mariani Ave,W,151.0,0.82
+63900,I-280 north ramps,E,82.0,1.63
+63900,I-280 north ramps,N,699.0,27.65
+63900,I-280 north ramps,S,423.0,2.16
+63900,I-280 south ramps,N,644.33,22.87
+63900,I-280 south ramps,S,443.33,6.13
+63900,I-280 south ramps,W,112.67,2.62
+63900,Lazaneo Dr,E,47.67,0.47
+63900,Lazaneo Dr,N,556.0,14.24
+63900,Lazaneo Dr,S,497.33,3.09
+63900,Lazaneo Dr,W,45.0,0.82
+63900,Mariani Ave,E,46.33,0.47
+63900,Mariani Ave,N,578.33,22.29
+63900,Mariani Ave,S,466.67,7.13
+63900,Mariani Ave,W,152.33,1.25
+64800,I-280 north ramps,E,66.67,1.89
+64800,I-280 north ramps,N,636.0,5.35
+64800,I-280 north ramps,S,463.33,2.36
+64800,I-280 south ramps,N,599.67,5.73
+64800,I-280 south ramps,S,489.0,4.08
+64800,I-280 south ramps,W,98.33,2.49
+64800,Lazaneo Dr,E,38.0,0.0
+64800,Lazaneo Dr,N,531.67,13.02
+64800,Lazaneo Dr,S,591.0,14.17
+64800,Lazaneo Dr,W,36.0,0.0
+64800,Mariani Ave,E,38.0,1.41
+64800,Mariani Ave,N,531.0,15.25
+64800,Mariani Ave,S,529.33,13.47
+64800,Mariani Ave,W,116.33,11.15
+65700,I-280 north ramps,E,59.33,1.89
+65700,I-280 north ramps,N,504.33,4.19
+65700,I-280 north ramps,S,447.33,3.77
+65700,I-280 south ramps,N,454.67,4.78
+65700,I-280 south ramps,S,459.0,5.72
+65700,I-280 south ramps,W,86.67,1.25
+65700,Lazaneo Dr,E,31.33,0.94
+65700,Lazaneo Dr,N,471.67,8.22
+65700,Lazaneo Dr,S,541.67,18.08
+65700,Lazaneo Dr,W,31.0,1.41
+65700,Mariani Ave,E,39.0,0.82
+65700,Mariani Ave,N,433.67,6.24
+65700,Mariani Ave,S,472.33,12.97
+65700,Mariani Ave,W,121.33,5.31

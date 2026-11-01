@@ -1,0 +1,18 @@
+{
+  "road": "wolfe",
+  "watched_days": 3,
+  "quarter_hours": 8,
+  "exact_turn_relations": 21,
+  "copy_vehicles": 12109,
+  "routesampler_log": [
+    "Warning: underflow locations: count 3, min 3.00 (('393494147#0', '649501755#0')), max 23.00 (('779496551#0',)), mean 9.67, Q1 3.00, median 3.00, Q3 23.00 (total 29)",
+    "avg interval input count: count 9, min 5853.00 (58500.0), max 6473.00 (61200.0), mean 6158.00, Q1 5984.00, median 6253.00, Q3 6278.00",
+    "avg interval written vehs: count 9, min 1226.00 (58500.0), max 1470.00 (63000.0), mean 1345.44, Q1 1279.00, median 1370.00, Q3 1408.00",
+    "avg interval underflow: count 9, min 8.00 (60300.0), max 30.00 (61200.0), mean 19.11, Q1 13.00, median 20.00, Q3 21.00",
+    "avg interval overflow: count 9, min 0.00 (58500.0), max 0.00 (58500.0), mean 0.00, Q1 0.00, median 0.00, Q3 0.00",
+    "avg interval GEH%: count 9, min 100.00 (58500.0), max 100.00 (58500.0), mean 100.00, Q1 100.00, median 100.00, Q3 100.00"
+  ],
+  "geh_under_5_share": 0.975,
+  "count_error_share": 0.03012658142687509,
+  "occupancy_mean_abs_diff": 8.957166666666668
+}

@@ -1,0 +1,842 @@
+[
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 220,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -4.7 points; approaches up over 25 points: none; served count -17% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 646.6189564428312,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1142.2470275464445
+    },
+    "with_rule": {
+      "all_requested_delay_s": 385.3624629461585,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 783.5957527226137
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 221,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -5.6 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 648.9281261343012,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1094.977185564809
+    },
+    "with_rule": {
+      "all_requested_delay_s": 393.8240388687235,
+      "unfinished": 0,
+      "teleports": 2,
+      "worst_origin_delay_s": 721.8773585308563
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 222,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -4.3 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 666.6850120992135,
+      "unfinished": 24,
+      "teleports": 0,
+      "worst_origin_delay_s": 1183.0204142643604
+    },
+    "with_rule": {
+      "all_requested_delay_s": 516.7384770114943,
+      "unfinished": 0,
+      "teleports": 7,
+      "worst_origin_delay_s": 937.4429041212898
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 223,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -5.7 points; approaches up over 25 points: none; served count -22% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 654.2585700241984,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1142.4595430279735
+    },
+    "with_rule": {
+      "all_requested_delay_s": 413.41012099213555,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 752.8503437967115
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 224,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -4.1 points; approaches up over 25 points: none; served count -16% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 600.4845130066545,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1022.0166944266496
+    },
+    "with_rule": {
+      "all_requested_delay_s": 365.61612295825773,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 698.4724108477471
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 225,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -5.3 points; approaches up over 25 points: none; served count -21% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 630.4686433756806,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1064.4451847106554
+    },
+    "with_rule": {
+      "all_requested_delay_s": 406.4655958862674,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 712.0950053384582
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 226,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -0.6 points; approaches up over 25 points: none; served count -18% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 730.5707130973987,
+      "unfinished": 120,
+      "teleports": 11,
+      "worst_origin_delay_s": 1311.2275165492206
+    },
+    "with_rule": {
+      "all_requested_delay_s": 513.4743239564428,
+      "unfinished": 0,
+      "teleports": 11,
+      "worst_origin_delay_s": 988.1111830023489
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 227,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -4.1 points; approaches up over 25 points: none; served count -17% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 622.7541439806413,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1050.069730941704
+    },
+    "with_rule": {
+      "all_requested_delay_s": 381.2549697519661,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 697.4577941490497
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 228,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -6.1 points; approaches up over 25 points: none; served count -21% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 654.5079643073201,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1082.7021866325006
+    },
+    "with_rule": {
+      "all_requested_delay_s": 387.71717937084094,
+      "unfinished": 0,
+      "teleports": 1,
+      "worst_origin_delay_s": 702.4821524663677
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "bad",
+    "seed": 229,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy -3.8 points; approaches up over 25 points: none; served count -19% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 626.9749130369026,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 1093.7122741832159
+    },
+    "with_rule": {
+      "all_requested_delay_s": 378.47396702964306,
+      "unfinished": 0,
+      "teleports": 1,
+      "worst_origin_delay_s": 674.1952893444374
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 220,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 270.8309460072595,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 576.1662395900064
+    },
+    "with_rule": {
+      "all_requested_delay_s": 270.8309460072595,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 576.1662395900064
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 221,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 66600,
+    "reason": "mean occupancy +5.7 points; approaches up over 25 points: Mariani Ave S, Lazaneo Dr N; served count -3% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 280.0959777676951,
+      "unfinished": 0,
+      "teleports": 7,
+      "worst_origin_delay_s": 558.2207559256886
+    },
+    "with_rule": {
+      "all_requested_delay_s": 280.0959777676951,
+      "unfinished": 0,
+      "teleports": 7,
+      "worst_origin_delay_s": 558.2207559256886
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 222,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 283.8877608892922,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 568.6218471065556
+    },
+    "with_rule": {
+      "all_requested_delay_s": 283.8877608892922,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 568.6218471065556
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 223,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 255.2805769812462,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 463.41856502242155
+    },
+    "with_rule": {
+      "all_requested_delay_s": 255.2805769812462,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 463.41856502242155
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 224,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 65700,
+    "reason": "mean occupancy +5.3 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N; served count -22% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 287.4624016938899,
+      "unfinished": 0,
+      "teleports": 7,
+      "worst_origin_delay_s": 514.8836258808457
+    },
+    "with_rule": {
+      "all_requested_delay_s": 287.4624016938899,
+      "unfinished": 0,
+      "teleports": 7,
+      "worst_origin_delay_s": 514.8836258808457
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 225,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 65700,
+    "reason": "mean occupancy +3.6 points; approaches up over 25 points: Mariani Ave S; served count -12% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 289.4072360859044,
+      "unfinished": 0,
+      "teleports": 12,
+      "worst_origin_delay_s": 572.1011659192825
+    },
+    "with_rule": {
+      "all_requested_delay_s": 289.4072360859044,
+      "unfinished": 0,
+      "teleports": 12,
+      "worst_origin_delay_s": 572.1011659192825
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 226,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 66000,
+    "reason": "mean occupancy +10.8 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N, Mariani Ave N; served count -14% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 306.24071309739867,
+      "unfinished": 0,
+      "teleports": 9,
+      "worst_origin_delay_s": 446.77105701473414
+    },
+    "with_rule": {
+      "all_requested_delay_s": 306.24071309739867,
+      "unfinished": 0,
+      "teleports": 9,
+      "worst_origin_delay_s": 446.77105701473414
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 227,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 244.00792422867514,
+      "unfinished": 0,
+      "teleports": 2,
+      "worst_origin_delay_s": 478.06836429639117
+    },
+    "with_rule": {
+      "all_requested_delay_s": 244.00792422867514,
+      "unfinished": 0,
+      "teleports": 2,
+      "worst_origin_delay_s": 478.06836429639117
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 228,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 237.27373790078647,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 476.1080162289131
+    },
+    "with_rule": {
+      "all_requested_delay_s": 237.27373790078647,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 476.1080162289131
+    }
+  },
+  {
+    "road": "deanza",
+    "program": "noop",
+    "seed": 229,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 262.94496370235936,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 462.5592867819774
+    },
+    "with_rule": {
+      "all_requested_delay_s": 262.94496370235936,
+      "unfinished": 0,
+      "teleports": 0,
+      "worst_origin_delay_s": 462.5592867819774
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 220,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +8.9 points; approaches up over 25 points: Pruneridge Ave W, I-280 south ramps S, I-280 north ramps N, I-280 south ramps N; served count -12% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 959.6331650700074,
+      "unfinished": 1561,
+      "teleports": 10,
+      "worst_origin_delay_s": 2526.296233062331
+    },
+    "with_rule": {
+      "all_requested_delay_s": 894.6540935887989,
+      "unfinished": 1003,
+      "teleports": 2,
+      "worst_origin_delay_s": 2653.1871815718155
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 221,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +6.5 points; approaches up over 25 points: Pruneridge Ave W, I-280 north ramps N; served count -12% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 934.7894495210022,
+      "unfinished": 1552,
+      "teleports": 13,
+      "worst_origin_delay_s": 2600.921029810298
+    },
+    "with_rule": {
+      "all_requested_delay_s": 883.0022269712601,
+      "unfinished": 967,
+      "teleports": 5,
+      "worst_origin_delay_s": 2594.49581300813
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 222,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +5.4 points; approaches up over 25 points: Pruneridge Ave W, I-280 north ramps N, I-280 south ramps N; served count -9% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 938.9019786293294,
+      "unfinished": 1543,
+      "teleports": 13,
+      "worst_origin_delay_s": 2493.957764227642
+    },
+    "with_rule": {
+      "all_requested_delay_s": 882.0127199705232,
+      "unfinished": 897,
+      "teleports": 15,
+      "worst_origin_delay_s": 2350.3671273712735
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 223,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +1.8 points; approaches up over 25 points: I-280 north ramps N, I-280 south ramps N; served count -6% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 906.3804495210021,
+      "unfinished": 1543,
+      "teleports": 23,
+      "worst_origin_delay_s": 2572.095704607046
+    },
+    "with_rule": {
+      "all_requested_delay_s": 860.2092822402359,
+      "unfinished": 947,
+      "teleports": 4,
+      "worst_origin_delay_s": 2587.0945528455286
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 224,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +3.1 points; approaches up over 25 points: Pruneridge Ave W, I-280 south ramps N; served count -5% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 921.4797973470892,
+      "unfinished": 1548,
+      "teleports": 18,
+      "worst_origin_delay_s": 2597.9535501355012
+    },
+    "with_rule": {
+      "all_requested_delay_s": 845.0241171702285,
+      "unfinished": 997,
+      "teleports": 5,
+      "worst_origin_delay_s": 2547.7967615176153
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 225,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +5.7 points; approaches up over 25 points: I-280 south ramps S, I-280 north ramps N; served count -10% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 941.9132520265291,
+      "unfinished": 1639,
+      "teleports": 21,
+      "worst_origin_delay_s": 2598.4508536585367
+    },
+    "with_rule": {
+      "all_requested_delay_s": 867.7754200442151,
+      "unfinished": 950,
+      "teleports": 6,
+      "worst_origin_delay_s": 2650.4079268292685
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 226,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 64200,
+    "reason": "mean occupancy +6.1 points; approaches up over 25 points: I-280 south ramps S, I-280 north ramps N, I-280 south ramps N; served count -7% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 908.6341400147384,
+      "unfinished": 1456,
+      "teleports": 16,
+      "worst_origin_delay_s": 2654.934349593496
+    },
+    "with_rule": {
+      "all_requested_delay_s": 870.8629218865143,
+      "unfinished": 1046,
+      "teleports": 5,
+      "worst_origin_delay_s": 2646.523428184282
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 227,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 63600,
+    "reason": "mean occupancy +8.3 points; approaches up over 25 points: I-280 south ramps S, I-280 north ramps N; served count -9% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 919.1407649226234,
+      "unfinished": 1547,
+      "teleports": 28,
+      "worst_origin_delay_s": 2538.0140108401083
+    },
+    "with_rule": {
+      "all_requested_delay_s": 865.8253220338983,
+      "unfinished": 933,
+      "teleports": 6,
+      "worst_origin_delay_s": 2587.583306233062
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 228,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +7.2 points; approaches up over 25 points: Pruneridge Ave W, I-280 south ramps S, I-280 north ramps N; served count -7% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 932.054,
+      "unfinished": 1637,
+      "teleports": 14,
+      "worst_origin_delay_s": 2626.692425474255
+    },
+    "with_rule": {
+      "all_requested_delay_s": 858.9579756816507,
+      "unfinished": 979,
+      "teleports": 1,
+      "worst_origin_delay_s": 2633.0675880758804
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "bad",
+    "seed": 229,
+    "change_s": 61200,
+    "go_back": true,
+    "time_s": 62700,
+    "reason": "mean occupancy +1.3 points; approaches up over 25 points: Pruneridge Ave W, I-280 north ramps N, I-280 south ramps N; served count -7% over 15 min; 3 windows running",
+    "held": {
+      "all_requested_delay_s": 938.2646823876198,
+      "unfinished": 1650,
+      "teleports": 24,
+      "worst_origin_delay_s": 2482.0162872628725
+    },
+    "with_rule": {
+      "all_requested_delay_s": 858.7154620486367,
+      "unfinished": 996,
+      "teleports": 3,
+      "worst_origin_delay_s": 2457.4869241192414
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 220,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 878.674763448784,
+      "unfinished": 900,
+      "teleports": 0,
+      "worst_origin_delay_s": 2553.040460704607
+    },
+    "with_rule": {
+      "all_requested_delay_s": 878.674763448784,
+      "unfinished": 900,
+      "teleports": 0,
+      "worst_origin_delay_s": 2553.040460704607
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 221,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 873.1966123802505,
+      "unfinished": 1000,
+      "teleports": 1,
+      "worst_origin_delay_s": 2369.553739837398
+    },
+    "with_rule": {
+      "all_requested_delay_s": 873.1966123802505,
+      "unfinished": 1000,
+      "teleports": 1,
+      "worst_origin_delay_s": 2369.553739837398
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 222,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 873.2606219602064,
+      "unfinished": 966,
+      "teleports": 1,
+      "worst_origin_delay_s": 2533.4794173441737
+    },
+    "with_rule": {
+      "all_requested_delay_s": 873.2606219602064,
+      "unfinished": 966,
+      "teleports": 1,
+      "worst_origin_delay_s": 2533.4794173441737
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 223,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 870.7608990420044,
+      "unfinished": 897,
+      "teleports": 1,
+      "worst_origin_delay_s": 2466.99960704607
+    },
+    "with_rule": {
+      "all_requested_delay_s": 870.7608990420044,
+      "unfinished": 897,
+      "teleports": 1,
+      "worst_origin_delay_s": 2466.99960704607
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 224,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 860.159481945468,
+      "unfinished": 857,
+      "teleports": 2,
+      "worst_origin_delay_s": 2506.9245528455285
+    },
+    "with_rule": {
+      "all_requested_delay_s": 860.159481945468,
+      "unfinished": 857,
+      "teleports": 2,
+      "worst_origin_delay_s": 2506.9245528455285
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 225,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 862.1270132645542,
+      "unfinished": 975,
+      "teleports": 2,
+      "worst_origin_delay_s": 2564.4819918699186
+    },
+    "with_rule": {
+      "all_requested_delay_s": 862.1270132645542,
+      "unfinished": 975,
+      "teleports": 2,
+      "worst_origin_delay_s": 2564.4819918699186
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 226,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 873.9463065585852,
+      "unfinished": 1009,
+      "teleports": 3,
+      "worst_origin_delay_s": 2735.5789295392956
+    },
+    "with_rule": {
+      "all_requested_delay_s": 873.9463065585852,
+      "unfinished": 1009,
+      "teleports": 3,
+      "worst_origin_delay_s": 2735.5789295392956
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 227,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 864.7834023581429,
+      "unfinished": 956,
+      "teleports": 2,
+      "worst_origin_delay_s": 2532.7678861788618
+    },
+    "with_rule": {
+      "all_requested_delay_s": 864.7834023581429,
+      "unfinished": 956,
+      "teleports": 2,
+      "worst_origin_delay_s": 2532.7678861788618
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 228,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 854.9045217391304,
+      "unfinished": 1022,
+      "teleports": 3,
+      "worst_origin_delay_s": 2497.3773848238484
+    },
+    "with_rule": {
+      "all_requested_delay_s": 854.9045217391304,
+      "unfinished": 1022,
+      "teleports": 3,
+      "worst_origin_delay_s": 2497.3773848238484
+    }
+  },
+  {
+    "road": "wolfe",
+    "program": "noop",
+    "seed": 229,
+    "change_s": 61200,
+    "go_back": false,
+    "time_s": null,
+    "reason": "feed within watched range",
+    "held": {
+      "all_requested_delay_s": 863.459970523213,
+      "unfinished": 903,
+      "teleports": 0,
+      "worst_origin_delay_s": 2577.111612466125
+    },
+    "with_rule": {
+      "all_requested_delay_s": 863.459970523213,
+      "unfinished": 903,
+      "teleports": 0,
+      "worst_origin_delay_s": 2577.111612466125
+    }
+  }
+]

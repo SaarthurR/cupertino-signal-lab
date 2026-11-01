@@ -1,0 +1,377 @@
+{
+  "road": "wolfe",
+  "label": "SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.",
+  "decision": "change",
+  "why": "The copy predicts a clear gain.",
+  "expected_in_copy": {
+    "copy_seeds": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "old_delay_s": 137.6,
+    "new_delay_s": 79.6,
+    "change_s": -58.0,
+    "change_range_s": [
+      -70.3,
+      -44.6
+    ],
+    "change_share": -0.4212,
+    "p_value": 0.001
+  },
+  "limits": "Phase order, clearances and minimum greens are unchanged. Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check rule goes back to old timing if the feed shows traffic clearly worse.",
+  "signals": [
+    {
+      "signal": "Vallco Pkwy",
+      "sumo_tls_id": "GS_cluster_289652355_65584605_665705316_665705317",
+      "old": {
+        "cycle_s": 64.9,
+        "offset_s": 29.8,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 22.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LR",
+              "S:R"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 87.7,
+        "offset_s": 50.5,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 38.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.3
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LR",
+              "S:R"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 13.5
+          }
+        ]
+      },
+      "reason": "+16 s green for N:LT S:RT (learned peak 408 veh/15 min); +4 s green for E:LR S:R (learned peak 408 veh/15 min); offset 30 -> 50 s to fit the 88 s cycle"
+    },
+    {
+      "signal": "I-280 south ramps",
+      "sumo_tls_id": "cluster_1297872125_65406866",
+      "old": {
+        "cycle_s": 64.9,
+        "offset_s": 0.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:T",
+              "S:T"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 31.0
+          },
+          {
+            "phase": 3,
+            "serves": [
+              "W:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 87.7,
+        "offset_s": 58.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:T",
+              "S:T"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 41.5
+          },
+          {
+            "phase": 3,
+            "serves": [
+              "W:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 16.9
+          }
+        ]
+      },
+      "reason": "+10 s green for N:T S:T (learned peak 360 veh/15 min); +7 s green for W:LR (learned peak 157 veh/15 min); offset 0 -> 58 s to fit the 88 s cycle"
+    },
+    {
+      "signal": "I-280 north ramps",
+      "sumo_tls_id": "GS_cluster_14244508567_258965243_306087470",
+      "old": {
+        "cycle_s": 64.9,
+        "offset_s": 20.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 21.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "S:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 87.7,
+        "offset_s": 4.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 34.9
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.4
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "S:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 15.8
+          }
+        ]
+      },
+      "reason": "+14 s green for N:LT S:RT (learned peak 502 veh/15 min); +6 s green for S:LR (learned peak 502 veh/15 min); offset 20 -> 4 s to fit the 88 s cycle"
+    },
+    {
+      "signal": "Pruneridge Ave",
+      "sumo_tls_id": "cluster_247385812_247385813",
+      "old": {
+        "cycle_s": 64.9,
+        "offset_s": 36.5,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "N:R",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 8,
+            "serves": [
+              "E:LRT",
+              "S:R"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 87.7,
+        "offset_s": 82.9,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 20.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 19.3
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "N:R",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.6
+          },
+          {
+            "phase": 8,
+            "serves": [
+              "E:LRT",
+              "S:R"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.9
+          }
+        ]
+      },
+      "reason": "+10 s green for N:LRT S:LRT (learned peak 344 veh/15 min); +9 s green for N:L S:L (learned peak 344 veh/15 min); offset 36 -> 83 s to fit the 88 s cycle"
+    },
+    {
+      "signal": "Apple Park Way",
+      "sumo_tls_id": "cluster_3401339837_3701140056_5054547493_7278975769",
+      "old": {
+        "cycle_s": 64.9,
+        "offset_s": 41.8,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 17.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 10.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LR",
+              "S:R"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 12.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 87.7,
+        "offset_s": 47.2,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LT",
+              "S:RT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 34.1
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 12.8
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LR",
+              "S:R"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 11.4
+          }
+        ]
+      },
+      "reason": "+17 s green for N:LT S:RT (learned peak 360 veh/15 min); +3 s green for N:LT (learned peak 360 veh/15 min); offset 42 -> 47 s to fit the 88 s cycle"
+    }
+  ]
+}

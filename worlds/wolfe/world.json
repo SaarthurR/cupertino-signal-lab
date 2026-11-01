@@ -1,0 +1,33 @@
+{
+  "label": "SYNTHETIC simulated demand from a fixed seed; not observed traffic",
+  "seed": 12,
+  "main_rate": [
+    400,
+    640
+  ],
+  "side_rate": [
+    130,
+    280
+  ],
+  "vehicles": 14766,
+  "sample_log": "58500: symmetric count fit; 1196 vehicles; GEH<5 28/34\n59400: symmetric count fit; 1325 vehicles; GEH<5 27/34\n60300: symmetric count fit; 1509 vehicles; GEH<5 27/34\n61200: symmetric count fit; 1740 vehicles; GEH<5 27/34\n62100: symmetric count fit; 1925 vehicles; GEH<5 27/34\n63000: symmetric count fit; 1987 vehicles; GEH<5 28/34\n63900: symmetric count fit; 1897 vehicles; GEH<5 30/34\n64800: symmetric count fit; 1703 vehicles; GEH<5 31/34\n65700: symmetric count fit; 1484 vehicles; GEH<5 31/34",
+  "stale_factors": {
+    "-158259106#1": 0.8707808205989382,
+    "158248728#0": 0.7158531153406598,
+    "167369644#0": 0.7665856874321226,
+    "393494152#0": 0.6238244077227871,
+    "393497335#0": 0.8051127830194584,
+    "779496538#0": 1.2803896452882906,
+    "779496543#0": 1.0265529429350555,
+    "962283650#0": 0.7587156393823733
+  },
+  "stale_range": [
+    0.6,
+    1.4
+  ],
+  "tool_log": [
+    "Begin time:59400.0\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 2 is from the input file.\nDuration for Phase 5 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 10 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\n",
+    "number of tls-pairs: 20\noperations: newSet=2 addToSet=0 addToSet2=1 addHalfCoordinated=16 mergeSets=1\n"
+  ],
+  "routes_sha256": "ebb1a213c0182e8bc4fb1c03d5d7ce237d76970da8986ea9fb0361492af9ed59"
+}
