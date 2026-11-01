@@ -48,8 +48,8 @@ def split_greens(cycle, split, rows, main, baseline_greens, baseline_cycle, max_
     return greens
 
 
-def baseline_params(scenario='pm_peak'):
-    logics = ET.parse(p.ROOT/f'sim/tls_actuated_{scenario}.add.xml').getroot().findall('tlLogic')
+def baseline_params(scenario='pm_peak', source=None):
+    logics = ET.parse(source or p.ROOT/f'sim/tls_actuated_{scenario}.add.xml').getroot().findall('tlLogic')
     settings = {v.get('key'): float(v.get('value')) for v in logics[0].findall('param')
                 if v.get('key') in ('cycleTime', 'max-gap')}
     params = dict(cycle_s=settings['cycleTime'])
@@ -70,9 +70,9 @@ def v2_params():
     return params
 
 
-def plan(scenario, params, path, version=3):
-    root = ET.parse(p.ROOT/f'sim/tls_actuated_{scenario}.add.xml').getroot()
-    with open(p.ROOT/'data/processed/timing_inputs.csv') as stream:
+def plan(scenario, params, path, version=3, source=None, inputs=None, cycle_range=None):
+    root = ET.parse(source or p.ROOT/f'sim/tls_actuated_{scenario}.add.xml').getroot()
+    with open(inputs or p.ROOT/'data/processed/timing_inputs.csv') as stream:
         inputs = {(r['sumo_tls_id'], int(r['phase'])): r for r in csv.DictReader(stream)}
     timing = []
     cycle = params['cycle_s']
@@ -89,7 +89,7 @@ def plan(scenario, params, path, version=3):
         passage = params.get(f'passage_{index}', params.get('passage_s'))
         greens = split_greens(cycle, shares, rows, main,
                               [float(phases[i].get('maxDur')) for i in indices], baseline_cycle,
-                              *reversed(cycle_bounds(version, scenario)))
+                              *reversed(cycle_range or cycle_bounds(version, scenario)))
         requested_min = params.get(f'min_{index}', float(phases[indices[main]].get('minDur')))
         if not 7 <= requested_min <= 30:
             raise ValueError('Mainline minimum green outside v3 bounds')

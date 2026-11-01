@@ -165,30 +165,9 @@ def build_net():
     cfg['mainline_edges'] = [e.getID() for e in net.getEdges() if e.getName() == 'Stevens Creek Boulevard']
     cfg['side_edges'] = sorted({c[0].getEdge().getID() for s in cfg['signals'] for c in net.getTLS(s['sumo_tls_id']).getConnections()} - set(cfg['mainline_edges']))
     (ROOT / 'config/corridor.yaml').write_text(yaml.safe_dump(cfg, sort_keys=False))
-    detectors = ET.Element('additional')
-    controlled_lanes = {c[0].getID() for signal in cfg['signals'] for c in net.getTLS(signal['sumo_tls_id']).getConnections()}
-    with tempfile.TemporaryDirectory() as tmp:
-        for label, distance in [('stop', 1), ('upstream', 40)]:
-            output = Path(tmp) / f'{label}.xml'
-            tool('output/generateTLSE1Detectors.py', '-n', ROOT / 'sim/corridor.net.xml', '-d', distance, '-f', 900, '-r', '/dev/null', '-o', output)
-            for detector in ET.parse(output).getroot():
-                if detector.tag in ('e1Detector', 'inductionLoop') and detector.get('lane') in controlled_lanes:
-                    detector.set('id', f'{label}_{detector.get("lane")}')
-                    detector.set('pos', str(max(0, net.getLane(detector.get('lane')).getLength()-distance)))
-                    detectors.append(detector)
-    timing = []
-    for signal in cfg['signals']:
-        tls = net.getTLS(signal['sumo_tls_id'])
-        program = next(iter(tls.getPrograms().values()))
-        for i,phase in enumerate(program.getPhases()):
-            if not any(c in phase.state for c in 'Gg') or 'y' in phase.state:
-                continue
-            conns = [c for c in tls.getConnections() if phase.state[c[2]] == 'G']
-            through = any(v.getDirection() == 's' for c in conns for v in c[0].getOutgoing() if v.getToLane() == c[1])
-            width = max((math.dist(c[0].getShape()[-1],c[1].getShape()[0]) for c in conns), default=15)*3.28084
-            timing.append(dict(sumo_tls_id=tls.getID(),phase=i,movement='through' if through else 'protected_left',speed_mph=cfg['speed_mph'],grade=0,width_ft=round(width,1),yellow_s=max(3,math.ceil((1+1.467*cfg['speed_mph']/20)*10)/10),red_clear_s=max(1,round((width+20)/(1.467*cfg['speed_mph']),1)),min_green_s=7 if through else 5,max_green_s=60,passage_s=3,basis='Demo assumption, not city timing; OSM net geometry width, level grade'))
-    xml_write(detectors, 'sim/detectors.add.xml')
-    write_csv('data/processed/timing_inputs.csv', timing)
+    tls_ids = [signal['sumo_tls_id'] for signal in cfg['signals']]
+    xml_write(loop_detectors(ROOT / 'sim/corridor.net.xml', net, tls_ids), 'sim/detectors.add.xml')
+    write_csv('data/processed/timing_inputs.csv', timing_rows(net, tls_ids, cfg['speed_mph']))
     configuration = ET.Element('configuration')
     inputs = ET.SubElement(configuration, 'input')
     ET.SubElement(inputs, 'net-file', value='corridor.net.xml')
@@ -197,3 +176,35 @@ def build_net():
     xml_write(configuration, 'sim/corridor.sumocfg')
     run([BIN/'sumo','-c',ROOT/'sim/corridor.sumocfg','-e','1','--no-step-log'])
     print('build-net: all five OSM signals matched; network loads')
+
+
+def loop_detectors(net_path, net, tls_ids):
+    """Stop-line (1 m) and upstream (40 m) E1 loops on every lane the signals control."""
+    detectors = ET.Element('additional')
+    controlled_lanes = {c[0].getID() for tls in tls_ids for c in net.getTLS(tls).getConnections()}
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, distance in [('stop', 1), ('upstream', 40)]:
+            output = Path(tmp) / f'{label}.xml'
+            tool('output/generateTLSE1Detectors.py', '-n', net_path, '-d', distance, '-f', 900, '-r', '/dev/null', '-o', output)
+            for detector in ET.parse(output).getroot():
+                if detector.tag in ('e1Detector', 'inductionLoop') and detector.get('lane') in controlled_lanes:
+                    detector.set('id', f'{label}_{detector.get("lane")}')
+                    detector.set('pos', str(max(0, net.getLane(detector.get('lane')).getLength()-distance)))
+                    detectors.append(detector)
+    return detectors
+
+
+def timing_rows(net, tls_ids, speed_mph):
+    """Clearances and green limits per green phase; demo assumptions, not city timing."""
+    timing = []
+    for tls_id in tls_ids:
+        tls = net.getTLS(tls_id)
+        program = next(iter(tls.getPrograms().values()))
+        for i,phase in enumerate(program.getPhases()):
+            if not any(c in phase.state for c in 'Gg') or 'y' in phase.state:
+                continue
+            conns = [c for c in tls.getConnections() if phase.state[c[2]] == 'G']
+            through = any(v.getDirection() == 's' for c in conns for v in c[0].getOutgoing() if v.getToLane() == c[1])
+            width = max((math.dist(c[0].getShape()[-1],c[1].getShape()[0]) for c in conns), default=15)*3.28084
+            timing.append(dict(sumo_tls_id=tls.getID(),phase=i,movement='through' if through else 'protected_left',speed_mph=speed_mph,grade=0,width_ft=round(width,1),yellow_s=max(3,math.ceil((1+1.467*speed_mph/20)*10)/10),red_clear_s=max(1,round((width+20)/(1.467*speed_mph),1)),min_green_s=7 if through else 5,max_green_s=60,passage_s=3,basis='Demo assumption, not city timing; OSM net geometry width, level grade'))
+    return timing
