@@ -14,7 +14,11 @@ COPY_SEEDS = range(3)
 
 
 def read(name, kind):
-    return [list(csv.DictReader(open(day/f'{kind}.csv'))) for day in sorted((road.OUT/name/'feed').glob('seed*'))]
+    days = []
+    for day in sorted((road.OUT/name/'feed').glob('seed*')):
+        with open(day/f'{kind}.csv') as stream:
+            days.append(list(csv.DictReader(stream)))
+    return days
 
 
 def pattern(days, key):

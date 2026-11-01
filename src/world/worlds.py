@@ -121,6 +121,17 @@ def build_world(name):
     return info
 
 
+def fresh_plan(name):
+    """Descriptive textbook retiming from the true current demand; never an input to the learner."""
+    cfg = road.load(name)
+    output = TRUTH/name/'fresh_timing.add.xml'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    baseline.actuated(road.file(cfg, 'net'), routes(name), road.window(cfg)[0],
+                      [s['sumo_tls_id'] for s in cfg['signals']], cfg['mainline_edges'],
+                      road.file(cfg, 'timing_inputs'), output)
+    return output
+
+
 def bad_plan(cfg, path):
     """Deliberately bad, still within bounds: shortest cycle, mainline starved, offsets half a cycle off."""
     old = practice.old_params(cfg)

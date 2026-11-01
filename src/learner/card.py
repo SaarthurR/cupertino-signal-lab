@@ -41,8 +41,9 @@ def recommend(name):
     out = road.OUT/name
     result = json.loads((out/'practice.json').read_text())
     peak = {}
-    for r in csv.DictReader(open(out/'pattern.csv')):
-        peak[r['site'], r['approach']] = max(peak.get((r['site'], r['approach']), 0), float(r['mean_count']))
+    with open(out/'pattern.csv') as stream:
+        for r in csv.DictReader(stream):
+            peak[r['site'], r['approach']] = max(peak.get((r['site'], r['approach']), 0), float(r['mean_count']))
     change = result['clear_gain']
     old = settings(road.file(cfg, 'old_timing'), cfg, network)
     new = settings(out/'plan.add.xml', cfg, network) if change else old

@@ -167,18 +167,81 @@ class GoBackRuleTests(unittest.TestCase):
         self.assertTrue(self.decide(everywhere)['go_back'])
 
 
+class CheckpointTests(unittest.TestCase):
+    @staticmethod
+    def stats(seed, offset=0):
+        return dict(all_requested_delay_s=seed+offset, unfinished=0, teleports=0,
+                    worst_origin_delay_s=10+seed+offset)
+
+    def test_compare_saves_each_seed_and_resumes_only_missing_runs(self):
+        timings = {'old': 'old.xml', 'learner': 'learner.xml', 'fresh': 'fresh.xml'}
+        arms = {path: arm for arm, path in timings.items()}
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial, 'arms', return_value=({}, timings)), \
+                mock.patch.object(trial.w, 'routes', return_value='routes.xml'), mock.patch.object(trial.road, 'many') as many:
+            many.side_effect = lambda jobs: [(self.stats(job[3], 100*list(timings).index(arms[job[2]])), None)
+                                             for job in jobs]
+            checkpoint = Path(temp)/'results.csv'
+            rows = trial.compare('road', (1, 2), checkpoint)
+            self.assertEqual({(r['arm'], r['seed']) for r in rows},
+                             {(arm, seed) for arm in timings for seed in (1, 2)})
+            self.assertTrue(checkpoint.exists())
+            many.reset_mock()
+            resumed = trial.compare('road', (1, 2), checkpoint)
+            many.assert_not_called()
+            self.assertEqual(rows, resumed)
+
+    def test_go_back_saves_completed_jobs_and_resumes(self):
+        def run(name, path, program, seed):
+            stats = self.stats(seed)
+            return dict(road=name, program=program, seed=seed, go_back=program == 'bad',
+                        held=stats, with_rule={**stats, 'all_requested_delay_s': stats['all_requested_delay_s']-1})
+
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial.road, 'load', return_value={}), \
+                mock.patch.object(trial.w, 'bad_plan'), \
+                mock.patch.object(trial.w, 'noop_plan'), mock.patch.object(trial.w, 'check_run', side_effect=run) as check_run:
+            checkpoint = Path(temp)/'go_back.json'
+            result = trial.go_back('road', (1, 2), checkpoint)
+            self.assertTrue(result['passed'])
+            self.assertEqual(check_run.call_count, 4)
+            check_run.reset_mock()
+            resumed = trial.go_back('road', (1, 2), checkpoint)
+            check_run.assert_not_called()
+            self.assertEqual(result, resumed)
+
+
 class RefusalTests(unittest.TestCase):
+    def test_heldout_test_refuses_completed_run(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial, 'HELDOUT', Path(temp)), \
+                mock.patch.object(trial, 'frozen_since_preregistration',
+                                  side_effect=AssertionError('must refuse before checking code')):
+            (Path(temp)/'results.json').write_text('{}')
+            with self.assertRaisesRegex(RuntimeError, 'refusing'):
+                trial.heldout_test()
+
     def test_heldout_test_refuses_once_results_exist(self):
         with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial, 'HELDOUT', Path(temp)), \
+                mock.patch.object(trial, 'frozen_since_preregistration', return_value='abc'), \
                 mock.patch.object(trial.w, 'build_world', side_effect=AssertionError('must not run')):
             with self.assertRaisesRegex(RuntimeError, 'refusing'):
                 trial.heldout_test()
+
+    def test_freeze_rejects_untracked_code(self):
+        with mock.patch.object(trial.subprocess, 'check_output', side_effect=['abc\n', 'src/learner/sneak.py\n']), \
+                mock.patch.object(trial.subprocess, 'run', return_value=mock.Mock(returncode=0)):
+            with self.assertRaisesRegex(RuntimeError, 'Untracked code'):
+                trial.frozen_since_preregistration()
 
     def test_learner_will_not_run_on_heldout_roads_outside_the_test(self):
         for name in trial.HELDOUT_ROADS:
             self.assertEqual(road.load(name)['role'], 'heldout')
             with self.assertRaisesRegex(RuntimeError, 'held out'):
                 trial.run_learner(name)
+
+    def test_heldout_simulation_seeds_are_unseen(self):
+        seen = set(trial.w.WATCH_SEEDS) | set(practice.SEARCH_SEEDS) | set(practice.CONFIRM_SEEDS) | \
+            set(trial.DEV_SEEDS) | set(trial.DEV_GOBACK_SEEDS)
+        self.assertTrue(set(trial.TEST_SEEDS).isdisjoint(seen))
+        self.assertTrue(set(trial.TEST_GOBACK_SEEDS).isdisjoint(seen | set(trial.TEST_SEEDS)))
 
     def test_holm(self):
         self.assertEqual(trial.holm([.01, .04]), [.02, .04])

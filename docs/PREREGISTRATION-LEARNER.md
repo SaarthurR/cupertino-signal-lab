@@ -1,7 +1,7 @@
 # Signal Learner held-out preregistration
 
 Registered before any learner run on a held-out road. Simulation only; synthetic demand on new roads.
-Spec: `docs/LEARNER-SPEC.md`. Code is frozen at the commit that adds this file; the test command refuses
+Spec: `docs/LEARNER-SPEC.md`. Code is frozen at the latest commit containing this file; the test command refuses
 to run if `src/`, `roads/` or `tools/learner.py` differ from that commit.
 
 ## Roads
@@ -50,10 +50,19 @@ to run if `src/`, `roads/` or `tools/learner.py` differ from that commit.
 - One-sided paired Wilcoxon (learner minus old, alternative less), alpha .05, Holm across the two roads.
 - A "no change" card means the learner arm is the old timing: zero differences, p = 1, no gain.
 - Secondary, descriptive: unfinished trips, teleports, worst origin-approach delay, copy error against hidden
-  truth (share of 15-minute turn counts with GEH < 5, total absolute error share).
+  truth (share of 15-minute turn counts with GEH < 5, total absolute error share), and a fresh textbook
+  coordinated-actuated retiming built from true current world demand.
 - Go-back test, seeds 220–229: a deliberately bad plan (shortest cycle, mainline share 0.6, others 1.4,
   offsets half a cycle off) and a no-op change (old timing renamed), applied at 17:00.
   Pass: bad plan undone on ≥ 80% of seeds with lower mean delay than holding it, and the no-op undone on ≤ 20%.
 - Command: `PYTHONPATH=src .venv/bin/python -m tools.learner heldout-test`. It writes
-  `reports/learner_heldout/` and refuses to run again once that folder exists, including after a crash.
+  checkpoints in `reports/learner_heldout/`, resumes only missing work after a crash, and refuses once
+  `results.json` exists.
 - Results are reported as they come. No re-tuning on test seeds or held-out roads.
+
+## Amendment before any held-out run — 2026-11-01
+
+Independent review added the descriptive fresh-retiming arm above. It does not affect the primary learner test.
+The command now writes atomic per-seed checkpoints and can resume an interrupted run. The earlier command would
+have refused after a crash and wasted the single test. The freeze also rejects untracked code and road files.
+The frozen commit is the commit containing this amendment and its reviewed code. No held-out simulation had run.
