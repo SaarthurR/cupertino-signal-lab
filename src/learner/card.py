@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from . import road
 
 LABEL = 'SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.'
-TURN = {'l': 'left', 's': 'through', 'r': 'right'}
+TURN = {'l': 'L', 's': 'T', 'r': 'R'}  # left, through, right
 
 
 def settings(path, cfg, network):
@@ -22,9 +22,13 @@ def settings(path, cfg, network):
         for index, phase in enumerate(logic.findall('phase')):
             if phase.get('minDur') is None:
                 continue
-            served = sorted({f"from {legs[c[0].getEdge().getID()][1]} {TURN[rels[c[0].getEdge().getID()][c[1].getEdge().getID()]]}"
-                             for i, c in links.items() if phase.get('state')[i] in 'Gg'
-                             and c[1].getEdge().getID() in rels.get(c[0].getEdge().getID(), {})})
+            moves = {}
+            for i, (lane, outgoing, _) in links.items():
+                a, b = lane.getEdge().getID(), outgoing.getEdge().getID()
+                if phase.get('state')[i] in 'Gg' and b in rels.get(a, {}):
+                    moves.setdefault(legs[a][1], set()).add(TURN[rels[a][b]])
+            # e.g. 'N:LT' = traffic from the north leg turning left and going through.
+            served = [f"{leg}:{''.join(sorted(turns))}" for leg, turns in sorted(moves.items())]
             greens.append(dict(phase=index, serves=served, min_green_s=round(float(phase.get('minDur')), 1),
                                max_green_s=round(float(phase.get('maxDur')), 1)))
         out[logic.get('id')] = dict(cycle_s=round(cycle, 1), offset_s=round(float(logic.get('offset')), 1), greens=greens)
@@ -45,13 +49,11 @@ def recommend(name):
     signals = []
     for signal in cfg['signals']:
         a, b = old[signal['sumo_tls_id']], new[signal['sumo_tls_id']]
-        reasons = []
-        for g0, g1 in zip(a['greens'], b['greens']):
-            delta = g1['max_green_s']-g0['max_green_s']
-            if abs(delta) >= 2:
-                volume = max((peak.get((signal['name'], s.split()[1]), 0) for s in g0['serves']), default=0)
-                reasons.append(f"{'more' if delta > 0 else 'less'} green ({delta:+.0f} s) for {', '.join(g0['serves'])}; "
-                               f"learned peak {volume:.0f} veh per 15 min on the busiest leg served")
+        changes = sorted(((g1['max_green_s']-g0['max_green_s'], g0['serves']) for g0, g1 in zip(a['greens'], b['greens'])),
+                         key=lambda c: -abs(c[0]))
+        reasons = [f"{delta:+.0f} s green for {' '.join(serves)} (learned peak "
+                   f"{max(peak.get((signal['name'], s[0]), 0) for s in serves):.0f} veh/15 min)"
+                   for delta, serves in changes[:2] if abs(delta) >= 2]
         if change and abs(b['offset_s']-a['offset_s']) >= 2:
             reasons.append(f"offset {a['offset_s']:.0f} -> {b['offset_s']:.0f} s to fit the {b['cycle_s']:.0f} s cycle")
         signals.append(dict(signal=signal['name'], sumo_tls_id=signal['sumo_tls_id'], old=a, new=b,
@@ -73,9 +75,10 @@ def recommend(name):
              f"Expected in the copy ({len(diffs)} simulated rush hours): delay per requested trip "
              f"{expected['old_delay_s']} s -> {expected['new_delay_s']} s, change {expected['change_s']:+} s "
              f"(range {expected['change_range_s'][0]:+} to {expected['change_range_s'][1]:+} s), one-sided p = {expected['p_value']}.", '',
+             'Phases list the legs they serve: N:LT is traffic from the north leg turning left or going through.', '',
              '| Signal | Cycle s | Offset s | Max greens s (old -> new) | Reason |', '|---|---|---|---|---|']
     for s in signals:
-        greens = '; '.join(f"{'/'.join(g0['serves'])}: {g0['max_green_s']:.0f} -> {g1['max_green_s']:.0f}"
+        greens = '; '.join(f"{' '.join(g0['serves'])}: {g0['max_green_s']:.0f} -> {g1['max_green_s']:.0f}"
                            for g0, g1 in zip(s['old']['greens'], s['new']['greens']))
         lines.append(f"| {s['signal']} | {s['old']['cycle_s']:.0f} -> {s['new']['cycle_s']:.0f} | "
                      f"{s['old']['offset_s']:.0f} -> {s['new']['offset_s']:.0f} | {greens} | {s['reason']} |")

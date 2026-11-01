@@ -14,9 +14,12 @@ from world import trial
 
 LEARNER = p.ROOT/'src/learner'
 ACCESS = []
+RECORDING = []
 
 
 def _audit(event, args):
+    if not RECORDING:
+        return
     if event == 'open' and isinstance(args[0], (str, Path)):
         ACCESS.append(str(args[0]))
     elif event == 'subprocess.Popen':
@@ -49,13 +52,16 @@ class GuardTests(unittest.TestCase):
                 [road.file(cfg, k) for k in ('net', 'detectors', 'timing_inputs', 'old_timing')]
             with mock.patch.object(road, 'OUT', out):
                 ACCESS.clear()
-                learn.learn(name)
-                practice.practice(name, trials=1, search_seeds=range(1), confirm_seeds=range(1))
-                card.recommend(name)
-                rows = learn.read(name, 'feed')[0]
-                check.decide(name, rows, 0)
+                RECORDING.append(True)
+                try:
+                    learn.learn(name)
+                    practice.practice(name, trials=1, search_seeds=range(1), confirm_seeds=range(1))
+                    card.recommend(name)
+                    check.decide(name, learn.read(name, 'feed')[0], 0)
+                finally:
+                    RECORDING.clear()
                 opened = list(ACCESS)
-        inside = {Path(a).resolve() for a in opened if a.startswith(str(p.ROOT))}
+        inside = {r for r in (Path(a).resolve() for a in opened if Path(a).is_absolute()) if p.ROOT in r.parents}
         bad = [a for a in inside if not any(a == x or x in a.parents for x in allowed)]
         self.assertTrue(inside)
         self.assertEqual(bad, [], 'learner opened files outside the road and its own outputs')
@@ -131,9 +137,9 @@ class BoundsTests(unittest.TestCase):
 
 
 class GoBackRuleTests(unittest.TestCase):
-    def rows(self, start, rises, approaches=('A', 'B', 'C', 'D'), base=10., ok=1, raised=('A', 'B')):
+    def rows(self, start, rises, approaches=('A', 'B', 'C', 'D'), base=10., ok=1, raised=('A', 'B'), count=5):
         return [dict(window_end=f'2026-10-31T{(start+300*i)//3600:02d}:{(start+300*i)%3600//60:02d}:00-07:00',
-                     site='S', approach=a, count='5', occupancy=str(base+(rise if a in raised else 0)), ok=str(ok))
+                     site='S', approach=a, count=str(count), occupancy=str(base+(rise if a in raised else 0)), ok=str(ok))
                 for i, rise in enumerate(rises) for a in approaches]
 
     def decide(self, after, approaches=('A', 'B', 'C', 'D')):
@@ -152,6 +158,10 @@ class GoBackRuleTests(unittest.TestCase):
         self.assertFalse(self.decide(self.rows(61500, [45, 45, 45], ten, raised=('A',)), ten)['go_back'],
                          'one approach alone is not enough')
         self.assertTrue(self.decide(self.rows(61500, [30, 30, 30], ten), ten)['go_back'])
+        # Saturated roads: occupancy cannot rise, but the signals serve fewer vehicles.
+        self.assertFalse(self.decide(self.rows(61500, [0]*8, count=4.75))['go_back'], '5% fewer is within range')
+        decision = self.decide(self.rows(61500, [0]*8, count=4.5))
+        self.assertEqual((decision['go_back'], decision['time_s']), (True, 61500+300*4))
         # A road-wide rise trips the mean test even when no single approach crosses its own threshold.
         everywhere = [{**r, 'occupancy': str(float(r['occupancy'])+8)} for r in self.rows(61500, [0, 0, 0])]
         self.assertTrue(self.decide(everywhere)['go_back'])
