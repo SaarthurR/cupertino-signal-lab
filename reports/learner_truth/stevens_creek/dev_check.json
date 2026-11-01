@@ -1,0 +1,359 @@
+{
+  "road": "stevens_creek",
+  "seeds": [
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309
+  ],
+  "arms": {
+    "v5": {
+      "all_requested_delay_s": {
+        "mean": 369.17631250794454,
+        "sd": 20.474183189524044,
+        "diff_mean": -313.1429137536545,
+        "diff_sd": 27.93064603513243,
+        "diff_min": -355.09971018177197,
+        "diff_max": -266.2600355917122,
+        "p_less": 0.0009765625
+      },
+      "unfinished": {
+        "mean": 2.5,
+        "sd": 5.783597496368501,
+        "diff_mean": -894.2,
+        "diff_sd": 102.00862708614405,
+        "diff_min": -1102,
+        "diff_max": -732,
+        "p_less": 0.0009765625
+      },
+      "teleports": {
+        "mean": 0,
+        "sd": 0.0,
+        "diff_mean": 0,
+        "diff_sd": 0.0,
+        "diff_min": 0,
+        "diff_max": 0,
+        "p_less": 1.0
+      },
+      "worst_origin_delay_s": {
+        "mean": 874.2931171708113,
+        "sd": 51.29757064805107,
+        "diff_mean": -603.3958106888074,
+        "diff_sd": 50.85295503294981,
+        "diff_min": -701.8508188908145,
+        "diff_max": -532.1608738815444,
+        "p_less": 0.0009765625
+      }
+    },
+    "learner": {
+      "all_requested_delay_s": {
+        "mean": 471.27008020846574,
+        "sd": 25.427410060744148,
+        "diff_mean": -211.04914605313334,
+        "diff_sd": 42.486356042276,
+        "diff_min": -298.65323249014864,
+        "diff_max": -158.59066670903775,
+        "p_less": 0.0009765625
+      },
+      "unfinished": {
+        "mean": 70.8,
+        "sd": 66.32767145015721,
+        "diff_mean": -825.9,
+        "diff_sd": 144.6619853313233,
+        "diff_min": -1102,
+        "diff_max": -554,
+        "p_less": 0.0009765625
+      },
+      "teleports": {
+        "mean": 0,
+        "sd": 0.0,
+        "diff_mean": 0,
+        "diff_sd": 0.0,
+        "diff_min": 0,
+        "diff_max": 0,
+        "p_less": 1.0
+      },
+      "worst_origin_delay_s": {
+        "mean": 980.5091217504332,
+        "sd": 97.363888362331,
+        "diff_mean": -497.1798061091854,
+        "diff_sd": 132.8831500064681,
+        "diff_min": -712.6426321490467,
+        "diff_max": -250.2699783362218,
+        "p_less": 0.0009765625
+      }
+    }
+  },
+  "old": {
+    "all_requested_delay_s": {
+      "mean": 682.319226261599,
+      "sd": 20.121037758591132,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    },
+    "unfinished": {
+      "mean": 896.7,
+      "sd": 98.52009947213817,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "teleports": {
+      "mean": 0,
+      "sd": 0.0,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "worst_origin_delay_s": {
+      "mean": 1477.6889278596186,
+      "sd": 52.46787268159037,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    }
+  },
+  "go_back": {
+    "runs": [
+      {
+        "road": "stevens_creek",
+        "program": "bad",
+        "seed": 300,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +0.1 points; approaches up over 25 points: none; served count -9% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 757.4754747680182,
+          "unfinished": 1148,
+          "teleports": 0,
+          "worst_origin_delay_s": 1436.1076754766032
+        },
+        "with_rule": {
+          "all_requested_delay_s": 693.4180475403585,
+          "unfinished": 833,
+          "teleports": 1,
+          "worst_origin_delay_s": 1409.9061048526862
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "bad",
+        "seed": 301,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +2.5 points; approaches up over 25 points: none; served count -7% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 794.7082763442227,
+          "unfinished": 1202,
+          "teleports": 0,
+          "worst_origin_delay_s": 1504.848197573657
+        },
+        "with_rule": {
+          "all_requested_delay_s": 739.8237403076141,
+          "unfinished": 1066,
+          "teleports": 4,
+          "worst_origin_delay_s": 1526.0291789428077
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "bad",
+        "seed": 302,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 64800,
+        "reason": "mean occupancy +0.3 points; approaches up over 25 points: none; served count -10% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 784.7477284860811,
+          "unfinished": 1257,
+          "teleports": 4,
+          "worst_origin_delay_s": 1531.8333968804159
+        },
+        "with_rule": {
+          "all_requested_delay_s": 761.8609419092412,
+          "unfinished": 1115,
+          "teleports": 5,
+          "worst_origin_delay_s": 1507.6090272963604
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "bad",
+        "seed": 303,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +3.5 points; approaches up over 25 points: none; served count -8% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 796.6742023643067,
+          "unfinished": 1219,
+          "teleports": 0,
+          "worst_origin_delay_s": 1532.0996035528594
+        },
+        "with_rule": {
+          "all_requested_delay_s": 743.2337231473243,
+          "unfinished": 981,
+          "teleports": 0,
+          "worst_origin_delay_s": 1470.4109748700173
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "bad",
+        "seed": 304,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62100,
+        "reason": "mean occupancy +2.8 points; approaches up over 25 points: Mary Ave W; served count -9% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 815.3627310283463,
+          "unfinished": 1250,
+          "teleports": 5,
+          "worst_origin_delay_s": 1525.0053141247834
+        },
+        "with_rule": {
+          "all_requested_delay_s": 719.3871196135757,
+          "unfinished": 969,
+          "teleports": 4,
+          "worst_origin_delay_s": 1476.9968067590987
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "noop",
+        "seed": 300,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 664.8617090377527,
+          "unfinished": 751,
+          "teleports": 0,
+          "worst_origin_delay_s": 1429.7448028596186
+        },
+        "with_rule": {
+          "all_requested_delay_s": 664.8617090377527,
+          "unfinished": 751,
+          "teleports": 0,
+          "worst_origin_delay_s": 1429.7448028596186
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "noop",
+        "seed": 301,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 696.1349510613957,
+          "unfinished": 903,
+          "teleports": 0,
+          "worst_origin_delay_s": 1437.778089254766
+        },
+        "with_rule": {
+          "all_requested_delay_s": 696.1349510613957,
+          "unfinished": 903,
+          "teleports": 0,
+          "worst_origin_delay_s": 1437.778089254766
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "noop",
+        "seed": 302,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 659.8949243676116,
+          "unfinished": 999,
+          "teleports": 0,
+          "worst_origin_delay_s": 1486.2742266031196
+        },
+        "with_rule": {
+          "all_requested_delay_s": 659.8949243676116,
+          "unfinished": 999,
+          "teleports": 0,
+          "worst_origin_delay_s": 1486.2742266031196
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "noop",
+        "seed": 303,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 665.2606355662896,
+          "unfinished": 829,
+          "teleports": 0,
+          "worst_origin_delay_s": 1421.8891074523397
+        },
+        "with_rule": {
+          "all_requested_delay_s": 665.2606355662896,
+          "unfinished": 829,
+          "teleports": 0,
+          "worst_origin_delay_s": 1421.8891074523397
+        }
+      },
+      {
+        "road": "stevens_creek",
+        "program": "noop",
+        "seed": 304,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 704.7418031015635,
+          "unfinished": 1102,
+          "teleports": 0,
+          "worst_origin_delay_s": 1516.2165836221836
+        },
+        "with_rule": {
+          "all_requested_delay_s": 704.7418031015635,
+          "unfinished": 1102,
+          "teleports": 0,
+          "worst_origin_delay_s": 1516.2165836221836
+        }
+      }
+    ],
+    "bad_go_back_rate": 1,
+    "noop_go_back_rate": 0,
+    "bad_held_delay_s": 789.793682598195,
+    "bad_with_rule_delay_s": 731.5447145036228,
+    "passed": true
+  },
+  "copy_vs_truth": {
+    "road": "stevens_creek",
+    "turn_quarters": 328,
+    "geh_under_5_share": 0.600609756097561,
+    "truth_trips": 31002,
+    "copy_trips": 27881,
+    "abs_error_share": 0.37897554996451843
+  },
+  "wall_s": 130.690293749969
+}

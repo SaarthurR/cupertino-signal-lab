@@ -1,0 +1,18 @@
+{
+  "road": "stevens_creek",
+  "watched_days": 3,
+  "quarter_hours": 8,
+  "exact_turn_relations": 27,
+  "copy_vehicles": 15371,
+  "routesampler_log": [
+    "Warning: underflow locations: count 7, min 1.00 (('409235722',)), max 13.00 (('317693323#0',)), mean 4.14, Q1 2.00, median 3.00, Q3 5.00 (total 29)",
+    "avg interval input count: count 9, min 5774.00 (62100.0), max 6073.00 (63900.0), mean 5863.00, Q1 5787.00, median 5795.00, Q3 5890.00",
+    "avg interval written vehs: count 9, min 1638.00 (58500.0), max 1799.00 (65700.0), mean 1707.89, Q1 1685.00, median 1715.00, Q3 1726.00",
+    "avg interval underflow: count 9, min 29.00 (65700.0), max 98.00 (62100.0), mean 61.00, Q1 43.00, median 47.00, Q3 78.00",
+    "avg interval overflow: count 9, min 0.00 (58500.0), max 0.00 (58500.0), mean 0.00, Q1 0.00, median 0.00, Q3 0.00",
+    "avg interval GEH%: count 9, min 95.45 (62100.0), max 100.00 (58500.0), mean 99.24, Q1 100.00, median 100.00, Q3 100.00"
+  ],
+  "geh_under_5_share": 0.8602941176470589,
+  "count_error_share": 0.08159525294918331,
+  "occupancy_mean_abs_diff": 7.128455882352941
+}

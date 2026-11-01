@@ -1,0 +1,321 @@
+{
+  "road": "homestead",
+  "seeds": [
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309
+  ],
+  "arms": {
+    "learner": {
+      "all_requested_delay_s": {
+        "mean": 77.084225074985,
+        "sd": 5.362061280528307,
+        "diff_mean": -52.96336688662268,
+        "diff_sd": 11.828679655519696,
+        "diff_min": -72.22419076184762,
+        "diff_max": -36.79998320335932,
+        "p_less": 0.0009765625
+      },
+      "unfinished": {
+        "mean": 0,
+        "sd": 0.0,
+        "diff_mean": 0,
+        "diff_sd": 0.0,
+        "diff_min": 0,
+        "diff_max": 0,
+        "p_less": 1.0
+      },
+      "teleports": {
+        "mean": 0,
+        "sd": 0.0,
+        "diff_mean": -0.3,
+        "diff_sd": 0.6403124237432849,
+        "diff_min": -2,
+        "diff_max": 0,
+        "p_less": 0.25
+      },
+      "worst_origin_delay_s": {
+        "mean": 287.01510472801715,
+        "sd": 76.96190370836635,
+        "diff_mean": -728.8071330078319,
+        "diff_sd": 189.977451029994,
+        "diff_min": -1017.2699278096802,
+        "diff_max": -433.0422637407711,
+        "p_less": 0.0009765625
+      }
+    }
+  },
+  "old": {
+    "all_requested_delay_s": {
+      "mean": 130.04759196160768,
+      "sd": 8.080727507994192,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    },
+    "unfinished": {
+      "mean": 0,
+      "sd": 0.0,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "teleports": {
+      "mean": 0.3,
+      "sd": 0.6403124237432849,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "worst_origin_delay_s": {
+      "mean": 1015.8222377358491,
+      "sd": 162.90371936298993,
+      "diff_mean": 0.0,
+      "diff_sd": 0.0,
+      "diff_min": 0.0,
+      "diff_max": 0.0,
+      "p_less": 1.0
+    }
+  },
+  "go_back": {
+    "runs": [
+      {
+        "road": "homestead",
+        "program": "bad",
+        "seed": 300,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +3.4 points; approaches up over 25 points: none; served count -7% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 345.9680623875225,
+          "unfinished": 0,
+          "teleports": 4,
+          "worst_origin_delay_s": 2739.8255094339625
+        },
+        "with_rule": {
+          "all_requested_delay_s": 207.5675896820636,
+          "unfinished": 0,
+          "teleports": 3,
+          "worst_origin_delay_s": 1849.2176603773585
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "bad",
+        "seed": 301,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62400,
+        "reason": "mean occupancy +2.8 points; approaches up over 25 points: Hollenbeck Ave E, Hollenbeck Ave W; served count -7% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 296.2871949610078,
+          "unfinished": 0,
+          "teleports": 5,
+          "worst_origin_delay_s": 2469.730679245283
+        },
+        "with_rule": {
+          "all_requested_delay_s": 173.18225194961008,
+          "unfinished": 0,
+          "teleports": 4,
+          "worst_origin_delay_s": 1599.3117358490565
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "bad",
+        "seed": 302,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +3.1 points; approaches up over 25 points: none; served count -6% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 287.0743311337732,
+          "unfinished": 0,
+          "teleports": 2,
+          "worst_origin_delay_s": 2565.936679245283
+        },
+        "with_rule": {
+          "all_requested_delay_s": 197.97270425914817,
+          "unfinished": 0,
+          "teleports": 1,
+          "worst_origin_delay_s": 1840.2088301886793
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "bad",
+        "seed": 303,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +2.4 points; approaches up over 25 points: none; served count -7% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 303.6252597480504,
+          "unfinished": 0,
+          "teleports": 3,
+          "worst_origin_delay_s": 2639.003849056604
+        },
+        "with_rule": {
+          "all_requested_delay_s": 200.8006154769046,
+          "unfinished": 0,
+          "teleports": 3,
+          "worst_origin_delay_s": 1828.3438867924528
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "bad",
+        "seed": 304,
+        "change_s": 61200,
+        "go_back": true,
+        "time_s": 62700,
+        "reason": "mean occupancy +2.5 points; approaches up over 25 points: none; served count -7% over 15 min; 3 windows running",
+        "held": {
+          "all_requested_delay_s": 304.04368686262745,
+          "unfinished": 0,
+          "teleports": 4,
+          "worst_origin_delay_s": 2489.0111320754713
+        },
+        "with_rule": {
+          "all_requested_delay_s": 197.9005878824235,
+          "unfinished": 0,
+          "teleports": 1,
+          "worst_origin_delay_s": 1788.2951320754719
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "noop",
+        "seed": 300,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 141.89109178164367,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1143.8054716981133
+        },
+        "with_rule": {
+          "all_requested_delay_s": 141.89109178164367,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1143.8054716981133
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "noop",
+        "seed": 301,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 117.9465050989802,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 845.4049811320755
+        },
+        "with_rule": {
+          "all_requested_delay_s": 117.9465050989802,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 845.4049811320755
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "noop",
+        "seed": 302,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 126.55318056388722,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1251.7281886792455
+        },
+        "with_rule": {
+          "all_requested_delay_s": 126.55318056388722,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1251.7281886792455
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "noop",
+        "seed": 303,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 126.84414397120575,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1155.1721132075472
+        },
+        "with_rule": {
+          "all_requested_delay_s": 126.84414397120575,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 1155.1721132075472
+        }
+      },
+      {
+        "road": "homestead",
+        "program": "noop",
+        "seed": 304,
+        "change_s": 61200,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range",
+        "held": {
+          "all_requested_delay_s": 132.114,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 912.9463396226415
+        },
+        "with_rule": {
+          "all_requested_delay_s": 132.114,
+          "unfinished": 0,
+          "teleports": 0,
+          "worst_origin_delay_s": 912.9463396226415
+        }
+      }
+    ],
+    "bad_go_back_rate": 1,
+    "noop_go_back_rate": 0,
+    "bad_held_delay_s": 307.39970701859625,
+    "bad_with_rule_delay_s": 195.48474985003,
+    "passed": true
+  },
+  "copy_vs_truth": {
+    "road": "homestead",
+    "turn_quarters": 328,
+    "geh_under_5_share": 0.6798780487804879,
+    "truth_trips": 23176,
+    "copy_trips": 22949,
+    "abs_error_share": 0.13561442871936485
+  },
+  "wall_s": 58.006804583012126
+}

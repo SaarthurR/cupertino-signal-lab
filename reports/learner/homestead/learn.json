@@ -1,0 +1,18 @@
+{
+  "road": "homestead",
+  "watched_days": 3,
+  "quarter_hours": 8,
+  "exact_turn_relations": 23,
+  "copy_vehicles": 8676,
+  "routesampler_log": [
+    "Warning: underflow locations: count 2, min 1.00 (('340316600#0', '415817929#0')), max 1.00 (('340316600#0', '415817929#0')), mean 1.00, Q1 1.00, median 1.00, Q3 1.00 (total 2)",
+    "avg interval input count: count 9, min 3879.00 (58500.0), max 5162.00 (62100.0), mean 4507.33, Q1 3918.00, median 4419.00, Q3 4994.00",
+    "avg interval written vehs: count 9, min 825.00 (58500.0), max 1101.00 (62100.0), mean 964.00, Q1 871.00, median 953.00, Q3 1049.00",
+    "avg interval underflow: count 9, min 1.00 (63000.0), max 12.00 (63900.0), mean 5.78, Q1 3.00, median 4.00, Q3 9.00",
+    "avg interval overflow: count 9, min 0.00 (58500.0), max 0.00 (58500.0), mean 0.00, Q1 0.00, median 0.00, Q3 0.00",
+    "avg interval GEH%: count 9, min 100.00 (58500.0), max 100.00 (58500.0), mean 100.00, Q1 100.00, median 100.00, Q3 100.00"
+  ],
+  "geh_under_5_share": 1.0,
+  "count_error_share": 0.030677890851476874,
+  "occupancy_mean_abs_diff": 5.487058823529412
+}

@@ -1,0 +1,8 @@
+{
+  "road": "stevens_creek",
+  "turn_quarters": 328,
+  "geh_under_5_share": 0.600609756097561,
+  "truth_trips": 31002,
+  "copy_trips": 27881,
+  "abs_error_share": 0.37897554996451843
+}

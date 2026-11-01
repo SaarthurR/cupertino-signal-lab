@@ -1,0 +1,401 @@
+{
+  "road": "stevens_creek",
+  "label": "SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.",
+  "decision": "change",
+  "why": "The copy predicts a clear gain.",
+  "expected_in_copy": {
+    "copy_seeds": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "old_delay_s": 454.6,
+    "new_delay_s": 326.5,
+    "change_s": -128.0,
+    "change_range_s": [
+      -169.9,
+      -79.0
+    ],
+    "change_share": -0.2817,
+    "p_value": 0.001
+  },
+  "limits": "Phase order, clearances and minimum greens are unchanged. Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check rule goes back to old timing if the feed shows traffic clearly worse.",
+  "signals": [
+    {
+      "signal": "De Anza Blvd",
+      "sumo_tls_id": "GS_cluster_258972910_3369079743_518311316_65426566",
+      "old": {
+        "cycle_s": 103.9,
+        "offset_s": 66.1,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 21.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 33.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 13.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 176.7,
+        "offset_s": 18.3,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 45.9
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 23.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 20.9
+          }
+        ]
+      },
+      "reason": "+27 s green for N:L S:L (learned peak 445 veh/15 min); +25 s green for N:LRT S:LRT (learned peak 445 veh/15 min); offset 66 -> 18 s to fit the 177 s cycle"
+    },
+    {
+      "signal": "Bandley Dr",
+      "sumo_tls_id": "GS_cluster_3355011980_917880334",
+      "old": {
+        "cycle_s": 103.9,
+        "offset_s": 13.7,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 16.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 10.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 176.7,
+        "offset_s": 86.2,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 37.5
+          }
+        ]
+      },
+      "reason": "+44 s green for W:LT (learned peak 283 veh/15 min); +28 s green for E:R N:LR (learned peak 169 veh/15 min); offset 14 -> 86 s to fit the 177 s cycle"
+    },
+    {
+      "signal": "Saich Way",
+      "sumo_tls_id": "GS_cluster_2069326235_65431012",
+      "old": {
+        "cycle_s": 103.9,
+        "offset_s": 0.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 57.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 11.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 13.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 176.7,
+        "offset_s": 66.0,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "W:LT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 30.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 58.1
+          }
+        ]
+      },
+      "reason": "+45 s green for E:R N:LR (learned peak 165 veh/15 min); +19 s green for W:LT (learned peak 281 veh/15 min); offset 0 -> 66 s to fit the 177 s cycle"
+    },
+    {
+      "signal": "Stelling Rd",
+      "sumo_tls_id": "GS_cluster_2471567001_2471567002_65431017_917880337",
+      "old": {
+        "cycle_s": 103.9,
+        "offset_s": 25.5,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 27.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 19.0
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 17.0
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 14.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 176.7,
+        "offset_s": 168.3,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:LRT",
+              "W:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 48.0
+          },
+          {
+            "phase": 2,
+            "serves": [
+              "E:L",
+              "W:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 29.1
+          },
+          {
+            "phase": 5,
+            "serves": [
+              "N:LRT",
+              "S:LRT"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 48.5
+          },
+          {
+            "phase": 7,
+            "serves": [
+              "N:L",
+              "S:L"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 21.7
+          }
+        ]
+      },
+      "reason": "+32 s green for N:LRT S:LRT (learned peak 203 veh/15 min); +21 s green for E:LRT W:LRT (learned peak 441 veh/15 min); offset 26 -> 168 s to fit the 177 s cycle"
+    },
+    {
+      "signal": "Mary Ave",
+      "sumo_tls_id": "GS_cluster_13085002621_272273326_65431022",
+      "old": {
+        "cycle_s": 103.9,
+        "offset_s": 99.5,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:T"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 3,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 15.0
+          }
+        ]
+      },
+      "new": {
+        "cycle_s": 176.7,
+        "offset_s": 85.7,
+        "greens": [
+          {
+            "phase": 0,
+            "serves": [
+              "E:RT",
+              "W:T"
+            ],
+            "min_green_s": 7.0,
+            "max_green_s": 60.0
+          },
+          {
+            "phase": 3,
+            "serves": [
+              "E:R",
+              "N:LR"
+            ],
+            "min_green_s": 5.0,
+            "max_green_s": 60.0
+          }
+        ]
+      },
+      "reason": "+45 s green for E:R N:LR (learned peak 286 veh/15 min); offset 100 -> 86 s to fit the 177 s cycle"
+    }
+  ]
+}

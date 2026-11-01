@@ -1,0 +1,137 @@
+quarter_start_s,site,approach,mean_count,sd_count
+59400,Bandley Dr,E,152.0,3.74
+59400,Bandley Dr,N,12.0,0.0
+59400,Bandley Dr,W,263.0,5.72
+59400,De Anza Blvd,E,141.0,1.41
+59400,De Anza Blvd,N,376.33,17.82
+59400,De Anza Blvd,S,265.0,0.82
+59400,De Anza Blvd,W,263.67,8.26
+59400,Mary Ave,E,260.33,5.73
+59400,Mary Ave,N,62.33,0.94
+59400,Mary Ave,W,393.67,4.03
+59400,Saich Way,E,154.67,2.62
+59400,Saich Way,N,13.0,0.0
+59400,Saich Way,W,258.0,10.23
+59400,Stelling Rd,E,156.67,3.3
+59400,Stelling Rd,N,173.0,2.83
+59400,Stelling Rd,S,123.33,1.89
+59400,Stelling Rd,W,401.0,4.08
+60300,Bandley Dr,E,150.33,3.09
+60300,Bandley Dr,N,11.0,0.0
+60300,Bandley Dr,W,241.67,3.3
+60300,De Anza Blvd,E,133.67,2.62
+60300,De Anza Blvd,N,425.0,35.36
+60300,De Anza Blvd,S,277.0,1.41
+60300,De Anza Blvd,W,247.67,8.26
+60300,Mary Ave,E,265.33,3.86
+60300,Mary Ave,N,64.0,0.82
+60300,Mary Ave,W,390.33,1.25
+60300,Saich Way,E,150.67,1.25
+60300,Saich Way,N,13.0,0.0
+60300,Saich Way,W,242.0,3.74
+60300,Stelling Rd,E,153.0,4.08
+60300,Stelling Rd,N,194.33,5.79
+60300,Stelling Rd,S,131.33,3.09
+60300,Stelling Rd,W,387.0,22.02
+61200,Bandley Dr,E,159.33,1.25
+61200,Bandley Dr,N,13.0,0.0
+61200,Bandley Dr,W,273.67,4.19
+61200,De Anza Blvd,E,156.33,2.49
+61200,De Anza Blvd,N,410.33,39.52
+61200,De Anza Blvd,S,241.67,0.47
+61200,De Anza Blvd,W,280.0,5.1
+61200,Mary Ave,E,232.0,0.82
+61200,Mary Ave,N,63.0,0.0
+61200,Mary Ave,W,394.33,5.91
+61200,Saich Way,E,155.67,2.87
+61200,Saich Way,N,12.0,0.0
+61200,Saich Way,W,281.33,7.13
+61200,Stelling Rd,E,146.0,2.16
+61200,Stelling Rd,N,195.0,6.16
+61200,Stelling Rd,S,159.67,1.89
+61200,Stelling Rd,W,440.67,20.37
+62100,Bandley Dr,E,146.33,2.62
+62100,Bandley Dr,N,12.0,0.0
+62100,Bandley Dr,W,254.0,17.05
+62100,De Anza Blvd,E,135.33,2.05
+62100,De Anza Blvd,N,384.0,18.24
+62100,De Anza Blvd,S,281.0,4.32
+62100,De Anza Blvd,W,255.67,19.6
+62100,Mary Ave,E,239.0,2.83
+62100,Mary Ave,N,62.33,0.47
+62100,Mary Ave,W,390.0,27.6
+62100,Saich Way,E,147.67,1.7
+62100,Saich Way,N,13.0,0.0
+62100,Saich Way,W,249.0,12.75
+62100,Stelling Rd,E,157.67,1.25
+62100,Stelling Rd,N,197.33,7.41
+62100,Stelling Rd,S,157.67,6.55
+62100,Stelling Rd,W,380.0,24.1
+63000,Bandley Dr,E,143.0,4.08
+63000,Bandley Dr,N,12.0,0.0
+63000,Bandley Dr,W,274.67,14.64
+63000,De Anza Blvd,E,135.67,3.4
+63000,De Anza Blvd,N,386.0,17.96
+63000,De Anza Blvd,S,301.33,8.34
+63000,De Anza Blvd,W,278.0,14.17
+63000,Mary Ave,E,263.0,9.9
+63000,Mary Ave,N,65.67,1.89
+63000,Mary Ave,W,353.0,29.68
+63000,Saich Way,E,149.0,4.24
+63000,Saich Way,N,13.0,0.0
+63000,Saich Way,W,271.33,19.48
+63000,Stelling Rd,E,152.33,4.64
+63000,Stelling Rd,N,187.0,7.79
+63000,Stelling Rd,S,135.67,4.5
+63000,Stelling Rd,W,392.33,43.22
+63900,Bandley Dr,E,153.33,3.86
+63900,Bandley Dr,N,11.0,0.0
+63900,Bandley Dr,W,282.67,17.15
+63900,De Anza Blvd,E,128.0,8.16
+63900,De Anza Blvd,N,396.0,34.41
+63900,De Anza Blvd,S,277.0,8.04
+63900,De Anza Blvd,W,278.67,11.15
+63900,Mary Ave,E,285.67,10.66
+63900,Mary Ave,N,64.67,1.7
+63900,Mary Ave,W,402.0,9.93
+63900,Saich Way,E,157.67,6.13
+63900,Saich Way,N,13.0,0.0
+63900,Saich Way,W,281.0,20.4
+63900,Stelling Rd,E,160.0,2.94
+63900,Stelling Rd,N,187.67,9.98
+63900,Stelling Rd,S,134.33,3.3
+63900,Stelling Rd,W,435.33,23.44
+64800,Bandley Dr,E,169.33,4.99
+64800,Bandley Dr,N,13.0,0.0
+64800,Bandley Dr,W,263.0,22.86
+64800,De Anza Blvd,E,156.67,1.89
+64800,De Anza Blvd,N,396.0,19.25
+64800,De Anza Blvd,S,244.33,6.24
+64800,De Anza Blvd,W,262.0,20.85
+64800,Mary Ave,E,254.33,3.4
+64800,Mary Ave,N,61.67,0.94
+64800,Mary Ave,W,388.67,35.31
+64800,Saich Way,E,165.0,0.82
+64800,Saich Way,N,12.0,0.0
+64800,Saich Way,W,256.33,20.4
+64800,Stelling Rd,E,161.67,5.31
+64800,Stelling Rd,N,190.0,9.27
+64800,Stelling Rd,S,155.0,4.32
+64800,Stelling Rd,W,409.0,36.48
+65700,Bandley Dr,E,145.67,4.92
+65700,Bandley Dr,N,12.0,0.0
+65700,Bandley Dr,W,246.67,14.06
+65700,De Anza Blvd,E,131.67,4.92
+65700,De Anza Blvd,N,445.0,7.79
+65700,De Anza Blvd,S,301.33,8.58
+65700,De Anza Blvd,W,248.0,21.42
+65700,Mary Ave,E,216.67,3.4
+65700,Mary Ave,N,66.0,0.82
+65700,Mary Ave,W,359.0,54.17
+65700,Saich Way,E,143.67,1.7
+65700,Saich Way,N,13.0,0.0
+65700,Saich Way,W,249.0,9.27
+65700,Stelling Rd,E,140.33,6.94
+65700,Stelling Rd,N,203.0,11.34
+65700,Stelling Rd,S,162.0,6.38
+65700,Stelling Rd,W,386.67,29.69
