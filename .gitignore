@@ -15,3 +15,7 @@ reports/advisor_surge/
 reports/drift/
 
 reports/advisor_loop/
+
+# Learner: regenerable route files (world.json keeps the hidden routes hash)
+worlds/*/routes.rou.xml
+reports/learner/*/copy.rou.xml

@@ -1,0 +1,39 @@
+{
+  "label": "SYNTHETIC simulated demand from a fixed seed; not observed traffic",
+  "seed": 11,
+  "main_rate": [
+    400,
+    640
+  ],
+  "side_rate": [
+    130,
+    280
+  ],
+  "vehicles": 9121,
+  "sample_log": "58500: symmetric count fit; 786 vehicles; GEH<5 41/41\n59400: symmetric count fit; 890 vehicles; GEH<5 41/41\n60300: symmetric count fit; 1013 vehicles; GEH<5 41/41\n61200: symmetric count fit; 1133 vehicles; GEH<5 40/41\n62100: symmetric count fit; 1188 vehicles; GEH<5 39/41\n63000: symmetric count fit; 1188 vehicles; GEH<5 38/41\n63900: symmetric count fit; 1089 vehicles; GEH<5 38/41\n64800: symmetric count fit; 991 vehicles; GEH<5 38/41\n65700: symmetric count fit; 843 vehicles; GEH<5 39/41",
+  "stale_factors": {
+    "-1420676349#2": 0.8935366228438182,
+    "-242223001#3": 0.6246145690333735,
+    "-415817922#1": 0.7419823328251727,
+    "-8947639#4": 0.9536998474513938,
+    "-8964497#3": 1.2270935456897583,
+    "242223001#4": 0.9541391846640142,
+    "287163329#0": 1.0042518154264117,
+    "287163333": 0.7427278585357735,
+    "340316600#0": 0.972226862097122,
+    "415817915": 0.8372884679856458,
+    "415817920": 1.2369400307184,
+    "415817923": 0.9038857038066195,
+    "415817925": 1.0939804255753045,
+    "415818232#0": 0.6903393527905208,
+    "602357832": 0.7695427839805675
+  },
+  "stale_range": [
+    0.6,
+    1.4
+  ],
+  "tool_log": [
+    "Begin time:59400.0\nDuration for Phase 4 is from the input file.\nDuration for Phase 9 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 9 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\n",
+    "number of tls-pairs: 22\noperations: newSet=1 addToSet=2 addToSet2=1 addHalfCoordinated=18 mergeSets=0\n"
+  ]
+}

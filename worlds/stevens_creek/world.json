@@ -1,0 +1,25 @@
+{
+  "label": "VTA 2024 count-fitted PM routes",
+  "vehicles": null,
+  "stale_factors": {
+    "-714078200#1": 1.1368043816326914,
+    "1113038412#0": 1.2852428246896601,
+    "1113038418": 0.7975849898715232,
+    "1528009844#0": 0.66654072052666,
+    "25085669#0": 0.9473988438378631,
+    "287163331#0": 0.7314707943351477,
+    "287163355#0": 0.9494008116379506,
+    "317693323#0": 1.183071910611714,
+    "526011476": 0.7634564704112786,
+    "593271049#0": 1.2671673520237305,
+    "649530997#0": 1.0079130926345632
+  },
+  "stale_range": [
+    0.6,
+    1.4
+  ],
+  "tool_log": [
+    "Begin time:59400.0\nDuration for Phase 2 is from the input file.\nDuration for Phase 5 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 9 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 9 is from the input file.\nDuration for Phase 4 is from the input file.\nDuration for Phase 7 is from the input file.\n",
+    "number of tls-pairs: 23\noperations: newSet=2 addToSet=1 addToSet2=0 addHalfCoordinated=19 mergeSets=1\n"
+  ]
+}
