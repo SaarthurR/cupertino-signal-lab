@@ -1,0 +1,174 @@
+{
+  "label": "POST-HOC: run after the frozen held-out test; not part of the preregistration. Diagnosis only; the frozen rule is unchanged.",
+  "demand": "simulated, synthetic demand",
+  "wolfe": {
+    "go_back_rate": 0,
+    "runs": [
+      {
+        "seed": 220,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 221,
+        "teleports": 1,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 222,
+        "teleports": 1,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 223,
+        "teleports": 1,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 224,
+        "teleports": 2,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 225,
+        "teleports": 2,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 226,
+        "teleports": 3,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 227,
+        "teleports": 2,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 228,
+        "teleports": 3,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 229,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      }
+    ]
+  },
+  "deanza": {
+    "go_back_rate": 0.4,
+    "runs": [
+      {
+        "seed": 220,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 221,
+        "teleports": 7,
+        "noop_went_back": true,
+        "go_back": true,
+        "time_s": 66600,
+        "reason": "mean occupancy +5.7 points; approaches up over 25 points: Mariani Ave S, Lazaneo Dr N; served count -3% over 15 min; 3 windows running"
+      },
+      {
+        "seed": 222,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 223,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 224,
+        "teleports": 7,
+        "noop_went_back": true,
+        "go_back": true,
+        "time_s": 65700,
+        "reason": "mean occupancy +5.3 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N; served count -22% over 15 min; 3 windows running"
+      },
+      {
+        "seed": 225,
+        "teleports": 12,
+        "noop_went_back": true,
+        "go_back": true,
+        "time_s": 65700,
+        "reason": "mean occupancy +3.6 points; approaches up over 25 points: Mariani Ave S; served count -12% over 15 min; 3 windows running"
+      },
+      {
+        "seed": 226,
+        "teleports": 9,
+        "noop_went_back": true,
+        "go_back": true,
+        "time_s": 66000,
+        "reason": "mean occupancy +10.8 points; approaches up over 25 points: Mariani Ave S, I-280 north ramps N, Mariani Ave N; served count -14% over 15 min; 3 windows running"
+      },
+      {
+        "seed": 227,
+        "teleports": 2,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 228,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      },
+      {
+        "seed": 229,
+        "teleports": 0,
+        "noop_went_back": false,
+        "go_back": false,
+        "time_s": null,
+        "reason": "feed within watched range"
+      }
+    ]
+  }
+}

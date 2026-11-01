@@ -1,0 +1,14 @@
+{
+  "label": "POST-HOC: run after the frozen held-out test; not part of the preregistration. Diagnosis only; uses hidden-world knowledge the learner never had.",
+  "demand": "simulated, synthetic demand",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "right_turn_routes": 3791,
+  "copy_delay_s": 1703.0493980395224,
+  "fixed_copy_delay_s": 120.63629464518483,
+  "fixed_copy_unfinished": 0,
+  "world_watch_delay_s": 252.46042775761242
+}

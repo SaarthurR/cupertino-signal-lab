@@ -1,0 +1,1299 @@
+{
+  "label": "Numbers for the demo. Every number is from simulation; none is from a real signal.",
+  "roles": {
+    "deanza": "heldout",
+    "homestead": "dev",
+    "stevens_creek": "dev",
+    "wolfe": "heldout"
+  },
+  "watch_seeds": [
+    0,
+    1,
+    2
+  ],
+  "facts": [
+    {
+      "road": "wolfe",
+      "name": "old_delay",
+      "value": 870.488,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.csv"
+    },
+    {
+      "road": "wolfe",
+      "name": "decision",
+      "value": "change",
+      "unit": "card",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "holm_p",
+      "value": 1.90735e-06,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_delay",
+      "value": 643.106,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_change",
+      "value": -0.261212,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_p_one_sided",
+      "value": 9.53674e-07,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_unfinished",
+      "value": 217.15,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_worst_origin_delay",
+      "value": 2768.58,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "learner_worst_origin_change",
+      "value": 202.768,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_delay",
+      "value": 846.305,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_change",
+      "value": -0.0277808,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_p_one_sided",
+      "value": 0.000130653,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_unfinished",
+      "value": 887.55,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_worst_origin_delay",
+      "value": 2526.62,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "fresh_worst_origin_change",
+      "value": -39.1921,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "old_unfinished",
+      "value": 967.55,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "old_worst_origin_delay",
+      "value": 2565.81,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "go_back_bad_plan_undone",
+      "value": 1,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "go_back_noop_undone",
+      "value": 0,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "go_back_passed",
+      "value": true,
+      "unit": "pass mark: bad >= 0.8, no-op <= 0.2",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "test_seeds",
+      "value": [
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "go_back_seeds",
+      "value": [
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "copy_turn_geh_under_5",
+      "value": 0.507353,
+      "unit": "share of 15-min turn counts",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "copy_turn_abs_error",
+      "value": 0.257039,
+      "unit": "share of true turn trips",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "copy_trips_vs_truth",
+      "value": -0.23938,
+      "unit": "share",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json",
+      "note": "29633 copy vs 38959 true turn trips"
+    },
+    {
+      "road": "wolfe",
+      "name": "copy_old_delay",
+      "value": 137.608,
+      "unit": "s per requested trip, in the copy",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/wolfe/practice.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "predicted_change",
+      "value": -0.421211,
+      "unit": "share of copy old delay",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/wolfe/practice.json",
+      "note": "copy seeds 10-19"
+    },
+    {
+      "road": "wolfe",
+      "name": "actual_change",
+      "value": -0.261212,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "copy_seeds",
+      "value": {
+        "search": [
+          0,
+          1,
+          2
+        ],
+        "confirm": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "unit": "seeds",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/wolfe/practice.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "run_time_watch",
+      "value": 12.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/wolfe/timing.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "run_time_learn",
+      "value": 6.3,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/wolfe/timing.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "run_time_practice",
+      "value": 928.2,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/wolfe/timing.json"
+    },
+    {
+      "road": "wolfe",
+      "name": "run_time_recommend",
+      "value": 0.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/wolfe/timing.json"
+    },
+    {
+      "road": "deanza",
+      "name": "old_delay",
+      "value": 269.906,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.csv"
+    },
+    {
+      "road": "deanza",
+      "name": "decision",
+      "value": "no change",
+      "unit": "card",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "holm_p",
+      "value": 1.0,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_delay",
+      "value": 269.906,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_change",
+      "value": 0.0,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_p_one_sided",
+      "value": 1.0,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_worst_origin_delay",
+      "value": 524.93,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "learner_worst_origin_change",
+      "value": 0.0,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_delay",
+      "value": 481.4,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_change",
+      "value": 0.783581,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_p_one_sided",
+      "value": 1.0,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_worst_origin_delay",
+      "value": 1091.41,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "fresh_worst_origin_change",
+      "value": 566.485,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "old_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "old_worst_origin_delay",
+      "value": 524.93,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "go_back_bad_plan_undone",
+      "value": 1,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "go_back_noop_undone",
+      "value": 0.4,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "go_back_passed",
+      "value": false,
+      "unit": "pass mark: bad >= 0.8, no-op <= 0.2",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "test_seeds",
+      "value": [
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "go_back_seeds",
+      "value": [
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "copy_turn_geh_under_5",
+      "value": 0.694079,
+      "unit": "share of 15-min turn counts",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "copy_turn_abs_error",
+      "value": 0.302489,
+      "unit": "share of true turn trips",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json"
+    },
+    {
+      "road": "deanza",
+      "name": "copy_trips_vs_truth",
+      "value": -0.041465,
+      "unit": "share",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_heldout/results.json",
+      "note": "36039 copy vs 37598 true turn trips"
+    },
+    {
+      "road": "deanza",
+      "name": "copy_old_delay",
+      "value": 1740.03,
+      "unit": "s per requested trip, in the copy",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/deanza/practice.json"
+    },
+    {
+      "road": "deanza",
+      "name": "predicted_change",
+      "value": -0.112454,
+      "unit": "share of copy old delay",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/deanza/practice.json",
+      "note": "copy seeds 10-19"
+    },
+    {
+      "road": "deanza",
+      "name": "copy_seeds",
+      "value": {
+        "search": [
+          0,
+          1,
+          2
+        ],
+        "confirm": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "unit": "seeds",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/deanza/practice.json"
+    },
+    {
+      "road": "deanza",
+      "name": "run_time_watch",
+      "value": 7.5,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/deanza/timing.json"
+    },
+    {
+      "road": "deanza",
+      "name": "run_time_learn",
+      "value": 33.1,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/deanza/timing.json"
+    },
+    {
+      "road": "deanza",
+      "name": "run_time_practice",
+      "value": 4866.1,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/deanza/timing.json"
+    },
+    {
+      "road": "deanza",
+      "name": "run_time_recommend",
+      "value": 0.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/deanza/timing.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "old_delay",
+      "value": 682.319,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "decision",
+      "value": "change",
+      "unit": "card",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner/stevens_creek/card.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_delay",
+      "value": 471.27,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_change",
+      "value": -0.309311,
+      "unit": "share of old delay",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_p_one_sided",
+      "value": 0.000976562,
+      "unit": "p",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_unfinished",
+      "value": 70.8,
+      "unit": "trips per rush hour",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_worst_origin_delay",
+      "value": 980.509,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "learner_worst_origin_change",
+      "value": -497.18,
+      "unit": "s vs old",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_delay",
+      "value": 660.703,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_change",
+      "value": -0.0316799,
+      "unit": "share of old delay",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_p_one_sided",
+      "value": 0.0654297,
+      "unit": "p",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_unfinished",
+      "value": 692.6,
+      "unit": "trips per rush hour",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_worst_origin_delay",
+      "value": 1478.54,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "fresh_worst_origin_change",
+      "value": 0.847356,
+      "unit": "s vs old",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "old_unfinished",
+      "value": 896.7,
+      "unit": "trips per rush hour",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "old_worst_origin_delay",
+      "value": 1477.69,
+      "unit": "s per requested trip",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "go_back_bad_plan_undone",
+      "value": 1,
+      "unit": "share of seeds",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "go_back_noop_undone",
+      "value": 0,
+      "unit": "share of seeds",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "go_back_passed",
+      "value": true,
+      "unit": "pass mark: bad >= 0.8, no-op <= 0.2",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "test_seeds",
+      "value": [
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309
+      ],
+      "unit": "seeds",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "go_back_seeds",
+      "value": [
+        300,
+        301,
+        302,
+        303,
+        304
+      ],
+      "unit": "seeds",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "copy_turn_geh_under_5",
+      "value": 0.60061,
+      "unit": "share of 15-min turn counts",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "copy_turn_abs_error",
+      "value": 0.378976,
+      "unit": "share of true turn trips",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "copy_trips_vs_truth",
+      "value": -0.100671,
+      "unit": "share",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json",
+      "note": "27881 copy vs 31002 true turn trips"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "copy_old_delay",
+      "value": 454.57,
+      "unit": "s per requested trip, in the copy",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/stevens_creek/practice.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "predicted_change",
+      "value": -0.281681,
+      "unit": "share of copy old delay",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/stevens_creek/practice.json",
+      "note": "copy seeds 10-19"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "actual_change",
+      "value": -0.309311,
+      "unit": "share of old delay",
+      "label": "simulated, VTA 2024 counts",
+      "source": "reports/learner_truth/stevens_creek/dev_check.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "copy_seeds",
+      "value": {
+        "search": [
+          0,
+          1,
+          2
+        ],
+        "confirm": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "unit": "seeds",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/stevens_creek/practice.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "run_time_watch",
+      "value": 10.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/stevens_creek/timing.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "run_time_learn",
+      "value": 8.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/stevens_creek/timing.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "run_time_practice",
+      "value": 1219.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/stevens_creek/timing.json"
+    },
+    {
+      "road": "stevens_creek",
+      "name": "run_time_recommend",
+      "value": 0.0,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/stevens_creek/timing.json"
+    },
+    {
+      "road": "homestead",
+      "name": "old_delay",
+      "value": 130.048,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "decision",
+      "value": "change",
+      "unit": "card",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner/homestead/card.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_delay",
+      "value": 77.0842,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_change",
+      "value": -0.407261,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_p_one_sided",
+      "value": 0.000976562,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_worst_origin_delay",
+      "value": 287.015,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "learner_worst_origin_change",
+      "value": -728.807,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_delay",
+      "value": 113.453,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_change",
+      "value": -0.127607,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_p_one_sided",
+      "value": 0.000976562,
+      "unit": "p",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_worst_origin_delay",
+      "value": 710.896,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "fresh_worst_origin_change",
+      "value": -304.926,
+      "unit": "s vs old",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "old_unfinished",
+      "value": 0,
+      "unit": "trips per rush hour",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "old_worst_origin_delay",
+      "value": 1015.82,
+      "unit": "s per requested trip",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "go_back_bad_plan_undone",
+      "value": 1,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "go_back_noop_undone",
+      "value": 0,
+      "unit": "share of seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "go_back_passed",
+      "value": true,
+      "unit": "pass mark: bad >= 0.8, no-op <= 0.2",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "test_seeds",
+      "value": [
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "go_back_seeds",
+      "value": [
+        300,
+        301,
+        302,
+        303,
+        304
+      ],
+      "unit": "seeds",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "copy_turn_geh_under_5",
+      "value": 0.679878,
+      "unit": "share of 15-min turn counts",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "copy_turn_abs_error",
+      "value": 0.135614,
+      "unit": "share of true turn trips",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "copy_trips_vs_truth",
+      "value": -0.00979462,
+      "unit": "share",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json",
+      "note": "22949 copy vs 23176 true turn trips"
+    },
+    {
+      "road": "homestead",
+      "name": "copy_old_delay",
+      "value": 80.1155,
+      "unit": "s per requested trip, in the copy",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/homestead/practice.json"
+    },
+    {
+      "road": "homestead",
+      "name": "predicted_change",
+      "value": -0.136777,
+      "unit": "share of copy old delay",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/homestead/practice.json",
+      "note": "copy seeds 10-19"
+    },
+    {
+      "road": "homestead",
+      "name": "actual_change",
+      "value": -0.407261,
+      "unit": "share of old delay",
+      "label": "simulated, synthetic demand",
+      "source": "reports/learner_truth/homestead/dev_check.json"
+    },
+    {
+      "road": "homestead",
+      "name": "copy_seeds",
+      "value": {
+        "search": [
+          0,
+          1,
+          2
+        ],
+        "confirm": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "unit": "seeds",
+      "label": "simulated, copy learned from feed",
+      "source": "reports/learner/homestead/practice.json"
+    },
+    {
+      "road": "homestead",
+      "name": "run_time_practice",
+      "value": 749.263,
+      "unit": "wall-clock s, up to 3 simulations at once",
+      "label": "measured compute time",
+      "source": "reports/learner/homestead/practice.json",
+      "note": "watch and learn times were not recorded for this road"
+    },
+    {
+      "road": "deanza",
+      "name": "deanza_posthoc",
+      "value": {
+        "label": "POST-HOC: run after the frozen held-out test; not part of the preregistration.",
+        "demand": "simulated, synthetic demand",
+        "seeds": [
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          241,
+          242,
+          243,
+          244,
+          245,
+          246,
+          247,
+          248,
+          249
+        ],
+        "plan": "reports/learner/deanza/plan.add.xml",
+        "old_delay_s": 274.5474009376891,
+        "rejected_plan": {
+          "all_requested_delay_s": {
+            "mean": 292.11822493194194,
+            "sd": 47.55621220592959,
+            "diff_mean": 17.57082399425287,
+            "diff_sd": 41.90546739067444,
+            "diff_min": -38.996192528735634,
+            "diff_max": 145.0173487598306,
+            "p_less": 0.9587249755859375
+          },
+          "unfinished": {
+            "mean": 0,
+            "sd": 0.0,
+            "diff_mean": 0,
+            "diff_sd": 0.0,
+            "diff_min": 0,
+            "diff_max": 0,
+            "p_less": 1.0
+          },
+          "teleports": {
+            "mean": 12.15,
+            "sd": 9.139338050427941,
+            "diff_mean": 10.7,
+            "diff_sd": 9.70103087305674,
+            "diff_min": -7,
+            "diff_max": 31,
+            "p_less": 0.9997356148794844
+          },
+          "worst_origin_delay_s": {
+            "mean": 477.6547133247918,
+            "sd": 68.29057519152504,
+            "diff_mean": -42.773199338031176,
+            "diff_sd": 85.11691516583146,
+            "diff_min": -205.45780055519964,
+            "diff_max": 172.70956865257313,
+            "p_less": 0.0133209228515625
+          }
+        },
+        "change_share": 0.06399923632218511,
+        "seeds_worse": 13
+      },
+      "unit": "see file",
+      "label": "simulated, synthetic demand, POST-HOC",
+      "source": "reports/learner_story/deanza_posthoc.json"
+    },
+    {
+      "road": "deanza",
+      "name": "deanza_split_check",
+      "value": {
+        "label": "POST-HOC: run after the frozen held-out test; not part of the preregistration. Diagnosis only; uses hidden-world knowledge the learner never had.",
+        "demand": "simulated, synthetic demand",
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "right_turn_routes": 3791,
+        "copy_delay_s": 1703.0493980395224,
+        "fixed_copy_delay_s": 120.63629464518483,
+        "fixed_copy_unfinished": 0,
+        "world_watch_delay_s": 252.46042775761242
+      },
+      "unit": "see file",
+      "label": "simulated, synthetic demand, POST-HOC",
+      "source": "reports/learner_story/deanza_split_check.json"
+    }
+  ]
+}

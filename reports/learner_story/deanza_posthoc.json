@@ -1,0 +1,68 @@
+{
+  "label": "POST-HOC: run after the frozen held-out test; not part of the preregistration.",
+  "demand": "simulated, synthetic demand",
+  "seeds": [
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249
+  ],
+  "plan": "reports/learner/deanza/plan.add.xml",
+  "old_delay_s": 274.5474009376891,
+  "rejected_plan": {
+    "all_requested_delay_s": {
+      "mean": 292.11822493194194,
+      "sd": 47.55621220592959,
+      "diff_mean": 17.57082399425287,
+      "diff_sd": 41.90546739067444,
+      "diff_min": -38.996192528735634,
+      "diff_max": 145.0173487598306,
+      "p_less": 0.9587249755859375
+    },
+    "unfinished": {
+      "mean": 0,
+      "sd": 0.0,
+      "diff_mean": 0,
+      "diff_sd": 0.0,
+      "diff_min": 0,
+      "diff_max": 0,
+      "p_less": 1.0
+    },
+    "teleports": {
+      "mean": 12.15,
+      "sd": 9.139338050427941,
+      "diff_mean": 10.7,
+      "diff_sd": 9.70103087305674,
+      "diff_min": -7,
+      "diff_max": 31,
+      "p_less": 0.9997356148794844
+    },
+    "worst_origin_delay_s": {
+      "mean": 477.6547133247918,
+      "sd": 68.29057519152504,
+      "diff_mean": -42.773199338031176,
+      "diff_sd": 85.11691516583146,
+      "diff_min": -205.45780055519964,
+      "diff_max": 172.70956865257313,
+      "p_less": 0.0133209228515625
+    }
+  },
+  "change_share": 0.06399923632218511,
+  "seeds_worse": 13
+}
