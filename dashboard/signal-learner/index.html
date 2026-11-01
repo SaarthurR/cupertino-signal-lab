@@ -156,9 +156,9 @@ html.render .reveal { transition: none !important; opacity: 1; transform: none; 
 .trials .bestline { fill: none; stroke: var(--green); stroke-width: 4; }
 .trials .old { fill: var(--gray-bar); stroke: #fff; stroke-width: 3; }
 .trials .best { fill: var(--green); stroke: #fff; stroke-width: 3; }
-.why { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 22px; }
-.why .panel { padding: 26px 32px; }
-.why p { font-size: 28px; }
+.why { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 14px; }
+.why .panel { padding: 20px 32px; }
+.why p { font-size: 26px; }
 
 /* === SLIDE 7: THE CARD === */
 table { border-collapse: collapse; width: 100%; }
@@ -239,8 +239,8 @@ table { border-collapse: collapse; width: 100%; }
 .stair.s3 { border-top: 8px solid var(--gray-bar); }
 .stair h3 { font: 400 52px/1 var(--serif); color: var(--ink); margin: 10px 0 14px; }
 .stair p { font-size: 28px; }
-.now { margin-top: 30px; display: grid; grid-template-columns: 250px 1fr 1fr; gap: 36px; align-items: start; border-top: 2px solid var(--ink); padding-top: 24px; }
-.now p { font-size: 28px; }
+.now { margin-top: 18px; display: grid; grid-template-columns: 250px 1fr 1fr; gap: 36px; align-items: start; border-top: 2px solid var(--ink); padding-top: 14px; }
+.now p { font-size: 26px; }
 
 /* === SLIDE 15: NEXT WEEK === */
 .week { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
@@ -275,11 +275,11 @@ html.render #notesPanel { display: none !important; }
 <section class="slide s-title active" aria-label="Title">
   <div class="wrap">
     <h1 class="reveal">Signal Learner</h1>
-    <p class="sub reveal d1">A few days of watching, then a better timing plan for an engineer to approve.</p>
+    <p class="sub reveal d1">In our test: 3 simulated PM rush hours of watching, then a timing recommendation.</p>
     <p class="who reveal d2">Monta Vista AI Club<br><span class="muted">Monta Vista High School, Cupertino</span></p>
   </div>
   <div class="mark reveal d2" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
-  <aside class="notes">Hi, we are the Monta Vista AI Club, and our project is called Signal Learner. Every traffic light follows a timing plan, a set of rules for how long each direction gets a green light. Those plans often stay the same for years, even when traffic changes. Signal Learner reads the road sensors a city already has for a few days, learns how traffic moves, practices on a computer copy of the road, and then suggests a better plan. A human traffic engineer decides whether to use it. Everything we show today happened in a computer simulation, not on a real street.</aside>
+  <aside class="notes">Hi, we are the Monta Vista AI Club, and our project is called Signal Learner. Every traffic light follows a timing plan, a set of rules for how long each direction gets a green light. Those plans often stay the same for years, even when traffic changes. In our test, Signal Learner read simulated road sensors for three PM rush hours, learned how traffic moved, practiced on a computer copy of the road, and then made a timing recommendation. A human traffic engineer would decide whether to use it. Everything we show today happened in a computer simulation, not on a real street.</aside>
 </section>
 
 <!-- === 2. THE PROBLEM === -->
@@ -401,7 +401,7 @@ html.render #notesPanel { display: none !important; }
         <div class="spot" style="margin-top:52px;">
           <p>Setting up a smart system takes money, new sensors and time.</p>
           <p style="margin-top:14px;"><b>Our spot: the cheap first step, using sensors a city already has.</b></p>
-          <p style="margin-top:14px;">We do not know yet what Cupertino runs. We asked.</p>
+          <p style="margin-top:14px;">We do not know yet what Cupertino runs.</p>
         </div>
       </div>
       <div class="reveal d1 panel" style="width:640px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -422,7 +422,7 @@ html.render #notesPanel { display: none !important; }
       </div>
     </div>
   </div>
-  <aside class="notes">Is this already solved? Partly. Systems like SCOOT, SCATS, InSync, Surtrac and SynchroGreen change the timing on the go. Google Green Light takes a different path: it recommends changes, and city engineers decide. But few signals have any of this. A 2015 article said about 3 in 100 signals had adaptive timing, which means the system changes the plan by itself. That number is old, so the real share today may be different. Setting these systems up takes money, new sensors and time. Our spot is the cheap first step, using sensors a city already has. We do not know yet what Cupertino runs, so we asked the city.</aside>
+  <aside class="notes">Is this already solved? Partly. Systems like SCOOT, SCATS, InSync, Surtrac and SynchroGreen change the timing on the go. Google Green Light takes a different path: it recommends changes, and city engineers decide. But few signals have any of this. A 2015 article said about 3 in 100 signals had adaptive timing, which means the system changes the plan by itself. That number is old, so the real share today may be different. Setting these systems up takes money, new sensors and time. Our spot is the cheap first step, using sensors a city already has. We do not know yet what Cupertino runs.</aside>
 </section>
 
 <!-- === 5. OUR IDEA IN SIX STEPS === -->
@@ -433,7 +433,7 @@ html.render #notesPanel { display: none !important; }
     <div class="body">
       <div class="steps">
         <div class="step reveal"><svg viewBox="0 0 60 60"><path d="M6 14 L22 8 L38 14 L54 8 V46 L38 52 L22 46 L6 52 Z M22 8 V46 M38 14 V52"/></svg><h3><span>1</span>Map</h3><p>Draw the road from the public map. Old timing keeps running.</p></div>
-        <div class="step reveal d1"><svg viewBox="0 0 60 60"><path d="M4 30 C 14 14, 46 14, 56 30 C 46 46, 14 46, 4 30 Z"/><circle cx="30" cy="30" r="8"/></svg><h3><span>2</span>Watch</h3><p>Read the road sensors for a few days. Change nothing.</p></div>
+        <div class="step reveal d1"><svg viewBox="0 0 60 60"><path d="M4 30 C 14 14, 46 14, 56 30 C 46 46, 14 46, 4 30 Z"/><circle cx="30" cy="30" r="8"/></svg><h3><span>2</span>Watch</h3><p>Read the road sensors for 3 simulated PM rush hours. Change nothing.</p></div>
         <div class="step reveal d2"><svg viewBox="0 0 60 60"><path d="M8 52 H54 M14 44 V30 M26 44 V16 M38 44 V24 M50 44 V10"/></svg><h3><span>3</span>Learn</h3><p>Learn the traffic pattern and build a practice copy of the road.</p></div>
         <div class="step reveal"><svg viewBox="0 0 60 60"><path d="M48 22 A 20 20 0 1 0 50 36 M48 10 V22 H36"/></svg><h3><span>4</span>Practice</h3><p>Try many timings on the copy, over many rush hours.</p></div>
         <div class="step reveal d1"><svg viewBox="0 0 60 60"><rect x="10" y="6" width="40" height="48" rx="4"/><path d="M18 20 H42 M18 30 H42 M18 40 H32"/></svg><h3><span>5</span>Recommend</h3><p>Suggest one bounded change and its reason. An engineer approves or rejects.</p></div>
@@ -442,7 +442,7 @@ html.render #notesPanel { display: none !important; }
       <div class="band reveal d3"><span class="dot"></span><span><b>It never touches a real light.</b> In our tests, the simulator applies an approved change.</span></div>
     </div>
   </div>
-  <aside class="notes">Here is the whole idea in six steps. One, map: we draw the road from the public map, and the old timing keeps running. Two, watch: we read the road sensors for a few days and change nothing. Three, learn: we learn the traffic pattern and build a practice copy of the road on the computer. Four, practice: we try many timings on that copy, over many pretend rush hours. Five, recommend: we suggest one small change with a reason, and an engineer says yes or no. Six, check: we keep reading the sensors and go back to the old timing if traffic gets worse. Our system never controls a real light.</aside>
+  <aside class="notes">Here is the whole idea in six steps. One, map: we draw the road from the public map, and the old timing keeps running. Two, watch: in our test we read the simulated road sensors for three PM rush hours and changed nothing. Three, learn: we learn the traffic pattern and build a practice copy of the road on the computer. Four, practice: we try many timings on that copy, over many pretend rush hours. Five, recommend: we suggest one small change with a reason, and an engineer says yes or no. Six, check: we keep reading the sensors and go back to the old timing if traffic gets worse. Our system never controls a real light.</aside>
 </section>
 
 <!-- === 6. WHERE THE AI IS === -->
@@ -466,11 +466,11 @@ html.render #notesPanel { display: none !important; }
       </div>
       <div class="why reveal d2">
         <div class="panel"><p><b>Model-based search (Optuna).</b> After each try, it updates its guess of which settings look good and tries there next.</p></div>
-        <div class="panel"><p><b>Why no neural network?</b> Published methods needed about 100 to 1,400 simulated runs, and we found no live signal using one.</p></div>
+        <div class="panel"><p><b>Why no reinforcement learning?</b> Published methods need hundreds of simulated runs, and we found no live signal using one.</p></div>
       </div>
     </div>
   </div>
-  <aside class="notes">So where is the AI? It does two things. First, it learns the traffic pattern from sensor data. The grid on the left shows what it learned on Wolfe Road: how many cars arrive every 15 minutes at each signal. Darker means busier. From that it builds a practice copy of the road. Second, a search tool called Optuna tries 150 timings on the copy, using each result to pick a better next try. Each dot on the right is one try. Why not a neural network? Published methods needed about 100 to 1,400 simulated runs, and we found no live signal using one.</aside>
+  <aside class="notes">So where is the AI? It does two things. First, it learns the traffic pattern from sensor data. The grid on the left shows what it learned on Wolfe Road: how many cars arrive every 15 minutes at each signal. Darker means busier. From that it builds a practice copy of the road. Second, a search tool called Optuna tries 150 timings on the copy, using each result to pick a better next try. Each dot on the right is one try. Why not reinforcement learning? Published methods need hundreds of simulated runs, and we found no live signal using one.</aside>
 </section>
 
 <!-- === 7. WHAT THE ENGINEER SEES === -->
@@ -520,13 +520,13 @@ html.render #notesPanel { display: none !important; }
       </div>
       <div class="rules4 reveal d1">
         <div><p><b>Rules written first.</b> Frozen in our code history before the test ran.</p></div>
-        <div><p><b>Two roads it never saw.</b> Wolfe Rd and De Anza Blvd, one try each.</p></div>
+        <div><p><b>Two roads held out until the test.</b> No learner run before the test, one try each.</p></div>
         <div><p><b>Old timing is a stand-in.</b> Built from out-of-date traffic. Not Cupertino's timing.</p></div>
         <div><p><b>New-road traffic is made up by us.</b> We call it synthetic.</p></div>
       </div>
     </div>
   </div>
-  <aside class="notes">How do we know the test was fair? The learner only gets what a city would have: the map, the list of signals, the old timing, and the sensor counts. The true traffic, meaning every trip and route, is hidden behind a wall, and an automatic test fails if our code ever peeks. We wrote the rules down before the test and locked them in our code history. We tested on two roads the learner had never seen, one try each, no redos. Two more things to know: the old timing is a stand-in we built from out-of-date traffic, not Cupertino's real timing, and the traffic on these new roads was made up by us.</aside>
+  <aside class="notes">How do we know the test was fair? The learner only gets what a city would have: the map, the list of signals, the old timing, and the sensor counts. The true traffic, meaning every trip and route, is hidden behind a wall, and an automatic test fails if our code ever peeks. We wrote the rules down before the test and locked them in our code history. We tested on two roads with no learner run before the test, one try each, no redos. Two more things to know: the old timing is a stand-in we built from out-of-date traffic, not Cupertino's real timing, and the traffic on these new roads was made up by us.</aside>
 </section>
 
 <!-- === 9. WATCH IT === -->
@@ -555,7 +555,7 @@ html.render #notesPanel { display: none !important; }
 <section class="slide" aria-label="Result on Wolfe Rd">
   <div class="sim-tag">Simulated</div>
   <div class="wrap">
-    <div class="kicker">Result 1: Wolfe Rd, a road it never saw</div>
+    <div class="kicker">Result 1: Wolfe Rd, a held-out road</div>
     <h2>On Wolfe Rd, the learner's plan cut the delay score by 26%.</h2>
     <div class="body row" style="gap:64px;">
       <div class="reveal" style="flex:1;">
@@ -577,15 +577,15 @@ html.render #notesPanel { display: none !important; }
       </div>
     </div>
   </div>
-  <aside class="notes">This is the main result, on Wolfe Road, a road the learner never saw before the test. We use a delay score: the average time each trip loses compared with an empty road, plus a 15 minute penalty for every trip that never finishes. So it is a score, not a stopwatch time. Old timing scored 870 seconds. A fresh retiming using perfect traffic counts scored 846. Signal Learner, using only the sensors, scored 643, which is 26 percent lower. Trips that never finished dropped from 968 to 217 per rush hour. But one group got worse: trips from the entry point with the longest waits lost about 203 more seconds each.</aside>
+  <aside class="notes">This is the main result, on Wolfe Road, which was held out until the test. We use a delay score: the average time each trip loses compared with an empty road, plus a 15 minute penalty for every trip that never finishes or gets stuck and is removed. So it is a score, not a stopwatch time. Old timing scored 870 seconds. A fresh retiming using perfect traffic counts scored 846. Signal Learner, using only the sensors, scored 643, which is 26 percent lower. Trips that never finished dropped from 968 to 217 per rush hour. But one group got worse: trips from the entry point with the longest waits lost about 203 more seconds each.</aside>
 </section>
 
 <!-- === 11. RESULT: DE ANZA BLVD === -->
 <section class="slide" aria-label="Result on De Anza Blvd">
-  <div class="sim-tag posthoc">Simulated &middot; post-hoc check</div>
+  <div class="sim-tag posthoc">Simulated &middot; POST-HOC check</div>
   <div class="wrap">
-    <div class="kicker">Result 2: De Anza Blvd, the second unseen road</div>
-    <h2>On De Anza Blvd it said &ldquo;no change&rdquo;, and a later check says that was right.</h2>
+    <div class="kicker">Result 2: De Anza Blvd, the second held-out road</div>
+    <h2>It said &ldquo;no change&rdquo;; a later check found the rejected plan was worse.</h2>
     <div class="body row" style="gap:56px;">
       <div class="reveal" style="width:440px;">
         <div class="panel" style="border-top:8px solid var(--ink);">
@@ -595,7 +595,7 @@ html.render #notesPanel { display: none !important; }
         </div>
       </div>
       <div class="reveal d1" style="flex:1;">
-        <p class="label" style="color:var(--amber);">Post-hoc: checked afterward on 20 new runs</p>
+        <p class="label" style="color:var(--amber);">POST-HOC: checked afterward on 20 new runs</p>
         <div class="bars" style="margin-top:22px;">
           <div class="r" style="margin-bottom:22px;"><div class="name">Old timing</div><div class="track"><div class="fill" style="width:470px; height:54px;"></div><div class="v">275 s</div></div></div>
           <div class="r" style="margin-bottom:26px;"><div class="name">The plan it turned down</div><div class="track"><div class="fill worse" style="width:500px; height:54px;"></div><div class="v">292 s<small style="color:var(--amber);">6.4% worse</small></div></div></div>
@@ -606,7 +606,7 @@ html.render #notesPanel { display: none !important; }
         </div>
       </div>
     </div>
-    <div class="define reveal d2" style="margin-top:22px;"><p><b>The practice copy was badly wrong here.</b> One lane is shared by straight and right-turning cars, and the copy sent 3,791 cars right. It expected 1,740 s of delay; the real road had about 270 s. A safety rule blocked the plan because it made more cars stuck.</p></div>
+    <div class="define reveal d2" style="margin-top:22px;"><p><b>The practice copy was badly wrong here.</b> One lane is shared by straight and right-turning cars, and the copy sent 3,791 cars right. It expected 1,740 s of delay; the simulated world had about 270 s. A safety rule blocked the plan because it made more cars stuck.</p></div>
   </div>
   <aside class="notes">On De Anza Boulevard, the learner said no change, so the old timing stays. Afterward we tested the plan it turned down on 20 new runs. We call this post-hoc, because it came after the test. That plan was 6.4 percent worse, worse on 13 of 20 runs, and stuck-car events, when the simulator lifts out a car stuck too long, went from about 1 to about 12 per rush hour. Knowing when to do nothing matters. But the practice copy was badly wrong here: one lane is shared by straight and right-turning cars, and it guessed far too many turn right. A safety rule stopped the plan.</aside>
 </section>
@@ -623,17 +623,17 @@ html.render #notesPanel { display: none !important; }
         <tbody>
           <tr class="prac"><td>Homestead Rd</td><td><span class="role">Practice</span></td><td>Synthetic</td><td>130 s</td><td>113 s<span class="pc">&minus;13%</span></td><td class="lw">77 s<span class="pc">&minus;41%</span></td><td class="muted">not run</td></tr>
           <tr class="prac"><td>Stevens Creek Blvd</td><td><span class="role">Practice</span></td><td>VTA 2024 counts</td><td>682 s</td><td>661 s<span class="pc">&minus;3%</span></td><td class="lw">471 s<span class="pc">&minus;31%</span></td><td><b>369 s</b><span class="pc">&minus;46%</span></td></tr>
-          <tr class="test"><td><b>Wolfe Rd</b></td><td><span class="role t">Unseen test</span></td><td>Synthetic</td><td>870 s</td><td>846 s<span class="pc">&minus;3%</span></td><td class="lw">643 s<span class="pc">&minus;26%</span></td><td class="muted">not run</td></tr>
-          <tr class="test"><td><b>De Anza Blvd</b></td><td><span class="role t">Unseen test</span></td><td>Synthetic</td><td>270 s</td><td class="bad">481 s<span class="pc">+78%</span></td><td>270 s<span class="pc">no change</span></td><td class="muted">not run</td></tr>
+          <tr class="test"><td><b>Wolfe Rd</b></td><td><span class="role t">Held-out test</span></td><td>Synthetic</td><td>870 s</td><td>846 s<span class="pc">&minus;3%</span></td><td class="lw">643 s<span class="pc">&minus;26%</span></td><td class="muted">not run</td></tr>
+          <tr class="test"><td><b>De Anza Blvd</b></td><td><span class="role t">Held-out test</span></td><td>Synthetic</td><td>270 s</td><td class="bad">481 s<span class="pc">+78%</span></td><td>270 s<span class="pc">no change</span></td><td class="muted">not run</td></tr>
         </tbody>
       </table>
       <div class="row reveal d1" style="margin-top:34px; gap:28px;">
-        <div class="define" style="flex:1;"><p><b>Delay score per trip, lower is better.</b> Our rules were tuned on the practice roads (10 test rush hours each), so only the unseen roads (20 each) are a fair test.</p></div>
+        <div class="define" style="flex:1;"><p><b>Delay score per trip, lower is better.</b> Our rules were tuned on the practice roads (10 simulated rush hours each), so only the held-out roads (20 each) are a fair test.</p></div>
         <div class="define" style="flex:1;"><p><b>v5</b> is our earlier optimizer. It had full access to the true traffic and still wins on Stevens Creek. Stevens Creek uses VTA 2024 counts. <b>Credit: VTA.</b></p></div>
       </div>
     </div>
   </div>
-  <aside class="notes">Here are all four roads in one table. The top two, Homestead and Stevens Creek, were practice roads. We tuned our rules on them, so they are not a fair test. The bottom two, Wolfe and De Anza, were the unseen test roads. Signal Learner beat the old timing on three roads and chose no change on De Anza. Notice the last column. v5 is an earlier optimizer of ours that could see the true traffic. On Stevens Creek it still wins, 369 seconds against the learner's 471. So the learner is not the best possible plan. Stevens Creek traffic comes from real 2024 counts by VTA, the county transportation agency, and we credit them.</aside>
+  <aside class="notes">Here are all four roads in one table. The top two, Homestead and Stevens Creek, were practice roads. We tuned our rules on them, so they are not a fair test. The bottom two, Wolfe and De Anza, were the held-out test roads. Signal Learner beat the old timing on three roads and chose no change on De Anza. Notice the last column. v5 is an earlier optimizer of ours that could see the true traffic. On Stevens Creek it still wins, 369 seconds against the learner's 471. So the learner is not the best possible plan. Stevens Creek traffic comes from real 2024 counts by VTA, the county transportation agency, and we credit them.</aside>
 </section>
 
 <!-- === 13. WHAT IS NOT PROVEN === -->
@@ -651,18 +651,18 @@ html.render #notesPanel { display: none !important; }
         <div class="limit reveal d1"><div class="n">5</div><div><h3>The undo check passed once, failed once.</h3><p>Passed on Wolfe. On De Anza it undid a harmless change on 40% of runs.</p>
           <div class="mini"><div class="tens"><i class="w"></i><i class="w"></i><i class="w"></i><i class="w"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>De Anza: 4 of 10 false alarms</span></div></div></div>
         <div class="limit reveal"><div class="n">3</div><div><h3>Old timing is a stand-in.</h3><p>We built it from out-of-date traffic. It is not Cupertino's timing.</p></div></div>
-        <div class="limit reveal d1"><div class="n">6</div><div><h3>Two unseen roads is a small test.</h3><p>It does not show it works on any road.</p></div></div>
+        <div class="limit reveal d1"><div class="n">6</div><div><h3>Two held-out roads is a small test.</h3><p>It does not show it works on any road.</p></div></div>
       </div>
     </div>
   </div>
-  <aside class="notes">Here is what our project does not prove yet. One, it is simulation only: no real light, car or street. Two, traffic on the new roads was made up by us. Three, the old timing is a stand-in we built, not Cupertino's real timing. Four, the practice copy was off: on Wolfe it had 24 percent fewer trips than the true traffic. Five, the undo check, which switches back to old timing when traffic gets worse, passed on Wolfe but failed on De Anza. There it undid a harmless change on 4 of 10 runs. Six, two unseen roads is a small test, so we cannot say it works on any road.</aside>
+  <aside class="notes">Here is what our project does not prove yet. One, it is simulation only: no real light, car or street. Two, traffic on the new roads was made up by us. Three, the old timing is a stand-in we built, not Cupertino's real timing. Four, the practice copy was off: on Wolfe it had 24 percent fewer trips than the true traffic. Five, the undo check, which switches back to old timing when traffic gets worse, passed on Wolfe but failed on De Anza. There it undid a harmless change on 4 of 10 runs. Six, two held-out roads is a small test, so we cannot say it works on any road.</aside>
 </section>
 
 <!-- === 14. HOW THIS CONNECTS TO CUPERTINO === -->
 <section class="slide" aria-label="How this connects to Cupertino">
   <div class="wrap">
     <div class="kicker">How this connects to Cupertino</div>
-    <h2>Three steps to a real city, and the first two need no connection to the lights.</h2>
+    <h2>A possible three-step connection plan; the first two need no connection to the lights.</h2>
     <div class="body">
       <div class="stairs">
         <div class="stair s1 reveal" style="min-height:340px;"><p class="label" style="color:var(--green);">Step 1</p><h3>Read</h3><p>Use the city's data exports or controller logs. ATSPM, a free open tool for signal logs, can turn them into our sensor feed.</p></div>
@@ -671,12 +671,12 @@ html.render #notesPanel { display: none !important; }
       </div>
       <div class="now reveal d3">
         <p class="label" style="color:var(--ink); padding-top:6px;">Where we are</p>
-        <p>We emailed the city's Traffic and Engineering and Signal Maintenance teams. <b>No answer yet.</b></p>
-        <p>Cupertino selected a Cubic Trafficware central system, its software for running lights from one office, in 2019. We do not know how it is set up today.</p>
+        <p><b>Public record:</b> Cubic said Cupertino selected Trafficware's ATMS central system in 2019.</p>
+        <p>We do not know how it is set up today.</p>
       </div>
     </div>
   </div>
-  <aside class="notes">How could this reach Cupertino? In three steps. One, read: use the city's data exports or controller logs. ATSPM, a free open tool for signal logs, can turn them into our sensor feed. Two, recommend: an engineer types the approved change into the city's system by hand, the way Google Green Light works, so no connection to the lights is needed. Three, much later and only with city approval: send changes straight to the lights using NTCIP 1202, the standard language signal controllers speak. Right now, we emailed two city teams and have no answer yet. Cupertino chose a central system in 2019, and we do not know how it is set up today.</aside>
+  <aside class="notes">How could this reach Cupertino? In three steps. One, read: use the city's data exports or controller logs. ATSPM, a free open tool for signal logs, can turn them into our sensor feed. Two, recommend: an engineer types the approved change into the city's system by hand, the way Google Green Light works, so no connection to the lights is needed. Three, much later and only with city approval: send changes straight to the lights using NTCIP 1202, the standard language signal controllers speak. Cubic said Cupertino selected Trafficware's ATMS central system in 2019. We do not know how it is set up today.</aside>
 </section>
 
 <!-- === 15. HACKATHON WEEK === -->
@@ -699,12 +699,12 @@ html.render #notesPanel { display: none !important; }
 <!-- === 16. CLOSE === -->
 <section class="slide s-close" aria-label="Close">
   <div class="wrap">
-    <p class="lead reveal">In simulation, Signal Learner found a better plan on one road it never saw, and knew to change nothing on another.</p>
+    <p class="lead reveal">In simulation, Signal Learner found a lower-delay plan on one held-out road and kept old timing on another.</p>
     <h1 class="reveal d1">Help us test it on <em>real data.</em></h1>
     <p class="who reveal d2" style="margin-top:56px; font:500 28px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--green);">Monta Vista AI Club</p>
   </div>
   <div class="mark reveal d2" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
-  <aside class="notes">To wrap up. In simulation, Signal Learner found a better plan on one road it had never seen, and it knew to change nothing on another. It only uses sensors a city already has, and a human engineer always makes the final call. What we need now is real data. If you work with Cupertino or know someone who does, help us test it on real data. Thank you.</aside>
+  <aside class="notes">To wrap up. In simulation, Signal Learner found a lower-delay plan on one held-out road and kept old timing on another. It used only the simulated sensor feed, and a human engineer would always make the final call. What we need now is real data. If you work with Cupertino or know someone who does, help us test it on real data. Thank you.</aside>
 </section>
 
 </main>
