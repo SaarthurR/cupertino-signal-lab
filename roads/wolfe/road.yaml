@@ -1,0 +1,98 @@
+name: wolfe
+role: heldout
+street: Wolfe Road
+source: OpenStreetMap (ODbL)
+bbox:
+- -122.01607401525423
+- 37.32419693323751
+- -122.01254945141244
+- 37.336323000095824
+signals:
+- name: Vallco Pkwy
+  lat: 37.3255444
+  lon: -122.01431005
+  osm_signal_nodes:
+  - '13038607672'
+  - '13038607673'
+  sumo_tls_id: GS_cluster_289652355_65584605_665705316_665705317
+- name: I-280 south ramps
+  lat: 37.32927575
+  lon: -122.0143791
+  osm_signal_nodes:
+  - '65406866'
+  - '1297872125'
+  sumo_tls_id: cluster_1297872125_65406866
+- name: I-280 north ramps
+  lat: 37.33192905
+  lon: -122.01432615
+  osm_signal_nodes:
+  - '13988769694'
+  - '13988769693'
+  sumo_tls_id: GS_cluster_14244508567_258965243_306087470
+- name: Pruneridge Ave
+  lat: 37.33415735
+  lon: -122.01429495
+  osm_signal_nodes:
+  - '247385813'
+  - '247385812'
+  sumo_tls_id: cluster_247385812_247385813
+- name: Apple Park Way
+  lat: 37.334975533333335
+  lon: -122.01424436666667
+  osm_signal_nodes:
+  - '11121665843'
+  - '3701140056'
+  - '11121665845'
+  sumo_tls_id: cluster_3401339837_3701140056_5054547493_7278975769
+mainline_edges:
+- '1564564625'
+- 158248728#0
+- '167369637'
+- 167369638#0
+- '265080021'
+- '393494143'
+- '393494145'
+- '393494146'
+- 393494147#0
+- 393494148#0
+- 393494149#0
+- 393494150#0
+- '394425826'
+- 415829914#0
+- 417028474#0
+- 489525595#0
+- '5005996'
+- 5018739#0
+- '5018743'
+- 5018743-AddedOffRampEdge
+- '63523014'
+- 63523015#0
+- '749360827'
+- 779496539#0
+- '779496546'
+- 779496551#0
+- '780060105'
+- '780060106'
+- '780060107'
+- '8959423'
+- 962283650#0
+- '967415400'
+- 967415400-AddedOffRampEdge
+- '968437731'
+side_edges:
+- -158259106#1
+- 167369644#0
+- 393494152#0
+- 393497335#0
+- 779496538#0
+- 779496543#0
+speed_mph: 35
+begin: '16:30'
+end: '18:30'
+warmup_s: 900
+drain_s: 1800
+time_to_teleport: 300
+net: roads/wolfe/net.net.xml
+detectors: roads/wolfe/detectors.add.xml
+timing_inputs: roads/wolfe/timing_inputs.csv
+old_timing: roads/wolfe/old_timing.add.xml

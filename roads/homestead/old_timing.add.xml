@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='utf-8'?>
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+  <!--OLD timing for the learner test: textbook actuated plan from STALE simulated demand-->
+  <tlLogic id="65436766" type="actuated" programID="actuated" offset="51.52">
+    <phase duration="16.0" state="GGGgrrrrGGGgrrr" minDur="7.0" maxDur="16.0" name="mainline" latestEnd="16.0" next="0 10 12 14" />
+    <phase duration="3.6" state="yyygrrrryyygrrr" next="2" />
+    <phase duration="10" state="rrrGrrrrrrrGrrr" minDur="5.0" maxDur="10" name="phase_2" latestEnd="32.0" next="16 18 20" />
+    <phase duration="3.6" state="rrryrrrrrrryrrr" next="4" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrrr" next="5" />
+    <phase duration="10" state="rrrrGGGgrrrrGGg" minDur="7.0" maxDur="10" name="phase_5" latestEnd="47.5" next="22 24" />
+    <phase duration="3.6" state="rrrryyygrrrryyg" next="7" />
+    <phase duration="10" state="rrrrrrrGrrrrrrG" minDur="5.0" maxDur="10" name="phase_7" latestEnd="63.4" next="26" />
+    <phase duration="3.6" state="rrrrrrryrrrrrry" next="9" />
+    <phase duration="2.0" state="rrrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyrrrryyyyrrr" next="11" />
+    <phase duration="2.4" state="rrrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyyrrrryyyyrrr" next="13" />
+    <phase duration="2.4" state="rrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yyyyrrrryyyyrrr" next="15" />
+    <phase duration="2.4" state="rrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrryrrrrrrryrrr" next="17" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrryrrrrrrryrrr" next="19" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrryrrrrrrryrrr" next="21" />
+    <phase duration="1.9" state="rrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrryyyyrrrryyy" next="23" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrryyyyrrrryyy" next="25" />
+    <phase duration="2.3" state="rrrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrrrrryrrrrrry" next="27" />
+    <phase duration="2.0" state="rrrrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="3" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="72.5" />
+  </tlLogic>
+  <tlLogic id="GS_65453520" type="actuated" programID="actuated" offset="44.98">
+    <phase duration="21.0" state="rrrGGGgrrrGGGg" minDur="7.0" maxDur="21.0" name="mainline" latestEnd="21.0" next="0 10 12 14" />
+    <phase duration="3.6" state="rrryyygrrryyyg" next="2" />
+    <phase duration="10" state="rrrrrrGrrrrrrG" minDur="5.0" maxDur="10" name="phase_2" latestEnd="36.2" next="16 18 20" />
+    <phase duration="3.6" state="rrrrrryrrrrrry" next="4" />
+    <phase duration="1.7" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="10" state="GGgrrrrGGgrrrr" minDur="7.0" maxDur="10" name="phase_5" latestEnd="51.5" next="22 24" />
+    <phase duration="3.6" state="yygrrrryygrrrr" next="7" />
+    <phase duration="10" state="rrGrrrrrrGrrrr" minDur="5.0" maxDur="10" name="phase_7" latestEnd="67.3" next="26" />
+    <phase duration="3.6" state="rryrrrrrryrrrr" next="9" />
+    <phase duration="1.6" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="rrryyyyrrryyyy" next="11" />
+    <phase duration="1.6" state="rrrrrrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="rrryyyyrrryyyy" next="13" />
+    <phase duration="1.6" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrryyyyrrryyyy" next="15" />
+    <phase duration="1.6" state="rrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rrrrrryrrrrrry" next="17" />
+    <phase duration="1.7" state="rrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrrrryrrrrrry" next="19" />
+    <phase duration="1.7" state="rrrrrrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrrrryrrrrrry" next="21" />
+    <phase duration="1.7" state="rrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="yyyrrrryyyrrrr" next="23" />
+    <phase duration="2.2" state="rrrrrrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="yyyrrrryyyrrrr" next="25" />
+    <phase duration="2.2" state="rrrrrrrrrrrrrr" next="7" />
+    <phase duration="3.6" state="rryrrrrrryrrrr" next="27" />
+    <phase duration="1.6" state="rrrrrrrrrrrrrr" next="0" />
+    <param key="max-gap" value="3" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="72.5" />
+  </tlLogic>
+  <tlLogic id="GS_65453536" type="actuated" programID="actuated" offset="0.0">
+    <phase duration="24.0" state="rrrGGGGGg" minDur="7.0" maxDur="24.0" name="mainline" latestEnd="24.0" next="0 8 10" />
+    <phase duration="3.6" state="rrryyyGGg" next="2" />
+    <phase duration="10" state="rrrrrrGGG" minDur="7.0" maxDur="10" name="phase_2" latestEnd="39.3" next="12 14" />
+    <phase duration="3.6" state="rrrrrryyy" next="4" />
+    <phase duration="1.8" state="rrrrrrrrr" next="5" />
+    <phase duration="10" state="GGGGrrrrr" minDur="5.0" maxDur="10" name="phase_5" latestEnd="54.7" next="16" />
+    <phase duration="3.6" state="yyyyrrrrr" next="7" />
+    <phase duration="1.5" state="rrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="rrryyyyyy" next="9" />
+    <phase duration="1.7" state="rrrrrrrrr" next="2" />
+    <phase duration="3.6" state="rrryyyyyy" next="11" />
+    <phase duration="1.7" state="rrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrrrryyy" next="13" />
+    <phase duration="1.8" state="rrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrrrryyy" next="15" />
+    <phase duration="1.8" state="rrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yyyyrrrrr" next="17" />
+    <phase duration="1.5" state="rrrrrrrrr" next="0" />
+    <param key="max-gap" value="3" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="72.5" />
+  </tlLogic>
+  <tlLogic id="GS_65453538" type="actuated" programID="actuated" offset="25.02">
+    <phase duration="17.0" state="GGGgGGgrrr" minDur="7.0" maxDur="17.0" name="mainline" latestEnd="17.0" next="0 8 10" />
+    <phase duration="3.6" state="yyyyGGgrrr" next="2" />
+    <phase duration="10" state="rrrrGGGrrr" minDur="7.0" maxDur="10" name="phase_2" latestEnd="31.9" next="12 14" />
+    <phase duration="3.6" state="rrrryyyrrr" next="4" />
+    <phase duration="1.5" state="rrrrrrrrrr" next="5" />
+    <phase duration="17.0" state="GrrrrrrGGg" minDur="5.0" maxDur="17.0" name="phase_5" latestEnd="54.0" next="16" />
+    <phase duration="3.6" state="yrrrrrryyy" next="7" />
+    <phase duration="1.5" state="rrrrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyyyyyrrr" next="9" />
+    <phase duration="1.3" state="rrrrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyyyyyrrr" next="11" />
+    <phase duration="1.3" state="rrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrrryyyrrr" next="13" />
+    <phase duration="1.5" state="rrrrrrrrrr" next="0" />
+    <phase duration="3.6" state="rrrryyyrrr" next="15" />
+    <phase duration="1.5" state="rrrrrrrrrr" next="5" />
+    <phase duration="3.6" state="yrrrrrryyy" next="17" />
+    <phase duration="1.5" state="rrrrrrrrrr" next="0" />
+    <param key="max-gap" value="3" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="72.5" />
+  </tlLogic>
+  <tlLogic id="GS_65453550" type="actuated" programID="actuated" offset="7.61">
+    <phase duration="26.0" state="GGgrrGGG" minDur="7.0" maxDur="26.0" name="mainline" latestEnd="26.0" next="0 8 10" />
+    <phase duration="3.6" state="GGgrryyy" next="2" />
+    <phase duration="10" state="GGGrrrrr" minDur="7.0" maxDur="10" name="phase_2" latestEnd="41.1" next="12 14" />
+    <phase duration="3.6" state="yyyrrrrr" next="4" />
+    <phase duration="1.6" state="rrrrrrrr" next="5" />
+    <phase duration="11.0" state="rrrGGGrr" minDur="5.0" maxDur="11.0" name="phase_5" latestEnd="57.3" next="16" />
+    <phase duration="3.6" state="rrryyyrr" next="7" />
+    <phase duration="1.5" state="rrrrrrrr" next="0" />
+    <param key="detector-gap" value="0.5" />
+    <phase duration="3.6" state="yyyrryyy" next="9" />
+    <phase duration="1.5" state="rrrrrrrr" next="2" />
+    <phase duration="3.6" state="yyyrryyy" next="11" />
+    <phase duration="1.5" state="rrrrrrrr" next="5" />
+    <phase duration="3.6" state="yyyrrrrr" next="13" />
+    <phase duration="1.6" state="rrrrrrrr" next="0" />
+    <phase duration="3.6" state="yyyrrrrr" next="15" />
+    <phase duration="1.6" state="rrrrrrrr" next="5" />
+    <phase duration="3.6" state="rrryyyrr" next="17" />
+    <phase duration="1.5" state="rrrrrrrr" next="0" />
+    <param key="max-gap" value="3" />
+    <param key="coordinated" value="true" />
+    <param key="cycleTime" value="72.5" />
+  </tlLogic>
+</additional>

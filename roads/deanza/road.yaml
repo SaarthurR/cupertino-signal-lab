@@ -1,0 +1,83 @@
+name: deanza
+role: heldout
+street: De Anza Boulevard
+source: OpenStreetMap (ODbL)
+bbox:
+- -122.03404061525424
+- 37.32518598323751
+- -122.03061438474577
+- 37.33640181676249
+signals:
+- name: Lazaneo Dr
+  lat: 37.32653345
+  lon: -122.0323209
+  osm_signal_nodes:
+  - '13044806615'
+  - '13044806619'
+  sumo_tls_id: GS_cluster_258972911_65426563
+- name: Mariani Ave
+  lat: 37.33024845
+  lon: -122.03230930000001
+  osm_signal_nodes:
+  - '13044798212'
+  - '13044798215'
+  sumo_tls_id: GS_cluster_220217924_65426561
+- name: I-280 south ramps
+  lat: 37.3337175
+  lon: -122.03234570000001
+  osm_signal_nodes:
+  - '13044790073'
+  - '7279196749'
+  sumo_tls_id: GS_cluster_255655914_255655915
+- name: I-280 north ramps
+  lat: 37.33505435
+  lon: -122.03233185
+  osm_signal_nodes:
+  - '7279196775'
+  - '13044790075'
+  sumo_tls_id: GS_cluster_220218003_65383026
+mainline_edges:
+- 20540091#0
+- '25085655'
+- '25085689'
+- 393494129#0
+- 393494131#0
+- 393494133#0
+- 393494134#0
+- 393494135#0
+- 393494136#0
+- 393494137#0
+- 393494137#4
+- 393494138#0
+- 393494140#0
+- 393494140#2
+- 415829895#0
+- '415829896'
+- 449814457#0
+- 449814460#0
+- '500268055'
+- '525530999'
+- 736379756#0
+- '736379767'
+- '779523370'
+- '779523389'
+- '779523391'
+- 779523404#0
+- '779523405'
+side_edges:
+- -344536287#2
+- -754815173#2
+- 393494151#0
+- 393494572#0
+- 754816421#0
+- 779523373#0
+speed_mph: 35
+begin: '16:30'
+end: '18:30'
+warmup_s: 900
+drain_s: 1800
+time_to_teleport: 300
+net: roads/deanza/net.net.xml
+detectors: roads/deanza/detectors.add.xml
+timing_inputs: roads/deanza/timing_inputs.csv
+old_timing: roads/deanza/old_timing.add.xml
