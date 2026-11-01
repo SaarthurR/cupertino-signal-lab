@@ -4,7 +4,7 @@ import json
 import statistics
 import xml.etree.ElementTree as ET
 
-from . import road
+from . import practice, road
 
 LABEL = 'SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.'
 TURN = {'l': 'L', 's': 'T', 'r': 'R'}  # left, through, right
@@ -33,6 +33,27 @@ def settings(path, cfg, network):
                                max_green_s=round(float(phase.get('maxDur')), 1)))
         out[logic.get('id')] = dict(cycle_s=round(cycle, 1), offset_s=round(float(logic.get('offset')), 1), greens=greens)
     return out
+
+
+def why(result):
+    """The card sentence: name the gate that blocked the change, not just 'no clear gain'."""
+    if result['clear_gain']:
+        return 'The copy predicts a clear gain.'
+    if result['best_trial'] == 0:
+        return 'No change: the search found nothing better than the old timing in the copy.'
+    old, new = result['confirm_old'], result['confirm_new']
+    failed = []
+    if result['confirm_gain'] < practice.MIN_GAIN:
+        failed.append(f"gain under {practice.MIN_GAIN:.0%}")
+    if result['confirm_p'] >= practice.ALPHA:
+        failed.append(f"p not under {practice.ALPHA}")
+    over = [str(n['seed']) for n, o in zip(new, old) if n['teleports'] > o['teleports']+practice.TELEPORT_MARGIN]
+    if over:
+        failed.append(f"teleports more than old + {practice.TELEPORT_MARGIN} on copy seeds {', '.join(over)}")
+    if practice.side(new) > practice.SIDE_LIMIT*practice.side(old)+1e-9:
+        failed.append(f"side-street delay {practice.side(new)/practice.side(old):.2f}x old, limit {practice.SIDE_LIMIT}x")
+    return (f"No change: in the copy the best plan cut delay {result['confirm_gain']:.1%} (p = {result['confirm_p']:.3f}), "
+            f"but it failed the limits: {'; '.join(failed)}.")
 
 
 def recommend(name):
@@ -65,9 +86,7 @@ def recommend(name):
                     new_delay_s=round(statistics.mean(before)+statistics.mean(diffs), 1),
                     change_s=round(statistics.mean(diffs), 1), change_range_s=[round(diffs[0], 1), round(diffs[-1], 1)],
                     change_share=round(-result['confirm_gain'], 4), p_value=round(result['confirm_p'], 4))
-    card = dict(road=name, label=LABEL, decision='change' if change else 'no change',
-                why=('The copy predicts a clear gain.' if change else
-                     'No change: the copy predicts no clear gain over the old timing.'),
+    card = dict(road=name, label=LABEL, decision='change' if change else 'no change', why=why(result),
                 expected_in_copy=expected, limits='Phase order, clearances and minimum greens are unchanged. '
                 'Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check '
                 'rule goes back to old timing if the feed shows traffic clearly worse.', signals=signals)
