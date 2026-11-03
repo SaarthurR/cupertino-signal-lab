@@ -6,7 +6,8 @@ The club leads said pre-built code is allowed.
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
 Open the printed Slides URL. The launcher uses only Python's standard library and runs no simulations.
 It also prints links to the PDF, video and the two synthetic-road engineer cards. Press N in the slides for speaker notes.
-Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Sprint scope: [SPEC.md](SPEC.md).
+Start with the [judge-facing story and project map](docs/PITCH.md).
+Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Team plan: [SPEC.md](SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](docs/WHAT-WE-BUILT.md).
 
 **This repo is private. Keep the code and data inside the team.** VTA said on Nov 2 that we may use its counts and

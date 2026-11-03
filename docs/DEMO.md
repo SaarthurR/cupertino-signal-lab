@@ -10,6 +10,8 @@ Use Left/Right to change slides, N for speaker notes, Home/End for the beginning
 
 ## Walkthrough
 
+Use the [five-part pitch and project map](PITCH.md) to organize the talk. This runbook supplies the operating details and evidence boundaries.
+
 1. **Problem and mechanism — slides 1–8.** Traffic patterns change. We observe simulated detector data, reconstruct demand, search 150 bounded plans, and give an engineer a recommendation. It is Optuna's model-based search, not a neural network. Maps are based on OpenStreetMap; no real sensors or lights are connected.
 2. **Watch — slide 9.** Play the saved Wolfe comparison. It is one recorded simulated rush hour at 100x speed, not a live experiment or the average across all tests. Red dots are stopped vehicles; green dots move. Vehicles unable to enter the network are not drawn.
 3. **Evidence — slides 10–11.** Across 20 paired held-out runs, Wolfe's delay score fell from about 870 to 643 (26%). De Anza kept old timing. The score charges 900 seconds per unfinished trip and per teleport; these are not measured commute times. Old timing is our constructed stand-in, not Cupertino's plan. The new roads use synthetic traffic.
@@ -31,12 +33,12 @@ These commands generate world inputs and replace Homestead's development feed, c
 
 Do not run, delete or reset `reports/learner_heldout/`. Do not tune on Wolfe/De Anza or test seeds. All such results are already final.
 
-## Ownership and completion
+## Proposed team split
 
 | Owner | Work |
 |---|---|
-| Advaita | Clean-clone instructions, local launcher, operator walkthrough and verification |
-| Saarth | Shared-lane reconstruction and copy-quality gate |
-| Prithvi | Undo-rule experiments and preregistered fresh-road evaluation |
+| Advaita | Project structure, slide narrative, explanation of existing results, setup and demo handoff |
+| Saarth | Simulation and existing results; coordinate any further model work with him |
+| Prithvi | Suggested: trade-off backup slide, judge-question rehearsal and submission checks; see PITCH.md |
 
-Agree on names and judging requirements as a team. The README's event dates and pre-built-code allowance are team notes, not independently confirmed organizer rules. City data has not arrived and cannot be claimed. VTA permission covers the hackathon presentation, with the citation above.
+Agree on roles and judging requirements as a team before treating this split as final. The README's event dates and pre-built-code allowance are team notes, not independently confirmed organizer rules. City data has not arrived and cannot be claimed. VTA permission covers the hackathon presentation, with the citation above.
