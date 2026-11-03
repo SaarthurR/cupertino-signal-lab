@@ -24,6 +24,13 @@ def prepare(folder):
         dest = Path(folder)/target
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT/source, dest)
+        if target.startswith('cards/'):
+            note = ('Historical original-study card. This is not an output of the repaired screening policy.\n\n')
+            if target == 'cards/deanza.md':
+                note += ('Reading note: the selected timing is unchanged. The forecast below belongs to a rejected candidate, '
+                         'not the selected plan. The original "no clear gain" sentence was inaccurate: the candidate '
+                         'failed the teleport feasibility constraint. The archived source is preserved below.\n\n')
+            dest.write_text(note + dest.read_text(encoding='utf-8'), encoding='utf-8')
 
 
 class Handler(SimpleHTTPRequestHandler):
