@@ -1,0 +1,6 @@
+{
+  "validation_bubb": {
+    "error_type": "ValueError",
+    "error": "No boundary-to-boundary route covers 8949631#0 \u2192 1004594480#0"
+  }
+}

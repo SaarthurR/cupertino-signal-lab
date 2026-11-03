@@ -107,19 +107,21 @@ Saarth holds these email threads. Send any new question through Saarth, so the c
 
 | Job | Notes |
 |---|---|
-| Fix the shared-lane error | The cause of the De Anza copy error. Findings: [reports/learner_story/findings.md](reports/learner_story/findings.md) |
-| Watch longer than 3 rush hours | May cut the undo check's false alarms. Untested |
-| Test on fresh roads | Choose the roads and write the rules before any run |
+| Resolve shared-lane ambiguity | New screens refuse uncertain turns; exact splits still require more observations |
+| Validate rollback | Missing-window and zero-count defects are fixed; detection reliability remains experimental |
+| Test on fresh roads | Fixed-rule synthetic checks and their failures are recorded in [SPEC.md](SPEC.md) |
 | Use real city data | Only if the city sends it |
 | Practice the presentation | Speaker notes are in the slides |
 
-**Open questions:** how do judges score projects? Can we show VTA's numbers? Slide 12 uses them for Stevens Creek. If there is no OK by the presentation, remove that row.
+**Submission check:** confirm the organizers' judging criteria. VTA approved presentation use with the exact credit above; keep the repository and raw data private.
 
 The current repair checklist and proposed team handoff are in [SPEC.md](SPEC.md).
 
 ## Current screening
 
 Future development runs require complete observations, adequate copy fit and bounded shared-lane uncertainty. Failed screening returns no change with no forecast. Passing candidates must also pass individual-origin, unfinished-trip and penalty-sensitivity checks, plus low/high observed-count stress copies. These are conservative development checks, not field calibration or a revalidation of the historical 26% result. Monitoring now handles missing/invalid windows and zero counts explicitly. See [SPEC.md](SPEC.md) for evidence and remaining blockers.
+
+The [fresh synthetic checks](reports/repair_validation/README.md) completed but did not pass validation: Bubb geometry was unsupported, Stelling abstained before optimization, and rollback missed all 18 empirically harmful paired cases across three fixed profiles. The rule remains experimental; it is not a safety mechanism or live controller. Failed and abstaining results are preserved alongside the unchanged historical study.
 
 ## Test rules that protect the results
 

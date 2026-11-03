@@ -665,20 +665,20 @@ html.render #notesPanel { display: none !important; }
 </section>
 
 <!-- === 15. HACKATHON WEEK === -->
-<section class="slide" aria-label="What we do in hackathon week">
+<section class="slide" aria-label="Fresh validation status">
   <div class="wrap">
-    <div class="kicker">Hackathon week</div>
-    <h2>Harden the workflow, then test the new rules separately.</h2>
+    <div class="kicker">Fresh validation status</div>
+    <h2>Fresh checks exposed limits; original results unchanged.</h2>
     <div class="body">
       <div class="week">
-        <div class="reveal"><svg viewBox="0 0 64 64"><path d="M20 58 V34 C20 22, 32 18, 32 6 M44 58 V34 C44 26, 52 22, 56 18 M50 14 L58 14 L58 22"/></svg><h3>Expose turn uncertainty</h3><p>Screen copy fit and abstain when shared-lane counts cannot identify turns. New screening under review; original results unchanged.</p></div>
-        <div class="reveal d1"><svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="24"/><path d="M32 18 V34 L44 42 M26 4 H38"/></svg><h3>Watch longer</h3><p>Test normal variability, missing feeds and harmless changes before trusting the rollback rule.</p></div>
-        <div class="reveal d2"><svg viewBox="0 0 64 64"><path d="M14 58 L26 6 M50 58 L38 6 M32 12 V20 M32 30 V38 M32 48 V56"/></svg><h3>Test on fresh roads</h3><p>Preregister roads and seeds. Report refusals and failures as well as gains; keep historical outputs frozen.</p></div>
+        <div class="reveal"><svg viewBox="0 0 64 64"><path d="M20 58 V34 C20 22, 32 18, 32 6 M44 58 V34 C44 26, 52 22, 56 18 M50 14 L58 14 L58 22"/></svg><h3>Bubb could not run</h3><p>Preparation failed because boundary routing is unsupported. This is a capability gap, not a successful test.</p></div>
+        <div class="reveal d1"><svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="24"/><path d="M32 18 V34 L44 42 M26 4 H38"/></svg><h3>Stelling abstained</h3><p>Occupancy mismatch and shared-turn ambiguity blocked search. Model-based (TPE) and random search both ran zero optimization trials.</p></div>
+        <div class="reveal d2"><svg viewBox="0 0 64 64"><path d="M14 58 L26 6 M50 58 L38 6 M32 12 V20 M32 30 V38 M32 48 V56"/></svg><h3>Rollback missed harm</h3><p>Fresh controls missed harmful changes. The rule remains experimental, not a safety mechanism.</p></div>
         <div class="reveal d3"><svg viewBox="0 0 64 64"><rect x="8" y="10" width="48" height="44" rx="6"/><path d="M8 22 H56 M18 34 H30 M18 44 H40"/></svg><h3>Use real city data</h3><p>With permission, validate representative days and compare against actual city timing with an engineer.</p></div>
       </div>
     </div>
   </div>
-  <aside class="notes">The next work addresses the failures we just showed. Current hardening screens copy fit and refuses ambiguous shared-lane recommendations rather than pretending counts reveal an exact split. Those are engineering screening rules, not field-calibrated thresholds. They need separate validation and were not used to produce the historical Wolfe result. We also need broader tests of normal traffic and rollback behavior. A fresh-road study should be preregistered and report refusals and failures. Real city data and comparison against actual timing require an engineer and permission. Our team's roles and remaining human rehearsal are tracked in SPEC.md; a student must personally practice this talk.</aside>
+  <aside class="notes">We repaired software checks and ran fresh checks, separately from the original study. The protocol and code hashes were frozen locally before execution; this was not public or independent preregistration. Bubb preparation failed because the current routing cannot support its boundary geometry. On Stelling, poor occupancy fit and ambiguous shared-lane turns made the learner abstain before optimization. Both the model-based search, called TPE, and random search ran zero optimization trials, so there is no optimizer comparison or new traffic benefit to report. Fresh rollback controls have already missed deliberately harmful changes. The rule is experimental and must not be treated as a safety mechanism. All fixed-profile outcomes are recorded in SPEC.md and the evidence archive; no thresholds were tuned afterward. These new checks do not change the historical Wolfe and De Anza results. Real city data and comparison against actual timing still need an engineer and permission. Team roles and remaining human rehearsal are in SPEC.md; a student must personally practice the talk.</aside>
 </section>
 
 <!-- === 16. CLOSE === -->

@@ -1,0 +1,159 @@
+{
+  "label": "FRESH SYNTHETIC VALIDATION",
+  "roads": {
+    "validation_bubb": {
+      "role": "heldout",
+      "street": "Bubb Road",
+      "search": [
+        -122.056,
+        37.3,
+        -122.049,
+        37.317
+      ],
+      "signals": {
+        "North signal": [
+          "65566258"
+        ],
+        "South signal": [
+          "65645389"
+        ]
+      }
+    },
+    "validation_stelling": {
+      "role": "heldout",
+      "street": "South Stelling Road",
+      "search": [
+        -122.043,
+        37.3,
+        -122.039,
+        37.318
+      ],
+      "signals": {
+        "North signal": [
+          "13044640725",
+          "13044640726"
+        ],
+        "South signal": [
+          "65566742"
+        ]
+      }
+    }
+  },
+  "world_seeds": {
+    "validation_bubb": 31010,
+    "validation_stelling": 31011
+  },
+  "source_sha256": {
+    "src/learner/__init__.py": "131c893a99cf29e250ad4c58bf0d0f992e0496d505ffe40f9bb097636712589a",
+    "src/learner/card.py": "8a286acbb4f33943e21c9da986ab46538ea2f54080ad02a3d70993abae7c775f",
+    "src/learner/check.py": "2a77d0d399390fc0bcba734a4a669e67190da48d3deaec6d6047291a96eec00d",
+    "src/learner/learn.py": "dc90915eb51f5da2ea5597b585d1a74d1f75048354e945db4ae8ca95ecca008f",
+    "src/learner/practice.py": "f073e65f4fd81f7b64d81e69656ecafad6422218ef4df07fc7e705d62aa12fb1",
+    "src/learner/road.py": "3cc6606067e67beb0447ee4f0c5e9962e5bf0e080cba5163d66526d341e18f06",
+    "src/signal_lab/__init__.py": "3b161a45b79d5ea895db69b27c8a14870932c41562d235cd9de930ed2ae03d0f",
+    "src/signal_lab/__main__.py": "09aaa5eb7ec71476ae75168ca3aeb878c386da2aef297a5be84afd2c760226a5",
+    "src/signal_lab/advisor.py": "d5c5e075bc0a7d4c9559f00daf31d96472d07452251bb69307d82649e9d73f52",
+    "src/signal_lab/baseline.py": "e794ca9b3199d660cc5fcc17108906cab641d23a89aac1db96d439c20dc558fb",
+    "src/signal_lab/closed_loop.py": "dbac089268cc7db8698679579dd94a4e28d64307bcb4f8f65ddbb0ded34f59c4",
+    "src/signal_lab/dashboard.py": "e11fd59ac9b26fae5abb675f8750fb5dc774e3dd321220f737b2eeb162ecd4ee",
+    "src/signal_lab/demand.py": "eb547d985e2eb145e3070daa29fc77e3091aafb4765f2933ef3037a5b323648e",
+    "src/signal_lab/evaluate.py": "6b1f98c664651fc83cf78aa393a3c9b0d0ee1e745247925669ad839d4ea8dbb9",
+    "src/signal_lab/feed.py": "0de8aa655b177d3a1554de0abbf602fd72ad041e0bb9d67642b8aa0f554bf2dc",
+    "src/signal_lab/optimize.py": "eb9a5774cf07b6b821475aca71062c3e2c2f5538fa018a8bca4c9e4eb69eb668",
+    "src/signal_lab/pipeline.py": "0757e2d016b8566152773a756cd36292a40c1cd359d2d8807ab9118ac17c4bfc",
+    "src/signal_lab/vta_compare.py": "3eff346bd4c4eb0238f7e32c394a5fa3fd763a3bfb34aadb8e9137d3d8c17a5c",
+    "src/signal_lab/vta_probe.py": "6202131bcbe5f452fdd8f9b38de2a3e208b9921623362b97fe3211d3dbe3eb48",
+    "src/signal_lab/vta_timing.py": "a0a3bc84a783c86df556e1b61debaae3cd2414088fb989db26954381b305558e",
+    "src/world/__init__.py": "2fec01f968bd725ee1716f6b14e3031783e81544849b7f3cb6e08798af09c1d5",
+    "src/world/roads.py": "394fee0c1bc48577b7872d19a7bf54fe20962f98702604d390d2a53acbb13e9a",
+    "src/world/trial.py": "72472fdaddcdb7a3707d608e20dd3a518be3fe80dc343f5e398b7adadabb6b95",
+    "src/world/worlds.py": "0175be4f60cadc11f564643387c96144c66757a6461c53bb876c90374821d68f",
+    "tools/validate_learner.py": "218c3add44df637512e865417b8dceaec14e390d33571e012dd13b78832aab43"
+  },
+  "input_sha256": {},
+  "trials_per_sampler": 150,
+  "samplers": {
+    "tpe": "TPESampler(seed=0)",
+    "random": "RandomSampler(seed=0)"
+  },
+  "watch_profiles": [
+    5000,
+    5001,
+    5002,
+    5003,
+    5004,
+    5005,
+    5006,
+    5007,
+    5008,
+    5009
+  ],
+  "watch_driver_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009
+  ],
+  "test_profiles": [
+    6000,
+    6001,
+    6002
+  ],
+  "test_driver_seeds": [
+    7000,
+    7001,
+    7002,
+    7003,
+    7004,
+    7005,
+    7006,
+    7007,
+    7008,
+    7009
+  ],
+  "search_seeds": [
+    0,
+    1,
+    2
+  ],
+  "confirm_seeds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "screening_limits": {
+    "geh_under_5_share": 0.85,
+    "count_error_share": 0.15,
+    "occupancy_mean_abs_diff": 10.0,
+    "shared_turn_max_share": 0.2,
+    "watched_days": 3
+  },
+  "max_parallel_sims": 3,
+  "child_nice": 15,
+  "metrics": {
+    "primary_900_s": "all_requested_delay_s",
+    "sensitivity_0_s": "all_requested_delay_0_s",
+    "sensitivity_1800_s": "all_requested_delay_1800_s",
+    "individual_origins": "origin_delay_s"
+  },
+  "rollback_criteria": {
+    "bad_min": 0.8,
+    "noop_max": 0.2,
+    "rule_delay_must_improve_bad": true
+  },
+  "limits": "Two fresh OSM geometries; synthetic per-origin factors, three fixed evaluation profiles. Descriptive paired means only; no city or field improvement claim. Mean +/- watched count SD copies are stress cases, not confidence intervals.",
+  "preparation_only": true
+}

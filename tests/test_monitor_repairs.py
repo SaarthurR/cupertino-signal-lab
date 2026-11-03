@@ -149,6 +149,8 @@ class CardForecastRepairs(unittest.TestCase):
         self.assertIn('100 s -> 100 s', markdown)
         self.assertIn('Rejected candidate in the copy', markdown)
         self.assertIn('100 s -> 85 s', markdown)
+        self.assertIn('can miss harmful changes or undo harmless ones', result['limits'])
+        self.assertIn('not a safety mechanism or a live controller', markdown)
 
     def test_clear_gain_retains_selected_forecast(self):
         result, _, _ = self.recommend(self.result(clear_gain=True))

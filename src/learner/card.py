@@ -144,8 +144,9 @@ def recommend(name):
                         change_range_s=[0., 0.], change_share=0., p_value=None)
     card = dict(road=name, label=LABEL, decision='change' if change else 'no change', why=why(result),
                 expected_in_copy=expected, rejected_candidate_in_copy=rejected, limits='Phase order, clearances and minimum greens are unchanged. '
-                'Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check '
-                'rule goes back to old timing if the feed shows traffic clearly worse.', signals=signals)
+                'Changes are bounded max greens, cycle and offsets. An engineer approves or rejects. '
+                'The experimental rollback rule can miss harmful changes or undo harmless ones; '
+                'it is not a safety mechanism or a live controller.', signals=signals)
     (out/'card.json').write_text(json.dumps(card, indent=2)+'\n')
     forecast = expected.get('reason')
     if expected['available']:

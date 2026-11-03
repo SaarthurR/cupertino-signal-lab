@@ -10,7 +10,7 @@ Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginn
 
 ## Present and rehearse
 
-The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 16 slides. Slides 1–2 introduce Stevens Creek; 3–8 explain the working system; 9 plays one saved synthetic Wolfe run; 10–12 show historical evidence; 13 consolidates trade-offs; 14–16 cover planned validation and the engineer ask. A human student must personally rehearse and verify media on the presentation laptop. Team roles and pending work belong in [SPEC.md](../SPEC.md).
+The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 16 slides. Slides 1–2 introduce Stevens Creek; 3–8 explain the working system; 9 plays one saved synthetic Wolfe run; 10–12 show historical evidence; 13 consolidates trade-offs; 14–16 cover current validation limits and the engineer ask. A human student must personally rehearse and verify media on the presentation laptop. Team roles and pending work belong in [SPEC.md](../SPEC.md).
 
 The server also prints engineer-card URLs. Wolfe's archived card predicts 137.6 → 79.6 in the practice copy; the historical hidden-world result is separately 870.49 → 643.11. De Anza keeps old timing. Its archived reason says “no clear gain,” but the candidate actually failed the teleport constraint; its forecast describes that rejected candidate. Preserve these historical artifacts. Current screening changes do not validate or replace them.
 
