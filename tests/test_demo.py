@@ -1,0 +1,105 @@
+from contextlib import redirect_stderr, redirect_stdout
+import io
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import threading
+import unittest
+from unittest import mock
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
+
+from tools import demo
+
+
+class DemoTests(unittest.TestCase):
+    def test_cancelled_transfers_are_logged_and_other_io_errors_propagate(self):
+        handler = demo.Handler.__new__(demo.Handler)
+        for error in (BrokenPipeError, ConnectionResetError):
+            output = mock.Mock()
+            output.write.side_effect = error('client left')
+            with mock.patch.object(handler, 'log_message') as log:
+                handler.copyfile(io.BytesIO(b'video'), output)
+                log.assert_called_once_with('Client disconnected during transfer')
+        output.write.side_effect = OSError('disk error')
+        with self.assertRaisesRegex(OSError, 'disk error'):
+            handler.copyfile(io.BytesIO(b'video'), output)
+
+    def test_only_allowlisted_assets_are_copied_and_missing_files_fail_before_copy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, dest = Path(temp)/'source', Path(temp)/'demo'
+            root.mkdir()
+            (root/'deck.html').write_text('slides')
+            (root/'.env').write_text('private')
+            with mock.patch.object(demo, 'ROOT', root), \
+                    mock.patch.object(demo, 'ASSETS', {'index.html': Path('deck.html')}):
+                demo.prepare(dest)
+                self.assertEqual([p.name for p in dest.iterdir()], ['index.html'])
+                self.assertEqual((dest/'index.html').read_text(), 'slides')
+            with mock.patch.object(demo, 'ROOT', root), \
+                    mock.patch.object(demo, 'ASSETS', {'index.html': Path('deck.html'), 'missing': Path('missing')}):
+                with self.assertRaisesRegex(FileNotFoundError, 'Missing or unsafe demo asset'):
+                    demo.prepare(Path(temp)/'unused')
+                self.assertFalse((Path(temp)/'unused').exists())
+            (root/'outside').symlink_to(dest/'index.html')
+            with mock.patch.object(demo, 'ROOT', root), \
+                    mock.patch.object(demo, 'ASSETS', {'index.html': Path('outside')}):
+                with self.assertRaises(FileNotFoundError):
+                    demo.prepare(Path(temp)/'unused')
+
+    def test_real_assets_http_head_and_denied_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            demo.prepare(temp)
+            with demo.server(temp) as httpd:
+                worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+                worker.start()
+                url = f'http://127.0.0.1:{httpd.server_port}'
+                try:
+                    self.assertEqual(httpd.server_address[0], '127.0.0.1')
+                    for path in ('/', '/signal-learner.pdf', '/wolfe_side_by_side.mp4',
+                                 '/wolfe_side_by_side_poster.png', '/cards/wolfe.md',
+                                 '/cards/deanza.md', '/runbook.txt'):
+                        with urlopen(url+path) as response:
+                            self.assertEqual(response.status, 200)
+                            self.assertTrue(response.read())
+                    with urlopen(Request(url+'/cards/wolfe.md', method='HEAD')) as response:
+                        self.assertEqual(response.read(), b'')
+                        self.assertIn('text/plain', response.headers['Content-Type'])
+                    for path in ('/.git/config', '/data/', '/cards/', '/../README.md', '/%2e%2e/README.md'):
+                        with self.assertRaises(HTTPError) as caught:
+                            urlopen(url+path)
+                        self.assertEqual(caught.exception.code, 404)
+                        caught.exception.close()
+                    with self.assertRaises(HTTPError) as caught:
+                        urlopen(Request(url+'/', data=b'no writes'))
+                    self.assertEqual(caught.exception.code, 501)
+                    caught.exception.close()
+                finally:
+                    httpd.shutdown()
+                    worker.join()
+
+    def test_cli_rejects_invalid_ports_and_missing_assets(self):
+        for value in ('-1', '65536', 'not-a-port'):
+            result = subprocess.run([sys.executable, '-m', 'tools.demo', '--port', value],
+                                    cwd=demo.ROOT, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('error:', result.stderr)
+        with mock.patch.object(sys, 'argv', ['demo']), mock.patch.object(demo, 'ASSETS', {'bad': Path('absent')}), \
+                mock.patch.object(demo, 'server') as server, redirect_stdout(io.StringIO()), \
+                redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as caught:
+                demo.main()
+            self.assertEqual(caught.exception.code, 1)
+            server.assert_not_called()
+
+    def test_occupied_port_fails_clearly(self):
+        with tempfile.TemporaryDirectory() as temp, demo.server(temp) as httpd:
+            result = subprocess.run([sys.executable, '-m', 'tools.demo', '--port', str(httpd.server_port)],
+                                    cwd=demo.ROOT, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn('Demo could not start:', result.stderr)
+
+
+if __name__ == '__main__':
+    unittest.main()

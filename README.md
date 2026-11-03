@@ -3,8 +3,10 @@
 **Monta Vista AI Club hackathon project.** The hackathon runs for one week, starts about Nov 16, 2026, and ends Mon Nov 23, 2026.
 The club leads said pre-built code is allowed.
 
-If you are new, read this page, then click through the [slides](dashboard/signal-learner/index.html).
-Download or clone the repo to open them. Press N in the slides for speaker notes.
+If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
+Open the printed Slides URL. The launcher uses only Python's standard library and runs no simulations.
+It also prints links to the PDF, video and the two synthetic-road engineer cards. Press N in the slides for speaker notes.
+Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Sprint scope: [SPEC.md](SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](docs/WHAT-WE-BUILT.md).
 
 **This repo is private. Do not share its data, numbers or slides outside the team.** VTA gave us traffic counts,
@@ -130,10 +132,14 @@ uv pip install -e .
 export PYTHONPATH=src
 
 python -m unittest discover -s tests            # about 1 minute
+python -m tools.learner build-world --road homestead  # required: generated world routes are excluded from Git
 python -m tools.learner run --road homestead    # all steps on one practice road, about 15 minutes
 ```
 
 Results go to `reports/learner/<road>/`. Start with `card.md`, the engineer's card.
+The two Homestead commands replace its development outputs; use your own checkout or a disposable copy
+to preserve a teammate's results. They are separate from `python -m tools.demo`, which only presents saved files.
+Keep the completed held-out test unchanged; it is not a setup step.
 
 ## Where things are
 
