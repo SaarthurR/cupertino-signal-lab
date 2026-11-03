@@ -171,17 +171,18 @@ def waut(cfg, path, switches):
     return path
 
 
-def check_run(name, plan, program, seed, change_s=d.seconds('17:00')):
+def check_run(name, plan, program, seed, change_s=d.seconds('17:00'), demand=None):
     """Old timing until the approved change, then the change; the learner's rule reads the feed and may go back."""
     cfg = road.load(name)
     old = road.file(cfg, 'old_timing')
+    demand = routes(name) if demand is None else demand
     with tempfile.TemporaryDirectory() as temp:
-        held, (rows, _) = road.simulate(cfg, routes(name), old, seed, True,
+        held, (rows, _) = road.simulate(cfg, demand, old, seed, True,
                                         [plan, waut(cfg, Path(temp)/'held.xml', [(change_s, program)])])
         decision = check.decide(name, rows, change_s)
         ruled = held
         if decision['go_back']:
-            ruled, _ = road.simulate(cfg, routes(name), old, seed, False, [plan, waut(
+            ruled, _ = road.simulate(cfg, demand, old, seed, False, [plan, waut(
                 cfg, Path(temp)/'back.xml', [(change_s, program), (decision['time_s'], 'actuated')])])
     pick = lambda s: {k: s[k] for k in ('all_requested_delay_s', 'unfinished', 'teleports', 'worst_origin_delay_s')}
     return dict(road=name, program=program, seed=seed, change_s=change_s, **decision,
@@ -189,28 +190,34 @@ def check_run(name, plan, program, seed, change_s=d.seconds('17:00')):
 
 
 def truth_fit(name):
-    """Copy demand against hidden demand: 15-minute requested trips per signal turn. For us, never the learner."""
+    """Copy demand against hidden demand: count vehicles and signal-turn passages separately."""
     cfg = road.load(name)
     begin, end = road.window(cfg)
     pairs = {(i, o) for i, outs in road.relations(cfg, road.net(cfg)).items() for o in outs}
 
     def turns(path):
         counts = Counter()
+        vehicles = 0
         for vehicle in ET.parse(path).getroot().iter('vehicle'):
             depart = float(vehicle.get('depart'))
             if begin <= depart < end:
+                vehicles += 1
                 edges = vehicle.find('route').get('edges').split()
                 counts.update((int(depart)//900*900, a, b) for a, b in zip(edges, edges[1:]) if (a, b) in pairs)
-        return counts
-    truth, learned = turns(routes(name)), turns(road.OUT/name/'copy.rou.xml')
+        return counts, vehicles
+    (truth, truth_vehicles), (learned, copy_vehicles) = turns(routes(name)), turns(road.OUT/name/'copy.rou.xml')
     rows = [dict(quarter_start_s=t, from_edge=a, to_edge=b, truth=truth[t, a, b], copy=learned[t, a, b],
                  geh=round(d.geh(truth[t, a, b], learned[t, a, b]), 3))
             for t, a, b in sorted(set(truth) | set(learned))]
+    total = sum(truth.values())
+    if not rows or total <= 0:
+        raise ValueError('No signal-turn passages in the evaluation cohort')
     (TRUTH/name).mkdir(parents=True, exist_ok=True)
     p.write_csv(TRUTH/name/'copy_vs_truth.csv', rows)
     summary = dict(road=name, turn_quarters=len(rows), geh_under_5_share=sum(r['geh'] < 5 for r in rows)/len(rows),
-                   truth_trips=sum(r['truth'] for r in rows), copy_trips=sum(r['copy'] for r in rows),
-                   abs_error_share=sum(abs(r['truth']-r['copy']) for r in rows)/sum(r['truth'] for r in rows))
+                   truth_turn_passages=total, copy_turn_passages=sum(learned.values()),
+                   truth_unique_trips=truth_vehicles, copy_unique_trips=copy_vehicles,
+                   abs_error_share=sum(abs(r['truth']-r['copy']) for r in rows)/total)
     (TRUTH/name/'copy_vs_truth.json').write_text(json.dumps(summary, indent=2)+'\n')
     return summary
 

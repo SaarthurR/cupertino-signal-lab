@@ -6,7 +6,7 @@ The club leads said pre-built code is allowed.
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
 Open the printed Slides URL. The launcher uses only Python's standard library and runs no simulations.
 It also prints links to the PDF, video and the two synthetic-road engineer cards. Press N in the slides for speaker notes.
-Start with the [judge-facing story and project map](docs/PITCH.md).
+Start with the [revised slide deck](dashboard/signal-learner/index.html). The [team plan](SPEC.md) tracks repairs and evidence still needed.
 Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Team plan: [SPEC.md](SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](docs/WHAT-WE-BUILT.md).
 
@@ -18,7 +18,7 @@ Vistro data in our hackathon presentation. Every slide or page that shows them m
 Traffic changes, but most traffic lights run timing plans that stay the same until someone retimes them.
 Smart systems that change timing on the go exist, but few lights have them, because they cost money and take time to set up.
 
-Signal Learner is a cheap first step. Point it at a new road and it:
+Signal Learner is an inspectable simulation workflow. On a configured road, it:
 
 1. **Maps** the road from a public map.
 2. **Watches** the road sensors while the old timing keeps running.
@@ -45,11 +45,11 @@ Everything so far runs in a computer simulation (SUMO, a free traffic simulator)
 
 Every results screen says "simulated". Any VTA number credits VTA. Full rules: [docs/LEARNER-SPEC.md](docs/LEARNER-SPEC.md).
 
-## Where it stands (Nov 1, 2026)
+## Original study (Nov 1, 2026)
 
 | Part | Status |
 |---|---|
-| Learner software, all six steps | Built, 103 tests pass |
+| Original learner software, all six steps | Built; original test results preserved |
 | Independent code review before the test | Passed |
 | One-time test on two unseen roads | Done |
 | Slides (16), PDF, Wolfe Rd video | Done, every number checked against the results |
@@ -80,7 +80,7 @@ Say these before someone else finds them.
 - "Old timing" is a stand-in we built from out-of-date traffic. It is not Cupertino's timing.
 - It watched only 3 simulated evening rush hours.
 - On Wolfe Rd, one group of drivers got about 203 s worse.
-- The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer trips. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
+- The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer signal-turn passages (a vehicle may cross several signals); this is not a unique-trip count. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
 - The undo check failed its test on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two unseen roads is a small test.
 
@@ -103,7 +103,7 @@ Saarth holds these email threads. Send any new question through Saarth, so the c
 
 `dashboard/deck.html` and `dashboard/index.html` are the **old** project. Use `dashboard/signal-learner/`.
 
-## What is left
+## Further validation
 
 | Job | Notes |
 |---|---|
@@ -115,7 +115,11 @@ Saarth holds these email threads. Send any new question through Saarth, so the c
 
 **Open questions:** how do judges score projects? Can we show VTA's numbers? Slide 12 uses them for Stevens Creek. If there is no OK by the presentation, remove that row.
 
-Nobody has an assigned job yet. Agree on this as a team.
+The current repair checklist and proposed team handoff are in [SPEC.md](SPEC.md).
+
+## Current screening
+
+Future development runs require complete observations, adequate copy fit and bounded shared-lane uncertainty. Failed screening returns no change with no forecast. Passing candidates must also pass individual-origin, unfinished-trip and penalty-sensitivity checks, plus low/high observed-count stress copies. These are conservative development checks, not field calibration or a revalidation of the historical 26% result. Monitoring now handles missing/invalid windows and zero counts explicitly. See [SPEC.md](SPEC.md) for evidence and remaining blockers.
 
 ## Test rules that protect the results
 
