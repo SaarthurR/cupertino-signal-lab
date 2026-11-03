@@ -2,10 +2,10 @@
 
 ## The idea
 
-Most signals run plans that stay the same until someone retimes them. Adaptive systems exist (SCOOT, SCATS,
-InSync, Surtrac, SynchroGreen) but reach few signals. Setting one up takes sensors, money and weeks of work.
+Signal timing is one possible contributor to congestion. Existing adaptive and engineer-assistance systems
+already address parts of this problem. This project has not established a cost or performance advantage over them.
 
-Signal Learner is the cheap first step. Point it at a new road and it:
+Signal Learner is an inspectable simulation workflow. On a manually configured road it:
 
 1. **Onboards** the road from the public map, with the road's old timing left running.
 2. **Watches** a few days of the detector feed (`docs/FEED.md`). It changes nothing.
@@ -37,8 +37,7 @@ with the same minimums as the existing plans. The change must be readable by an 
 ## May claim, must not claim
 
 May claim: in simulation, on labeled roads, a plan learned only from the feed did or did not beat stale timing.
-May say "learned the traffic pattern" and "model-based search" (Optuna's TPE). May explain why a neural net was
-not the first choice: RL needs hundreds of simulated runs, and we found no live signal using it.
+May say "estimated a traffic pattern" and "model-based search" (Optuna's TPE). This workflow does not train a neural network.
 
 Must not claim: live cameras, live control, street safety, calibrated traffic, neural networks, emissions savings,
 "works on any intersection" beyond the roads tested, or any comparison with Cupertino's real timing.
@@ -55,4 +54,15 @@ Open with the city: which system runs these signals, whether adaptive timing is 
 ## Stop rule
 
 Results are reported as they come, wins and losses alike. No re-tuning on test seeds or held-out roads. If the
-learner does not beat stale timing, the demo says so and shows the current advisor as the working fallback.
+learner does not pass its checks, the card keeps old timing and says why. The older advisor is not a validated fallback.
+
+## Development repairs, separate from the original study
+
+The historical test above used the rules in `PREREGISTRATION-LEARNER.md`; its artifacts remain unchanged.
+New runs screen full five-minute input coverage, copy count/occupancy fit and shared-lane turn bounds before
+searching. Missing information produces no change and no forecast. Screening thresholds and all unresolved
+field limits are recorded in [the experimental evidence](../reports/repair_validation/README.md); the exact
+screening thresholds are in [the frozen protocol](../reports/repair_validation/protocol.json). These are not a claim of calibration. Confirmation checks
+individual origins, unfinished trips and penalty sensitivity, with additional low/high observed-count stress
+copies. Those copies do not represent every possible demand pattern. New independent synthetic checks have
+their own protocol and are never mixed with the original 26% result.

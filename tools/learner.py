@@ -13,13 +13,20 @@ STEPS = ('build-road', 'build-world', 'watch', 'learn', 'practice', 'recommend',
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('step', choices=STEPS)
-    parser.add_argument('--road')
+    names = sorted(set(roads.SPECS) | {p.parent.name for p in roads.ROADS.glob('*/road.yaml')})
+    parser.add_argument('--road', choices=names)
     parser.add_argument('--seed', type=int, default=300)
     parser.add_argument('--plan', choices=('learner', 'bad', 'noop'), default='learner')
     args = parser.parse_args()
     name = args.road
-    if args.step in ('watch', 'learn', 'practice', 'recommend', 'check') and road.load(name)['role'] == 'heldout':
-        raise SystemExit(f'{name} is held out; only heldout-test may run the learner on it')
+    if args.step != 'heldout-test' and name is None:
+        parser.error('--road is required for this step')
+    if args.step == 'heldout-test' and name is not None:
+        parser.error('heldout-test has fixed roads; do not supply --road')
+    if args.seed < 0:
+        parser.error('--seed must be nonnegative')
+    if name and (roads.ROADS/name/'road.yaml').exists() and road.load(name)['role'] == 'heldout':
+        parser.error(f'{name} is held out; use only its separately registered evaluation, never standalone mutation')
     if args.step == 'build-road':
         roads.stevens_creek() if name == 'stevens_creek' else roads.build_road(name)
     elif args.step == 'build-world':

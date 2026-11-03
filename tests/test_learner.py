@@ -55,7 +55,7 @@ class GuardTests(unittest.TestCase):
                 RECORDING.append(True)
                 try:
                     learn.learn(name)
-                    practice.practice(name, trials=1, search_seeds=range(1), confirm_seeds=range(1))
+                    practice.practice(name, trials=1, search_seeds=range(1), confirm_seeds=range(10, 11))
                     card.recommend(name)
                     check.decide(name, learn.read(name, 'feed')[0], 0)
                 finally:

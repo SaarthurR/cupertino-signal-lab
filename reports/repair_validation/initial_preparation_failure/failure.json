@@ -1,0 +1,5 @@
+{
+  "error_type": "ValueError",
+  "error": "No boundary-to-boundary route covers 8949631#0 \u2192 1004594480#0",
+  "wall_s": 23.52829774998827
+}

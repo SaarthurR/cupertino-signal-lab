@@ -155,19 +155,27 @@ def facts():
         add(name, 'go_back_seeds', seeds[1], 'seeds', label, src)
         fit = r['copy_vs_truth']
         add(name, 'copy_turn_geh_under_5', fit['geh_under_5_share'], 'share of 15-min turn counts', label, src)
-        add(name, 'copy_turn_abs_error', fit['abs_error_share'], 'share of true turn trips', label, src)
-        add(name, 'copy_trips_vs_truth', fit['copy_trips']/fit['truth_trips']-1, 'share', label, src,
-            f"{fit['copy_trips']} copy vs {fit['truth_trips']} true turn trips")
+        add(name, 'copy_turn_abs_error', fit['abs_error_share'], 'share of true turn passages', label, src)
+        truth_passages = fit['truth_turn_passages'] if 'truth_turn_passages' in fit else fit['truth_trips']
+        copy_passages = fit['copy_turn_passages'] if 'copy_turn_passages' in fit else fit['copy_trips']
+        add(name, 'copy_turn_passages_vs_truth', copy_passages/truth_passages-1, 'share', label, src,
+            f"{copy_passages} copy vs {truth_passages} true signal-turn passages; not unique vehicles")
         practice = road.OUT/name/'practice.json'
         pr = json.loads(practice.read_text())
-        add(name, 'copy_old_delay', statistics.mean(s['all_requested_delay_s'] for s in pr['confirm_old']),
-            's per requested trip, in the copy', 'simulated, copy learned from feed', practice)
-        add(name, 'predicted_change', -pr['confirm_gain'], 'share of copy old delay', 'simulated, copy learned from feed',
-            practice, 'copy seeds 10-19')
+        available = bool(pr['confirm_old']) and pr.get('quality_gate', {}).get('passed', True)
+        add(name, 'copy_forecast_available', available, 'boolean', 'simulated, copy learned from feed', practice)
+        if available:
+            add(name, 'copy_old_delay', statistics.mean(s['all_requested_delay_s'] for s in pr['confirm_old']),
+                's per requested trip, in the copy', 'simulated, copy learned from feed', practice)
+            add(name, 'predicted_change', -pr['confirm_gain'] if pr['clear_gain'] else 0.,
+                'share of copy old delay', 'simulated, selected plan', practice, 'selected settings; zero for no change')
+            if not pr['clear_gain'] and pr['best_trial'] > 0:
+                add(name, 'rejected_candidate_predicted_change', -pr['confirm_gain'], 'share of copy old delay',
+                    'simulated, rejected candidate; not the recommendation', practice)
         if pr['clear_gain']:
             add(name, 'actual_change', arms['learner']['all_requested_delay_s']['diff_mean']/old, 'share of old delay',
                 label, src)
-        add(name, 'copy_seeds', dict(search=pr['search_seeds'], confirm=pr['confirm_seeds']), 'seeds',
+        add(name, 'copy_seeds', dict(search=pr.get('search_seeds', []), confirm=pr.get('confirm_seeds', [])), 'seeds',
             'simulated, copy learned from feed', practice)
         timing = road.OUT/name/'timing.json'
         if timing.exists():

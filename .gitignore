@@ -19,5 +19,6 @@ reports/advisor_loop/
 # Learner: regenerable route files (world.json keeps the hidden routes hash)
 worlds/*/routes.rou.xml
 reports/learner/*/copy.rou.xml
+reports/learner/*/copy_*.rou.xml
 roads/wolfe/old_timing.add.xml
 roads/deanza/old_timing.add.xml
