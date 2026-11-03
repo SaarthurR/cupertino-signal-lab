@@ -1,6 +1,6 @@
 # Signal Learner: team demo runbook
 
-Team-only. The existing slides and PDF include VTA-derived results. Public-use permission is pending; do not publish or show this version outside the team without resolving that permission. This launcher does not make a public-safe edition.
+The slides and PDF include VTA-derived results. On Nov 2, VTA allowed their use in the hackathon presentation with the citation *VTA, 2024 CMP Monitoring and Conformance Report*. The repo itself stays private; keep the raw data inside the team.
 
 ## Start without installing simulation packages
 
@@ -16,7 +16,7 @@ Use Left/Right to change slides, N for speaker notes, Home/End for the beginning
 4. **Inspect the decision — open the printed engineer-card URLs.** Wolfe's card shows the proposed cycle, offsets and green changes. Its copy forecast (138 to 80) is different from the held-out world result (870 to 643). De Anza's archived card has an outdated reason: it says “no clear gain,” but the copy predicted an 11.2% gain and the plan failed the teleport feasibility limit. Its displayed forecast belongs to the rejected candidate; the actual recommendation keeps old settings. Preserve the card as evidence. A later diagnostic on new seeds found the rejected plan was 6.4% worse in the hidden world; that is post-hoc evidence, not part of the original test.
 5. **Limits and next work — slides 13–16.** Wolfe improved overall but one origin group's delay worsened by about 203 seconds. The copy underestimated Wolfe's trips and misread a shared lane on De Anza. The undo rule falsely triggered on 4 of 10 harmless-change De Anza runs. Two held-out roads is a small test. Close with the planned shared-lane fix, better normal-traffic coverage, and preregistered fresh-road testing.
 
-Slide 12 is the cross-road table containing VTA-derived numbers. Keep that data-use restriction in mind when preparing any future public version; removing one slide alone does not establish that the PDF and other assets are cleared.
+Slide 12 is the cross-road table containing VTA-derived numbers. It carries the required citation: VTA, 2024 CMP Monitoring and Conformance Report.
 
 ## Development, separate from presenting
 
@@ -37,6 +37,6 @@ Do not run, delete or reset `reports/learner_heldout/`. Do not tune on Wolfe/De 
 |---|---|
 | Advaita | Clean-clone instructions, local launcher, operator walkthrough and verification |
 | Saarth | Shared-lane reconstruction and copy-quality gate |
-| Third teammate | Undo-rule experiments and preregistered fresh-road evaluation |
+| Prithvi | Undo-rule experiments and preregistered fresh-road evaluation |
 
-Agree on names and judging requirements as a team. The README's event dates and pre-built-code allowance are team notes, not independently confirmed organizer rules. City-data arrival and public-use permission are not prerequisites for this private simulated demo, but neither can be claimed as completed.
+Agree on names and judging requirements as a team. The README's event dates and pre-built-code allowance are team notes, not independently confirmed organizer rules. City data has not arrived and cannot be claimed. VTA permission covers the hackathon presentation, with the citation above.

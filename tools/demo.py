@@ -55,7 +55,7 @@ def main():
             prepare(folder)
             with server(folder, args.port) as httpd:
                 url = f'http://127.0.0.1:{httpd.server_port}'
-                print('TEAM-ONLY preview. VTA public-use permission is pending. Simulation only.', flush=True)
+                print('Simulation only. VTA data: cite "VTA, 2024 CMP Monitoring and Conformance Report".', flush=True)
                 print(f'Slides: {url}/\nVideo: {url}/wolfe_side_by_side.mp4\nPDF: {url}/signal-learner.pdf', flush=True)
                 print(f'Engineer cards: {url}/cards/wolfe.md  {url}/cards/deanza.md', flush=True)
                 print(f'Runbook: {url}/runbook.txt\nArrows: slides. N: notes. Ctrl-C: stop.', flush=True)

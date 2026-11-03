@@ -9,8 +9,8 @@ It also prints links to the PDF, video and the two synthetic-road engineer cards
 Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Sprint scope: [SPEC.md](SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](docs/WHAT-WE-BUILT.md).
 
-**This repo is private. Do not share its data, numbers or slides outside the team.** VTA gave us traffic counts,
-and VTA has not said yet whether we can show them publicly.
+**This repo is private. Keep the code and data inside the team.** VTA said on Nov 2 that we may use its counts and
+Vistro data in our hackathon presentation. Every slide or page that shows them must cite: *VTA, 2024 CMP Monitoring and Conformance Report*.
 
 ## The project in one minute
 
@@ -87,7 +87,10 @@ Say these before someone else finds them.
 
 - **Oct 31:** we emailed Cupertino Traffic & Engineering asking for data. No reply yet.
 - **Nov 1:** David Stillman, Transportation Manager, answered our question: "Stevens Creek Blvd is running time of day plans."
-- **VTA** sent the 2024 counts and timing reports on Oct 29. Our Oct 30 questions, including permission to show the numbers, have no answer yet.
+- **VTA** sent the 2024 counts and timing reports on Oct 29. On Nov 2, Kia Sharifi (VTA) answered our Oct 30 questions:
+  we may use the data in the presentation with the citation *VTA, 2024 CMP Monitoring and Conformance Report*. VTA only counted sites 211 (De Anza) and
+  217 (Stelling), not the signals between them. The current timing sheets come from the City of Cupertino through its
+  public records portal, https://cityofcupertinoca.nextrequest.com/ (VTA's Vistro timing may not match the street today).
 
 Saarth holds these email threads. Send any new question through Saarth, so the city and VTA do not get mixed messages.
 
