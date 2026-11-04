@@ -16,38 +16,45 @@ Built in simulation by Saarth, Advaita and Prithvi for the Monta Vista AI Club h
 | **Result** | On a test road it had never seen (Wolfe Rd), the delay score dropped 26% and it won all 20 test runs. On a second unseen road (De Anza) it said "keep the old timing", which was the right call. |
 | **Honest limit** | Everything is simulated. A real engineer, real timing files and real streets come next. |
 
-## Game plan: do these in order
+## Game plan: read this, do these in order
 
-### Step 1 · Learn the project (20 minutes)
-Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)**. It explains traffic lights from zero, what our software does, what the numbers mean, and how to answer judges.
+### Step 1 · Everyone learns the whole project (30 minutes)
+Every one of us must be able to explain the whole project, not only our own part.
+1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
+2. Run `python3 -m tools.demo` and open the links it prints in Chrome:
+   - **Slides:** the main deck takes about 2.5 minutes. The slides after "Backup" are only for judge questions. Press **N** for speaker notes. Read every note.
+   - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Click every screen.
+   - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
+3. Click this path in the console once: **Recommendation → Approve → timing sheet → Test it → Watch → How it connects.**
+4. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
 
-### Step 2 · Open the slides and the demo
-```sh
-python3 -m tools.demo
-```
-It prints links. Open them in Chrome:
-- **Slides:** the main deck is short (about 2.5 minutes). The slides after "Backup" are only for judge questions. Press **N** for speaker notes.
-- **Engineer console:** the live demo. A clickable version of the tool a city engineer would use.
-- **PDF:** backup if the slides will not open. Files: [dashboard/signal-learner/](dashboard/signal-learner/).
+### Step 2 · Learn your own part
 
-### Step 3 · Practice the demo path (2 minutes)
-In the engineer console: **Recommendation → Approve → timing sheet → Test it → Watch**.
-"Test it" runs the real simulation live in about 20 seconds. It needs the full setup (below). Without it, the page shows the saved result instead, so the demo never breaks.
+| | **Advaita: the story** | **Saarth: the simulation and the demo** | **Prithvi: the real-world side** |
+|---|---|---|---|
+| **Presents** | The opening: problem, our user, what we built. The close and our ask. | The live demo in the engineer console. The results: Wolfe Rd and De Anza. | How it would connect to a real city. Limits and next steps. |
+| **Learns deeply** | Guide sections [1](docs/PRESENTER-GUIDE.md#1-the-problem) and [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does). The city email and the VTA data in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). | Guide sections [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does) and [4](docs/PRESENTER-GUIDE.md#4-the-results-and-what-the-numbers-mean). The results in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). How the code runs: `src/learner/`, `tools/learner.py`. | Guide sections [2](docs/PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [5](docs/PRESENTER-GUIDE.md#5-how-it-would-connect-to-a-real-city). The sourced facts in [research-hardware](docs/research-hardware.md). The "How it connects" screen in the console. |
+| **Answers judge questions on** | Why Cupertino needs this. Who the user is. What we do next. | What the AI is. Is the data real. Is the test fair. What −26% means. Could it make things worse. | What hardware is in a traffic light. How it connects. Is it safe. Don't smart systems already exist. |
+| **Also owns** | The 30-second backup recording of the demo | The presentation laptop setup and the live demo working | Club rules, time-keeping in rehearsal, the submission |
 
-### Step 4 · Prepare
+If one of us is away on the day, the other two cover their part. That is why Step 1 is for everyone.
+
+### Step 3 · Prepare
 | To do | Who | By |
 |---|---|---|
 | Ask the club leads: where to submit, deadline and time zone, pitch length, Q&A length, rubric, Wi-Fi, AI-use disclosure, private-repo access for judges | Prithvi | Nov 4 |
-| Agree on roles: who presents, who drives the demo, who keeps time and handles the backup | All 3 | Nov 5 |
-| Each of us reads the speaker notes and says them in our own words | All 3 | Nov 8 |
+| Finish Step 1 and Step 2 | All 3 | Nov 7 |
+| Rewrite your slides' speaker notes in your own words | All 3 | Nov 8 |
 | Set up the presentation laptop (below) and run the demo with Wi-Fi **off** | Saarth | Nov 10 |
 | Record a 30-second screen recording of the demo path as a backup | Advaita | Nov 12 |
+| Quiz each other on the judge questions, swapping parts | All 3 | Nov 13 |
 | Full rehearsal, timed, twice, on the real laptop | All 3 | Nov 14 |
 | Freeze the version we present; no changes after this | Saarth | Nov 15 |
 | Submit early, then check a judge can open every link | Prithvi | Nov 22 |
 
-### Step 5 · On the day
-Laptop charged, Chrome open on the slides and the console, Wi-Fi off, PDF and backup video on the desktop. Main deck, then the live demo, then questions.
+### Step 4 · On the day
+Laptop charged. Chrome open on the slides and the console. Wi-Fi off. PDF and backup video on the desktop.
+Order: Advaita opens → Saarth demos and shows results → Prithvi on connecting and limits → Advaita closes → questions.
 
 ## Setup on a new laptop
 
