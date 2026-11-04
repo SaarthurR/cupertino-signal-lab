@@ -288,7 +288,7 @@ html.render #notesPanel { display: none !important; }
 <section class="slide" aria-label="The problem">
   <div class="wrap">
     <div class="kicker">The problem</div>
-    <h2>The lights run the same schedule every day. Traffic doesn&rsquo;t stay the same.</h2>
+    <h2>The lights follow scheduled plans. Traffic keeps changing.</h2>
     <div class="body row" style="gap:72px;">
       <div class="reveal" style="width:860px;">
         <div class="card">
@@ -301,7 +301,7 @@ html.render #notesPanel { display: none !important; }
         </div>
       </div>
       <div class="reveal d1" style="flex:1;">
-        <svg class="concept" viewBox="0 0 740 520" width="740" height="520" role="img" aria-label="A timing plan repeats the same schedule each day while traffic changes">
+        <svg class="concept" viewBox="0 0 740 520" width="740" height="520" role="img" aria-label="Timing plans follow a schedule while traffic changes">
           <text x="0" y="40" class="k">Timing plan</text>
           <g transform="translate(0,70)">
             <rect x="0" y="0" width="132" height="56" rx="8" fill="#d6dbe3"/><rect x="0" y="0" width="44" height="56" rx="8" fill="#98a2b3"/><rect x="88" y="0" width="44" height="56" rx="8" fill="#98a2b3"/>
@@ -310,7 +310,7 @@ html.render #notesPanel { display: none !important; }
             <rect x="456" y="0" width="132" height="56" rx="8" fill="#d6dbe3"/><rect x="456" y="0" width="44" height="56" rx="8" fill="#98a2b3"/><rect x="544" y="0" width="44" height="56" rx="8" fill="#98a2b3"/>
             <rect x="608" y="0" width="132" height="56" rx="8" fill="#d6dbe3"/><rect x="608" y="0" width="44" height="56" rx="8" fill="#98a2b3"/><rect x="696" y="0" width="44" height="56" rx="8" fill="#98a2b3"/>
           </g>
-          <text x="0" y="172">Same schedule, day after day</text>
+          <text x="0" y="172">Plans follow a schedule</text>
           <text x="0" y="290" class="k">Traffic</text>
           <path d="M0 470 C 60 455, 90 430, 150 440 S 250 400, 300 410 S 400 360, 450 372 S 560 320, 610 330 S 700 300, 740 296" fill="none" stroke="#1f4fd6" stroke-width="7" stroke-linecap="round"/>
           <text x="740" y="270" text-anchor="end">Keeps changing</text>
@@ -318,7 +318,7 @@ html.render #notesPanel { display: none !important; }
       </div>
     </div>
   </div>
-  <aside class="notes">We asked the city. Their transportation manager wrote back that Stevens Creek runs time-of-day plans. That means the same schedule every day, until someone retimes it. The person who decides when to retime is a city traffic engineer. We built this for them.</aside>
+  <aside class="notes">We asked the city. Their transportation manager wrote back that Stevens Creek runs time-of-day plans. Those plans change by time of day. Traffic can still change from day to day. The person who decides when to retime is a city traffic engineer. We built this for them.</aside>
 </section>
 
 <!-- === 3. WHAT WE BUILT === -->
@@ -390,7 +390,7 @@ html.render #notesPanel { display: none !important; }
     <video src="wolfe_side_by_side.mp4" poster="wolfe_side_by_side_poster.png" controls muted playsinline preload="none" loop aria-label="Wolfe Rd simulation: old timing on the left, Signal Learner on the right"></video>
     <button type="button" data-video="close">Close video (Esc)</button>
   </div>
-  <aside class="notes">First result: Wolfe Road, a road it had never seen. The delay score is extra time per trip versus an empty road; a trip that never finishes counts as fifteen minutes. Old timing: 870 seconds. Ours: 643. That's 26 percent lower, in all 20 test rush hours. [Click the video to play it. If asked why the right side shows more cars: cars still waiting to get onto the road are not drawn, and the old timing leaves more of them stuck outside.]</aside>
+  <aside class="notes">First result: Wolfe Road, a road it had never seen. The delay score is extra time per trip versus an empty road; a trip that never finishes counts as fifteen minutes. Old timing: 870 seconds. Ours: 643. That's 26 percent lower on average, and better in all 20 test rush hours. [Click the video to play it. If asked why the right side shows more cars: cars still waiting to get onto the road are not drawn, and the old timing leaves more of them stuck outside.]</aside>
 </section>
 
 <!-- === 6. RESULT: DE ANZA BLVD === -->
@@ -443,7 +443,7 @@ html.render #notesPanel { display: none !important; }
         <line x1="730" y1="120" x2="814" y2="120" stroke="#8a93a1" stroke-width="4" marker-start="url(#ah)" marker-end="url(#ah)"/>
         <rect x="820" y="40" width="380" height="160" rx="22" fill="#fff" stroke="#e2e5ea" stroke-width="3"/>
         <text x="1010" y="110" text-anchor="middle" class="t">City central system</text>
-        <text x="1010" y="154" text-anchor="middle" class="s">links every cabinet</text>
+        <text x="1010" y="154" text-anchor="middle" class="s">links signal cabinets</text>
         <line x1="1204" y1="120" x2="1340" y2="120" stroke="#8a93a1" stroke-width="4" marker-start="url(#ah)" marker-end="url(#ah)"/>
         <rect x="1346" y="40" width="332" height="160" rx="22" fill="#fff" stroke="#151a22" stroke-width="3"/>
         <text x="1512" y="110" text-anchor="middle" class="t">Engineer</text>
@@ -470,12 +470,12 @@ html.render #notesPanel { display: none !important; }
     <div class="body">
       <div class="limits">
         <div class="limit reveal"><div class="n">01</div><h3>Simulation only so far</h3><p>The test roads used computer-made traffic.</p><p><b>Next:</b> real city counts and timing.</p></div>
-        <div class="limit reveal d1"><div class="n">02</div><h3>Some drivers waited longer</h3><p>On Wolfe, the hardest-hit group waited +203 s.</p><p><b>Next:</b> a rule that protects every group.</p></div>
+        <div class="limit reveal d1"><div class="n">02</div><h3>Some groups had higher delay scores</h3><p>On Wolfe, the hardest-hit group&rsquo;s delay score rose +203 s.</p><p><b>Next:</b> a rule that protects every group.</p></div>
         <div class="limit reveal d2"><div class="n">03</div><h3>The safety undo was jumpy</h3><p>On De Anza it undid 4 of 10 harmless changes.</p><p><b>Next:</b> tune it on new roads.</p></div>
       </div>
     </div>
   </div>
-  <aside class="notes">Three limits. Everything so far is simulated, with computer-made traffic on the test roads. On Wolfe, one group of drivers waited about 203 seconds longer. And our safety undo was too jumpy on De Anza. Real city data is the next step for all three.</aside>
+  <aside class="notes">Three limits. Everything so far is simulated, with computer-made traffic on the test roads. On Wolfe, one group of drivers had a delay score about 203 seconds higher. And our safety undo was too jumpy on De Anza. Real city data is the next step for all three.</aside>
 </section>
 
 <!-- === 9. CLOSE === -->
@@ -586,12 +586,12 @@ html.render #notesPanel { display: none !important; }
 <section class="slide" data-backup aria-label="How the test was kept fair">
   <div class="wrap">
     <div class="kicker">Backup &middot; How the test was kept fair</div>
-    <h2>It never saw the real traffic, and the rules were written first.</h2>
+    <h2>It never saw the test trips, and the rules were written first.</h2>
     <div class="body">
       <div class="fair reveal">
         <div class="card"><p class="label">What Signal Learner gets</p><h3>The map, the signals, the old timing and sensor counts</h3></div>
         <div class="wall" aria-hidden="true"><div class="bar"></div><svg viewBox="0 0 64 64" fill="none" stroke="#151a22" stroke-width="4" stroke-linecap="round"><rect x="12" y="28" width="40" height="30" rx="5"/><path d="M20 28 V20 A12 12 0 0 1 44 20 V28"/></svg><div class="bar"></div></div>
-        <div class="hidden"><p class="label">Hidden from it</p><h3>Every real trip and route. A test fails if its code looks.</h3></div>
+        <div class="hidden"><p class="label">Hidden from it</p><h3>Every test trip and route. A test fails if its code looks.</h3></div>
       </div>
       <div class="rules3 reveal d1">
         <div><h3>Rules written before the test</h3></div>
@@ -600,7 +600,7 @@ html.render #notesPanel { display: none !important; }
       </div>
     </div>
   </div>
-  <aside class="notes">Signal Learner only gets the map, the list of signals, the old timing and the sensor counts. It never sees the real trips; an automatic test fails if its code tries to look. We wrote the rules down before testing, ran each unseen road once, and gave every plan the same 20 rush hours. For comparison, a textbook retiming with perfect counts scored 846 on Wolfe; ours scored 643.</aside>
+  <aside class="notes">Signal Learner only gets the map, the list of signals, the old timing and the sensor counts. It never sees the test trips; an automatic test fails if its code tries to look. We wrote the rules down before testing, ran each unseen road once, and gave every plan the same 20 rush hours. For comparison, a textbook retiming with perfect counts scored 846 on Wolfe; ours scored 643.</aside>
 </section>
 
 <!-- === B4. ALL FOUR ROADS === -->
