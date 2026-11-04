@@ -211,8 +211,7 @@ function corridor(d) {
   const changed = sigs.filter(s => s.reason !== 'no material change').length;
   const lead = isChange(d)
     ? `<h2>New timing for ${changed === sigs.length ? `all ${sigs.length}` : `${changed} of ${sigs.length}`} lights</h2>
-      <div class="big-stat">${signed(e.change_share * 100, 0)}%</div>
-      <p class="muted">${tip('delay per trip', T_SCORE)} in practice runs</p>`
+      <p class="muted">Forecast on the practice copy: <b>${signed(e.change_share * 100, 0)}%</b> ${tip('delay per trip', T_SCORE)}</p>`
     : `<h2>Keep the current timing</h2><p class="muted">The best new plan caused jams in practice runs, so nothing changes.</p>`;
   return `
   <div class="head"><div><h1>${esc(d.info.street)}</h1><p>Evening rush, ${peak(d.info)} · ${lights(sigs.length)}</p></div></div>
@@ -365,7 +364,7 @@ function recommendation(d) {
   <div class="grid g2" style="margin:16px 0">
     <div class="card stack"><h2>What changes</h2><p>${plain}</p>
       <p class="small muted">Stays the same: phase order, yellow, all-red, minimum greens.</p></div>
-    <div class="card stack"><h2>Expected effect</h2>
+    <div class="card stack"><h2>Forecast (practice copy)</h2>
       <div class="effect"><span class="big">${f1(e.old_delay_s)} s<span class="arrow">→</span>${f1(e.new_delay_s)} s</span><span class="delta">${signed(e.change_share * 100)}%</span></div>
       <p class="small muted">${tip('Delay per trip', T_SCORE)} over ${e.copy_seeds.length} practice rush hours.</p>
       ${more('Details', `<p class="small">Range across practice runs: ${signed(e.change_range_s[0])} to ${signed(e.change_range_s[1])} s per trip. Practice runs use a simulated road built only from sensor counts.</p>
@@ -546,7 +545,7 @@ function goBackTable(d) {
 
 function watch(d) {
   const head = `<div class="head"><div><h1>Watch &amp; roll back</h1><p>Go back to the old timing if traffic is clearly worse for ${RULE.windows * 5} minutes in a row.</p></div></div>`;
-  const fullRule = more('How this works', `<p class="small">Every 5 minutes the console reads the road sensors. A 5-minute window counts as worse when the sensors run above their normal range,
+  const fullRule = more('How this works', `<p class="small">This demo replays saved simulated sensor readings in 5-minute windows. A window counts as worse when the sensors run above their normal range,
     when ${RULE.approaches} or more directions rise over ${RULE.approachRise} points, or when cars served fall more than ${RULE.countDrop * 100}% below normal.
     ${RULE.windows} worse windows in a row trigger the roll-back.</p>`);
   if (!isChange(d) || decision(d).status !== 'approved') {
@@ -611,11 +610,11 @@ function connect() {
     ${arrow(880, 330, 975, 152, { color: '#1f4fd6' })}<text x="935" y="262" style="fill:#1f4fd6">card</text>
   </svg>`;
   return `
-  <div class="head"><div><h1>How it connects</h1><p>Our software only reads. The engineer decides and enters any change.</p></div></div>
+  <div class="head"><div><h1>How it connects</h1><p>Example city workflow below. This demo uses saved simulation files, with no city connection.</p></div></div>
   <div class="card" style="margin-bottom:16px">${svg}</div>
   <div class="path3" style="margin-bottom:16px">
     <div class="card stack"><h2><span class="n">1</span>Read</h2><p class="small">Counts, ${tip('controller logs', 'High-resolution logs: every signal and sensor event, to the nearest 0.1 s.')} and timing sheets, requested from the city.<sup>[2]</sup></p></div>
-    <div class="card stack"><h2><span class="n">2</span>Recommend</h2><p class="small">The engineer reviews the card and enters any change. Google's Project Green Light works the same way.<sup>[6]</sup></p></div>
+    <div class="card stack"><h2><span class="n">2</span>Recommend</h2><p class="small">The engineer reviews the card and enters any change. Google's Project Green Light also gives city engineers recommendations.<sup>[6]</sup></p></div>
     <div class="card stack later"><h2><span class="n">3</span>Much later</h2><p class="small">A direct link to the central system, only with city approval and a safety review.<sup>[7]</sup></p></div>
   </div>
   <div class="card stack"><h2>Good to know</h2>

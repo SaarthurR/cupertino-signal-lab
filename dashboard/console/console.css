@@ -80,7 +80,6 @@ main { padding: 24px 28px 40px; max-width: 1120px; width: 100%; outline: none; }
 .h-lg { font-size: 20px; }
 .lead { display: flex; flex-direction: column; justify-content: center; }
 .lead .actions { margin-top: 18px; }
-.big-stat { font-size: 56px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--ok); margin-top: 14px; }
 .map-hint { margin-top: 8px; }
 .next { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line); font-weight: 600; text-decoration: none; }
 .next:hover { text-decoration: underline; }
