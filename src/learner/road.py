@@ -85,7 +85,7 @@ def lane_rows(path, ids, begin, end):
                   key=lambda r: (r['window_end'], r['lane']))
 
 
-def simulate(cfg, routes, timing, seed, feed=False, additional=()):
+def simulate(cfg, routes, timing, seed, feed=False, additional=(), timeout=7200):
     """One PM run: metrics charged as in evaluate (900 s per unfinished trip and teleport); optional feed rows."""
     begin, end = window(cfg)
     network = net(cfg)
@@ -97,7 +97,7 @@ def simulate(cfg, routes, timing, seed, feed=False, additional=()):
                '-b', begin-cfg['warmup_s'], '-e', end+cfg['drain_s'], '--seed', seed,
                '--time-to-teleport', cfg['time_to_teleport'], '--no-step-log', '--aggregate-warnings', -1,
                '--error-log', folder/'warnings.txt', '--summary-output', folder/'summary.xml',
-               '--tripinfo-output', folder/'trips.xml', '--tripinfo-output.write-unfinished', 'true'])
+               '--tripinfo-output', folder/'trips.xml', '--tripinfo-output.write-unfinished', 'true'], timeout=timeout)
         teleports = re.findall(r"Teleporting vehicle '([^']+)'", (folder/'warnings.txt').read_text())
         if len(teleports) != summary_stats(folder/'summary.xml')['teleports']:
             raise ValueError('Teleport warning/summary mismatch')

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal Learner · Engineer console</title>
+<link rel="stylesheet" href="console.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span><strong>Signal Learner</strong><small>Engineer console</small></span>
+    </div>
+    <nav aria-label="Screens">
+      <ol class="nav" id="nav">
+        <li><a href="#/wolfe/corridor" data-screen="corridor"><span class="nav-n">1</span>Corridor</a></li>
+        <li><a href="#/wolfe/signal/0" data-screen="signal"><span class="nav-n">2</span>Signal</a></li>
+        <li><a href="#/wolfe/recommendation" data-screen="recommendation"><span class="nav-n">3</span>Recommendation</a></li>
+        <li><a href="#/wolfe/test" data-screen="test"><span class="nav-n">4</span>Test it</a></li>
+        <li><a href="#/wolfe/watch" data-screen="watch"><span class="nav-n">5</span>Watch &amp; roll back</a></li>
+        <li><a href="#/wolfe/connect" data-screen="connect"><span class="nav-n">6</span>How it connects</a></li>
+      </ol>
+    </nav>
+    <p class="side-foot">Cupertino Signal Lab<br>Monta Vista AI Club</p>
+  </aside>
+  <div class="body">
+    <header class="top">
+      <div class="top-title" id="top-title" aria-live="polite">Loading…</div>
+      <div class="top-right">
+        <div class="seg" role="group" aria-label="Road">
+          <button type="button" data-road="wolfe">Wolfe</button>
+          <button type="button" data-road="deanza">De Anza</button>
+        </div>
+        <span class="tag">Simulation · mock product · not connected to any city system</span>
+      </div>
+    </header>
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+<dialog id="video-dialog" aria-label="Side-by-side replay">
+  <div class="dialog-head">
+    <strong>Wolfe Rd · old timing vs Signal Learner (simulated replay)</strong>
+    <button type="button" class="btn ghost" id="video-close">Close</button>
+  </div>
+  <video id="video" controls preload="none" poster="../wolfe_side_by_side_poster.png">
+    <source src="../wolfe_side_by_side.mp4" type="video/mp4">
+  </video>
+</dialog>
+<script src="console.js"></script>
+</body>
+</html>

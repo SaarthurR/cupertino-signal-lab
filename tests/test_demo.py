@@ -1,5 +1,6 @@
 from contextlib import redirect_stderr, redirect_stdout
 import io
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -88,6 +89,131 @@ class DemoTests(unittest.TestCase):
                 finally:
                     httpd.shutdown()
                     worker.join()
+
+    def test_console_and_its_data_copies_are_served_but_repo_files_are_not(self):
+        with tempfile.TemporaryDirectory() as temp:
+            demo.prepare(temp)
+            with demo.server(temp) as httpd:
+                worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+                worker.start()
+                url = f'http://127.0.0.1:{httpd.server_port}'
+                try:
+                    for path in ('/console/', '/console/console.js', '/console/console.css'):
+                        with urlopen(url+path) as response:
+                            self.assertEqual(response.status, 200)
+                    for road in ('wolfe', 'deanza'):
+                        for name in ('card.json', 'plan.add.xml', 'pattern.csv', 'practice.json', 'road.yaml',
+                                     'feed0.csv', 'feed1.csv', 'feed2.csv'):
+                            with urlopen(f'{url}/console/data/{road}/{name}') as response:
+                                self.assertEqual(response.read(), (demo.ROOT/demo.ASSETS[f'console/data/{road}/{name}']).read_bytes())
+                    for path in ('/console/data/heldout/results.csv', '/console/data/heldout/go_back.json',
+                                 '/console/data/deanza/posthoc.json', '/console/data/check-rule.txt'):
+                        with urlopen(url+path) as response:
+                            self.assertEqual(response.status, 200)
+                    for path in ('/console/data/', '/console/../README.md', '/reports/learner/wolfe/card.json',
+                                 '/roads/wolfe/road.yaml', '/tools/demo.py', '/worlds/wolfe/routes.rou.xml'):
+                        with self.assertRaises(HTTPError) as caught:
+                            urlopen(url+path)
+                        self.assertEqual(caught.exception.code, 404)
+                        caught.exception.close()
+                finally:
+                    httpd.shutdown()
+                    worker.join()
+
+    def test_test_run_endpoint_returns_the_run_and_refuses_overlap(self):
+        result = dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
+                      learner=dict(delay_s=650.2, unfinished=218), wall_s=9.5)
+        with tempfile.TemporaryDirectory() as temp, demo.server(temp) as httpd, \
+                mock.patch.object(demo, 'live_test', return_value=result) as run:
+            worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+            worker.start()
+            url = f'http://127.0.0.1:{httpd.server_port}/api/test-run'
+            try:
+                with urlopen(Request(url, method='POST')) as response:
+                    self.assertEqual(response.headers['Content-Type'], 'application/json')
+                    self.assertEqual(json.loads(response.read()), result)
+                run.assert_called_once_with()
+                started, release = threading.Event(), threading.Event()
+                def blocked_run():
+                    started.set()
+                    if not release.wait(5):
+                        raise TimeoutError('test did not release the simulation')
+                    return result
+                run.side_effect = blocked_run
+                responses = []
+                def request_run():
+                    with urlopen(Request(url, method='POST'), timeout=10) as response:
+                        responses.append(json.loads(response.read()))
+                first = threading.Thread(target=request_run)
+                first.start()
+                try:
+                    self.assertTrue(started.wait(5))
+                    with self.assertRaises(HTTPError) as caught:
+                        urlopen(Request(url, method='POST'), timeout=5)
+                    self.assertEqual(caught.exception.code, 409)
+                    self.assertFalse(json.loads(caught.exception.read())['ok'])
+                    caught.exception.close()
+                    self.assertEqual(run.call_count, 2)
+                    # Static requests remain responsive while SUMO is busy.
+                    with self.assertRaises(HTTPError) as get:
+                        urlopen(url.replace('/api/test-run', '/missing'), timeout=5)
+                    self.assertEqual(get.exception.code, 404)
+                    get.exception.close()
+                finally:
+                    release.set()
+                    first.join(5)
+                self.assertEqual(responses, [result])
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(Request(url, method='GET'))
+                self.assertEqual(caught.exception.code, 404)
+                caught.exception.close()
+            finally:
+                httpd.shutdown()
+                worker.join()
+
+    def test_live_test_degrades_without_inputs_or_sumo_and_formats_a_mocked_run(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'ROOT', Path(temp)):
+            missing = demo.live_test()
+            self.assertFalse(missing['ok'])
+            self.assertIn('worlds/wolfe/routes.rou.xml', missing['reason'])
+            files = [Path(temp)/name for name in ('worlds/wolfe/routes.rou.xml', 'roads/wolfe/old_timing.add.xml',
+                                                  'reports/learner/wolfe/plan.add.xml')]
+            for path in files:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('<additional/>')
+            with mock.patch.dict(sys.modules, {'learner': None}):
+                no_sumo = demo.live_test()
+            self.assertFalse(no_sumo['ok'])
+            self.assertIn('simulator (SUMO and its Python packages) is not installed', no_sumo['reason'])
+            road = mock.Mock()
+            road.many.return_value = [({'all_requested_delay_s': 855.9988, 'unfinished': 931}, None),
+                                      ({'all_requested_delay_s': 650.1908, 'unfinished': 218}, None)]
+            package = mock.Mock(road=road)
+            with mock.patch.dict(sys.modules, {'learner': package, 'learner.road': road}):
+                shown = demo.live_test()
+                road.many.side_effect = RuntimeError('sumo crashed')
+                crashed = demo.live_test()
+            self.assertEqual({k: shown[k] for k in ('ok', 'seed', 'old', 'learner')},
+                             dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
+                                  learner=dict(delay_s=650.2, unfinished=218)))
+            (jobs,), _ = road.many.call_args
+            self.assertEqual([job[1:] for job in jobs], [(files[0], files[1], 200, False, (), 120), (files[0], files[2], 200, False, (), 120)])
+            self.assertEqual(crashed, dict(ok=False, reason='The simulation failed: RuntimeError: sumo crashed'))
+            road.many.side_effect = subprocess.TimeoutExpired('sumo', 120)
+            with mock.patch.dict(sys.modules, {'learner': package, 'learner.road': road}):
+                timed_out = demo.live_test()
+            self.assertFalse(timed_out['ok'])
+            self.assertIn('TimeoutExpired', timed_out['reason'])
+
+    def test_demo_timeout_reaches_the_sumo_subprocess(self):
+        from learner import road
+        cfg = road.load('wolfe')
+        with mock.patch.object(road, 'net'), mock.patch.object(road, 'feed_detectors', return_value=('detectors', {})), \
+                mock.patch.object(road.p, 'check_battery'), \
+                mock.patch.object(road.p.subprocess, 'run', side_effect=subprocess.TimeoutExpired('sumo', 120)) as run:
+            with self.assertRaises(subprocess.TimeoutExpired):
+                road.simulate(cfg, 'routes', 'timing', 200, timeout=120)
+            self.assertEqual(run.call_args.kwargs['timeout'], 120)
 
     def test_cli_rejects_invalid_ports_and_missing_assets(self):
         for value in ('-1', '65536', 'not-a-port'):

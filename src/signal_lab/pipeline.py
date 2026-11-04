@@ -25,10 +25,10 @@ def check_battery():
     return power.strip()
 
 
-def run(args):
+def run(args, timeout=7200):
     if Path(args[0]).name == "sumo":
         check_battery()
-    result = subprocess.run(["nice", "-n", "15", *[str(a) for a in args]], cwd=ROOT, text=True, capture_output=True, timeout=7200)
+    result = subprocess.run(["nice", "-n", "15", *[str(a) for a in args]], cwd=ROOT, text=True, capture_output=True, timeout=timeout)
     if result.returncode:
         raise RuntimeError(f"Command failed: {args}\n{result.stdout}\n{result.stderr}")
     return result.stdout
