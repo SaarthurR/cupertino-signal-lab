@@ -4,8 +4,8 @@
 const SCREENS = ['corridor', 'signal', 'recommendation', 'test', 'watch', 'connect'];
 const ROADS = ['wolfe', 'deanza'];
 const STORE = 'signal-learner-console-v1';
-// Must match the frozen go-back rule in src/learner/check.py.
-const RULE = { windows: 3, meanRise: 5, approachRise: 25, approaches: 2, sdFactor: 3, countDrop: 0.06 };
+// Loaded from the served copy of the frozen go-back rule.
+let RULE;
 const COLORS = ['#1f4fd6', '#22a05a', '#d97706', '#7c3aed'];
 const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
 const TURNS = { L: 'left', T: 'through', R: 'right' };
@@ -85,10 +85,13 @@ async function get(path, kind = 'text') {
 async function data(road) {
   if (cache[road]) return cache[road];
   const base = `data/${road}/`;
-  const [card, practice, plan, pattern, yaml, results, goBack, ...feeds] = await Promise.all([
+  const [card, practice, plan, pattern, yaml, results, goBack, rule, ...feeds] = await Promise.all([
     get(base + 'card.json', 'json'), get(base + 'practice.json', 'json'), get(base + 'plan.add.xml'),
-    get(base + 'pattern.csv'), get(base + 'road.yaml'), get('data/heldout/results.csv'), get('data/heldout/go_back.json', 'json'),
+    get(base + 'pattern.csv'), get(base + 'road.yaml'), get('data/heldout/results.csv'), get('data/heldout/go_back.json', 'json'), get('data/check-rule.txt'),
     ...[0, 1, 2].map(seed => get(`${base}feed${seed}.csv`))]);
+  RULE = Object.fromEntries(Object.entries({ windows: 'WINDOWS', meanRise: 'MEAN_RISE', approachRise: 'APPROACH_RISE',
+    approaches: 'APPROACHES', sdFactor: 'SD_FACTOR', countDrop: 'COUNT_DROP' }).map(([key, name]) =>
+    [key, Number(rule.match(new RegExp(`^${name} = ([0-9.]+)`, 'm'))[1])]));
   const d = { road, card, practice, clear: clearances(plan), pattern: csv(pattern), info: roadYaml(yaml),
     results: csv(results), goBack, feeds: feeds.map(csv) };
   if (road === 'deanza') d.posthoc = await get(base + 'posthoc.json', 'json');
@@ -108,6 +111,11 @@ function serves(codes) {
     const [leg, turns] = code.split(':');
     return `From ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`;
   }).join(' · ');
+}
+
+function plainReason(reason) {
+  return reason.replace(/(?:[NSEW]:[LTR]+)(?: [NSEW]:[LTR]+)*/g, codes => serves(codes.split(' ')).replaceAll('From ', 'traffic from '))
+    .replaceAll('veh/15 min', 'cars per 15 min');
 }
 
 const isChange = d => d.card.decision === 'change';
@@ -275,7 +283,7 @@ function signal(d) {
       <table><thead><tr><th>Phase</th><th>Who moves</th><th class="num">Green, s</th></tr></thead><tbody>
       ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="num">${change(p.max_green_s, neu[i].max_green_s, '')}</td></tr>`).join('')}
       </tbody></table>
-      <p class="small muted" style="margin-top:10px">Why: ${esc(sig.reason)}.</p>
+      <p class="small muted" style="margin-top:10px">Why: ${esc(plainReason(sig.reason))}.</p>
     </div>
     <div class="card"><h2>What the sensors taught it</h2><p class="sub" style="margin-bottom:6px">Average vehicles per 15 minutes, by approach</p>${patternChart(d, sig.signal)}</div>
   </div>`;
@@ -298,12 +306,12 @@ function sheet(d) {
       return `<div class="int"><h3>${esc(sig.signal)}</h3>
         <p class="small">Cycle ${change(sig.old.cycle_s, sig.new.cycle_s)} · Offset ${change(sig.old.offset_s, sig.new.offset_s)}</p>
         <table><thead><tr><th>Phase</th><th>Movements</th><th class="num">Min green</th><th class="num">Max green</th><th class="num">Yellow</th><th class="num">All-red</th><th class="num">Split</th></tr></thead><tbody>
-        ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(p.serves.join(' '))}</td><td class="num">${f1(p.min_green_s)}</td>
+        ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="num">${f1(p.min_green_s)}</td>
           <td class="num">${change(p.max_green_s, neu[i].max_green_s, '')}</td><td class="num">${f1(p.yellow)}</td><td class="num">${f1(p.red)}</td>
           <td class="num">${change(p.split, neu[i].split, '')}</td></tr>`).join('')}
         </tbody></table></div>`;
     }).join('')}
-    <p class="small muted" style="margin-top:12px">Seconds. Split = max green + yellow + all-red. Phase numbers are the simulator's; map them to the controller's phase numbers when entering. N:LT = traffic from the north leg turning left or going through.</p>
+    <p class="small muted" style="margin-top:12px">Seconds. Split = max green + yellow + all-red. Phase numbers are the simulator's; map them to the controller's phase numbers when entering.</p>
     <div class="sign"><div>Reviewed by (traffic engineer)</div><div>Entered into controller / central system by</div><div>Date entered</div></div>
   </section>`;
 }
@@ -332,7 +340,7 @@ function recommendation(d) {
   const c = d.card, e = c.expected_in_copy, sigs = c.signals;
   const table = `<table><thead><tr><th>Signal</th><th class="num">Cycle</th><th class="num">Offset</th><th class="num">Main green</th><th>Reason</th></tr></thead><tbody>
     ${sigs.map(s => `<tr><td>${esc(s.signal)}</td><td class="num">${change(s.old.cycle_s, s.new.cycle_s)}</td><td class="num">${change(s.old.offset_s, s.new.offset_s)}</td>
-      <td class="num">${change(s.old.greens[0].max_green_s, s.new.greens[0].max_green_s)}</td><td class="small">${esc(s.reason)}</td></tr>`).join('')}
+      <td class="num">${change(s.old.greens[0].max_green_s, s.new.greens[0].max_green_s)}</td><td class="small">${esc(plainReason(s.reason))}</td></tr>`).join('')}
     </tbody></table>`;
   if (!isChange(d)) return deanzaCard(d, table);
   const minSame = sigs.every(s => s.old.greens.every((g, i) => g.min_green_s === s.new.greens[i].min_green_s && g.phase === s.new.greens[i].phase));
@@ -392,11 +400,10 @@ function pairedChart(h) {
 }
 
 function liveBlock(d) {
-  const saved = heldout(d).pairs.find(p => p.seed === 200);
   if (!live) return `<p class="small muted">Not run yet.</p>`;
   if (live.state === 'running') return `<div role="status"><div class="progress"><i></i></div><p>Running the simulator for the old timing and the new plan… <span id="elapsed">0</span> s</p></div>`;
   if (live.state === 'error') return `<div role="status" class="banner idle"><span><b>Live test unavailable.</b> ${esc(live.reason)} The saved held-out result is shown instead.</span></div>`;
-  const r = live.result, pct = (r.learner.delay_s - r.old.delay_s) / r.old.delay_s * 100;
+  const r = live.result, saved = heldout(d).pairs.find(p => p.seed === r.seed), pct = (r.learner.delay_s - r.old.delay_s) / r.old.delay_s * 100;
   const match = saved && f1(saved.old) === f1(r.old.delay_s) && f1(saved.plan) === f1(r.learner.delay_s);
   return `<div role="status" class="stack">
     <div class="score"><div><div class="k">Old timing</div><div class="v">${f1(r.old.delay_s)} s</div><div class="small muted">${r.old.unfinished} trips unfinished</div></div>
@@ -419,10 +426,10 @@ function test(d) {
   <div class="head"><div><h1>Test it</h1><p>Run the new plan on simulated traffic the learner never saw, next to the old timing.</p></div>${pill(roadStatus(d))}</div>
   <div class="grid g2">
     <div class="card stack"><h2>Live test on new traffic</h2>
-      <p class="sub">Runs ${esc(d.info.street)} twice on traffic day 200, a held-out day: once with the old timing, once with the new plan.</p>
+      <p class="sub">Runs ${esc(d.info.street)} twice on one held-out traffic day: once with the old timing, once with the new plan.</p>
       <div class="actions"><button class="btn primary" data-action="run-test" ${busy ? 'disabled' : ''}>${busy ? 'Running…' : unavailable ? 'Simulator not available · try again' : live ? 'Run again' : 'Run test on new traffic'}</button></div>
       <div id="live">${liveBlock(d)}</div>
-      <p class="small muted">Delay score: average delay per requested trip, with 900 s charged for every trip that never finished.</p>
+      <p class="small muted">Delay score: average delay per requested trip, including the penalty for every trip that never finished.</p>
     </div>
     <div class="card stack"><h2>Saved held-out result</h2>
       <div class="score"><div><div class="k">Old timing</div><div class="v">${f1(h.oldMean)} s</div></div>
@@ -564,19 +571,18 @@ function box(x, y, w, h, title, lines, opts = {}) {
 const arrow = (x1, y1, x2, y2, opts = {}) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${opts.color || '#5a6371'}" stroke-width="1.8" ${opts.dash ? 'stroke-dasharray="5 4"' : ''} marker-end="url(#${opts.color ? 'ha' : 'h'})"/>`;
 
 function connect() {
-  const svg = `<svg class="diagram" viewBox="0 0 1040 400" role="img" aria-label="Road sensors feed the signal cabinet. The cabinet links to the city's central system, which the engineer uses. Signal Learner sits beside them, read-only, and gives the engineer a card.">
+  const svg = `<svg class="diagram" viewBox="-2 0 1064 400" role="img" aria-label="Road sensors feed the signal cabinet. The cabinet links to the city's central system, which the engineer uses. Signal Learner sits beside them, read-only, and gives the engineer a card.">
     <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5a6371"/></marker>
       <marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f4fd6"/></marker></defs>
     ${box(0, 20, 170, 150, 'Road sensors', ['Loops: wires cut', 'into the pavement', 'Video cameras', 'Radar'])}
     <rect x="200" y="10" width="330" height="220" rx="10" fill="#f5f6f8" stroke="#cfd4dc" stroke-width="1.5"/>
     <text class="t" x="214" y="32">Signal cabinet, at the corner</text>
-    ${box(214, 44, 146, 84, 'Detector cards', ['Connect the road', 'sensors'])}
-    ${box(370, 44, 146, 84, 'Controller', ['A computer that runs', 'the stored timing plan'])}
+    ${box(214, 44, 302, 84, 'Controller', ['A computer that runs the stored timing plan'])}
     ${box(214, 138, 302, 80, 'Conflict monitor (MMU)', ['A separate safety device. If it sees conflicting', 'greens, it puts the intersection into flash.'], { stroke: '#d6453a' })}
-    ${box(560, 20, 140, 110, 'Network link', ['Modem or Ethernet', 'from the cabinet'])}
+    ${box(560, 20, 140, 110, 'Network link', ['Cabinet to the', 'central system'])}
     ${box(730, 20, 150, 130, 'Central system', ['(ATMS) City staff', 'monitor and manage', 'controllers remotely'])}
     ${box(910, 20, 130, 130, 'City engineer', ['Decides, and enters', 'any timing change'], { fill: '#eaf0fe', stroke: '#1f4fd6' })}
-    ${arrow(170, 86, 212, 86)}${arrow(360, 86, 368, 86)}${arrow(516, 86, 558, 86)}${arrow(700, 76, 728, 76)}
+    ${arrow(170, 86, 212, 86)}${arrow(516, 86, 558, 86)}${arrow(700, 76, 728, 76)}
     ${arrow(880, 66, 908, 66)}${arrow(908, 110, 882, 110)}
     <text x="880" y="170" text-anchor="middle">enters changes</text>
     ${box(200, 290, 680, 96, 'Signal Learner (this software) · READ-ONLY', ['Reads counts, high-resolution logs and timing sheets. Never writes to the cabinet or central system.', 'Learns the pattern, practices plans on a copy, and gives the engineer one card to approve or reject.'], { fill: '#fff', stroke: '#1f4fd6', dash: true })}
@@ -588,7 +594,7 @@ function connect() {
   <div class="head"><div><h1>How it connects</h1><p>What is already on the street, and where our software would sit. It reads; the engineer decides and enters.</p></div></div>
   <div class="card" style="margin-bottom:16px">${svg}</div>
   <div class="path3" style="margin-bottom:16px">
-    <div class="card stack"><h2><span class="n">1</span>Read</h2><p class="small">Counts, high-resolution controller logs (ATSPM: events logged to the nearest 100 ms, pulled from the controller) and current timing sheets through a public-records request.<sup>[2]</sup></p></div>
+    <div class="card stack"><h2><span class="n">1</span>Read</h2><p class="small">Counts, high-resolution controller logs (ATSPM: events logged to the nearest 100 ms, pulled from the controller) and current timing sheets. Proposed first step: request these records from the city.<sup>[2]</sup></p></div>
     <div class="card stack"><h2><span class="n">2</span>Recommend</h2><p class="small">The engineer compares the card with their own plan and enters any change in their own system. Google's Project Green Light works this way: recommendations go to city engineers, who apply them.<sup>[6]</sup></p></div>
     <div class="card stack later"><h2><span class="n">3</span>Much later</h2><p class="small">Only with city approval and a safety review: a central-system connection through NTCIP 1202, the standard for central-to-controller data (version v04 uses SNMPv3).<sup>[7]</sup></p></div>
   </div>
@@ -596,7 +602,7 @@ function connect() {
     <div class="card stack"><h2>Plain facts</h2>
       <p class="small"><b>The controller</b> steps through phases using the stored plan, detector calls and the clock.<sup>[4]</sup> <b>A time-of-day schedule</b> picks which plan runs when.<sup>[1]</sup> <b>Loops</b> are wires cut into the pavement.<sup>[3]</sup></p>
       <p class="small"><b>The conflict monitor</b> is separate from the controller; on a malfunction the intersection goes to flash.<sup>[5]</sup> Our software never touches it.</p>
-      <p class="small"><b>Timing changes</b> are made at the cabinet or remotely through a central system.<sup>[4]</sup> City codes usually give the city traffic engineer signal-timing authority.<sup>[10]</sup></p></div>
+      <p class="small"><b>Timing changes</b> are made at the cabinet or remotely through a central system.<sup>[4]</sup> Some city codes give the city traffic engineer signal-timing authority.<sup>[10]</sup></p></div>
     <div class="card stack"><h2>Cupertino and safety</h2>
       <p class="small"><b>Cupertino</b> chose Cubic Trafficware for its central system (2019 announcement).<sup>[8]</sup></p>
       <p class="small"><b>Why read-only:</b> a 2023 US cybersecurity advisory on one signal-controller product recommends keeping control networks behind firewalls and off the internet.<sup>[9]</sup></p></div>

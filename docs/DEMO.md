@@ -8,6 +8,8 @@ From the repository root, run `python3 -m tools.demo` with the supported Python 
 
 The printed Engineer console URL opens the clickable mock product (corridor, signal timing, recommendation, test, watch, how it connects), built only from saved report copies. Its "Run test on new traffic" button runs Wolfe old timing vs the plan on held-out seed 200 when SUMO is installed for that Python; otherwise it says so and shows the saved result. Screenshots: `docs/console-shots/`.
 
+For the live test on a fresh clone, first run `PYTHONPATH=src:. python -m tools.learner build-world --road wolfe` with the SUMO-enabled environment; this generates the ignored routes and old timing from the tracked road inputs.
+
 Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginning/end. A URL ending in `/#9` opens the saved video. The fixed widescreen stage scales on phones; landscape is more readable. Play the video with its native controls if autoplay is blocked. Download the printed PDF URL as an offline fallback; it contains a still image, not playable video.
 
 ## Present and rehearse

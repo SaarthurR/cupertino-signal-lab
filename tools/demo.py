@@ -24,6 +24,7 @@ for corridor in ('wolfe', 'deanza'):
     ASSETS.update({f'console/data/{corridor}/feed{seed}.csv': Path(f'reports/learner/{corridor}/feed/seed{seed}/feed.csv')
                    for seed in range(3)})
 ASSETS.update({f'console/data/heldout/{name}': Path(f'reports/learner_heldout/{name}') for name in ('results.csv', 'go_back.json')})
+ASSETS['console/data/check-rule.txt'] = Path('src/learner/check.py')
 ASSETS['console/data/deanza/posthoc.json'] = Path('reports/learner_story/deanza_posthoc.json')
 
 TEST_SEED = 200  # one held-out traffic day the learner never saw
@@ -63,7 +64,7 @@ def live_test(seed=TEST_SEED):
         return dict(ok=False, reason=f'The simulator (SUMO and its Python packages) is not installed for this Python ({exc}).')
     start = time.monotonic()
     try:
-        results = road.many([(road.load('wolfe'), files[0], timing, seed) for timing in files[1:]])
+        results = road.many([(road.load('wolfe'), files[0], timing, seed, False, (), 120) for timing in files[1:]])
     except Exception as exc:
         return dict(ok=False, reason=f'The simulation failed: {type(exc).__name__}: {exc}')
     old, plan = (dict(delay_s=round(stats['all_requested_delay_s'], 1), unfinished=stats['unfinished']) for stats, _ in results)
@@ -103,8 +104,12 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
 
+class Server(ThreadingHTTPServer):
+    request_queue_size = 32  # The console fetches its saved inputs concurrently.
+
+
 def server(folder, port=0):
-    return ThreadingHTTPServer(('127.0.0.1', port), partial(Handler, directory=str(folder)))
+    return Server(('127.0.0.1', port), partial(Handler, directory=str(folder)))
 
 
 def main():
