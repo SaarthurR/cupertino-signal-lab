@@ -1,14 +1,18 @@
-"""Serve the saved, team-only Signal Learner demo locally; only the console's optional live test needs SUMO."""
+"""Serve the saved, team-only Signal Learner demo locally; only the console's live simulation needs SUMO."""
 import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import importlib.util
 import json
+import multiprocessing
 from pathlib import Path
 import shutil
-import sys
 import tempfile
 import threading
+from queue import Empty
 import time
+
+from tools import live_sim
 
 ROOT = Path(__file__).resolve().parents[1]
 DECK = Path('dashboard/signal-learner')
@@ -26,9 +30,22 @@ for corridor in ('wolfe', 'deanza'):
 ASSETS.update({f'console/data/heldout/{name}': Path(f'reports/learner_heldout/{name}') for name in ('results.csv', 'go_back.json')})
 ASSETS['console/data/check-rule.txt'] = Path('src/learner/check.py')
 ASSETS['console/data/deanza/posthoc.json'] = Path('reports/learner_story/deanza_posthoc.json')
+ASSETS.update({f'console/geo/{name}': Path('dashboard/console/geo')/name for name in ('wolfe.json', 'deanza.json', live_sim.RECORDING.name)})
 
-TEST_SEED = 200  # one held-out traffic day the learner never saw
-TEST_LOCK = threading.Lock()
+SPEEDS = (60, 120, 240)  # simulated seconds per real second
+SIM = dict(speed=120, paused=False)  # what the browser last asked for; one run at a time
+SIM_LOCK = threading.Lock()
+SIM_MAX_S = 15*60  # a paused or forgotten run is stopped after this long
+FPS = 30  # frames sent per real second; the browser draws in between
+WORKER = live_sim.worker
+
+
+def live_ready():
+    """None when this Python can run SUMO live, else the reason; the console then plays the recording."""
+    if not live_sim.ROUTES.is_file():
+        return 'The simulation inputs are not on this laptop (worlds/wolfe/routes.rou.xml is generated, not in Git).'
+    missing = [name for name in ('libsumo', 'traci', 'yaml', 'sumolib') if importlib.util.find_spec(name) is None]
+    return f'The simulator is not installed for this Python (missing {", ".join(missing)}).' if missing else None
 
 
 def prepare(folder):
@@ -50,31 +67,10 @@ def prepare(folder):
             dest.write_text(note + dest.read_text(encoding='utf-8'), encoding='utf-8')
 
 
-def live_test(seed=TEST_SEED):
-    """Old Wolfe timing vs the learner plan on one traffic day; returns what the console shows, never raises."""
-    files = [ROOT/'worlds/wolfe/routes.rou.xml', ROOT/'roads/wolfe/old_timing.add.xml', ROOT/'reports/learner/wolfe/plan.add.xml']
-    missing = [str(path.relative_to(ROOT)) for path in files if not path.is_file()]
-    if missing:
-        return dict(ok=False, reason='Simulation inputs are not on this laptop (generated, not in Git): ' + ', '.join(missing))
-    if str(ROOT/'src') not in sys.path:
-        sys.path.insert(0, str(ROOT/'src'))
-    try:
-        from learner import road
-    except Exception as exc:  # no SUMO, PyYAML or SUMO_HOME in this Python
-        return dict(ok=False, reason=f'The simulator (SUMO and its Python packages) is not installed for this Python ({exc}).')
-    start = time.monotonic()
-    try:
-        results = road.many([(road.load('wolfe'), files[0], timing, seed, False, (), 120) for timing in files[1:]])
-    except Exception as exc:
-        return dict(ok=False, reason=f'The simulation failed: {type(exc).__name__}: {exc}')
-    old, plan = (dict(delay_s=round(stats['all_requested_delay_s'], 1), unfinished=stats['unfinished']) for stats, _ in results)
-    return dict(ok=True, seed=seed, old=old, learner=plan, wall_s=round(time.monotonic()-start, 1))
-
-
 class Handler(SimpleHTTPRequestHandler):
     extensions_map = {**SimpleHTTPRequestHandler.extensions_map, '.md': 'text/plain; charset=utf-8',
                       '.txt': 'text/plain; charset=utf-8', '.yaml': 'text/plain; charset=utf-8',
-                      '.csv': 'text/csv; charset=utf-8', '.xml': 'application/xml'}
+                      '.csv': 'text/csv; charset=utf-8', '.xml': 'application/xml', '.gz': 'application/octet-stream'}
 
     def list_directory(self, path):
         self.send_error(404)
@@ -85,15 +81,97 @@ class Handler(SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             self.log_message('Client disconnected during transfer')
 
+    def do_GET(self):
+        if self.path == '/api/sim/stream':
+            return self.stream()
+        return super().do_GET()
+
     def do_POST(self):
-        if self.path != '/api/test-run':
+        if self.path != '/api/sim/control':
             return self.send_error(501, 'Unsupported method')
-        if not TEST_LOCK.acquire(blocking=False):
-            return self.send_json(409, dict(ok=False, reason='A test is already running.'))
         try:
-            self.send_json(200, live_test())
+            length = int(self.headers.get('Content-Length', 0))
+            asked = json.loads(self.rfile.read(length)) if 0 < length <= 200 else None
+            speed, paused = asked.get('speed', SIM['speed']), asked.get('paused', SIM['paused'])
+            if speed not in SPEEDS or not isinstance(paused, bool):
+                raise ValueError
+        except (ValueError, AttributeError):
+            return self.send_json(400, dict(ok=False, reason=f'Send JSON with speed in {SPEEDS} and/or paused true/false.'))
+        SIM.update(speed=speed, paused=paused)
+        self.send_json(200, dict(ok=True, **SIM))
+
+    def stream(self):
+        """Server-Sent Events: both Wolfe plans run live in SUMO, same traffic, same clock, paced to SIM['speed']."""
+        reason = live_ready()
+        if reason:
+            return self.send_json(503, dict(ok=False, reason=reason))
+        if not SIM_LOCK.acquire(blocking=False):
+            return self.send_json(409, dict(ok=False, reason='A simulation is already running.'))
+        context = multiprocessing.get_context('spawn')
+        stop, arms = context.Event(), list(live_sim.TIMINGS)
+        queues = [context.Queue(maxsize=FPS*8) for _ in arms]
+        workers = [context.Process(target=WORKER, args=(arm, queue, stop), daemon=True) for arm, queue in zip(arms, queues)]
+        SIM.update(speed=120, paused=False)
+        try:
+            for process in workers:
+                process.start()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            self.event('status', dict(phase='starting'))
+            self.pace(arms, queues, time.monotonic()+SIM_MAX_S)
+        except (BrokenPipeError, ConnectionResetError):
+            self.log_message('Browser left the simulation; stopped it')
         finally:
-            TEST_LOCK.release()
+            stop.set()
+            for process in workers:
+                process.join(3)
+                if process.is_alive():
+                    process.terminate()
+                    process.join(3)
+            SIM_LOCK.release()
+
+    def pace(self, arms, queues, deadline):
+        last, done, due, sent = {}, {}, time.monotonic(), -10**9
+        while len(done) < len(arms):
+            if time.monotonic() > deadline:
+                return self.event('failed', dict(reason='The run took too long and was stopped.'))
+            if SIM['paused']:
+                self.wfile.write(b': paused\n\n')  # a write per second notices a closed browser
+                self.wfile.flush()
+                time.sleep(0.5)
+                due = time.monotonic()
+                continue
+            for arm, queue in zip(arms, queues):
+                if arm in done:
+                    continue
+                try:
+                    item = queue.get(timeout=120)
+                except Empty:
+                    return self.event('failed', dict(reason='The simulator stopped answering.'))
+                if 'error' in item:
+                    return self.event('failed', dict(reason=f'The simulation failed: {item["error"]}'))
+                if 'done' in item:
+                    done[arm] = item['done']
+                else:
+                    last[arm] = item
+            if not last:
+                continue
+            t = max(frame['t'] for frame in last.values())
+            # After 6:30 PM only the cars already on the road finish; play that part 4x faster.
+            speed = SIM['speed']*(4 if any(frame['drain'] for frame in last.values()) else 1)
+            due = max(due+1/speed, time.monotonic()-0.25)  # never burst to catch up after a stall
+            if due > time.monotonic():
+                time.sleep(due-time.monotonic())
+            if t-sent >= speed/FPS or len(done) == len(arms):
+                self.event('frame', dict(t=t, **{arm: last[arm] for arm in arms if arm in last}))
+                sent = t
+        self.event('end', dict(seed=live_sim.SEED, **done))
+
+    def event(self, kind, value):
+        self.wfile.write(f'event: {kind}\ndata: {json.dumps(value, separators=(",", ":"))}\n\n'.encode())
+        self.wfile.flush()
 
     def send_json(self, status, value):
         body = json.dumps(value).encode()

@@ -1,17 +1,72 @@
 from contextlib import redirect_stderr, redirect_stdout
+import csv
+import gzip
 import io
 import json
 from pathlib import Path
+import struct
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from unittest import mock
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from tools import demo
+from tools import demo, live_sim
+
+FAKE_FRAMES = 40
+
+
+def fake_frame(t):
+    return dict(t=t, drain=t >= 59400+FAKE_FRAMES//2, cars=[1, 2500, 9000, 0], lights=['Gr'], waiting=0, finished=0, delay=0)
+
+
+def fake_worker(arm, queue, stop):
+    for t in range(59400, 59400+FAKE_FRAMES):
+        queue.put(fake_frame(t))
+    queue.put(dict(done=dict(old=dict(delay_s=856.0, unfinished=931), plan=dict(delay_s=650.2, unfinished=218))[arm]))
+
+
+def broken_worker(arm, queue, stop):
+    queue.put(dict(error='RuntimeError: sumo crashed'))
+
+
+def endless_worker(arm, queue, stop):
+    t = 59400
+    while not stop.is_set():
+        queue.put(fake_frame(t))
+        t += 1
+
+
+def sse(text):
+    return [(block.split('\n')[0][len('event: '):], json.loads(block.split('\n')[1][len('data: '):]))
+            for block in text.strip().split('\n\n') if block.startswith('event: ')]
+
+
+def read_recording(path):
+    """Python twin of loadRecording() in dashboard/console/console.js."""
+    data = gzip.decompress(path.read_bytes())
+    assert data[:4] == b'SLR1'
+    size, = struct.unpack_from('<I', data, 4)
+    head = json.loads(data[8:8+size])
+    at, frames, width = 8+size, [], sum(head['lights'])
+    for _ in range(head['frames']):
+        frame, = struct.unpack_from('<I', data, at)
+        frame, at = dict(t=frame), at+4
+        for arm in ('old', 'plan'):
+            n, = struct.unpack_from('<H', data, at)
+            values = struct.unpack_from(f'<{3*n}H{n}B', data, at+2)
+            at += 2+7*n
+            waiting, finished, delay = struct.unpack_from('<3H', data, at+width)
+            frame[arm] = dict(ids=list(values[:n]), x=list(values[n:2*n]), y=list(values[2*n:3*n]), stop=list(values[3*n:]),
+                              lights=data[at:at+width].decode(), waiting=waiting, finished=finished, delay=delay)
+            at += width+6
+        frames.append(frame)
+    assert at == len(data)
+    return head, frames
 
 
 class DemoTests(unittest.TestCase):
@@ -107,11 +162,13 @@ class DemoTests(unittest.TestCase):
                             with urlopen(f'{url}/console/data/{road}/{name}') as response:
                                 self.assertEqual(response.read(), (demo.ROOT/demo.ASSETS[f'console/data/{road}/{name}']).read_bytes())
                     for path in ('/console/data/heldout/results.csv', '/console/data/heldout/go_back.json',
-                                 '/console/data/deanza/posthoc.json', '/console/data/check-rule.txt'):
+                                 '/console/data/deanza/posthoc.json', '/console/data/check-rule.txt',
+                                 '/console/geo/wolfe.json', '/console/geo/deanza.json', '/console/geo/wolfe_seed200.rec.gz'):
                         with urlopen(url+path) as response:
                             self.assertEqual(response.status, 200)
                     for path in ('/console/data/', '/console/../README.md', '/reports/learner/wolfe/card.json',
-                                 '/roads/wolfe/road.yaml', '/tools/demo.py', '/worlds/wolfe/routes.rou.xml'):
+                                 '/roads/wolfe/road.yaml', '/tools/demo.py', '/worlds/wolfe/routes.rou.xml',
+                                 '/tools/live_sim.py', '/roads/wolfe/net.net.xml', '/console/geo/', '/api/sim/control'):
                         with self.assertRaises(HTTPError) as caught:
                             urlopen(url+path)
                         self.assertEqual(caught.exception.code, 404)
@@ -120,90 +177,118 @@ class DemoTests(unittest.TestCase):
                     httpd.shutdown()
                     worker.join()
 
-    def test_test_run_endpoint_returns_the_run_and_refuses_overlap(self):
-        result = dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
-                      learner=dict(delay_s=650.2, unfinished=218), wall_s=9.5)
-        with tempfile.TemporaryDirectory() as temp, demo.server(temp) as httpd, \
-                mock.patch.object(demo, 'live_test', return_value=result) as run:
-            worker = threading.Thread(target=httpd.serve_forever, daemon=True)
-            worker.start()
-            url = f'http://127.0.0.1:{httpd.server_port}/api/test-run'
-            try:
-                with urlopen(Request(url, method='POST')) as response:
-                    self.assertEqual(response.headers['Content-Type'], 'application/json')
-                    self.assertEqual(json.loads(response.read()), result)
-                run.assert_called_once_with()
-                started, release = threading.Event(), threading.Event()
-                def blocked_run():
-                    started.set()
-                    if not release.wait(5):
-                        raise TimeoutError('test did not release the simulation')
-                    return result
-                run.side_effect = blocked_run
-                responses = []
-                def request_run():
-                    with urlopen(Request(url, method='POST'), timeout=10) as response:
-                        responses.append(json.loads(response.read()))
-                first = threading.Thread(target=request_run)
-                first.start()
-                try:
-                    self.assertTrue(started.wait(5))
-                    with self.assertRaises(HTTPError) as caught:
-                        urlopen(Request(url, method='POST'), timeout=5)
-                    self.assertEqual(caught.exception.code, 409)
-                    self.assertFalse(json.loads(caught.exception.read())['ok'])
-                    caught.exception.close()
-                    self.assertEqual(run.call_count, 2)
-                    # Static requests remain responsive while SUMO is busy.
-                    with self.assertRaises(HTTPError) as get:
-                        urlopen(url.replace('/api/test-run', '/missing'), timeout=5)
-                    self.assertEqual(get.exception.code, 404)
-                    get.exception.close()
-                finally:
-                    release.set()
-                    first.join(5)
-                self.assertEqual(responses, [result])
-                with self.assertRaises(HTTPError) as caught:
-                    urlopen(Request(url, method='GET'))
-                self.assertEqual(caught.exception.code, 404)
-                caught.exception.close()
-            finally:
-                httpd.shutdown()
-                worker.join()
+    def serve(self, temp):
+        httpd = demo.server(temp)
+        worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+        worker.start()
+        self.addCleanup(lambda: (httpd.shutdown(), worker.join(), httpd.server_close()))
+        self.addCleanup(demo.SIM.update, speed=120, paused=False)
+        return f'http://127.0.0.1:{httpd.server_port}'
 
-    def test_live_test_degrades_without_inputs_or_sumo_and_formats_a_mocked_run(self):
-        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'ROOT', Path(temp)):
-            missing = demo.live_test()
-            self.assertFalse(missing['ok'])
-            self.assertIn('worlds/wolfe/routes.rou.xml', missing['reason'])
-            files = [Path(temp)/name for name in ('worlds/wolfe/routes.rou.xml', 'roads/wolfe/old_timing.add.xml',
-                                                  'reports/learner/wolfe/plan.add.xml')]
-            for path in files:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text('<additional/>')
-            with mock.patch.dict(sys.modules, {'learner': None}):
-                no_sumo = demo.live_test()
-            self.assertFalse(no_sumo['ok'])
-            self.assertIn('simulator (SUMO and its Python packages) is not installed', no_sumo['reason'])
-            road = mock.Mock()
-            road.many.return_value = [({'all_requested_delay_s': 855.9988, 'unfinished': 931}, None),
-                                      ({'all_requested_delay_s': 650.1908, 'unfinished': 218}, None)]
-            package = mock.Mock(road=road)
-            with mock.patch.dict(sys.modules, {'learner': package, 'learner.road': road}):
-                shown = demo.live_test()
-                road.many.side_effect = RuntimeError('sumo crashed')
-                crashed = demo.live_test()
-            self.assertEqual({k: shown[k] for k in ('ok', 'seed', 'old', 'learner')},
-                             dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
-                                  learner=dict(delay_s=650.2, unfinished=218)))
-            (jobs,), _ = road.many.call_args
-            self.assertEqual([job[1:] for job in jobs], [(files[0], files[1], 200, False, (), 120), (files[0], files[2], 200, False, (), 120)])
-            self.assertEqual(crashed, dict(ok=False, reason='The simulation failed: RuntimeError: sumo crashed'))
-            road.many.side_effect = subprocess.TimeoutExpired('sumo', 120)
-            with mock.patch.dict(sys.modules, {'learner': package, 'learner.road': road}):
-                timed_out = demo.live_test()
-            self.assertFalse(timed_out['ok'])
-            self.assertIn('TimeoutExpired', timed_out['reason'])
+    def test_stream_sends_both_plans_on_one_clock_then_the_scores(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'live_ready', return_value=None), \
+                mock.patch.object(demo, 'WORKER', fake_worker):
+            url = self.serve(temp)
+            with urlopen(url+'/api/sim/stream', timeout=30) as response:
+                self.assertEqual(response.headers['Content-Type'], 'text/event-stream')
+                events = sse(response.read().decode())
+        self.assertEqual(events[0], ('status', dict(phase='starting')))
+        frames = [value for kind, value in events if kind == 'frame']
+        self.assertTrue(frames)
+        self.assertTrue(all({'old', 'plan'} <= frame.keys() and frame['old']['t'] == frame['plan']['t'] == frame['t'] for frame in frames))
+        self.assertEqual(frames[-1]['t'], 59400+FAKE_FRAMES-1)  # the last frame is always sent
+        self.assertEqual(events[-1], ('end', dict(seed=200, old=dict(delay_s=856.0, unfinished=931), plan=dict(delay_s=650.2, unfinished=218))))
+        self.assertFalse(demo.SIM_LOCK.locked())
+
+    def test_stream_refuses_without_sumo_or_while_busy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            url = self.serve(temp)
+            with mock.patch.object(demo, 'live_ready', return_value='The simulator is not installed for this Python.'):
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(url+'/api/sim/stream', timeout=10)
+                self.assertEqual(caught.exception.code, 503)
+                self.assertIn('not installed', json.loads(caught.exception.read())['reason'])
+                caught.exception.close()
+            with mock.patch.object(demo, 'live_ready', return_value=None), demo.SIM_LOCK:
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(url+'/api/sim/stream', timeout=10)
+                self.assertEqual(caught.exception.code, 409)
+                caught.exception.close()
+
+    def test_worker_error_is_reported_as_a_failed_event(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'live_ready', return_value=None), \
+                mock.patch.object(demo, 'WORKER', broken_worker):
+            url = self.serve(temp)
+            with urlopen(url+'/api/sim/stream', timeout=30) as response:
+                events = sse(response.read().decode())
+        self.assertEqual(events[-1], ('failed', dict(reason='The simulation failed: RuntimeError: sumo crashed')))
+
+    def test_closing_the_browser_stops_the_run(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'live_ready', return_value=None), \
+                mock.patch.object(demo, 'WORKER', endless_worker):
+            url = self.serve(temp)
+            response = urlopen(url+'/api/sim/stream', timeout=30)
+            response.readline()
+            self.assertTrue(demo.SIM_LOCK.locked())
+            response.close()
+            for _ in range(100):
+                if not demo.SIM_LOCK.locked():
+                    break
+                time.sleep(0.1)
+            self.assertFalse(demo.SIM_LOCK.locked())
+
+    def test_control_sets_speed_and_pause_and_rejects_bad_input(self):
+        with tempfile.TemporaryDirectory() as temp:
+            url = self.serve(temp)+'/api/sim/control'
+            with urlopen(Request(url, data=json.dumps(dict(speed=240, paused=True)).encode())) as response:
+                self.assertEqual(json.loads(response.read()), dict(ok=True, speed=240, paused=True))
+            self.assertEqual(demo.SIM, dict(speed=240, paused=True))
+            for body in (b'{"speed": 7}', b'{"paused": "yes"}', b'not json', b'[1]', b'{"speed": 60}'*40):
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(Request(url, data=body))
+                self.assertEqual(caught.exception.code, 400)
+                caught.exception.close()
+            self.assertEqual(demo.SIM, dict(speed=240, paused=True))
+
+    def test_recording_round_trips_and_the_committed_one_matches_the_saved_scores(self):
+        frame = lambda t, n: dict(t=t, cars=[v for i in range(n) for v in (i+70000*(i == 0), 2500+i, 9000-i, i % 2)],
+                                  lights=['GGr', 'ry'], waiting=3, finished=t-59400, delay=12.3)
+        sides = dict(old=([frame(59400, 2), frame(59410, 0)], dict(delay_s=1.0, unfinished=0)),
+                     plan=([frame(59400, 1), frame(59410, 3)], dict(delay_s=2.0, unfinished=1)))
+        with tempfile.TemporaryDirectory() as temp:
+            head, frames = read_recording(live_sim.write_recording(sides, Path(temp)/'r.gz'))
+        self.assertEqual(head['final'], dict(old=dict(delay_s=1.0, unfinished=0), plan=dict(delay_s=2.0, unfinished=1)))
+        self.assertEqual([f['t'] for f in frames], [59400, 59410])
+        self.assertEqual(frames[0]['old'], dict(ids=[70000 % 65536, 1], x=[2500, 2501], y=[9000, 8999], stop=[0, 1],
+                                                lights='GGrry', waiting=3, finished=0, delay=123))
+        self.assertEqual(frames[1]['old']['ids'], [])
+        committed = live_sim.RECORDING
+        self.assertLessEqual(committed.stat().st_size, 4*1024*1024)
+        head, frames = read_recording(committed)
+        with (demo.ROOT/'reports/learner_heldout/results.csv').open() as rows:
+            saved = {row['arm']: float(row['all_requested_delay_s']) for row in csv.DictReader(rows)
+                     if row['road'] == 'wolfe' and row['seed'] == '200'}
+        self.assertEqual(head['final']['old']['delay_s'], round(saved['old'], 1))
+        self.assertEqual(head['final']['plan']['delay_s'], round(saved['learner'], 1))
+        self.assertEqual(frames[0]['t'], 59400)
+        self.assertTrue(all(b['t']-a['t'] == live_sim.EVERY_S for a, b in zip(frames, frames[1:])))
+
+    def test_geometry_export_is_committed_and_fits_the_map(self):
+        try:
+            from tools import sim_geometry
+        except ImportError as exc:
+            self.skipTest(f'PyYAML is not installed: {exc}')
+        for road in ('wolfe', 'deanza'):
+            fresh = sim_geometry.export(road)
+            self.assertEqual(json.loads((sim_geometry.OUT/f'{road}.json').read_text()), json.loads(json.dumps(fresh)))
+            x0, y0, x1, y1 = fresh['bounds']
+            self.assertTrue(fresh['lanes'] and any(lane['main'] for lane in fresh['lanes']))
+            for lane in fresh['lanes']:
+                # Lane shapes sit up to half a road width outside the edge-centre bounds.
+                self.assertTrue(all(x0-5 <= x <= x1+5 for x in lane['xy'][0::2]) and all(y0-5 <= y <= y1+5 for y in lane['xy'][1::2]))
+            for signal in fresh['signals']:
+                self.assertTrue(signal['stops'])
+                self.assertTrue(all(len(stop['xy']) == 4 and stop['links'] for stop in signal['stops']))
 
     def test_demo_timeout_reaches_the_sumo_subprocess(self):
         from learner import road

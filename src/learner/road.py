@@ -85,14 +85,15 @@ def lane_rows(path, ids, begin, end):
                   key=lambda r: (r['window_end'], r['lane']))
 
 
-def simulate(cfg, routes, timing, seed, feed=False, additional=(), timeout=7200):
-    """One PM run: metrics charged as in evaluate (900 s per unfinished trip and teleport); optional feed rows."""
+def simulate(cfg, routes, timing, seed, feed=False, additional=(), timeout=7200, runner=None):
+    """One PM run: metrics charged as in evaluate (900 s per unfinished trip and teleport); optional feed rows.
+    runner(args, timeout) replaces the SUMO subprocess, e.g. to step the same command through libsumo."""
     begin, end = window(cfg)
     network = net(cfg)
     with tempfile.TemporaryDirectory() as folder:
         folder = Path(folder)
         detectors, ids = feed_detectors(cfg, network, folder)
-        p.run([p.BIN/'sumo', '-n', file(cfg, 'net'), '-r', routes,
+        (runner or p.run)([p.BIN/'sumo', '-n', file(cfg, 'net'), '-r', routes,
                '-a', ','.join(map(str, [detectors, timing, *additional])),
                '-b', begin-cfg['warmup_s'], '-e', end+cfg['drain_s'], '--seed', seed,
                '--time-to-teleport', cfg['time_to_teleport'], '--no-step-log', '--aggregate-warnings', -1,
