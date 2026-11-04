@@ -10,15 +10,15 @@ The printed Engineer console URL opens the clickable mock product (corridor, sig
 
 For the live test on a fresh clone, first run `PYTHONPATH=src:. python -m tools.learner build-world --road wolfe` with the SUMO-enabled environment; this generates the ignored routes and old timing from the tracked road inputs.
 
-Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginning/end. A URL ending in `/#9` opens the saved video. The fixed widescreen stage scales on phones; landscape is more readable. Play the video with its native controls if autoplay is blocked. Download the printed PDF URL as an offline fallback; it contains a still image, not playable video.
+Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginning/end. Slide 5 (a URL ending in `/#5`) has the saved video: click the thumbnail to play it over the slide, Esc to close. The fixed widescreen stage scales on phones; landscape is more readable. Use the video's native controls if it does not start. Download the printed PDF URL as an offline fallback; it contains a still image, not playable video.
 
 ## Present and rehearse
 
-The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 15 slides. Slides 1–2 introduce Stevens Creek; 3–8 explain the working system; 9 plays one saved synthetic Wolfe run; 10–12 show the original evidence; 13 gives one short limitations section; 14 proposes the city workflow; 15 closes with the engineer ask. A student must personally rehearse and verify media on the presentation laptop. Team roles and pending work belong in [SPEC.md](../SPEC.md).
+The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 17 slides. Slides 1–9 are the main talk, about 150 seconds: problem, what we built, the live console demo (slide 4), Wolfe and De Anza results, the city workflow, one limits slide and the engineer ask. Slides 10–17 are backup for questions. A student must personally rehearse and verify media on the presentation laptop. Team roles and pending work belong in [SPEC.md](../SPEC.md).
 
 The server also prints engineer-card URLs. Wolfe's archived card predicts 137.6 → 79.6 in the practice copy; the historical hidden-world result is separately 870.49 → 643.11. De Anza keeps old timing. Its archived reason says “no clear gain,” but the candidate actually failed the teleport constraint; its forecast describes that rejected candidate. The demo adds a reading note while preserving the archived source. This presentation update does not change the learner or replace the original results.
 
-The original copy-count labels were wrong: 29,633 and 38,959 are signal-turn passages summed over traversals, not unique vehicles or trips. The deck corrects this label; frozen research outputs remain unchanged. VTA-derived material on slide 12 carries the approved citation.
+The original copy-count labels were wrong: 29,633 and 38,959 are signal-turn passages summed over traversals, not unique vehicles or trips. The deck corrects this label; frozen research outputs remain unchanged. VTA-derived material on slide 14 carries the approved citation.
 
 ## Develop separately
 
