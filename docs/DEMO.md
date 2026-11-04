@@ -14,7 +14,7 @@ Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginn
 
 ## Present and rehearse
 
-The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 17 slides. Slides 1–9 are the main talk, about 150 seconds: problem, what we built, the live console demo (slide 4), Wolfe and De Anza results, the city workflow, one limits slide and the engineer ask. Slides 10–17 are backup for questions. A student must personally rehearse and verify media on the presentation laptop. Team roles and pending work belong in [SPEC.md](../SPEC.md).
+The speaking copy is in the actual [HTML slides](../dashboard/signal-learner/index.html), available with N. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same 17 slides. Slides 1–9 are the main talk, about 150 seconds: problem, what we built, the live console demo (slide 4), Wolfe and De Anza results, the city workflow, one limits slide and the engineer ask. Slides 10–17 are backup for questions. A student must personally rehearse and verify media on the presentation laptop. Team roles and pending work are in the [README](../README.md).
 
 The server also prints engineer-card URLs. Wolfe's archived card predicts 137.6 → 79.6 in the practice copy; the historical hidden-world result is separately 870.49 → 643.11. De Anza keeps old timing. Its archived reason says “no clear gain,” but the candidate actually failed the teleport constraint; its forecast describes that rejected candidate. The demo adds a reading note while preserving the archived source. This presentation update does not change the learner or replace the original results.
 

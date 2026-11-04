@@ -1,3 +1,5 @@
+> **Superseded Nov 3, 2026:** the current team plan, roles and to-dos are in the [README](README.md). This file is kept as history.
+
 # Hackathon presentation: scope and team plan
 
 Status: approved by Advaita's instruction to correct PR #2 to Saarth's requested scope on 2026-11-02.

@@ -22,7 +22,7 @@ Built in simulation by Saarth, Advaita and Prithvi for the Monta Vista AI Club h
 Every one of us must be able to explain the whole project, not only our own part.
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
 2. Run `python3 -m tools.demo` and open the links it prints in Chrome:
-   - **Slides:** the main deck takes about 2.5 minutes. The slides after "Backup" are only for judge questions. Press **N** for speaker notes. Read every note.
+   - **Slides:** slides 1–9 are the talk, about 2.5 minutes plus the demo. Slides 10–17 are backup, only for judge questions. Press **N** for speaker notes. Read every note.
    - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Click every screen.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
 3. Click this path in the console once: **Recommendation → Approve → timing sheet → Test it → Watch → How it connects.**
@@ -32,7 +32,7 @@ Every one of us must be able to explain the whole project, not only our own part
 
 | | **Advaita: the story** | **Saarth: the simulation and the demo** | **Prithvi: the real-world side** |
 |---|---|---|---|
-| **Presents** | The opening: problem, our user, what we built. The close and our ask. | The live demo in the engineer console. The results: Wolfe Rd and De Anza. | How it would connect to a real city. Limits and next steps. |
+| **Presents** | Slides 1–3: the hook, the problem and our user, what we built. Slide 9: the close and our ask. | Slide 4 and the live demo in the engineer console. Slides 5–6: the Wolfe Rd and De Anza results. | Slide 7: how it would connect to a real city. Slide 8: limits and next steps. |
 | **Learns deeply** | Guide sections [1](docs/PRESENTER-GUIDE.md#1-the-problem) and [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does). The city email and the VTA data in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). | Guide sections [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does) and [4](docs/PRESENTER-GUIDE.md#4-the-results-and-what-the-numbers-mean). The results in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). How the code runs: `src/learner/`, `tools/learner.py`. | Guide sections [2](docs/PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [5](docs/PRESENTER-GUIDE.md#5-how-it-would-connect-to-a-real-city). The sourced facts in [research-hardware](docs/research-hardware.md). The "How it connects" screen in the console. |
 | **Answers judge questions on** | Why Cupertino needs this. Who the user is. What we do next. | What the AI is. Is the data real. Is the test fair. What −26% means. Could it make things worse. | What hardware is in a traffic light. How it connects. Is it safe. Don't smart systems already exist. |
 | **Also owns** | The 30-second backup recording of the demo | The presentation laptop setup and the live demo working | Club rules, time-keeping in rehearsal, the submission |
@@ -54,7 +54,7 @@ If one of us is away on the day, the other two cover their part. That is why Ste
 
 ### Step 4 · On the day
 Laptop charged. Chrome open on the slides and the console. Wi-Fi off. PDF and backup video on the desktop.
-Order: Advaita opens → Saarth demos and shows results → Prithvi on connecting and limits → Advaita closes → questions.
+Order: Advaita (slides 1–3) → Saarth (slide 4, live demo, slides 5–6) → Prithvi (slides 7–8) → Advaita (slide 9) → questions, using backup slides 10–17.
 
 ## Setup on a new laptop
 
