@@ -185,7 +185,7 @@ function nameAlong(ctx, geo, p, w, h, gapFromRoad) {
   for (const s of sigs) {
     const half = ctx.measureText(s.name).width / 2, top = s.x - half > free;
     const ly = top ? 13 : h - 13;
-    if (top) free = s.x + half + 12; else below.push([s.x - half, s.x + half]);
+    if (top) free = s.x + half + 64; else below.push([s.x - half, s.x + half]);
     ctx.strokeStyle = '#d5dce4'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(s.x, top ? ly + 10 : ly - 10); ctx.lineTo(s.x, top ? s.y - gapFromRoad : s.y + gapFromRoad); ctx.stroke();
     halo(ctx, s.name, s.x, ly, '#334155');

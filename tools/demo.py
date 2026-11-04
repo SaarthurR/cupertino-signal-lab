@@ -120,7 +120,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-store')
             self.end_headers()
             self.event('status', dict(phase='starting'))
-            self.pace(arms, queues, time.monotonic()+SIM_MAX_S)
+            self.pace(arms, queues, workers, time.monotonic()+SIM_MAX_S)
         except (BrokenPipeError, ConnectionResetError):
             self.log_message('Browser left the simulation; stopped it')
         finally:
@@ -132,24 +132,33 @@ class Handler(SimpleHTTPRequestHandler):
                     process.join(3)
             SIM_LOCK.release()
 
-    def pace(self, arms, queues, deadline):
+    def pace(self, arms, queues, workers, deadline):
         last, done, due, sent = {}, {}, time.monotonic(), -10**9
         while len(done) < len(arms):
             if time.monotonic() > deadline:
                 return self.event('failed', dict(reason='The run took too long and was stopped.'))
+            if any(process.exitcode not in (None, 0) for process in workers):
+                return self.event('failed', dict(reason='A simulator worker exited unexpectedly.'))
             if SIM['paused']:
                 self.wfile.write(b': paused\n\n')  # a write per second notices a closed browser
                 self.wfile.flush()
                 time.sleep(0.5)
                 due = time.monotonic()
                 continue
-            for arm, queue in zip(arms, queues):
+            for arm, queue, process in zip(arms, queues, workers):
                 if arm in done:
                     continue
-                try:
-                    item = queue.get(timeout=120)
-                except Empty:
-                    return self.event('failed', dict(reason='The simulator stopped answering.'))
+                while True:
+                    try:
+                        item = queue.get(timeout=0.5)
+                        break
+                    except Empty:
+                        if not process.is_alive() or any(p.exitcode not in (None, 0) for p in workers):
+                            return self.event('failed', dict(reason='A simulator worker exited unexpectedly.'))
+                        if time.monotonic() > deadline:
+                            return self.event('failed', dict(reason='The run took too long and was stopped.'))
+                        self.wfile.write(b': waiting\n\n')
+                        self.wfile.flush()
                 if 'error' in item:
                     return self.event('failed', dict(reason=f'The simulation failed: {item["error"]}'))
                 if 'done' in item:

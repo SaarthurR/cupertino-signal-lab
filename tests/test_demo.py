@@ -3,6 +3,8 @@ import csv
 import gzip
 import io
 import json
+import multiprocessing
+import os
 from pathlib import Path
 import struct
 import subprocess
@@ -39,6 +41,28 @@ def endless_worker(arm, queue, stop):
     while not stop.is_set():
         queue.put(fake_frame(t))
         t += 1
+
+
+def crashed_worker(arm, queue, stop):
+    if arm == 'old':
+        time.sleep(1)
+        os._exit(1)
+    stop.wait(30)
+
+
+def stalled_worker(arm, queue, stop):
+    stop.wait(30)
+
+
+def caught_error_worker(arm, queue, stop):
+    if arm == 'old':
+        time.sleep(1)
+        for t in range(demo.FPS*8):
+            queue.put(fake_frame(t))
+        with mock.patch.object(live_sim, 'run', side_effect=RuntimeError('sumo crashed')):
+            live_sim.worker(arm, queue, stop)
+    else:
+        stop.wait(30)
 
 
 def sse(text):
@@ -236,6 +260,43 @@ class DemoTests(unittest.TestCase):
                     break
                 time.sleep(0.1)
             self.assertFalse(demo.SIM_LOCK.locked())
+
+    def test_abrupt_worker_exit_stops_peer_even_while_paused(self):
+        for worker, paused in ((crashed_worker, False), (crashed_worker, True), (caught_error_worker, True)):
+            with self.subTest(worker=worker, paused=paused), tempfile.TemporaryDirectory() as temp, \
+                    mock.patch.object(demo, 'live_ready', return_value=None), \
+                    mock.patch.object(demo, 'WORKER', worker):
+                url = self.serve(temp)
+                before = set(multiprocessing.active_children())
+                with urlopen(url+'/api/sim/stream', timeout=8) as response:
+                    response.readline()
+                    demo.SIM['paused'] = paused
+                    events = sse(response.read().decode())
+                self.assertEqual(events[-1][0], 'failed')
+                self.assertIn('exited unexpectedly', events[-1][1]['reason'])
+                self.assertFalse(demo.SIM_LOCK.locked())
+                self.assertEqual(set(multiprocessing.active_children()), before)
+
+    def test_stalled_worker_respects_deadline_and_disconnect(self):
+        for disconnect in (False, True):
+            with self.subTest(disconnect=disconnect), tempfile.TemporaryDirectory() as temp, \
+                    mock.patch.object(demo, 'live_ready', return_value=None), \
+                    mock.patch.object(demo, 'WORKER', stalled_worker), \
+                    mock.patch.object(demo, 'SIM_MAX_S', 30 if disconnect else 0.1):
+                url = self.serve(temp)
+                before = set(multiprocessing.active_children())
+                with urlopen(url+'/api/sim/stream', timeout=8) as response:
+                    if disconnect:
+                        response.readline()
+                    else:
+                        events = sse(response.read().decode())
+                        self.assertIn('too long', events[-1][1]['reason'])
+                for _ in range(60):
+                    if not demo.SIM_LOCK.locked():
+                        break
+                    time.sleep(0.1)
+                self.assertFalse(demo.SIM_LOCK.locked())
+                self.assertEqual(set(multiprocessing.active_children()), before)
 
     def test_control_sets_speed_and_pause_and_rejects_bad_input(self):
         with tempfile.TemporaryDirectory() as temp:

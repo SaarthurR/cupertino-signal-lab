@@ -79,7 +79,12 @@ def worker(arm, queue, stop):
     except SystemExit:
         pass
     except BaseException as exc:
-        queue.put(dict(error=f'{type(exc).__name__}: {exc}'))
+        queue.cancel_join_thread()  # A paused reader must not keep a failed worker flushing frames forever.
+        try:
+            queue.put(dict(error=f'{type(exc).__name__}: {exc}'), timeout=0.5)
+        except Full:
+            pass
+        raise
 
 
 def _record(arm):
