@@ -1,31 +1,28 @@
 'use strict';
-// Every number on screen comes from the copied report files in data/ or from the live test endpoint.
+// Every number on screen comes from the copied report files in data/, the recording, or the live run.
 
-const SCREENS = ['corridor', 'signal', 'recommendation', 'test', 'watch', 'connect'];
 const ROADS = ['wolfe', 'deanza'];
-const STORE = 'signal-learner-console-v1';
-// Loaded from the served copy of the frozen go-back rule.
-let RULE;
-const COLORS = ['#1f4fd6', '#22a05a', '#d97706', '#7c3aed'];
-const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
-const TURNS = { L: 'left', T: 'through', R: 'right' };
+const STORE = 'signal-learner-console-v2';
+const SPEEDS = [60, 120, 240];
+const ARMS = ['old', 'plan'];
+const ARM_NAME = { old: 'Current timing', plan: 'Signal Learner plan' };
 
 const main = document.getElementById('main');
 const cache = {};
-let route = { road: 'wolfe', screen: 'corridor', index: 0 };
+let route = { road: 'wolfe', screen: 'overview' };
 let decisions = loadDecisions();
 let rejecting = false;
-let live = null;
-let timer = null;
-let firstRender = true;
+let player = null;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const f1 = x => Number(x).toFixed(1);
-const signed = (x, d = 1) => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(d);
+const betterOn = h => h.better === h.n ? `all ${h.n}` : `${h.better} of ${h.n}`;
+const pct = (from, to) => `${to < from ? '−' : '+'}${Math.abs(Math.round((to - from) / from * 100))}%`;
 const mean = v => v.reduce((a, b) => a + b, 0) / v.length;
-const sum = v => v.reduce((a, b) => a + b, 0);
-const clock = s => `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}`;
-const change = (a, b, unit = ' s') => a === b ? `${f1(a)}${unit}` : `${f1(a)}<span class="arrow">→</span><span class="up">${f1(b)}</span>${unit}`;
+const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
+const TURNS = { L: 'left', T: 'through', R: 'right' };
+const seconds = t => { const [h, m] = t.split(':').map(Number); return h * 3600 + m * 60; };
+const ampm = s => { const h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60; return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; };
 
 function loadDecisions() {
   try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; }
@@ -33,6 +30,8 @@ function loadDecisions() {
 function saveDecisions() {
   try { localStorage.setItem(STORE, JSON.stringify(decisions)); } catch { /* private mode: keep in memory */ }
 }
+
+/* ---------- Data ---------- */
 
 function csv(text) {
   const [head, ...rows] = text.trim().split(/\r?\n/);
@@ -42,16 +41,7 @@ function csv(text) {
 
 function roadYaml(text) {
   const top = key => (text.match(new RegExp(`^${key}:\\s*'?([^'\\n]*)'?`, 'm')) || [])[1];
-  const signals = [];
-  let inSignals = false, current = null, m;
-  for (const line of text.split('\n')) {
-    if (/^signals:/.test(line)) { inSignals = true; continue; }
-    if (inSignals && /^\S/.test(line) && !line.startsWith('-')) inSignals = false;
-    if (!inSignals) continue;
-    if ((m = line.match(/^- name: (.+)$/))) signals.push(current = { name: m[1].trim() });
-    else if ((m = line.match(/^ {2}(lat|lon): (.+)$/))) current[m[1]] = Number(m[2]);
-  }
-  return { street: top('street'), begin: top('begin'), end: top('end'), signals };
+  return { street: top('street'), begin: top('begin'), end: top('end'), drain: Number(top('drain_s')) };
 }
 
 // Yellow and all-red after each green, from the main phase chain (before the first <param>).
@@ -85,17 +75,25 @@ async function get(path, kind = 'text') {
 async function data(road) {
   if (cache[road]) return cache[road];
   const base = `data/${road}/`;
-  const [card, practice, plan, pattern, yaml, results, goBack, rule, ...feeds] = await Promise.all([
+  const [card, practice, plan, yaml, results, geo] = await Promise.all([
     get(base + 'card.json', 'json'), get(base + 'practice.json', 'json'), get(base + 'plan.add.xml'),
-    get(base + 'pattern.csv'), get(base + 'road.yaml'), get('data/heldout/results.csv'), get('data/heldout/go_back.json', 'json'), get('data/check-rule.txt'),
-    ...[0, 1, 2].map(seed => get(`${base}feed${seed}.csv`))]);
-  RULE = Object.fromEntries(Object.entries({ windows: 'WINDOWS', meanRise: 'MEAN_RISE', approachRise: 'APPROACH_RISE',
-    approaches: 'APPROACHES', sdFactor: 'SD_FACTOR', countDrop: 'COUNT_DROP' }).map(([key, name]) =>
-    [key, Number(rule.match(new RegExp(`^${name} = ([0-9.]+)`, 'm'))[1])]));
-  const d = { road, card, practice, clear: clearances(plan), pattern: csv(pattern), info: roadYaml(yaml),
-    results: csv(results), goBack, feeds: feeds.map(csv) };
-  if (road === 'deanza') d.posthoc = await get(base + 'posthoc.json', 'json');
-  return (cache[road] = d);
+    get(base + 'road.yaml'), get('data/heldout/results.csv'), get(`geo/${road}.json`, 'json')]);
+  return (cache[road] = { road, card, practice, clear: clearances(plan), info: roadYaml(yaml), results: csv(results), geo });
+}
+
+function heldout(d) {
+  const rows = d.results.filter(r => r.road === d.road);
+  const by = arm => Object.fromEntries(rows.filter(r => r.arm === arm).map(r => [r.seed, Number(r.all_requested_delay_s)]));
+  const old = by('old'), plan = by('learner');
+  const seeds = Object.keys(old).filter(s => s in plan);
+  const oldMean = mean(seeds.map(s => old[s])), planMean = mean(seeds.map(s => plan[s]));
+  return { n: seeds.length, oldMean, planMean, better: seeds.filter(s => plan[s] < old[s]).length };
+}
+
+// De Anza: how many confirmation runs of the best new plan jammed (removed more stuck cars than the margin allows).
+function jams(d) {
+  const p = d.practice, margin = p.settings.teleport_margin;
+  return { n: p.confirm_new.length, jammed: p.confirm_new.filter((run, i) => run.teleports > p.confirm_old[i].teleports + margin).length };
 }
 
 function phases(d, sig, which) {
@@ -109,212 +107,193 @@ function phases(d, sig, which) {
 function serves(codes) {
   return codes.map(code => {
     const [leg, turns] = code.split(':');
-    return `From ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`;
+    return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`;
   }).join(' · ');
-}
-
-function plainReason(reason) {
-  return reason.replace(/(?:[NSEW]:[LTR]+)(?: [NSEW]:[LTR]+)*/g, codes => serves(codes.split(' ')).replaceAll('From ', 'traffic from '))
-    .replaceAll('veh/15 min', 'cars per 15 min').replaceAll(' -> ', ' → ').replace(/^offset|; offset/g, m => m.replace('offset', 'green start'));
 }
 
 const isChange = d => d.card.decision === 'change';
 const decision = d => decisions[d.road] || {};
 
-function roadStatus(d) {
-  if (!isChange(d)) return ['No change · keep current timing', 'idle'];
-  const status = decision(d).status;
-  if (status === 'approved') return ['Approved · watching', 'info'];
-  if (status === 'rejected') return ['Rejected · card archived', 'idle'];
-  return ['Recommendation ready', 'ok'];
+/* ---------- Map (real SUMO lane shapes) ---------- */
+
+// Projection that fits the road's bounds into a w×h box, north up.
+// along: the road's length runs left→right across the full width (north on the left); side streets past the box edge are cut off.
+function fit(geo, w, h, pad = 14, along = false) {
+  const [x0, y0, x1, y1] = geo.bounds;
+  if (along) {
+    const k = (w - 2 * pad) / (y1 - y0), mid = (x0 + x1) / 2;
+    return { k, x: (x, y) => pad + (y1 - y) * k, y: (x, y) => h / 2 - (x - mid) * k };
+  }
+  const k = Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0));
+  const ox = (w - (x1 - x0) * k) / 2, oy = (h - (y1 - y0) * k) / 2;
+  return { k, x: (x, y) => ox + (x - x0) * k, y: (x, y) => h - oy - (y - y0) * k };
 }
 
-function signalStatus(d, sig) {
-  if (sig.reason === 'no material change') return ['Learned · no change', 'idle'];
-  const status = decision(d).status;
-  if (status === 'approved') return ['Approved · watching', 'info'];
-  if (status === 'rejected') return ['Learned · rejected', 'idle'];
-  return ['Recommendation ready', 'ok'];
+function path(ctx, p, xy) {
+  ctx.beginPath();
+  ctx.moveTo(p.x(xy[0], xy[1]), p.y(xy[0], xy[1]));
+  for (let i = 2; i < xy.length; i += 2) ctx.lineTo(p.x(xy[i], xy[i + 1]), p.y(xy[i], xy[i + 1]));
 }
 
-const pill = ([text, kind]) => `<span class="pill ${kind}">${esc(text)}</span>`;
-// Hover or keyboard-focus a dotted term to read a one-line explanation.
-const tip = (label, text) => `<span class="tip" tabindex="0">${label}<span class="tip-text" role="tooltip">${esc(text)}</span></span>`;
-const more = (summary, body) => `<details class="more"><summary>${summary}</summary><div class="more-body stack">${body}</div></details>`;
-const hm = t => { const [h, m] = t.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')}`; };
-const peak = info => `${hm(info.begin)}–${hm(info.end)} ${Number(info.end.split(':')[0]) >= 12 ? 'pm' : 'am'}`;
-const lights = n => `${n} traffic light${n === 1 ? '' : 's'}`;
-
-const T_ROUND = 'Cycle: one full round of greens for every direction.';
-const T_START = 'Offset: when this light starts its round, so greens line up along the road.';
-const T_ALLRED = 'Every light shows red for a moment so the crossing clears.';
-const T_SCORE = 'Average seconds of delay per trip. Trips that never finish add a penalty.';
-
-function heldout(d, road = d.road) {
-  const rows = d.results.filter(r => r.road === road);
-  const by = arm => Object.fromEntries(rows.filter(r => r.arm === arm).map(r => [r.seed, Number(r.all_requested_delay_s)]));
-  const old = by('old'), plan = by('learner');
-  const seeds = Object.keys(old).filter(s => s in plan).sort((a, b) => a - b);
-  const pairs = seeds.map(seed => ({ seed: Number(seed), old: old[seed], plan: plan[seed],
-    oldUnfinished: Number(rows.find(r => r.arm === 'old' && r.seed === seed).unfinished),
-    planUnfinished: Number(rows.find(r => r.arm === 'learner' && r.seed === seed).unfinished) }));
-  const oldMean = mean(pairs.map(p => p.old)), planMean = mean(pairs.map(p => p.plan));
-  return { pairs, oldMean, planMean, pct: (planMean - oldMean) / oldMean * 100, better: pairs.filter(p => p.plan < p.old).length };
+function canvasFor(box) {
+  const canvas = box.querySelector('canvas') || box.appendChild(document.createElement('canvas'));
+  const w = box.clientWidth, h = box.clientHeight, r = window.devicePixelRatio || 1;
+  canvas.width = Math.round(w * r); canvas.height = Math.round(h * r);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(r, 0, 0, r, 0, 0);
+  return { canvas, ctx, w, h };
 }
 
-/* ---------- 1. Corridor ---------- */
+function drawRoads(ctx, geo, p) {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.fillStyle = '#dfe4ea';
+  for (const j of geo.junctions) { path(ctx, p, j); ctx.closePath(); ctx.fill(); }
+  ctx.strokeStyle = '#dfe4ea';
+  ctx.lineWidth = Math.max(3.2 * p.k, 1.2);
+  for (const xy of geo.internal) { path(ctx, p, xy); ctx.stroke(); }
+  for (const lane of geo.lanes) {
+    ctx.strokeStyle = lane.main ? '#cfd6df' : '#dfe4ea';
+    ctx.lineWidth = Math.max(lane.w * p.k, 1.2);
+    path(ctx, p, lane.xy); ctx.stroke();
+  }
+}
 
-function mapSvg(d) {
-  const W = 600, H = 470, padY = 56;
-  const pts = d.card.signals.map((sig, i) => {
-    const where = d.info.signals.find(s => s.name === sig.signal) || {};
-    return { sig, i, lat: where.lat, lon: where.lon };
+const centre = sig => {
+  const xs = sig.stops.map(s => s.xy[2]), ys = sig.stops.map(s => s.xy[3]);
+  return [mean(xs), mean(ys)];
+};
+
+const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+function halo(ctx, text, x, y, color) {
+  ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(251,252,253,.92)'; ctx.lineJoin = 'round';
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = color; ctx.fillText(text, x, y);
+}
+
+// Names for a left→right map: lights above the road (or below when two are close), the ends, and the freeway.
+function nameAlong(ctx, geo, p, w, h, gapFromRoad) {
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 12px ${FONT}`;
+  ctx.textAlign = 'left'; halo(ctx, '← North', 10, 13, '#64748b');
+  ctx.textAlign = 'right'; halo(ctx, 'South →', w - 10, 13, '#64748b');
+  ctx.textAlign = 'center';
+  let free = 10 + ctx.measureText('← North').width + 10;
+  const below = [];
+  const sigs = geo.signals.map(sig => { const [cx, cy] = centre(sig); return { name: sig.name, x: p.x(cx, cy), y: p.y(cx, cy) }; }).sort((a, b) => a.x - b.x);
+  ctx.font = `600 13px ${FONT}`;
+  for (const s of sigs) {
+    const half = ctx.measureText(s.name).width / 2, top = s.x - half > free;
+    const ly = top ? 13 : h - 13;
+    if (top) free = s.x + half + 64; else below.push([s.x - half, s.x + half]);
+    ctx.strokeStyle = '#d5dce4'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(s.x, top ? ly + 10 : ly - 10); ctx.lineTo(s.x, top ? s.y - gapFromRoad : s.y + gapFromRoad); ctx.stroke();
+    halo(ctx, s.name, s.x, ly, '#334155');
+  }
+  const ramps = sigs.filter(s => s.name.startsWith('I-280'));
+  if (ramps.length === 2) {
+    ctx.font = `700 12px ${FONT}`;
+    const x = (ramps[0].x + ramps[1].x) / 2, half = ctx.measureText('I-280 freeway').width / 2;
+    if (!below.some(([a, b]) => x + half > a && x - half < b)) halo(ctx, 'I-280 freeway', x, h - 13, '#64748b');
+  }
+}
+
+// Static map with named light markers (Overview, De Anza card).
+function drawMap(box, geo) {
+  const { ctx, w, h } = canvasFor(box);
+  const along = box.hasAttribute('data-along');
+  const p = fit(geo, w, h, 22, along);
+  drawRoads(ctx, geo, p);
+  ctx.font = `600 12px ${FONT}`;
+  ctx.textBaseline = 'middle';
+  geo.signals.forEach(sig => {
+    const [cx, cy] = centre(sig), x = p.x(cx, cy), y = p.y(cx, cy);
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#0369a1'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2 * Math.PI); ctx.fillStyle = '#0369a1'; ctx.fill();
+    if (along) return;
+    const label = sig.name, tw = ctx.measureText(label).width;
+    const lx = x + 14 + tw + 8 < w ? x + 14 : Math.max(4, x - 14 - tw);
+    ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillRect(lx - 4, y - 10, tw + 8, 20);
+    ctx.fillStyle = '#0f172a'; ctx.fillText(label, lx, y);
   });
-  const lats = pts.map(p => p.lat), lons = pts.map(p => p.lon);
-  const latMin = Math.min(...lats), latMax = Math.max(...lats), lonMid = mean(lons);
-  const k = (H - 2 * padY) / (latMax - latMin);
-  const cos = Math.cos(mean(lats) * Math.PI / 180);
-  const cx = 230;
-  pts.forEach(p => { p.x = cx + (p.lon - lonMid) * cos * k; p.y = padY + (latMax - p.lat) * k; });
-  const road = [{ x: pts[0].x, y: H - 12 }, ...pts.slice().sort((a, b) => b.y - a.y), { x: pts.at(-1).x, y: 12 }];
-  const south = pts.find(p => /I-280 south/.test(p.sig.signal)), north = pts.find(p => /I-280 north/.test(p.sig.signal));
-  const freeway = south && north ? (() => {
-    const y = (south.y + north.y) / 2;
-    return `<rect x="0" y="${y - 9}" width="${W}" height="18" fill="#e8ebf0"/>
-      <line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="#fff" stroke-dasharray="10 8" stroke-width="1.5"/>
-      <text x="12" y="${y + 4}" font-size="11" font-weight="600" fill="#5a6371">I-280</text>`;
-  })() : '';
-  const markers = pts.map(p => {
-    const [text, kind] = signalStatus(d, p.sig);
-    const color = { ok: '#157a3c', info: '#1f4fd6', idle: '#8a93a1' }[kind];
-    const label = `${p.sig.signal}, ${text}. Open light ${p.i + 1}.`;
-    return `<a href="#/${d.road}/signal/${p.i}" aria-label="${esc(label)}"><title>${esc(`${p.sig.signal} · ${text}`)}</title>
-      <line x1="${p.x - 70}" x2="${p.x + 70}" y1="${p.y}" y2="${p.y}" stroke="#cfd4dc" stroke-width="6" stroke-linecap="round"/>
-      <circle class="ring" cx="${p.x}" cy="${p.y}" r="14" fill="#fff" stroke="${color}" stroke-width="3"/>
-      <text x="${p.x}" y="${p.y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#151a22">${p.i + 1}</text>
-      <text class="map-name" x="${p.x + 86}" y="${p.y + 5}" font-size="14" font-weight="600" fill="#151a22">${esc(p.sig.signal)}</text>
-    </a>`;
-  }).join('');
-  return `<svg class="map" viewBox="0 0 ${W} ${H}" role="group" aria-label="${esc(d.info.street)} drawn from the saved road file, north at top">
-    <rect width="${W}" height="${H}" rx="8" fill="#f7f8fa"/>
-    ${freeway}
-    <polyline points="${road.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#9aa3b2" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <polyline points="${road.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 8"/>
-    <text transform="translate(${cx - 22} ${H / 2}) rotate(-90)" text-anchor="middle" font-size="12" font-weight="600" fill="#5a6371">${esc(d.info.street)}</text>
-    <g transform="translate(${W - 34} 30)" aria-hidden="true"><path d="M0 -14 L7 6 L0 2 L-7 6 Z" fill="#5a6371"/><text y="20" text-anchor="middle" font-size="11" fill="#5a6371">N</text></g>
-    ${markers}
-  </svg>`;
+  if (along) nameAlong(ctx, geo, p, w, h, 12);
 }
 
-function corridor(d) {
-  const sigs = d.card.signals, e = d.card.expected_in_copy;
-  const changed = sigs.filter(s => s.reason !== 'no material change').length;
-  const lead = isChange(d)
-    ? `<h2>New timing for ${changed === sigs.length ? `all ${sigs.length}` : `${changed} of ${sigs.length}`} lights</h2>
-      <p class="muted">Forecast on the practice copy: <b>${signed(e.change_share * 100, 0)}%</b> ${tip('delay per trip', T_SCORE)}</p>`
-    : `<h2>Keep the current timing</h2><p class="muted">The best new plan caused jams in practice runs, so nothing changes.</p>`;
-  return `
-  <div class="head"><div><h1>${esc(d.info.street)}</h1><p>Evening rush, ${peak(d.info)} · ${lights(sigs.length)}</p></div></div>
-  <ol class="steps" aria-label="Progress">
-    <li class="step done"><b>Watched</b><span>${d.feeds.length} evening rush hours</span></li>
-    <li class="step done"><b>Learned</b><span>the traffic pattern</span></li>
-    <li class="step done"><b>Practiced</b><span>${d.practice.trials} timing plans</span></li>
-    <li class="step now"><b>Recommended</b><span>${isChange(d) ? 'new timing' : 'no change'}</span></li>
-  </ol>
-  <div class="grid g-map">
-    <div class="card"><h2 class="sr">Map</h2>${mapSvg(d)}<p class="small muted map-hint">Select a light to see its timing.</p></div>
-    <div class="card stack lead">${lead}
-      <div class="actions"><a class="btn primary" href="#/${d.road}/recommendation">Open the recommendation</a></div></div>
-  </div>`;
+const mapLabel = geo => `Map of ${geo.street} from the simulation road network, with ${geo.signals.length} traffic lights: ${geo.signals.map(s => s.name).join(', ')}.`;
+
+/* ---------- Overview ---------- */
+
+function overview(w, z) {
+  const h = heldout(w), j = jams(z), dec = decision(w);
+  const status = dec.status === 'approved' ? ['Approved', 'ok'] : dec.status === 'rejected' ? ['Rejected', 'bad'] : ['Needs review', 'new'];
+  return `<div class="page">
+  <div class="head"><div><h1>Recommendations</h1>
+    <p>You are the traffic engineer. Signal Learner studied two roads in simulation and sent you what it found. Nothing changes until you approve it.</p></div></div>
+  <div class="overview">
+    <section class="card map-card" aria-labelledby="map-title">
+      <div class="row" style="justify-content:space-between"><h2 id="map-title">${esc(w.info.street)}</h2><span class="hint">${w.geo.signals.length} traffic lights</span></div>
+      <div class="map" id="overview-map" data-along role="img" aria-label="${esc(mapLabel(w.geo))} North is on the left."></div>
+    </section>
+    <h2 class="label">Inbox</h2>
+    <section class="inbox" aria-label="Inbox">
+      <article class="card rec primary">
+        <div class="meta"><span class="pill ${status[1]}">${status[0]}</span><span>Evening peak, ${ampm(seconds(w.info.begin))}–${ampm(seconds(w.info.end))}</span></div>
+        <h3>${esc(w.info.street)}: new timing ready for review</h3>
+        <p class="muted">Longer greens for the busiest directions, lined up along the road, at all ${w.card.signals.length} lights.</p>
+        <div class="proof"><b>${pct(h.oldMean, h.planMean)}</b><span>delay, tested on ${h.n} new evenings. Better on ${betterOn(h)}.</span></div>
+        <div class="row"><a class="btn primary lg" href="#/wolfe/review">Review recommendation</a>
+          ${dec.status === 'approved' ? '<a class="btn lg" href="#/wolfe/simulate?run">Run the simulation</a>' : ''}</div>
+      </article>
+      <article class="card rec">
+        <div class="meta"><span class="pill">No change</span><span>Evening peak, ${ampm(seconds(z.info.begin))}–${ampm(seconds(z.info.end))}</span></div>
+        <h3>${esc(z.info.street)}: no change needed</h3>
+        <p class="muted">The best new plan jammed in ${j.jammed} of ${j.n} practice runs, so the current timing stays.</p>
+        <div><a class="btn" href="#/deanza/review">Open</a></div>
+      </article>
+    </section>
+  </div></div>`;
 }
 
-/* ---------- 2. Signal ---------- */
+/* ---------- Review ---------- */
 
 function bar(list, cycle, scale, old) {
-  const seg = (cls, s, title, text = '') => s > 0
-    ? `<div class="${cls}" style="width:${s / cycle * 100}%" title="${esc(title)}">${text}</div>` : '';
-  const body = list.map(p => seg(`seg-g${old ? ' old' : ''}`, p.max_green_s, `${serves(p.serves)}: green up to ${f1(p.max_green_s)} s`,
-      p.max_green_s / scale > 0.06 ? `${Math.round(p.max_green_s)} s` : '')
+  const seg = (cls, s, title, text = '') => s > 0 ? `<div class="${cls}" style="width:${s / cycle * 100}%" title="${esc(title)}">${text}</div>` : '';
+  const body = list.map((p, i) => seg(`seg-g${i % 2 ? ' alt' : ''}`, p.max_green_s, `Green ${serves(p.serves)}: up to ${f1(p.max_green_s)} s`,
+      p.max_green_s / scale > 0.07 ? `${Math.round(p.max_green_s)}` : '')
     + seg('seg-y', p.yellow, `Yellow ${f1(p.yellow)} s`) + seg('seg-r', p.red, `All-red ${f1(p.red)} s`)).join('');
-  const label = list.map(p => `${serves(p.serves)}: green ${f1(p.max_green_s)}, yellow ${f1(p.yellow)}, all-red ${f1(p.red)}`).join('; ');
-  return `<div class="bar" style="width:${cycle / scale * 100}%" role="img" aria-label="Round of ${f1(cycle)} seconds: ${esc(label)}">${body}</div>`;
+  const label = list.map(p => `green ${serves(p.serves)} ${f1(p.max_green_s)} seconds`).join('; ');
+  return `<div class="bar${old ? ' old' : ''}" style="width:${cycle / scale * 100}%" role="img" aria-label="${old ? 'Now' : 'New'}: one round of ${f1(cycle)} seconds; ${esc(label)}">${body}</div>`;
 }
 
-function patternChart(d, site) {
-  const rows = d.pattern.filter(r => r.site === site);
-  const legs = [...new Set(rows.map(r => r.approach))];
-  const times = [...new Set(rows.map(r => Number(r.quarter_start_s)))].sort((a, b) => a - b);
-  const W = 520, H = 190, L = 40, R = 12, T = 10, B = 26;
-  const top = Math.ceil(Math.max(...rows.map(r => Number(r.mean_count))) / 100) * 100 || 100;
-  const x = t => L + (times.indexOf(t) / Math.max(times.length - 1, 1)) * (W - L - R);
-  const y = v => T + (1 - v / top) * (H - T - B);
-  const grid = [0, 0.25, 0.5, 0.75, 1].map(f => `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(top * f)}" y2="${y(top * f)}"/>
-    <text x="${L - 6}" y="${y(top * f) + 4}" text-anchor="end">${top * f}</text>`).join('');
-  const ticks = times.map((t, i) => i % 2 ? '' : `<text x="${x(t)}" y="${H - 8}" text-anchor="middle">${clock(t)}</text>`).join('');
-  const lines = legs.map((leg, i) => {
-    const pts = rows.filter(r => r.approach === leg).map(r => [x(Number(r.quarter_start_s)), y(Number(r.mean_count))]);
-    return `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="${COLORS[i % 4]}" stroke-width="2"/>`
-      + pts.map(([px, py]) => `<circle cx="${px}" cy="${py}" r="2.5" fill="${COLORS[i % 4]}"/>`).join('');
-  }).join('');
-  const table = more('Show as table', `<table><thead><tr><th>Start</th>${legs.map(l => `<th class="num">From ${LEGS[l]}</th>`).join('')}</tr></thead><tbody>
-    ${times.map(t => `<tr><td>${clock(t)}</td>${legs.map(l => `<td class="num">${f1(rows.find(r => r.approach === l && Number(r.quarter_start_s) === t)?.mean_count ?? NaN)}</td>`).join('')}</tr>`).join('')}
-    </tbody></table>`);
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cars per 15 minutes by direction at ${esc(site)}">${grid}${ticks}${lines}</svg>
-    <div class="legend">${legs.map((l, i) => `<span><i style="background:${COLORS[i % 4]}"></i>From the ${LEGS[l]}</span>`).join('')}</div>${table}`;
-}
-
-function signal(d) {
+function changes(d) {
   const sigs = d.card.signals;
-  const sig = sigs[Math.min(route.index, sigs.length - 1)];
-  const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
-  const scale = Math.max(sig.old.cycle_s, sig.new.cycle_s);
-  const ticks = [];
-  for (let t = 0; t <= scale; t += 10) ticks.push(`<span style="left:${t / scale * 100}%">${t}</span>`);
-  const same = sig.reason === 'no material change';
-  const why = same ? '<p class="small muted">No change at this light.</p>'
-    : more('Why it changed', `<ul class="why">${plainReason(sig.reason).split('; ').map(r => `<li>${esc(r)}</li>`).join('')}</ul>`);
-  return `
-  <div class="head"><div><h1>${esc(sig.signal)}</h1><p>Light ${sigs.indexOf(sig) + 1} of ${sigs.length} on ${esc(d.info.street)}</p></div></div>
-  <nav class="tabs" aria-label="Lights">${sigs.map((s, i) => `<a href="#/${d.road}/signal/${i}" ${s === sig ? 'aria-current="page"' : ''}>${i + 1} · ${esc(s.signal)}</a>`).join('')}</nav>
-  <div class="card" style="margin-bottom:16px">
-    <h2>One ${tip('full round', T_ROUND)} of greens</h2>
-    <div class="bar-row"><div class="lbl"><b>Old</b><span>${f1(sig.old.cycle_s)} s</span></div>${bar(old, sig.old.cycle_s, scale, true)}</div>
-    <div class="bar-row"><div class="lbl"><b>New</b><span>${f1(sig.new.cycle_s)} s</span></div>${bar(neu, sig.new.cycle_s, scale, false)}</div>
-    <div class="axis" aria-hidden="true"><div></div><div class="ticks">${ticks.join('')}</div></div>
-    <div class="legend" style="margin-top:6px"><span><i style="background:var(--g)"></i>Green</span><span><i style="background:var(--y)"></i>Yellow</span><span><i style="background:var(--r)"></i>${tip('All-red', T_ALLRED)}</span><span>Seconds</span></div>
-    ${more('How to read this', `<p class="small">Each bar is one full round. Green blocks show the longest green each direction may get.</p>
-      <p class="small">Green starts at ${f1(sig.old.offset_s)} s (old) and ${f1(sig.new.offset_s)} s (new). ${esc(T_START)}</p>`)}
-  </div>
-  <div class="grid g2">
-    <div class="card stack"><h2>Green time by direction</h2>
-      <table><thead><tr><th>Who moves</th><th class="num">Green, s</th></tr></thead><tbody>
-      ${old.map((p, i) => `<tr><td>${esc(serves(p.serves))}</td><td class="num">${change(p.max_green_s, neu[i].max_green_s, '')}</td></tr>`).join('')}
-      </tbody></table>${why}
-    </div>
-    <div class="card"><h2>Cars per 15 minutes</h2>${patternChart(d, sig.signal)}</div>
-  </div>`;
+  const oldC = [...new Set(sigs.map(s => s.old.cycle_s))], newC = [...new Set(sigs.map(s => s.new.cycle_s))];
+  const gains = sigs.flatMap(s => s.new.greens.map((g, i) => g.max_green_s - s.old.greens[i].max_green_s));
+  return [
+    oldC.length === 1 && newC.length === 1
+      ? `All ${sigs.length} lights go from a ${f1(oldC[0])} s round to a ${f1(newC[0])} s round.`
+      : 'Each light gets a new round length.',
+    `The busiest directions get up to ${Math.round(Math.max(...gains))} s more green each round.`,
+    `Greens start at new times so cars meet more greens along ${esc(d.info.street)}. Phase order, yellow, all-red and minimum greens stay the same.`];
 }
-
-/* ---------- 3. Recommendation ---------- */
 
 function sheet(d) {
-  const at = new Date(decision(d).at);
-  return `<section class="sheet" aria-labelledby="sheet-title">
-    <div class="sheet-head"><div><h2 id="sheet-title">Timing change sheet</h2><p class="muted small">From the approved Signal Learner card · simulation result</p></div><span class="stamp">Draft for engineer entry</span></div>
-    <dl>
-      <dt>Corridor</dt><dd>${esc(d.info.street)}, ${d.card.signals.length} intersections</dd>
+  const at = decision(d).at ? new Date(decision(d).at).toLocaleString() : 'Not approved yet';
+  const ch = (a, b) => a === b ? f1(a) : `${f1(a)} → ${f1(b)}`;
+  return `<section class="sheet">
+    <div class="sheet-head"><div><h2>Timing change sheet</h2><p class="small muted">Signal Learner · simulation result, not city timing</p></div><span class="stamp">Draft for engineer entry</span></div>
+    <dl><dt>Road</dt><dd>${esc(d.info.street)}, ${d.card.signals.length} intersections</dd>
       <dt>Plan</dt><dd>Evening peak, ${esc(d.info.begin)}–${esc(d.info.end)}</dd>
-      <dt>Approved</dt><dd>${esc(at.toLocaleString())} (in this console)</dd>
-      <dt>Unchanged</dt><dd>Phase order, yellow, all-red and minimum greens</dd>
-    </dl>
+      <dt>Approved</dt><dd>${esc(at)} (in this console)</dd>
+      <dt>Unchanged</dt><dd>Phase order, yellow, all-red and minimum greens</dd></dl>
     ${d.card.signals.map(sig => {
       const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
       return `<div class="int"><h3>${esc(sig.signal)}</h3>
-        <p class="small">Cycle ${change(sig.old.cycle_s, sig.new.cycle_s)} · Offset ${change(sig.old.offset_s, sig.new.offset_s)}</p>
-        <table><thead><tr><th>Phase</th><th>Movements</th><th class="num">Min green</th><th class="num">Max green</th><th class="num">Yellow</th><th class="num">All-red</th><th class="num">Split</th></tr></thead><tbody>
-        ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="num">${f1(p.min_green_s)}</td>
-          <td class="num">${change(p.max_green_s, neu[i].max_green_s, '')}</td><td class="num">${f1(p.yellow)}</td><td class="num">${f1(p.red)}</td>
-          <td class="num">${change(p.split, neu[i].split, '')}</td></tr>`).join('')}
+        <p class="small">Cycle ${ch(sig.old.cycle_s, sig.new.cycle_s)} s · Offset ${ch(sig.old.offset_s, sig.new.offset_s)} s</p>
+        <table><thead><tr><th>Phase</th><th>Movements</th><th class="n">Min green</th><th class="n">Max green</th><th class="n">Yellow</th><th class="n">All-red</th><th class="n">Split</th></tr></thead><tbody>
+        ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="n">${f1(p.min_green_s)}</td><td class="n">${ch(p.max_green_s, neu[i].max_green_s)}</td>
+          <td class="n">${f1(p.yellow)}</td><td class="n">${f1(p.red)}</td><td class="n">${ch(p.split, neu[i].split)}</td></tr>`).join('')}
         </tbody></table></div>`;
     }).join('')}
     <p class="small muted" style="margin-top:12px">Seconds. Split = max green + yellow + all-red. Phase numbers come from the simulation; match them to the controller's phases when entering.</p>
@@ -322,302 +301,456 @@ function sheet(d) {
   </section>`;
 }
 
-function decisionBlock(d) {
-  const dec = decision(d);
-  if (dec.status === 'approved') {
-    return `<div class="banner ok no-print"><span><b>Approved.</b> Print the sheet for the engineer, then test it.</span>
-      <span class="actions"><button class="btn primary" data-action="print">Print sheet</button><a class="btn" href="#/${d.road}/test">Test it</a><button class="btn ghost" data-action="reopen">Undo</button></span></div>`;
-  }
-  if (dec.status === 'rejected') {
-    return `<div class="banner bad"><span><b>Rejected</b> ${esc(new Date(dec.at).toLocaleString())}.${dec.note ? ` Note: “${esc(dec.note)}”` : ''} Current timing stays.</span>
-      <button class="btn" data-action="reopen">Reopen</button></div>`;
-  }
-  if (rejecting) {
-    return `<div class="card"><label class="field" for="note">Why reject? (optional, kept with the card)</label>
-      <textarea id="note" maxlength="500" placeholder="For example: conflicts with the school-zone plan"></textarea>
-      <div class="actions" style="margin-top:10px"><button class="btn danger" data-action="archive">Reject</button><button class="btn ghost" data-action="cancel">Cancel</button></div></div>`;
-  }
-  return '';
+function review(d) {
+  if (!isChange(d)) return calm(d);
+  const c = d.card, e = c.expected_in_copy, h = heldout(d), dec = decision(d);
+  const scale = Math.max(...c.signals.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
+  const actions = dec.status ? '' : `<div class="decide"><button class="btn lg" data-action="reject">Reject</button><button class="btn primary lg" data-action="approve">Approve</button></div>`;
+  const state = dec.status === 'approved'
+    ? `<div class="status ok" role="status"><span><b>Approved.</b> Nothing was sent to any real light. Next, watch it run on the same traffic as today’s timing.</span>
+        <span class="row"><button class="btn ghost" data-action="reopen">Undo</button><a class="btn primary lg" href="#/wolfe/simulate?run">Run the simulation</a></span></div>`
+    : dec.status === 'rejected'
+      ? `<div class="status bad" role="status"><span><b>Rejected.</b> ${dec.note ? `Note: “${esc(dec.note)}”. ` : ''}The current timing stays.</span><button class="btn" data-action="reopen">Reopen</button></div>`
+      : rejecting
+        ? `<div class="card pad" style="margin-bottom:16px"><label class="field" for="note">Why reject? (optional, kept with the recommendation)</label>
+          <textarea id="note" maxlength="500" placeholder="For example: conflicts with the school-zone plan"></textarea>
+          <div class="row" style="margin-top:10px"><button class="btn danger" data-action="archive">Reject recommendation</button><button class="btn ghost" data-action="cancel">Cancel</button></div></div>`
+        : '';
+  return `<div class="page">
+  <a class="back" href="#/overview">← Overview</a>
+  <div class="head"><div><h1>${esc(d.info.street)}: new timing</h1>
+    <p>Evening peak, ${ampm(seconds(d.info.begin))}–${ampm(seconds(d.info.end))}, all ${c.signals.length} lights. You approve or reject; an engineer enters any change.</p></div>${actions}</div>
+  ${state}
+  <div class="review">
+    <section class="card lights" aria-labelledby="lights-title">
+      <div class="lights-head"><h2 id="lights-title">One round of each light, now and new</h2>
+        <div class="legend"><span><i style="background:var(--go)"></i>Green (seconds)</span><span><i style="background:var(--amber)"></i>Yellow</span><span><i style="background:var(--stop)"></i>All-red</span></div></div>
+      ${c.signals.map(sig => {
+        const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
+        return `<div class="light"><div class="name">${esc(sig.signal)}</div>
+          <div class="bars"><span class="k">Now</span>${bar(old, sig.old.cycle_s, scale, true)}<span class="c num">${f1(sig.old.cycle_s)} s</span>
+            <span class="k">New</span>${bar(neu, sig.new.cycle_s, scale, false)}<span class="c num chg">${f1(sig.new.cycle_s)} s</span></div></div>`;
+      }).join('')}
+    </section>
+    <aside class="stack">
+      <section class="card facts-card"><h2>What changes</h2>
+        <ul class="changes small" style="margin-top:10px">${changes(d).map(t => `<li>${t}</li>`).join('')}</ul>
+        <div class="forecast"><h3 class="small muted">Tested on ${h.n} new evenings</h3>
+          <p class="big num" style="color:var(--go-deep)">${pct(h.oldMean, h.planMean)} delay</p>
+          <p class="xs muted">Better on ${betterOn(h)}. ${f1(h.oldMean)} → ${f1(h.planMean)} s average delay score.</p></div>
+        <div class="forecast"><h3 class="small muted">Forecast on the practice copy</h3>
+          <p class="num"><b>${pct(e.old_delay_s, e.new_delay_s)}</b> <span class="xs muted">${f1(e.old_delay_s)} → ${f1(e.new_delay_s)} s, ${e.copy_seeds.length} practice evenings on a copy of the road built from sensor counts</span></p></div>
+      </section>
+      <button class="btn" data-action="print" style="width:100%">Download timing sheet</button>
+    </aside>
+  </div></div>`;
 }
 
-function timingTable(d) {
-  return `<table><thead><tr><th>Light</th><th class="num">${tip('Full round', T_ROUND)}</th><th class="num">${tip('Green starts at', T_START)}</th><th class="num">Main green</th></tr></thead><tbody>
-    ${d.card.signals.map((s, i) => `<tr><td><a href="#/${d.road}/signal/${i}">${esc(s.signal)}</a></td><td class="num">${change(s.old.cycle_s, s.new.cycle_s)}</td><td class="num">${change(s.old.offset_s, s.new.offset_s)}</td>
-      <td class="num">${change(s.old.greens[0].max_green_s, s.new.greens[0].max_green_s)}</td></tr>`).join('')}
-    </tbody></table>`;
+function calm(d) {
+  const j = jams(d);
+  return `<div class="page">
+  <a class="back" href="#/overview">← Overview</a>
+  <div class="card calm">
+    <div class="stack"><span class="pill">No change</span>
+      <h1>${esc(d.info.street)}: no change needed</h1>
+      <p class="muted" style="max-width:56ch">The best new plan jammed in ${j.jammed} of ${j.n} practice runs, so Signal Learner keeps the current timing at all ${d.card.signals.length} lights.</p>
+      <p class="xs faint">Jammed: the simulation had to remove stuck cars more often than the current timing does.</p>
+      <div class="row" style="margin-top:16px"><a class="btn" href="#/overview">Back to inbox</a></div></div>
+    <div class="map" id="calm-map" role="img" aria-label="${esc(mapLabel(d.geo))}"></div>
+  </div></div>`;
 }
 
-function recommendation(d) {
-  const c = d.card, e = c.expected_in_copy, sigs = c.signals;
-  if (!isChange(d)) return deanzaCard(d);
-  const dec = decision(d);
-  const head = `<div class="head"><div><h1>Recommendation</h1><p>${esc(d.info.street)} · evening rush, ${peak(d.info)}</p></div>
-    ${dec.status || rejecting ? '' : `<div class="head-actions"><div class="actions"><button class="btn primary" data-action="approve">Approve</button><button class="btn" data-action="reject">Reject</button></div><span class="small muted">Nothing is sent to any light.</span></div>`}</div>`;
-  if (dec.status === 'approved') return `<div class="no-print">${head}</div>${decisionBlock(d)}<div style="margin-top:16px">${sheet(d)}</div>`;
-  const oldCycles = [...new Set(sigs.map(s => s.old.cycle_s))], newCycles = [...new Set(sigs.map(s => s.new.cycle_s))];
-  const plain = oldCycles.length === 1 && newCycles.length === 1
-    ? `All ${sigs.length} lights go from a ${f1(oldCycles[0])} s to a ${f1(newCycles[0])} s ${tip('round', T_ROUND)}. The busiest directions get more green, and greens line up along ${esc(d.info.street)}.`
-    : 'The busiest directions get more green, and greens line up along the road.';
-  return `
-  ${head}
-  ${decisionBlock(d)}
-  <div class="grid g2" style="margin:16px 0">
-    <div class="card stack"><h2>What changes</h2><p>${plain}</p>
-      <p class="small muted">Stays the same: phase order, yellow, all-red, minimum greens.</p></div>
-    <div class="card stack"><h2>Forecast (practice copy)</h2>
-      <div class="effect"><span class="big">${f1(e.old_delay_s)} s<span class="arrow">→</span>${f1(e.new_delay_s)} s</span><span class="delta">${signed(e.change_share * 100)}%</span></div>
-      <p class="small muted">${tip('Delay per trip', T_SCORE)} over ${e.copy_seeds.length} practice rush hours.</p>
-      ${more('Details', `<p class="small">Range across practice runs: ${signed(e.change_range_s[0])} to ${signed(e.change_range_s[1])} s per trip. Practice runs use a simulated road built only from sensor counts.</p>
-        <p class="small">Card: “${esc(c.why)}” ${esc(c.limits)}</p>`)}</div>
-  </div>
-  <div class="card"><h2>Old → new, per light</h2>${timingTable(d)}</div>`;
-}
+/* ---------- Simulate ---------- */
 
-function deanzaCard(d) {
-  const p = d.practice, e = d.card.expected_in_copy, margin = p.settings.teleport_margin;
-  const failed = p.confirm_new.filter((run, i) => run.teleports > p.confirm_old[i].teleports + margin).length;
-  const post = d.posthoc, postPlan = post.rejected_plan.all_requested_delay_s.mean;
-  return `
-  <div class="head"><div><h1>Recommendation</h1><p>${esc(d.info.street)} · evening rush, ${peak(d.info)}</p></div></div>
-  <div class="card stack" style="margin-bottom:16px">
-    <h2 class="h-lg">No change: keep the current timing</h2>
-    <p>The best new plan looked faster (${f1(e.old_delay_s)} → ${f1(e.new_delay_s)} s per trip) but jammed on ${failed} of ${p.confirm_new.length} practice rush hours.</p>
-    ${more('Details', `<p class="small">“Jammed” means the simulation had to remove more than ${margin} extra stuck cars. That check failed, so the card keeps the current timing.</p>
-      <p class="small">The archived card says “${esc(d.card.why)}” That sentence was inaccurate; the failed check is the real reason.</p>
-      <p class="small">A later check on ${post.seeds.length} new traffic days found the rejected plan ${signed((postPlan - post.old_delay_s) / post.old_delay_s * 100)}% worse: ${f1(post.old_delay_s)} → ${f1(postPlan)} s.</p>`)}
-  </div>
-  <div class="card"><h2>Current timing, per light</h2>${timingTable(d)}</div>`;
-}
-
-/* ---------- 4. Test it ---------- */
-
-function compare(old, neu, extra = '') {
-  const top = Math.max(old, neu), pct = (neu - old) / old * 100;
-  const row = (k, v, cls) => `<div class="cmp-row"><span class="k">${k}</span><span class="cmp-track"><i class="${cls}" style="width:${v / top * 100}%"></i></span><b>${f1(v)} s</b></div>`;
-  return `<div class="compare">
-    <div class="cmp-pct ${pct > 0 ? 'worse' : ''}">${signed(pct)}%<span>${pct > 0 ? 'more' : 'less'} delay</span></div>
-    ${row('Old timing', old, 'old')}${row('New plan', neu, 'new')}${extra}</div>`;
-}
-
-function pairedChart(h) {
-  const W = 500, H = 190, L = 44, R = 10, T = 10, B = 26;
-  const values = h.pairs.flatMap(p => [p.old, p.plan]);
-  const lo = Math.floor(Math.min(...values) / 100) * 100, hi = Math.ceil(Math.max(...values) / 100) * 100;
-  const x = i => L + (i + 0.5) / h.pairs.length * (W - L - R);
-  const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
-  const grid = [];
-  for (let v = lo; v <= hi; v += 100) grid.push(`<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
-  const marks = h.pairs.map((p, i) => `<line x1="${x(i)}" x2="${x(i)}" y1="${y(p.old)}" y2="${y(p.plan)}" stroke="#cfd4dc" stroke-width="2"/>
-    <circle cx="${x(i)}" cy="${y(p.old)}" r="4" fill="var(--old)"/><circle cx="${x(i)}" cy="${y(p.plan)}" r="4" fill="var(--accent)"/>`).join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Delay score on ${h.pairs.length} new traffic days, old timing versus new plan">${grid.join('')}${marks}
-    <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">Each pair is one traffic day</text></svg>
-    <div class="legend"><span><i style="background:var(--old)"></i>Old timing</span><span><i style="background:var(--accent)"></i>New plan</span><span>Delay score, s</span></div>`;
-}
-
-// Plain words for the server's reasons; the exact text stays one click away.
-function liveError(reason) {
-  if (/already running/.test(reason)) return 'A test is already running. Wait a moment, then try again.';
-  if (/not installed|not on this laptop|not running/.test(reason)) return 'The simulator is not set up on this laptop.';
-  return 'The test could not finish.';
-}
-
-function liveBlock(d) {
-  if (!live) return `<div class="live-empty"><p>Runs the old and new timing on a day the learner never saw.</p>
-    <button class="btn primary big" data-action="run-test">Run the test</button><p class="small muted">Takes about 20 seconds.</p></div>`;
-  if (live.state === 'running') return `<div role="status" class="live-empty"><p><b>Running the simulation…</b></p>
-    <div class="progress"><i id="live-bar" style="width:${runShare()}%"></i></div><p class="small muted"><span id="elapsed">${elapsed()}</span> s · about 20 s</p></div>`;
-  if (live.state === 'error') return `<div role="status" class="stack"><div class="banner idle"><span><b>${esc(liveError(live.reason))}</b> The saved result is on the right.</span></div>
-    ${more('Details', `<p class="small">${esc(live.reason)}</p>`)}
-    <div class="actions"><button class="btn" data-action="run-test">Try again</button></div></div>`;
-  const r = live.result, saved = heldout(d).pairs.find(p => p.seed === r.seed);
-  const match = saved && f1(saved.old) === f1(r.old.delay_s) && f1(saved.plan) === f1(r.learner.delay_s);
-  return `<div role="status" class="stack">${compare(r.old.delay_s, r.learner.delay_s)}
-    <p class="small muted">Trips that never finished: ${r.old.unfinished} → ${r.learner.unfinished}.${match ? ' Same as the saved run for this day.' : ''}</p>
-    <div class="actions"><button class="btn" data-action="run-test">Run again</button></div></div>`;
-}
-
-const elapsed = () => Math.round((Date.now() - live.started) / 1000);
-const runShare = () => Math.min(95, (Date.now() - live.started) / 200);
-
-function test(d) {
-  const h = heldout(d);
-  const head = `<div class="head"><div><h1>Test it</h1><p><b>Delay score</b>: average seconds of delay per trip, with a penalty for trips that never finish. Lower is better.</p></div></div>`;
-  if (!isChange(d)) {
-    return `${head}<div class="card stack"><h2>Nothing new to test</h2><p>The timing stays the same, so the score stays at ${f1(h.oldMean)} s over ${h.pairs.length} traffic days.</p>
-        <p class="small muted">Switch to Wolfe to run a live test.</p></div>`;
-  }
-  return `${head}
-  <div class="grid g2">
-    <div class="card stack"><h2>Live test: one new traffic day</h2><div id="live">${liveBlock(d)}</div></div>
-    <div class="card stack"><h2>Saved result: ${tip(`${h.pairs.length} new traffic days`, 'Days the learner never saw. The test rules were set before the run.')}</h2>
-      ${compare(h.oldMean, h.planMean)}
-      <p class="small muted">New plan better on ${h.better} of ${h.pairs.length} days.</p>
-      ${pairedChart(h)}
-      <div class="actions"><button class="btn" data-action="video">Play side-by-side video</button></div>
+function simulate(d) {
+  const h = heldout(d), begin = seconds(d.info.begin), end = seconds(d.info.end);
+  const arrow = up => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${up ? 'M6 2 11 9H1z' : 'M6 10 1 3h10z'}"/></svg>`;
+  const panel = arm => `<section class="arm ${arm}" aria-labelledby="h-${arm}">
+    <div class="arm-head">
+      <h2 id="h-${arm}"><span class="sw"></span>${ARM_NAME[arm]}</h2>
+      <div class="counter hero"><b data-k="waiting" data-arm="${arm}"><small>–</small></b><span>cars waiting to get onto the road</span></div>
+      <div class="counter"><b data-k="finished" data-arm="${arm}"><small>–</small></b><span>trips finished</span></div>
+      <div class="counter tiny"><span>Avg delay of finished trips</span><b data-k="delay" data-arm="${arm}"><small>–</small></b></div>
     </div>
+    <div class="sim-map" id="map-${arm}" role="img" aria-label="Live map, ${ARM_NAME[arm]}: ${esc(d.info.street)} runs left to right, north on the left. Moving cars green, stopped cars red."></div>
+  </section>`;
+  return `<div class="page sim-page">
+  <div class="sim-top">
+    <div><h1>One evening on ${esc(d.info.street)}</h1><p class="small muted" style="margin-top:4px">Same traffic, same clock, two timings.</p></div>
+    <div class="clock" aria-live="off"><b id="clock">${ampm(begin)}</b><span id="clock-note">${ampm(begin)} to ${ampm(end)}</span></div>
+    <div class="right"><span class="pill" id="source">Ready</span>
+      <button class="btn" id="play" data-action="toggle" disabled aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
+      <div class="seg" role="group" aria-label="Speed">${SPEEDS.map(s => `<button type="button" data-speed="${s}" aria-pressed="${s === 120}">${s}×</button>`).join('')}</div></div>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="progress"></i></div>
+  <div class="card stage">
+    ${panel('old')}
+    <div class="gap even" id="gap">
+      <p class="gap-main">${arrow(true)}<b id="gap-n">0</b><span class="gap-on">more cars stuck waiting with current timing</span><span class="gap-off">Same cars, same evening: watch the queues</span></p>
+      <p class="gap-sub" id="gap-sub" hidden>${arrow(false)}<b id="gap-f">0</b>more trips finished with the plan</p>
+    </div>
+    ${panel('plan')}
+    <div class="overlay" id="overlay">
+      <div class="card pad start" id="start"><h2>Watch both timings handle the same evening</h2>
+        <p class="small muted">${ampm(begin)} to ${ampm(end)}, about ${Math.round((end - begin) / 120)} seconds at 120×. Each dot is a car.</p>
+        <button class="btn primary lg" data-action="start">Run the simulation</button></div>
+    </div>
+  </div>
+  <div class="sim-foot">
+    <span class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span><span><i class="sig"></i>Live signal at each light, one stripe per lane</span></span>
+    <span class="hint">Headline result: ${pct(h.oldMean, h.planMean)} delay over ${h.n} new evenings.</span>
+  </div>
+  <p class="sr" aria-live="polite" id="sim-status"></p>
+</div>`;
+}
+
+function endCard(d, final, recorded) {
+  const h = heldout(d), o = final.old.delay_s, p = final.plan.delay_s;
+  return `<div class="card endcard" role="dialog" aria-labelledby="end-title" tabindex="-1">
+    <div><h2 id="end-title">This one evening</h2>
+      <p class="score">${f1(o)} s → <b>${f1(p)} s</b></p>
+      <p class="pct">${pct(o, p)}</p>
+      <p class="xs muted" style="margin-top:6px">Delay score: average extra seconds per trip. A trip that never finishes counts 900 s. ${recorded ? 'From the recorded run.' : 'From this live run.'}</p></div>
+    <div><h2>Tested on ${h.n} new evenings</h2>
+      <p class="score">${f1(h.oldMean)} s → <b>${f1(h.planMean)} s</b></p>
+      <p class="pct">${pct(h.oldMean, h.planMean)}</p>
+      <p class="xs muted" style="margin-top:6px">Better on ${betterOn(h)}. This is the headline result.</p></div>
+    <div class="foot"><span class="small">After approval, Signal Learner keeps watching and switches back if traffic gets worse.</span>
+      <span class="row"><button class="btn" data-action="start">Replay</button><a class="btn primary" href="#/overview">Done</a></span></div>
   </div>`;
 }
 
-async function runTest() {
-  live = { state: 'running', started: Date.now() };
-  render();
-  const tick = setInterval(() => {
-    const el = document.getElementById('elapsed'), barEl = document.getElementById('live-bar');
-    if (el) el.textContent = elapsed();
-    if (barEl) barEl.style.width = `${runShare()}%`;
-  }, 250);
-  try {
-    const response = await fetch('/api/test-run', { method: 'POST' });
-    const result = await response.json();
-    live = result.ok ? { state: 'done', result } : { state: 'error', reason: result.reason };
-  } catch {
-    live = { state: 'error', reason: 'The local test service is not running; start the console with python3 -m tools.demo.' };
-  }
-  clearInterval(tick);
-  if (route.screen === 'test') render();
+// One side of one frame: car arrays (metres) + lights + counters.
+function side(cars, lights, waiting, finished, delay) {
+  const n = cars.ids.length;
+  return { ...cars, n, lights, waiting, finished, delay };
 }
 
-/* ---------- 5. Watch & roll back ---------- */
+function fromLive(f) {
+  const out = { t: f.t };
+  for (const arm of ARMS) {
+    const s = f[arm]; if (!s) continue;
+    const c = s.cars, n = c.length / 4, ids = new Uint32Array(n), x = new Float32Array(n), y = new Float32Array(n), stop = new Uint8Array(n);
+    for (let i = 0; i < n; i++) { ids[i] = c[4 * i]; x[i] = c[4 * i + 1] / 10; y[i] = c[4 * i + 2] / 10; stop[i] = c[4 * i + 3]; }
+    out[arm] = side({ ids, x, y, stop }, s.lights, s.waiting, s.finished, s.delay);
+  }
+  return out;
+}
 
-function watchModel(d) {
-  const key = r => `${r.window_end}|${r.site}|${r.approach}`;
-  const watched = {};
-  d.feeds.forEach(rows => rows.forEach(r => (watched[key(r)] ||= []).push([Number(r.occupancy), Number(r.count)])));
-  const day = d.feeds.at(-1);
-  const times = [...new Set(day.map(r => r.window_end))].sort();
-  const served = [], expected = [];
-  let streak = 0, trip = null;
-  const points = times.map(t => {
-    const rows = day.filter(r => r.window_end === t && r.ok === '1');
-    const parts = rows.map(r => {
-      const base = watched[key(r)], m = mean(base.map(b => b[0]));
-      const sd = Math.sqrt(mean(base.map(b => (b[0] - m) ** 2)));
-      return { occ: Number(r.occupancy), m, sd, count: Number(r.count), expected: mean(base.map(b => b[1])) };
-    });
-    const value = mean(parts.map(p => p.occ)), level = mean(parts.map(p => p.m));
-    const line = level + Math.max(RULE.meanRise, RULE.sdFactor * mean(parts.map(p => p.sd)));
-    const high = parts.filter(p => p.occ - p.m > Math.max(RULE.approachRise, RULE.sdFactor * p.sd)).length;
-    served.push(sum(parts.map(p => p.count)));
-    expected.push(sum(parts.map(p => p.expected)));
-    const drop = served.length >= RULE.windows ? 1 - sum(served.slice(-RULE.windows)) / sum(expected.slice(-RULE.windows)) : 0;
-    const flagged = value > line || high >= RULE.approaches || drop > RULE.countDrop;
-    streak = flagged ? streak + 1 : 0;
-    if (streak === RULE.windows && !trip) trip = t;
-    return { t: t.slice(11, 16), value, level, line, flagged };
+// Recording: see tools/live_sim.py write_recording for the byte layout.
+async function loadRecording() {
+  const response = await fetch('geo/wolfe_seed200.rec.gz');
+  if (!response.ok) throw new Error('The recording is missing.');
+  const buf = await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  const dv = new DataView(buf), td = new TextDecoder();
+  if (td.decode(new Uint8Array(buf, 0, 4)) !== 'SLR1') throw new Error('The recording is not readable.');
+  const len = dv.getUint32(4, true), head = JSON.parse(td.decode(new Uint8Array(buf, 8, len)));
+  const lightLen = head.lights.reduce((a, b) => a + b, 0);
+  let o = 8 + len;
+  const frames = [];
+  for (let k = 0; k < head.frames; k++) {
+    const f = { t: dv.getUint32(o, true) }; o += 4;
+    for (const arm of ARMS) {
+      const n = dv.getUint16(o, true); o += 2;
+      const ids = new Uint32Array(n), x = new Float32Array(n), y = new Float32Array(n), stop = new Uint8Array(n);
+      for (let i = 0; i < n; i++) ids[i] = dv.getUint16(o + 2 * i, true);
+      o += 2 * n;
+      for (let i = 0; i < n; i++) x[i] = dv.getUint16(o + 2 * i, true) / 10;
+      o += 2 * n;
+      for (let i = 0; i < n; i++) y[i] = dv.getUint16(o + 2 * i, true) / 10;
+      o += 2 * n;
+      for (let i = 0; i < n; i++) stop[i] = dv.getUint8(o + i);
+      o += n;
+      const text = td.decode(new Uint8Array(buf, o, lightLen)); o += lightLen;
+      const lights = []; let at = 0;
+      for (const l of head.lights) { lights.push(text.slice(at, at + l)); at += l; }
+      f[arm] = side({ ids, x, y, stop }, lights, dv.getUint16(o, true), dv.getUint16(o + 2, true), dv.getUint16(o + 4, true) / 10);
+      o += 6;
+    }
+    frames.push(f);
+  }
+  return { frames, final: head.final };
+}
+
+// One bar per approach at each light, across its stop line, with one stripe per lane (lanes are too close to draw apart).
+function approaches(stops, p) {
+  const groups = [];
+  for (const s of stops) {
+    const [ax, ay, bx, by] = s.xy, x = p.x(bx, by), y = p.y(bx, by);
+    const dx = x - p.x(ax, ay), dy = y - p.y(ax, ay), l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+    let g = groups.find(g => g.ux * ux + g.uy * uy > 0.8);
+    if (!g) groups.push(g = { ux, uy, lanes: [] });
+    g.lanes.push({ x, y, links: s.links });
+  }
+  return groups.map(({ ux, uy, lanes }) => {
+    const nx = -uy, ny = ux, cx = mean(lanes.map(l => l.x)), cy = mean(lanes.map(l => l.y));
+    const across = l => (l.x - cx) * nx + (l.y - cy) * ny;
+    lanes.sort((a, b) => across(a) - across(b));
+    return { x: cx - ux * 2, y: cy - uy * 2, nx, ny, len: Math.max(lanes.length * 5, 10), links: lanes.map(l => l.links) };
   });
-  return { points, trip: trip && trip.slice(11, 16) };
 }
 
-function watchChart(model, shown) {
-  const pts = model.points, W = 760, H = 230, L = 40, R = 110, T = 12, B = 26;
-  const top = Math.ceil(Math.max(...pts.map(p => Math.max(p.value, p.line))) / 5) * 5;
-  const x = i => L + i / (pts.length - 1) * (W - L - R);
-  const y = v => T + (1 - v / top) * (H - T - B);
-  const path = (list, f) => list.map((p, i) => `${x(i)},${y(f(p))}`).join(' ');
-  const grid = [0, 0.25, 0.5, 0.75, 1].map(f => `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(top * f)}" y2="${y(top * f)}"/><text x="${L - 6}" y="${y(top * f) + 4}" text-anchor="end">${top * f}</text>`).join('');
-  const ticks = pts.map((p, i) => i % 3 ? '' : `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${p.t}</text>`).join('');
-  const now = pts.slice(0, shown);
-  const end = pts.at(-1);
-  const labels = [{ text: 'Roll-back line', y: y(end.line), color: 'var(--r)' }, { text: 'Sensors', y: y(end.value), color: 'var(--accent)' },
-    { text: 'Normal level', y: y(end.level), color: 'var(--muted)' }].sort((a, b) => a.y - b.y);
-  labels.forEach((l, i) => { if (i) l.y = Math.max(l.y, labels[i - 1].y + 14); });
-  const last = now.at(-1);
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="How busy the road sensors are every five minutes, against the roll-back line">
-    ${grid}${ticks}
-    <polyline points="${path(pts, p => p.line)}" fill="none" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <polyline points="${path(pts, p => p.level)}" fill="none" stroke="var(--old)" stroke-width="1.5" stroke-dasharray="2 3"/>
-    <polyline id="replay-line" points="${path(now, p => p.value)}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-    ${last ? `<circle cx="${x(now.length - 1)}" cy="${y(last.value)}" r="4.5" fill="var(--accent)"/>` : ''}
-    ${labels.map(l => `<text x="${W - R + 8}" y="${l.y + 4}" style="fill:${l.color}">${l.text}</text>`).join('')}
-  </svg>`;
-}
+const lightColor = (state, links) => {
+  let c = 'r';
+  for (const i of links) { const s = state[i]; if (s === 'G' || s === 'g') return '#16a34a'; if (s === 'y' || s === 'Y') c = 'y'; }
+  return c === 'y' ? '#d4a106' : '#dc2626';
+};
 
-function goBackTable(d) {
-  const count = (road, program) => {
-    const runs = d.goBack.filter(r => r.road === road && r.program === program);
-    return `${runs.filter(r => r.go_back).length} of ${runs.length}`;
-  };
-  return `<table><thead><tr><th>Rule tested on new simulated days</th><th class="num">Wolfe</th><th class="num">De Anza</th></tr></thead><tbody>
-    <tr><td>Bad change: rolled back</td><td class="num">${count('wolfe', 'bad')}</td><td class="num">${count('deanza', 'bad')}</td></tr>
-    <tr><td>Harmless change: rolled back by mistake</td><td class="num">${count('wolfe', 'noop')}</td><td class="num">${count('deanza', 'noop')}</td></tr>
-    </tbody></table>`;
-}
-
-function watch(d) {
-  const head = `<div class="head"><div><h1>Watch &amp; roll back</h1><p>Go back to the old timing if traffic is clearly worse for ${RULE.windows * 5} minutes in a row.</p></div></div>`;
-  const fullRule = more('How this works', `<p class="small">This demo replays saved simulated sensor readings in 5-minute windows. A window counts as worse when the sensors run above their normal range,
-    when ${RULE.approaches} or more directions rise over ${RULE.approachRise} points, or when cars served fall more than ${RULE.countDrop * 100}% below normal.
-    ${RULE.windows} worse windows in a row trigger the roll-back.</p>`);
-  if (!isChange(d) || decision(d).status !== 'approved') {
-    const why = !isChange(d) ? 'No change was recommended, so there is nothing to watch.'
-      : decision(d).status === 'rejected' ? 'The change was rejected, so there is nothing to watch.'
-      : 'Approve the recommendation first.';
-    return `${head}<div class="banner idle" style="margin-bottom:16px"><span>${why}</span>${isChange(d) && !decision(d).status ? `<a class="btn primary" href="#/${d.road}/recommendation">Go to recommendation</a>` : ''}</div>
-      <div class="card stack">${goBackTable(d)}${fullRule}</div>`;
+class Player {
+  constructor(d) {
+    this.d = d;
+    this.begin = seconds(d.info.begin); this.end = seconds(d.info.end); this.stop = this.end + d.info.drain;
+    this.frames = []; this.t = this.begin; this.speed = 120; this.playing = false; this.done = null;
+    this.views = ARMS.map(arm => ({ arm, box: document.getElementById(`map-${arm}`) }));
+    this.counters = [...document.querySelectorAll('[data-k]')];
+    this.layout();
+    this.resize = () => { this.layout(); this.draw(); };
+    window.addEventListener('resize', this.resize);
   }
-  const model = watchModel(d);
-  const state = model.trip ? [`Would roll back at ${model.trip}`, 'bad'] : ['No roll-back needed', 'ok'];
-  return `${head}
-    <div class="card stack" style="margin-bottom:16px">
-      <div class="actions" style="justify-content:space-between"><span class="actions">${pill(state)}<span class="small muted" id="replay-clock">${model.points.at(-1).t}</span></span>
-        <button class="btn primary" data-action="replay">Play sensor replay</button></div>
-      <div id="watch-chart">${watchChart(model, model.points.length)}</div>
-      <p class="small muted">${tip('How busy the road sensors are', 'Occupancy: the share of time a car sits over the sensor. Higher means longer queues.')} (%), every 5 minutes, on a saved evening.</p>
-      ${fullRule}
-    </div>
-    <div class="card">${goBackTable(d)}</div>`;
+  layout() {
+    for (const v of this.views) {
+      Object.assign(v, canvasFor(v.box));
+      v.p = fit(this.d.geo, v.w, v.h, 16, true);
+      v.bg = document.createElement('canvas');
+      v.bg.width = v.canvas.width; v.bg.height = v.canvas.height;
+      const bg = v.bg.getContext('2d');
+      const r = window.devicePixelRatio || 1;
+      bg.setTransform(r, 0, 0, r, 0, 0);
+      drawRoads(bg, this.d.geo, v.p);
+      nameAlong(bg, this.d.geo, v.p, v.w, v.h, 18);
+      v.stops = this.d.geo.signals.map(sig => approaches(sig.stops, v.p));
+    }
+  }
+  async start() {
+    this.stopSource();
+    this.frames = []; this.idx = 0; this.t = this.begin; this.done = null; this.playing = true; this.last = performance.now(); this.hundred = 0;
+    document.getElementById('overlay').hidden = true;
+    document.getElementById('play').disabled = false;
+    this.say('Starting the simulation');
+    document.getElementById('clock-note').textContent = 'Filling the road with traffic first';
+    this.setSource('Starting…', '');
+    this.abort = new AbortController();
+    try {
+      const response = await fetch('/api/sim/stream', { signal: this.abort.signal });
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).reason || `HTTP ${response.status}`);
+      this.live = true;
+      this.setSource('Live · SUMO', 'live');
+      this.control({ speed: this.speed, paused: false });
+      this.loop();
+      await this.read(response.body.getReader());
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      if (this.live && this.frames.length) return this.fail(err.message);
+      this.live = false;
+      this.reason = err.message;
+      try {
+        this.setSource('Loading recording…', '');
+        const rec = await loadRecording();
+        this.frames = rec.frames; this.final = rec.final;
+        this.setSource('Recording', '');
+        document.getElementById('source').title = `Live simulation unavailable: ${this.reason}`;
+        this.t = this.frames[0].t; this.last = performance.now();
+        this.loop();
+      } catch (e2) { this.fail(e2.message); }
+    }
+  }
+  async read(reader) {
+    const dec = new TextDecoder();
+    let text = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      text += dec.decode(value, { stream: true });
+      let cut;
+      while ((cut = text.indexOf('\n\n')) >= 0) {
+        const block = text.slice(0, cut); text = text.slice(cut + 2);
+        const kind = (block.match(/^event: (.+)$/m) || [])[1], body = (block.match(/^data: (.+)$/m) || [])[1];
+        if (!kind || !body) continue;
+        const value = JSON.parse(body);
+        if (kind === 'frame') this.frames.push(fromLive(value));
+        else if (kind === 'end') this.final = value;
+        else if (kind === 'failed') throw new Error(value.reason);
+      }
+    }
+    if (!this.final) throw new Error('The simulation stopped early.');
+  }
+  control(body) {
+    if (this.live) fetch('/api/sim/control', { method: 'POST', body: JSON.stringify(body) }).catch(() => {});
+  }
+  setSpeed(s) { this.speed = s; this.control({ speed: s }); }
+  toggle() {
+    if (!this.frames.length || this.done) return;
+    this.playing = !this.playing; this.last = performance.now();
+    this.control({ paused: !this.playing });
+    const b = document.getElementById('play');
+    b.setAttribute('aria-label', this.playing ? 'Pause' : 'Play');
+    b.innerHTML = this.playing ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>'
+      : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>';
+    this.say(this.playing ? 'Playing' : 'Paused');
+  }
+  loop() {
+    cancelAnimationFrame(this.raf);
+    const tick = now => {
+      const dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
+      const f = this.frames;
+      if (this.playing && f.length) {
+        this.t += dt * this.speed * (this.t >= this.end ? 4 : 1);
+        const newest = f[f.length - 1].t;
+        if (this.live && !this.final) {
+          // Stay just behind the newest frame from the server so there is always a next frame to move toward.
+          const lag = this.speed * 0.15;
+          this.t = Math.min(Math.max(this.t, newest - lag * 4), Math.max(f[0].t, newest - lag));
+        }
+        if (this.t >= newest) {
+          this.t = newest;
+          if (this.final) return this.finish();
+        }
+      }
+      this.draw();
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+  }
+  frameAt(t) {
+    const f = this.frames;
+    if (this.live) while (f.length > 2 && f[1].t <= t) f.shift();
+    else { while (this.idx < f.length - 2 && f[this.idx + 1].t <= t) this.idx++; while (this.idx > 0 && f[this.idx].t > t) this.idx--; }
+    const i = this.live ? 0 : this.idx;
+    return [f[i], f[i + 1] || f[i]];
+  }
+  draw() {
+    if (!this.frames.length) { for (const v of this.views) { v.ctx.clearRect(0, 0, v.w, v.h); v.ctx.drawImage(v.bg, 0, 0, v.w, v.h); } return; }
+    const [a, b] = this.frameAt(this.t);
+    const u = b.t > a.t ? Math.min(1, Math.max(0, (this.t - a.t) / (b.t - a.t))) : 0;
+    for (const v of this.views) {
+      const sa = a[v.arm], sb = b[v.arm] || sa, { ctx, p } = v;
+      ctx.clearRect(0, 0, v.w, v.h);
+      ctx.drawImage(v.bg, 0, 0, v.w, v.h);
+      if (!sa) continue;
+      if (!sa.index) { sa.index = new Map(); for (let i = 0; i < sa.n; i++) sa.index.set(sa.ids[i], i); }
+      const r = Math.max(2.6, 4 * p.k);
+      for (const stopped of [0, 1]) {
+        ctx.fillStyle = stopped ? '#dc2626' : '#16a34a';
+        ctx.beginPath();
+        for (let i = 0; i < sb.n; i++) {
+          if (sb.stop[i] !== stopped) continue;
+          const j = sa.index.get(sb.ids[i]);
+          const x = j === undefined ? sb.x[i] : sa.x[j] + (sb.x[i] - sa.x[j]) * u;
+          const y = j === undefined ? sb.y[i] : sa.y[j] + (sb.y[i] - sa.y[j]) * u;
+          const px = p.x(x, y), py = p.y(x, y);
+          ctx.moveTo(px + r, py); ctx.arc(px, py, r, 0, 6.2832);
+        }
+        ctx.fill();
+      }
+      v.stops.forEach((bars, k) => {
+        const state = sa.lights[k] || '';
+        for (const s of bars) {
+          const x0 = s.x - s.nx * s.len / 2, y0 = s.y - s.ny * s.len / 2, step = s.len / s.links.length;
+          ctx.lineCap = 'round'; ctx.lineWidth = 8; ctx.strokeStyle = '#fff';
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + s.nx * s.len, y0 + s.ny * s.len); ctx.stroke();
+          ctx.lineCap = 'butt'; ctx.lineWidth = 5;
+          s.links.forEach((links, i) => {
+            ctx.strokeStyle = lightColor(state, links);
+            ctx.beginPath(); ctx.moveTo(x0 + s.nx * step * i, y0 + s.ny * step * i); ctx.lineTo(x0 + s.nx * step * (i + 1), y0 + s.ny * step * (i + 1)); ctx.stroke();
+          });
+        }
+      });
+    }
+    this.hud(a);
+  }
+  // Writes only what changed, so it can run every frame.
+  hud(a) {
+    const set = (el, html) => { if (el._v !== html) { el._v = html; el.innerHTML = html; } };
+    const t = Math.min(this.t, this.stop);
+    set(document.getElementById('clock'), ampm(t));
+    set(document.getElementById('clock-note'), t >= this.end ? 'Evening over: the last cars finish their trips' : `${ampm(this.begin)} to ${ampm(this.end)}`);
+    const bar = document.getElementById('progress'), width = `${Math.min(100, (t - this.begin) / (this.stop - this.begin) * 100).toFixed(1)}%`;
+    if (bar.style.width !== width) bar.style.width = width;
+    const fmt = { waiting: x => x.toLocaleString(), finished: x => x.toLocaleString(), delay: x => `${Math.round(x)}<small>s</small>` };
+    for (const el of this.counters) {
+      const s = a[el.dataset.arm]; if (!s) continue;
+      set(el, fmt[el.dataset.k](s[el.dataset.k]));
+      const other = a[el.dataset.arm === 'old' ? 'plan' : 'old'];
+      el.parentElement.classList.toggle('better', el.dataset.arm === 'plan' && !!other && el.dataset.k !== 'finished' && s[el.dataset.k] < other[el.dataset.k]);
+    }
+    if (a.old && a.plan) this.gap(a.old.waiting - a.plan.waiting, a.plan.finished - a.old.finished);
+  }
+  gap(n, f) {
+    const box = document.getElementById('gap'), num = document.getElementById('gap-n');
+    box.classList.toggle('even', n <= 0);
+    if (n > 0 && num._v !== n) {
+      num._v = n; num.textContent = n.toLocaleString();
+      const hundred = Math.floor(n / 100);
+      if (hundred > (this.hundred || 0) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        num.animate([{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+      }
+      this.hundred = hundred;
+    }
+    document.getElementById('gap-sub').hidden = f <= 0;
+    const fin = document.getElementById('gap-f');
+    if (f > 0 && fin._v !== f) { fin._v = f; fin.textContent = f.toLocaleString(); }
+  }
+  finish() {
+    this.done = true; this.playing = false;
+    this.draw();
+    document.getElementById('play').disabled = true;
+    const overlay = document.getElementById('overlay');
+    overlay.innerHTML = endCard(this.d, this.final, !this.live);
+    overlay.hidden = false;
+    overlay.querySelector('.endcard').focus();
+    this.say('The evening is over. Results are shown.');
+  }
+  fail(message) {
+    this.playing = false;
+    cancelAnimationFrame(this.raf);
+    const overlay = document.getElementById('overlay');
+    overlay.innerHTML = `<div class="card pad start"><h2>The simulation stopped</h2><p class="small error">${esc(message)}</p><button class="btn primary" data-action="start">Try again</button></div>`;
+    overlay.hidden = false;
+    this.setSource('Stopped', 'bad');
+  }
+  setSource(text, kind) { const s = document.getElementById('source'); if (s) { s.textContent = text; s.className = `pill ${kind}`; } }
+  say(text) { const s = document.getElementById('sim-status'); if (s) s.textContent = text; }
+  stopSource() { this.abort?.abort(); cancelAnimationFrame(this.raf); this.live = false; this.final = null; }
+  destroy() { this.stopSource(); window.removeEventListener('resize', this.resize); }
 }
 
-function replay(d) {
-  clearInterval(timer);
-  const model = watchModel(d);
-  let shown = 1;
-  timer = setInterval(() => {
-    const chart = document.getElementById('watch-chart'), stamp = document.getElementById('replay-clock');
-    if (!chart) return clearInterval(timer);
-    chart.innerHTML = watchChart(model, shown);
-    stamp.textContent = model.points[shown - 1].t;
-    if (++shown > model.points.length) clearInterval(timer);
-  }, 140);
-}
-
-/* ---------- 6. How it connects ---------- */
+/* ---------- How it connects (dialog) ---------- */
 
 function box(x, y, w, h, title, lines, opts = {}) {
-  return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${opts.fill || '#fff'}" stroke="${opts.stroke || '#cfd4dc'}" ${opts.dash ? 'stroke-dasharray="6 4"' : ''} stroke-width="1.5"/>
+  return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${opts.fill || '#fff'}" stroke="${opts.stroke || '#cfd7e1'}" ${opts.dash ? 'stroke-dasharray="6 4"' : ''} stroke-width="1.5"/>
     <text class="t" x="${x + 12}" y="${y + 22}">${title}</text>${lines.map((l, i) => `<text x="${x + 12}" y="${y + 42 + i * 16}">${l}</text>`).join('')}</g>`;
 }
 const arrow = (x1, y1, x2, y2, opts = {}) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${opts.color || '#5a6371'}" stroke-width="1.8" ${opts.dash ? 'stroke-dasharray="5 4"' : ''} marker-end="url(#${opts.color ? 'ha' : 'h'})"/>`;
 
 function connect() {
-  const svg = `<svg class="diagram" viewBox="-2 0 1064 400" role="img" aria-label="Road sensors feed the signal cabinet. The cabinet links to the city's central system, which the engineer uses. Signal Learner sits beside them, read-only, and gives the engineer a card.">
+  const A = '#0369a1';
+  const svg = `<svg class="diagram" viewBox="-2 0 1064 400" role="img" aria-label="Road sensors feed the signal cabinet. The cabinet links to the city's central system, which the engineer uses. Signal Learner sits beside them, read-only, and gives the engineer a recommendation.">
     <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5a6371"/></marker>
-      <marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f4fd6"/></marker></defs>
+      <marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="${A}"/></marker></defs>
     ${box(0, 20, 170, 150, 'Road sensors', ['Loops: wires cut', 'into the pavement', 'Video cameras', 'Radar'])}
-    <rect x="200" y="10" width="330" height="220" rx="10" fill="#f5f6f8" stroke="#cfd4dc" stroke-width="1.5"/>
+    <rect x="200" y="10" width="330" height="220" rx="10" fill="#f6f8fa" stroke="#cfd7e1" stroke-width="1.5"/>
     <text class="t" x="214" y="32">Signal cabinet, at the corner</text>
     ${box(214, 44, 302, 84, 'Controller', ['A computer that runs the stored timing plan'])}
-    ${box(214, 138, 302, 80, 'Conflict monitor', ['A separate safety device. If it sees conflicting', 'greens, it puts the intersection into flash.'], { stroke: '#d6453a' })}
+    ${box(214, 138, 302, 80, 'Conflict monitor', ['A separate safety device. If it sees conflicting', 'greens, it puts the intersection into flash.'], { stroke: '#dc2626' })}
     ${box(560, 20, 140, 110, 'Network link', ['Cabinet to the', 'central system'])}
     ${box(730, 20, 150, 130, 'Central system', ['City staff monitor', 'and manage', 'controllers remotely'])}
-    ${box(910, 20, 130, 130, 'City engineer', ['Decides, and enters', 'any timing change'], { fill: '#eaf0fe', stroke: '#1f4fd6' })}
+    ${box(910, 20, 130, 130, 'City engineer', ['Decides, and enters', 'any timing change'], { fill: '#e7f3fb', stroke: A })}
     ${arrow(170, 86, 212, 86)}${arrow(516, 86, 558, 86)}${arrow(700, 76, 728, 76)}
     ${arrow(880, 66, 908, 66)}${arrow(908, 110, 882, 110)}
     <text x="880" y="170" text-anchor="middle">enters changes</text>
-    ${box(200, 290, 680, 96, 'Signal Learner (this software) · READ-ONLY', ['Reads counts, controller logs and timing sheets. Never writes to the cabinet or central system.', 'Learns the pattern, practices plans on a copy, and gives the engineer one card to approve or reject.'], { fill: '#fff', stroke: '#1f4fd6', dash: true })}
-    ${arrow(290, 228, 290, 288, { dash: true, color: '#1f4fd6' })}<text x="300" y="262" style="fill:#1f4fd6">counts and logs (read)</text>
-    ${arrow(805, 150, 805, 288, { dash: true, color: '#1f4fd6' })}<text x="797" y="262" text-anchor="end" style="fill:#1f4fd6">timing sheets (read)</text>
-    ${arrow(880, 330, 975, 152, { color: '#1f4fd6' })}<text x="935" y="262" style="fill:#1f4fd6">card</text>
+    ${box(200, 290, 680, 96, 'Signal Learner (this software) · READ-ONLY', ['Reads counts, controller logs and timing sheets. Never writes to the cabinet or central system.', 'Learns the pattern, practices plans on a copy, and gives the engineer one recommendation to approve or reject.'], { stroke: A, dash: true })}
+    ${arrow(290, 228, 290, 288, { dash: true, color: A })}<text x="300" y="262" style="fill:${A}">counts and logs (read)</text>
+    ${arrow(805, 150, 805, 288, { dash: true, color: A })}<text x="797" y="262" text-anchor="end" style="fill:${A}">timing sheets (read)</text>
+    ${arrow(880, 330, 975, 152, { color: A })}<text x="935" y="262" style="fill:${A}">recommendation</text>
   </svg>`;
-  return `
-  <div class="head"><div><h1>How it connects</h1><p>Example city workflow below. This demo uses saved simulation files, with no city connection.</p></div></div>
-  <div class="card" style="margin-bottom:16px">${svg}</div>
-  <div class="path3" style="margin-bottom:16px">
-    <div class="card stack"><h2><span class="n">1</span>Read</h2><p class="small">Counts, ${tip('controller logs', 'High-resolution logs: every signal and sensor event, to the nearest 0.1 s.')} and timing sheets, requested from the city.<sup>[2]</sup></p></div>
-    <div class="card stack"><h2><span class="n">2</span>Recommend</h2><p class="small">The engineer reviews the card and enters any change. Google's Project Green Light also gives city engineers recommendations.<sup>[6]</sup></p></div>
-    <div class="card stack later"><h2><span class="n">3</span>Much later</h2><p class="small">A direct link to the central system, only with city approval and a safety review.<sup>[7]</sup></p></div>
+  return `<p class="muted">Example city workflow. This demo uses simulation files only, with no city connection.</p>
+  ${svg}
+  <div class="path3">
+    <div class="card stack"><h3><span class="n">1</span>Read</h3><p class="small">Counts, controller logs (every signal and sensor event, to 0.1 s) and timing sheets, requested from the city.<sup>[2]</sup></p></div>
+    <div class="card stack"><h3><span class="n">2</span>Recommend</h3><p class="small">The engineer reviews the recommendation and enters any change. Google's Project Green Light also gives city engineers recommendations.<sup>[6]</sup></p></div>
+    <div class="card stack later"><h3><span class="n">3</span>Much later</h3><p class="small">A direct link to the central system, only with city approval and a safety review.<sup>[7]</sup></p></div>
   </div>
-  <div class="card stack"><h2>Good to know</h2>
+  <div class="stack"><h3>Good to know</h3>
     <ul class="facts small">
       <li>A time-of-day schedule picks which timing plan runs when.<sup>[1]</sup></li>
       <li>The conflict monitor is separate from the controller. Our software never touches it.<sup>[5]</sup></li>
@@ -625,7 +758,7 @@ function connect() {
       <li>Cupertino chose Cubic Trafficware for its central system (2019).<sup>[8]</sup></li>
       <li>Why read-only: a 2023 US cybersecurity advisory says to keep signal networks off the internet.<sup>[9]</sup></li>
     </ul>
-    ${more('Sources (10)', `<ol class="sources">
+    <details><summary>Sources (10)</summary><ol class="sources">
     <li>FHWA, Traffic Signal Timing Manual (archived), ch. 6 — ops.fhwa.dot.gov/publications/fhwahop08024/chapter6.htm</li>
     <li>UDOT, ATSPM FAQ — udottraffic.utah.gov/atspm/FAQs/Display</li>
     <li>FHWA, Traffic Detector Handbook, ch. 5 (loops) — fhwa.dot.gov/publications/research/operations/ITS/06139/chapt5c.cfm</li>
@@ -636,85 +769,105 @@ function connect() {
     <li>Cubic, Trafficware selected by the City of Cupertino, Apr 8, 2019 — cubic.com</li>
     <li>CISA, ICSA-23-026-02 — cisa.gov/uscert/ics/advisories/icsa-23-026-02</li>
     <li>Example city code on signal-timing authority — ecode360.com/43392255</li>
-  </ol>`)}
-  </div>`;
+  </ol></details></div>`;
 }
 
-/* ---------- Next cue: Corridor → Recommendation → Test it → Watch → How it connects ---------- */
-
-const NEXT = { corridor: 'recommendation', signal: 'recommendation', recommendation: 'test', test: 'watch', watch: 'connect' };
-const NAMES = { recommendation: 'Recommendation', test: 'Test it', watch: 'Watch & roll back', connect: 'How it connects' };
-const nextCue = d => NEXT[route.screen]
-  ? `<a class="next no-print" href="#/${d.road}/${NEXT[route.screen]}">Next: ${esc(NAMES[NEXT[route.screen]])} <span aria-hidden="true">→</span></a>` : '';
+const dialog = document.getElementById('connect');
+function openConnect() {
+  document.getElementById('connect-body').innerHTML = connect();
+  dialog.showModal();
+}
+document.getElementById('connect-open').addEventListener('click', openConnect);
+document.getElementById('connect-close').addEventListener('click', () => dialog.close());
 
 /* ---------- Shell ---------- */
 
+// Old deck links keep working: recommendation → review, test → simulate, connect → the dialog.
 function parseRoute() {
-  const [, road, screen, index] = location.hash.split('/');
-  return { road: ROADS.includes(road) ? road : 'wolfe', screen: SCREENS.includes(screen) ? screen : 'corridor',
-    index: Math.max(0, parseInt(index, 10) || 0) };
+  const [hash, query = ''] = location.hash.split('?');
+  const [, a, b] = hash.split('/');
+  if (!ROADS.includes(a)) return { road: 'wolfe', screen: 'overview' };
+  if (b === 'review' || b === 'recommendation') return { road: a, screen: 'review' };
+  if (b === 'simulate' || b === 'test') return { road: 'wolfe', screen: 'simulate', run: query === 'run' };
+  return { road: a, screen: 'overview', connect: b === 'connect' };
 }
 
-const VIEWS = { corridor, signal, recommendation, test, watch, connect };
+const TITLES = { overview: 'Overview', review: 'Review', simulate: 'Simulate' };
 
 async function render() {
-  clearInterval(timer);
+  player?.destroy(); player = null;
   const next = parseRoute();
-  const moved = next.screen !== route.screen || next.road !== route.road || next.index !== route.index;
-  if (next.road !== route.road || next.screen !== route.screen) rejecting = false;
+  const moved = next.screen !== route.screen || next.road !== route.road;
+  if (moved) rejecting = false;
   route = next;
   document.querySelectorAll('#nav a').forEach(a => {
-    const screen = a.dataset.screen;
-    a.href = `#/${route.road}/${screen}${screen === 'signal' ? `/${route.screen === 'signal' ? route.index : 0}` : ''}`;
-    if (screen === route.screen) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    if (a.dataset.screen === route.screen) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
-  document.querySelectorAll('[data-road]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.road === route.road)));
   try {
-    const d = await data(route.road);
-    const [text, kind] = roadStatus(d);
-    const color = { ok: 'var(--ok)', info: 'var(--accent)', idle: 'var(--faint)' }[kind];
-    document.getElementById('top-title').innerHTML = `${esc(d.info.street)} · <span class="dot" style="background:${color}"></span>${esc(text)}`;
-    document.title = `${route.screen[0].toUpperCase() + route.screen.slice(1)} · ${d.info.street} · Signal Learner`;
-    main.innerHTML = VIEWS[route.screen](d) + nextCue(d);
+    const [w, z] = await Promise.all(ROADS.map(data));
+    const d = route.road === 'deanza' ? z : w;
+    document.title = `${TITLES[route.screen]} · Signal Learner`;
+    if (route.screen === 'overview') {
+      main.innerHTML = overview(w, z);
+      drawMap(document.getElementById('overview-map'), w.geo);
+    } else if (route.screen === 'review') {
+      main.innerHTML = review(d);
+      const m = document.getElementById('calm-map');
+      if (m) drawMap(m, d.geo);
+    } else {
+      main.innerHTML = simulate(w);
+      player = new Player(w);
+      player.draw();
+      if (route.run) { history.replaceState(null, '', '#/wolfe/simulate'); player.start(); }
+    }
   } catch (err) {
-    main.innerHTML = `<div class="card"><h1>Could not load the saved files</h1><p class="muted">${esc(err.message)}. Start the console with python3 -m tools.demo, then reload.</p></div>`;
+    main.innerHTML = `<div class="page"><div class="error"><b>Could not load the saved files.</b> ${esc(err.message)}. Start the console with python -m tools.demo, then reload.</div></div>`;
   }
-  if (moved && !firstRender) {
+  if (route.connect) openConnect();
+  if (moved) {
     const h1 = main.querySelector('h1');
-    if (h1) { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
+    if (h1 && document.activeElement !== document.body) { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
     window.scrollTo(0, 0);
   }
-  firstRender = false;
 }
 
 main.addEventListener('click', async event => {
+  const speed = event.target.closest('[data-speed]');
+  if (speed && player) {
+    player.setSpeed(Number(speed.dataset.speed));
+    document.querySelectorAll('[data-speed]').forEach(b => b.setAttribute('aria-pressed', String(b === speed)));
+    return;
+  }
   const button = event.target.closest('[data-action]');
   if (!button) return;
-  const d = await data(route.road);
   const action = button.dataset.action;
+  if (action === 'start') return player?.start();
+  if (action === 'toggle') return player?.toggle();
+  const d = await data(route.road);
   if (action === 'approve') decisions[d.road] = { status: 'approved', at: new Date().toISOString() };
   else if (action === 'archive') decisions[d.road] = { status: 'rejected', at: new Date().toISOString(), note: document.getElementById('note').value.trim() };
   else if (action === 'reopen') delete decisions[d.road];
-  else if (action === 'reject') { rejecting = true; render().then(() => document.getElementById('note')?.focus()); return; }
-  else if (action === 'cancel') rejecting = false;
-  else if (action === 'print') return window.print();
-  else if (action === 'run-test') return runTest();
-  else if (action === 'replay') return replay(d);
-  else if (action === 'video') {
-    const dialog = document.getElementById('video-dialog');
-    dialog.showModal();
-    return document.getElementById('video').play().catch(() => {});
+  else if (action === 'reject') { rejecting = true; await render(); return document.getElementById('note')?.focus(); }
+  else if (action === 'print') {
+    document.getElementById('print').innerHTML = sheet(d);
+    return window.print();
   }
-  if (['approve', 'archive', 'reopen', 'cancel'].includes(action)) rejecting = false;
+  rejecting = false;
   saveDecisions();
-  render();
+  await render();
+  main.querySelector('.status .btn.primary, .decide .btn.primary, .status .btn')?.focus();
 });
 
-document.querySelectorAll('[data-road]').forEach(b => b.addEventListener('click', () => {
-  const screen = route.screen === 'signal' ? 'signal/0' : route.screen;
-  location.hash = `#/${b.dataset.road}/${screen}`;
-}));
-document.getElementById('video-close').addEventListener('click', () => document.getElementById('video-dialog').close());
-document.getElementById('video-dialog').addEventListener('close', () => document.getElementById('video').pause());
+document.addEventListener('keydown', event => {
+  if (event.key === ' ' && player && !event.target.closest('button, a, textarea, input')) { event.preventDefault(); player.toggle(); }
+});
 window.addEventListener('hashchange', render);
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const o = document.getElementById('overview-map') || document.getElementById('calm-map');
+    if (o) drawMap(o, cache[route.road === 'deanza' && route.screen === 'review' ? 'deanza' : 'wolfe'].geo);
+  }, 120);
+});
 render();

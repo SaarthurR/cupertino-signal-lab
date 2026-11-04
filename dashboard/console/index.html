@@ -3,53 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Signal Learner · Engineer console</title>
+<title>Signal Learner</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="console.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="#/overview">
+    <svg class="brand-mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="1" width="10" height="18" rx="3"/><circle cx="10" cy="5.5" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="14.5" r="2"/></svg>
+    <strong>Signal Learner</strong>
+  </a>
+  <span class="tag">Simulation demo</span>
+</header>
 <div class="app">
-  <aside class="side">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span><strong>Signal Learner</strong><small>Engineer console</small></span>
-    </div>
-    <nav aria-label="Screens">
-      <ol class="nav" id="nav">
-        <li><a href="#/wolfe/corridor" data-screen="corridor"><span class="nav-n">1</span>Corridor</a></li>
-        <li class="nav-sub"><a href="#/wolfe/signal/0" data-screen="signal">Each light</a></li>
-        <li><a href="#/wolfe/recommendation" data-screen="recommendation"><span class="nav-n">2</span>Recommendation</a></li>
-        <li><a href="#/wolfe/test" data-screen="test"><span class="nav-n">3</span>Test it</a></li>
-        <li><a href="#/wolfe/watch" data-screen="watch"><span class="nav-n">4</span>Watch &amp; roll back</a></li>
-        <li class="nav-ref"><a href="#/wolfe/connect" data-screen="connect">How it connects</a></li>
-      </ol>
-    </nav>
-    <p class="side-foot">Cupertino Signal Lab<br>Monta Vista AI Club</p>
-  </aside>
-  <div class="body">
-    <header class="top">
-      <div class="top-title" id="top-title" aria-live="polite">Loading…</div>
-      <div class="top-right">
-        <div class="seg" role="group" aria-label="Road">
-          <button type="button" data-road="wolfe">Wolfe</button>
-          <button type="button" data-road="deanza">De Anza</button>
-        </div>
-        <span class="tag">Simulation · not connected to the city</span>
-      </div>
-    </header>
-    <main id="main" tabindex="-1"></main>
-  </div>
+  <nav class="side" aria-label="Screens">
+    <ul class="nav" id="nav">
+      <li><a href="#/overview" data-screen="overview">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 9h3.5l1 1.5h3l1-1.5H14"/></svg>Overview</a></li>
+      <li><a href="#/wolfe/review" data-screen="review">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3zM5.5 9l1.8 1.8L10.8 7"/></svg>Review</a></li>
+      <li><a href="#/wolfe/simulate" data-screen="simulate">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M6.6 5.6v4.8L10.4 8z"/></svg>Simulate</a></li>
+    </ul>
+    <button type="button" class="nav-link" id="connect-open">How it connects</button>
+  </nav>
+  <main id="main" tabindex="-1"></main>
 </div>
-<dialog id="video-dialog" aria-label="Side-by-side video">
+<dialog id="connect" aria-labelledby="connect-title">
   <div class="dialog-head">
-    <strong>Wolfe Road: old timing vs new plan (simulation)</strong>
-    <button type="button" class="btn ghost" id="video-close">Close</button>
+    <h2 id="connect-title">How it connects</h2>
+    <button type="button" class="btn ghost" id="connect-close">Close</button>
   </div>
-  <video id="video" controls preload="none" poster="../wolfe_side_by_side_poster.png">
-    <source src="../wolfe_side_by_side.mp4" type="video/mp4">
-  </video>
+  <div id="connect-body"></div>
 </dialog>
+<div id="print" aria-hidden="true"></div>
 <script src="console.js"></script>
 </body>
 </html>
