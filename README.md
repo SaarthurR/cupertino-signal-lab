@@ -23,9 +23,9 @@ Every one of us must be able to explain the whole project, not only our own part
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
 2. Run `python3 -m tools.demo` and open the links it prints in Chrome:
    - **Slides:** slides 1–9 are the talk, about 2.5 minutes plus the demo. Slides 10–17 are backup, only for judge questions. Press **N** for speaker notes. Read every note.
-   - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Click every screen.
+   - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Its Simulate screen runs two real simulations side by side on the real Wolfe Road map: today's timing on top, our plan below, same cars, with a live count of stuck cars.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
-3. Click this path in the console once: **Recommendation → Approve → timing sheet → Test it → Watch → How it connects.**
+3. Click this path in the console once: **Overview → Review recommendation → Approve → Run the simulation** (watch the whole evening play) **→ How it connects** (link at the bottom left).
 4. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
 
 ### Step 2 · Learn your own part
@@ -64,11 +64,11 @@ git clone https://github.com/SaarthurR/cupertino-signal-lab.git && cd cupertino-
 uv venv --python 3.12 && source .venv/bin/activate
 uv pip install -r requirements.txt && uv pip install -e .
 export PYTHONPATH=src
-python -m tools.learner build-world --road wolfe   # once: makes the files the live test needs
+python -m tools.learner build-world --road wolfe   # once: makes the files the live simulation needs
 python -m unittest discover -s tests              # about 1 minute, all should pass
 python -m tools.demo
 ```
-Slides and the console without the live test need only `python3 -m tools.demo`, no setup.
+Slides and the console need only `python3 -m tools.demo`, no setup. Without the setup, the Simulate screen plays a saved recording of the same evening instead of running it live.
 
 ## Where things are
 
