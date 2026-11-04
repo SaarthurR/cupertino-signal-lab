@@ -1,38 +1,89 @@
-"""Keep the presentation's evidence labels distinct from frozen research outputs."""
+"""Keep the presentation's numbers tied to the frozen research outputs."""
+import json
 from pathlib import Path
 import re
 import unittest
 
+from tools import demo
+
 ROOT = Path(__file__).resolve().parents[1]
+DECK = ROOT / "dashboard/signal-learner"
+
+
+def visible(slide):
+    """Slide text a viewer sees, without speaker notes or markup."""
+    return re.sub(r"<[^>]+>", " ", slide.split('<aside class="notes">')[0])
 
 
 class LearnerDeckTests(unittest.TestCase):
     def setUp(self):
-        self.deck = (ROOT / "dashboard/signal-learner/index.html").read_text()
+        self.deck = (DECK / "index.html").read_text()
         self.slides = re.findall(r'<section class="slide\b.*?</section>', self.deck, re.S)
+        facts = json.loads((ROOT / "reports/learner_story/facts.json").read_text())["facts"]
+        self.facts = {(f["road"], f["name"]): f["value"] for f in facts}
 
-    def test_all_slides_retain_speaker_notes_and_media(self):
-        self.assertEqual(len(self.slides), 15)
+    def pct(self, road):
+        return f"&minus;{round(-100 * self.facts[(road, 'learner_change')])}%"
+
+    def test_slides_keep_notes_media_and_backup_split(self):
+        self.assertEqual(len(self.slides), 17)
         for slide in self.slides:
             self.assertRegex(slide, r'<aside class="notes">[^<]+</aside>')
-        self.assertIn('src="wolfe_side_by_side.mp4"', self.slides[8])
-        self.assertIn('src="wolfe_side_by_side_poster.png"', self.slides[8])
+        self.assertIn("150 seconds", self.slides[0])
+        self.assertIn('src="wolfe_side_by_side.mp4"', self.slides[4])
+        self.assertIn('src="wolfe_side_by_side_poster.png"', self.slides[4])
+        self.assertEqual([("data-backup" in s) for s in self.slides], [False] * 9 + [True] * 8)
 
-    def test_evidence_boundaries_survive_export_source_edits(self):
-        self.assertIn("Team observation", self.slides[1])
-        self.assertIn("870.49", self.slides[9])
-        self.assertIn("643.11", self.slides[9])
-        self.assertIn("divided by all requested trips", self.slides[9])
-        self.assertIn("Delay score per requested trip", self.slides[11])
-        self.assertIn("137.6", self.slides[6])
-        limits = self.slides[12].split('<aside class="notes">')[0]
-        self.assertIn("signal-turn passages, not unique vehicles", limits)
-        self.assertNotIn("fewer trips", limits)
-        self.assertIn("+203 s", limits)
-        self.assertIn("4 of 10", limits)
-        self.assertIn("VTA, 2024 CMP Monitoring and Conformance Report", self.slides[11])
-        self.assertNotIn('aria-label="Fresh validation status"', self.deck)
-        self.assertNotIn("POST-HOC", self.deck)
-        self.assertIn("checked the rejected plan afterward", self.slides[10])
-        self.assertIn('aria-label="Close"', self.slides[14])
-        self.assertIn("no integration built yet", self.slides[13])
+    def test_demo_link_is_served_by_the_launcher(self):
+        link = re.search(r'href="(console/[^"#]*)', self.slides[3]).group(1)
+        self.assertIn(link + "index.html", demo.ASSETS)
+
+    def test_numbers_match_saved_facts(self):
+        f = self.facts
+        wolfe = visible(self.slides[4])
+        self.assertIn(str(round(f[("wolfe", "old_delay")])), wolfe)
+        self.assertIn(str(round(f[("wolfe", "learner_delay")])), wolfe)
+        self.assertIn(self.pct("wolfe"), wolfe)
+        self.assertIn("all 20", wolfe)
+        self.assertEqual(len(f[("wolfe", "test_seeds")]), 20)
+
+        posthoc = f[("deanza", "deanza_posthoc")]
+        deanza = visible(self.slides[5])
+        self.assertEqual(f[("deanza", "decision")], "no change")
+        self.assertIn(str(round(posthoc["old_delay_s"])), deanza)
+        self.assertIn(str(round(posthoc["rejected_plan"]["all_requested_delay_s"]["mean"])), deanza)
+        self.assertIn(f"{100 * posthoc['change_share']:.1f}% worse", deanza)
+        self.assertIn(f"{posthoc['seeds_worse']} of {len(posthoc['seeds'])}", deanza)
+
+        limits = visible(self.slides[7])
+        self.assertIn(f"+{round(f[('wolfe', 'learner_worst_origin_change')])} s", limits)
+        self.assertIn(f"{round(10 * f[('deanza', 'go_back_noop_undone')])} of 10", limits)
+
+        roads = visible(self.slides[13])
+        for road in ("homestead", "stevens_creek", "wolfe"):
+            self.assertIn(self.pct(road), roads)
+        self.assertEqual(f[("deanza", "learner_change")], 0)
+        self.assertIn("No change", roads)
+
+        score = visible(self.slides[15])
+        self.assertIn(str(round(f[("wolfe", "old_unfinished")])), score)
+        self.assertIn(str(round(f[("wolfe", "learner_unfinished")])), score)
+
+    def test_vta_credit_and_one_limits_slide(self):
+        self.assertIn("VTA, 2024 CMP Monitoring and Conformance Report", self.slides[13])
+        for i, slide in enumerate(self.slides):
+            text = visible(slide)
+            if "VTA" in text:
+                self.assertIn("VTA, 2024 CMP Monitoring and Conformance Report", text)
+            for hedge in ("not measured", "sketch", "we have not shown", "POST-HOC"):
+                self.assertNotIn(hedge, text.lower() if hedge.islower() else text)
+            if i != 7:
+                self.assertNotIn("+203", text)
+
+    def test_pdf_has_one_page_per_slide(self):
+        pdf = (DECK / "signal-learner.pdf").read_bytes()
+        self.assertEqual(len(re.findall(rb"/Type\s*/Page\b", pdf)), len(self.slides))
+
+
+if __name__ == "__main__":
+    unittest.main()
