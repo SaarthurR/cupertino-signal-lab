@@ -6,6 +6,8 @@ VTA approved use in the hackathon presentation with the citation *VTA, 2024 CMP 
 
 From the repository root, run `python3 -m tools.demo` with the supported Python 3.12 environment. Open the printed Slides URL. The command serves a temporary copy on `127.0.0.1`; it does not run experiments or rewrite reports. Use `python3 -m tools.demo --port 8769` for a fixed port. Ctrl-C stops the server and removes the temporary copy. No network connection is needed after cloning.
 
+The printed Engineer console URL opens the clickable mock product (corridor, signal timing, recommendation, test, watch, how it connects), built only from saved report copies. Its "Run test on new traffic" button runs Wolfe old timing vs the plan on held-out seed 200 when SUMO is installed for that Python; otherwise it says so and shows the saved result. Screenshots: `docs/console-shots/`.
+
 Left/Right changes slides; N toggles speaker notes; Home/End jumps to the beginning/end. A URL ending in `/#9` opens the saved video. The fixed widescreen stage scales on phones; landscape is more readable. Play the video with its native controls if autoplay is blocked. Download the printed PDF URL as an offline fallback; it contains a still image, not playable video.
 
 ## Present and rehearse

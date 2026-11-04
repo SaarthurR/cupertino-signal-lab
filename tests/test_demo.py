@@ -1,5 +1,6 @@
 from contextlib import redirect_stderr, redirect_stdout
 import io
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -88,6 +89,92 @@ class DemoTests(unittest.TestCase):
                 finally:
                     httpd.shutdown()
                     worker.join()
+
+    def test_console_and_its_data_copies_are_served_but_repo_files_are_not(self):
+        with tempfile.TemporaryDirectory() as temp:
+            demo.prepare(temp)
+            with demo.server(temp) as httpd:
+                worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+                worker.start()
+                url = f'http://127.0.0.1:{httpd.server_port}'
+                try:
+                    for path in ('/console/', '/console/console.js', '/console/console.css'):
+                        with urlopen(url+path) as response:
+                            self.assertEqual(response.status, 200)
+                    for road in ('wolfe', 'deanza'):
+                        for name in ('card.json', 'plan.add.xml', 'pattern.csv', 'practice.json', 'road.yaml',
+                                     'feed0.csv', 'feed1.csv', 'feed2.csv'):
+                            with urlopen(f'{url}/console/data/{road}/{name}') as response:
+                                self.assertEqual(response.read(), (demo.ROOT/demo.ASSETS[f'console/data/{road}/{name}']).read_bytes())
+                    for path in ('/console/data/heldout/results.csv', '/console/data/heldout/go_back.json',
+                                 '/console/data/deanza/posthoc.json'):
+                        with urlopen(url+path) as response:
+                            self.assertEqual(response.status, 200)
+                    for path in ('/console/data/', '/console/../README.md', '/reports/learner/wolfe/card.json',
+                                 '/roads/wolfe/road.yaml', '/tools/demo.py', '/worlds/wolfe/routes.rou.xml'):
+                        with self.assertRaises(HTTPError) as caught:
+                            urlopen(url+path)
+                        self.assertEqual(caught.exception.code, 404)
+                        caught.exception.close()
+                finally:
+                    httpd.shutdown()
+                    worker.join()
+
+    def test_test_run_endpoint_returns_the_run_and_refuses_overlap(self):
+        result = dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
+                      learner=dict(delay_s=650.2, unfinished=218), wall_s=9.5)
+        with tempfile.TemporaryDirectory() as temp, demo.server(temp) as httpd, \
+                mock.patch.object(demo, 'live_test', return_value=result) as run:
+            worker = threading.Thread(target=httpd.serve_forever, daemon=True)
+            worker.start()
+            url = f'http://127.0.0.1:{httpd.server_port}/api/test-run'
+            try:
+                with urlopen(Request(url, method='POST')) as response:
+                    self.assertEqual(response.headers['Content-Type'], 'application/json')
+                    self.assertEqual(json.loads(response.read()), result)
+                run.assert_called_once_with()
+                with demo.TEST_LOCK, self.assertRaises(HTTPError) as caught:
+                    urlopen(Request(url, method='POST'))
+                self.assertEqual(caught.exception.code, 409)
+                self.assertFalse(json.loads(caught.exception.read())['ok'])
+                caught.exception.close()
+                self.assertEqual(run.call_count, 1)
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(Request(url, method='GET'))
+                self.assertEqual(caught.exception.code, 404)
+                caught.exception.close()
+            finally:
+                httpd.shutdown()
+                worker.join()
+
+    def test_live_test_degrades_without_inputs_or_sumo_and_formats_a_mocked_run(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(demo, 'ROOT', Path(temp)):
+            missing = demo.live_test()
+            self.assertFalse(missing['ok'])
+            self.assertIn('worlds/wolfe/routes.rou.xml', missing['reason'])
+            files = [Path(temp)/name for name in ('worlds/wolfe/routes.rou.xml', 'roads/wolfe/old_timing.add.xml',
+                                                  'reports/learner/wolfe/plan.add.xml')]
+            for path in files:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('<additional/>')
+            with mock.patch.dict(sys.modules, {'learner': None}):
+                no_sumo = demo.live_test()
+            self.assertFalse(no_sumo['ok'])
+            self.assertIn('simulator (SUMO and its Python packages) is not installed', no_sumo['reason'])
+            road = mock.Mock()
+            road.many.return_value = [({'all_requested_delay_s': 855.9988, 'unfinished': 931}, None),
+                                      ({'all_requested_delay_s': 650.1908, 'unfinished': 218}, None)]
+            package = mock.Mock(road=road)
+            with mock.patch.dict(sys.modules, {'learner': package, 'learner.road': road}):
+                shown = demo.live_test()
+                road.many.side_effect = RuntimeError('sumo crashed')
+                crashed = demo.live_test()
+            self.assertEqual({k: shown[k] for k in ('ok', 'seed', 'old', 'learner')},
+                             dict(ok=True, seed=200, old=dict(delay_s=856.0, unfinished=931),
+                                  learner=dict(delay_s=650.2, unfinished=218)))
+            (jobs,), _ = road.many.call_args
+            self.assertEqual([job[1:] for job in jobs], [(files[0], files[1], 200), (files[0], files[2], 200)])
+            self.assertEqual(crashed, dict(ok=False, reason='The simulation failed: RuntimeError: sumo crashed'))
 
     def test_cli_rejects_invalid_ports_and_missing_assets(self):
         for value in ('-1', '65536', 'not-a-port'):
