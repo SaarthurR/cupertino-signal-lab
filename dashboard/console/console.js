@@ -117,17 +117,22 @@ const decision = d => decisions[d.road] || {};
 /* ---------- Map (real SUMO lane shapes) ---------- */
 
 // Projection that fits the road's bounds into a w×h box, north up.
-function fit(geo, w, h, pad = 14) {
+// along: the road's length runs left→right across the full width (north on the left); side streets past the box edge are cut off.
+function fit(geo, w, h, pad = 14, along = false) {
   const [x0, y0, x1, y1] = geo.bounds;
+  if (along) {
+    const k = (w - 2 * pad) / (y1 - y0), mid = (x0 + x1) / 2;
+    return { k, x: (x, y) => pad + (y1 - y) * k, y: (x, y) => h / 2 - (x - mid) * k };
+  }
   const k = Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0));
   const ox = (w - (x1 - x0) * k) / 2, oy = (h - (y1 - y0) * k) / 2;
-  return { k, x: x => ox + (x - x0) * k, y: y => h - oy - (y - y0) * k };
+  return { k, x: (x, y) => ox + (x - x0) * k, y: (x, y) => h - oy - (y - y0) * k };
 }
 
 function path(ctx, p, xy) {
   ctx.beginPath();
-  ctx.moveTo(p.x(xy[0]), p.y(xy[1]));
-  for (let i = 2; i < xy.length; i += 2) ctx.lineTo(p.x(xy[i]), p.y(xy[i + 1]));
+  ctx.moveTo(p.x(xy[0], xy[1]), p.y(xy[0], xy[1]));
+  for (let i = 2; i < xy.length; i += 2) ctx.lineTo(p.x(xy[i], xy[i + 1]), p.y(xy[i], xy[i + 1]));
 }
 
 function canvasFor(box) {
@@ -158,23 +163,61 @@ const centre = sig => {
   return [mean(xs), mean(ys)];
 };
 
+const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+function halo(ctx, text, x, y, color) {
+  ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(251,252,253,.92)'; ctx.lineJoin = 'round';
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = color; ctx.fillText(text, x, y);
+}
+
+// Names for a left→right map: lights above the road (or below when two are close), the ends, and the freeway.
+function nameAlong(ctx, geo, p, w, h, gapFromRoad) {
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 12px ${FONT}`;
+  ctx.textAlign = 'left'; halo(ctx, '← North', 10, 13, '#64748b');
+  ctx.textAlign = 'right'; halo(ctx, 'South →', w - 10, 13, '#64748b');
+  ctx.textAlign = 'center';
+  let free = 10 + ctx.measureText('← North').width + 10;
+  const below = [];
+  const sigs = geo.signals.map(sig => { const [cx, cy] = centre(sig); return { name: sig.name, x: p.x(cx, cy), y: p.y(cx, cy) }; }).sort((a, b) => a.x - b.x);
+  ctx.font = `600 13px ${FONT}`;
+  for (const s of sigs) {
+    const half = ctx.measureText(s.name).width / 2, top = s.x - half > free;
+    const ly = top ? 13 : h - 13;
+    if (top) free = s.x + half + 12; else below.push([s.x - half, s.x + half]);
+    ctx.strokeStyle = '#d5dce4'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(s.x, top ? ly + 10 : ly - 10); ctx.lineTo(s.x, top ? s.y - gapFromRoad : s.y + gapFromRoad); ctx.stroke();
+    halo(ctx, s.name, s.x, ly, '#334155');
+  }
+  const ramps = sigs.filter(s => s.name.startsWith('I-280'));
+  if (ramps.length === 2) {
+    ctx.font = `700 12px ${FONT}`;
+    const x = (ramps[0].x + ramps[1].x) / 2, half = ctx.measureText('I-280 freeway').width / 2;
+    if (!below.some(([a, b]) => x + half > a && x - half < b)) halo(ctx, 'I-280 freeway', x, h - 13, '#64748b');
+  }
+}
+
 // Static map with named light markers (Overview, De Anza card).
 function drawMap(box, geo) {
   const { ctx, w, h } = canvasFor(box);
-  const p = fit(geo, w, h, 22);
+  const along = box.hasAttribute('data-along');
+  const p = fit(geo, w, h, 22, along);
   drawRoads(ctx, geo, p);
-  ctx.font = '600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.font = `600 12px ${FONT}`;
   ctx.textBaseline = 'middle';
   geo.signals.forEach(sig => {
-    const [cx, cy] = centre(sig), x = p.x(cx), y = p.y(cy);
+    const [cx, cy] = centre(sig), x = p.x(cx, cy), y = p.y(cx, cy);
     ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI);
     ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#0369a1'; ctx.stroke();
     ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2 * Math.PI); ctx.fillStyle = '#0369a1'; ctx.fill();
+    if (along) return;
     const label = sig.name, tw = ctx.measureText(label).width;
     const lx = x + 14 + tw + 8 < w ? x + 14 : Math.max(4, x - 14 - tw);
     ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillRect(lx - 4, y - 10, tw + 8, 20);
     ctx.fillStyle = '#0f172a'; ctx.fillText(label, lx, y);
   });
+  if (along) nameAlong(ctx, geo, p, w, h, 12);
 }
 
 const mapLabel = geo => `Map of ${geo.street} from the simulation road network, with ${geo.signals.length} traffic lights: ${geo.signals.map(s => s.name).join(', ')}.`;
@@ -190,10 +233,10 @@ function overview(w, z) {
   <div class="overview">
     <section class="card map-card" aria-labelledby="map-title">
       <div class="row" style="justify-content:space-between"><h2 id="map-title">${esc(w.info.street)}</h2><span class="hint">${w.geo.signals.length} traffic lights</span></div>
-      <div class="map" id="overview-map" role="img" aria-label="${esc(mapLabel(w.geo))}"></div>
+      <div class="map" id="overview-map" data-along role="img" aria-label="${esc(mapLabel(w.geo))} North is on the left."></div>
     </section>
+    <h2 class="label">Inbox</h2>
     <section class="inbox" aria-label="Inbox">
-      <h2 class="label">Inbox</h2>
       <article class="card rec primary">
         <div class="meta"><span class="pill ${status[1]}">${status[0]}</span><span>Evening peak, ${ampm(seconds(w.info.begin))}–${ampm(seconds(w.info.end))}</span></div>
         <h3>${esc(w.info.street)}: new timing ready for review</h3>
@@ -321,34 +364,41 @@ function calm(d) {
 
 function simulate(d) {
   const h = heldout(d), begin = seconds(d.info.begin), end = seconds(d.info.end);
-  const panel = (arm, side) => `<section class="card side-panel ${side}" aria-labelledby="h-${arm}">
-    <h2 id="h-${arm}"><span class="sw" style="background:${arm === 'old' ? 'var(--faint)' : 'var(--accent)'}"></span>${ARM_NAME[arm]}</h2>
-    <div class="counter"><span>Cars waiting to get onto the road</span><b data-k="waiting" data-arm="${arm}">–</b></div>
-    <div class="counter"><span>Average delay so far</span><b data-k="delay" data-arm="${arm}">–</b></div>
-    <div class="counter"><span>Trips finished</span><b data-k="finished" data-arm="${arm}">–</b></div>
-    <div class="panel-foot">${arm === 'old'
-      ? '<span class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span></span><span class="hint">Short bars at each light show its live signal.</span>'
-      : `<span class="hint">Headline result: ${pct(h.oldMean, h.planMean)} delay over ${h.n} new evenings.</span>`}</div>
+  const arrow = up => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${up ? 'M6 2 11 9H1z' : 'M6 10 1 3h10z'}"/></svg>`;
+  const panel = arm => `<section class="arm ${arm}" aria-labelledby="h-${arm}">
+    <div class="arm-head">
+      <h2 id="h-${arm}"><span class="sw"></span>${ARM_NAME[arm]}</h2>
+      <div class="counter hero"><b data-k="waiting" data-arm="${arm}"><small>–</small></b><span>cars waiting to get onto the road</span></div>
+      <div class="counter"><b data-k="finished" data-arm="${arm}"><small>–</small></b><span>trips finished</span></div>
+      <div class="counter tiny"><span>Avg delay of finished trips</span><b data-k="delay" data-arm="${arm}"><small>–</small></b></div>
+    </div>
+    <div class="sim-map" id="map-${arm}" role="img" aria-label="Live map, ${ARM_NAME[arm]}: ${esc(d.info.street)} runs left to right, north on the left. Moving cars green, stopped cars red."></div>
   </section>`;
-  return `<div class="page" style="max-width:1180px">
+  return `<div class="page sim-page">
   <div class="sim-top">
-    <div><h1>One evening on ${esc(d.info.street)}</h1><p class="small muted" style="margin-top:4px">Same traffic, same clock. Left: today’s timing. Right: the Signal Learner plan.</p></div>
+    <div><h1>One evening on ${esc(d.info.street)}</h1><p class="small muted" style="margin-top:4px">Same traffic, same clock, two timings.</p></div>
     <div class="clock" aria-live="off"><b id="clock">${ampm(begin)}</b><span id="clock-note">${ampm(begin)} to ${ampm(end)}</span></div>
     <div class="right"><span class="pill" id="source">Ready</span>
       <button class="btn" id="play" data-action="toggle" disabled aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
       <div class="seg" role="group" aria-label="Speed">${SPEEDS.map(s => `<button type="button" data-speed="${s}" aria-pressed="${s === 120}">${s}×</button>`).join('')}</div></div>
   </div>
   <div class="progress" aria-hidden="true"><i id="progress"></i></div>
-  <div class="stage">
-    ${panel('old', 'left')}
-    <div class="sim-map" id="map-old" role="img" aria-label="Live map, current timing: moving cars green, stopped cars red."><span class="caption">Current</span></div>
-    <div class="sim-map" id="map-plan" role="img" aria-label="Live map, Signal Learner plan: moving cars green, stopped cars red."><span class="caption">Signal Learner</span></div>
-    ${panel('plan', 'right')}
+  <div class="card stage">
+    ${panel('old')}
+    <div class="gap even" id="gap">
+      <p class="gap-main">${arrow(true)}<b id="gap-n">0</b><span class="gap-on">more cars stuck waiting with current timing</span><span class="gap-off">Same cars, same evening: watch the queues</span></p>
+      <p class="gap-sub" id="gap-sub" hidden>${arrow(false)}<b id="gap-f">0</b>more trips finished with the plan</p>
+    </div>
+    ${panel('plan')}
     <div class="overlay" id="overlay">
       <div class="card pad start" id="start"><h2>Watch both timings handle the same evening</h2>
         <p class="small muted">${ampm(begin)} to ${ampm(end)}, about ${Math.round((end - begin) / 120)} seconds at 120×. Each dot is a car.</p>
         <button class="btn primary lg" data-action="start">Run the simulation</button></div>
     </div>
+  </div>
+  <div class="sim-foot">
+    <span class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span><span><i class="sig"></i>Live signal at each light, one stripe per lane</span></span>
+    <span class="hint">Headline result: ${pct(h.oldMean, h.planMean)} delay over ${h.n} new evenings.</span>
   </div>
   <p class="sr" aria-live="polite" id="sim-status"></p>
 </div>`;
@@ -422,6 +472,24 @@ async function loadRecording() {
   return { frames, final: head.final };
 }
 
+// One bar per approach at each light, across its stop line, with one stripe per lane (lanes are too close to draw apart).
+function approaches(stops, p) {
+  const groups = [];
+  for (const s of stops) {
+    const [ax, ay, bx, by] = s.xy, x = p.x(bx, by), y = p.y(bx, by);
+    const dx = x - p.x(ax, ay), dy = y - p.y(ax, ay), l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+    let g = groups.find(g => g.ux * ux + g.uy * uy > 0.8);
+    if (!g) groups.push(g = { ux, uy, lanes: [] });
+    g.lanes.push({ x, y, links: s.links });
+  }
+  return groups.map(({ ux, uy, lanes }) => {
+    const nx = -uy, ny = ux, cx = mean(lanes.map(l => l.x)), cy = mean(lanes.map(l => l.y));
+    const across = l => (l.x - cx) * nx + (l.y - cy) * ny;
+    lanes.sort((a, b) => across(a) - across(b));
+    return { x: cx - ux * 2, y: cy - uy * 2, nx, ny, len: Math.max(lanes.length * 5, 10), links: lanes.map(l => l.links) };
+  });
+}
+
 const lightColor = (state, links) => {
   let c = 'r';
   for (const i of links) { const s = state[i]; if (s === 'G' || s === 'g') return '#16a34a'; if (s === 'y' || s === 'Y') c = 'y'; }
@@ -442,26 +510,20 @@ class Player {
   layout() {
     for (const v of this.views) {
       Object.assign(v, canvasFor(v.box));
-      v.p = fit(this.d.geo, v.w, v.h, 16);
+      v.p = fit(this.d.geo, v.w, v.h, 16, true);
       v.bg = document.createElement('canvas');
       v.bg.width = v.canvas.width; v.bg.height = v.canvas.height;
       const bg = v.bg.getContext('2d');
       const r = window.devicePixelRatio || 1;
       bg.setTransform(r, 0, 0, r, 0, 0);
       drawRoads(bg, this.d.geo, v.p);
-      bg.font = '500 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      bg.fillStyle = '#64748b'; bg.textBaseline = 'middle';
-      bg.textAlign = v.arm === 'old' ? 'left' : 'right';
-      for (const sig of this.d.geo.signals) bg.fillText(sig.name, v.arm === 'old' ? 6 : v.w - 6, v.p.y(centre(sig)[1]) - 9);
-      v.stops = this.d.geo.signals.map(sig => sig.stops.map(s => {
-        const [ax, ay, bx, by] = s.xy, dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy) || 1;
-        return { x: v.p.x(bx), y: v.p.y(by), nx: -dy / l, ny: -dx / l, links: s.links };
-      }));
+      nameAlong(bg, this.d.geo, v.p, v.w, v.h, 18);
+      v.stops = this.d.geo.signals.map(sig => approaches(sig.stops, v.p));
     }
   }
   async start() {
     this.stopSource();
-    this.frames = []; this.idx = 0; this.t = this.begin; this.done = null; this.playing = true; this.last = performance.now();
+    this.frames = []; this.idx = 0; this.t = this.begin; this.done = null; this.playing = true; this.last = performance.now(); this.hundred = 0;
     document.getElementById('overlay').hidden = true;
     document.getElementById('play').disabled = false;
     this.say('Starting the simulation');
@@ -566,7 +628,7 @@ class Player {
       ctx.drawImage(v.bg, 0, 0, v.w, v.h);
       if (!sa) continue;
       if (!sa.index) { sa.index = new Map(); for (let i = 0; i < sa.n; i++) sa.index.set(sa.ids[i], i); }
-      const r = Math.max(1.4, 2.2 * p.k * 1.4);
+      const r = Math.max(2.6, 4 * p.k);
       for (const stopped of [0, 1]) {
         ctx.fillStyle = stopped ? '#dc2626' : '#16a34a';
         ctx.beginPath();
@@ -575,43 +637,62 @@ class Player {
           const j = sa.index.get(sb.ids[i]);
           const x = j === undefined ? sb.x[i] : sa.x[j] + (sb.x[i] - sa.x[j]) * u;
           const y = j === undefined ? sb.y[i] : sa.y[j] + (sb.y[i] - sa.y[j]) * u;
-          const px = p.x(x), py = p.y(y);
+          const px = p.x(x, y), py = p.y(x, y);
           ctx.moveTo(px + r, py); ctx.arc(px, py, r, 0, 6.2832);
         }
         ctx.fill();
       }
-      ctx.lineWidth = 2.5; ctx.lineCap = 'butt';
-      v.stops.forEach((stops, k) => {
+      v.stops.forEach((bars, k) => {
         const state = sa.lights[k] || '';
-        for (const s of stops) {
-          ctx.strokeStyle = lightColor(state, s.links);
-          ctx.beginPath(); ctx.moveTo(s.x - s.nx * 3, s.y - s.ny * 3); ctx.lineTo(s.x + s.nx * 3, s.y + s.ny * 3); ctx.stroke();
+        for (const s of bars) {
+          const x0 = s.x - s.nx * s.len / 2, y0 = s.y - s.ny * s.len / 2, step = s.len / s.links.length;
+          ctx.lineCap = 'round'; ctx.lineWidth = 8; ctx.strokeStyle = '#fff';
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + s.nx * s.len, y0 + s.ny * s.len); ctx.stroke();
+          ctx.lineCap = 'butt'; ctx.lineWidth = 5;
+          s.links.forEach((links, i) => {
+            ctx.strokeStyle = lightColor(state, links);
+            ctx.beginPath(); ctx.moveTo(x0 + s.nx * step * i, y0 + s.ny * step * i); ctx.lineTo(x0 + s.nx * step * (i + 1), y0 + s.ny * step * (i + 1)); ctx.stroke();
+          });
         }
       });
     }
     this.hud(a);
   }
+  // Writes only what changed, so it can run every frame.
   hud(a) {
-    const now = performance.now();
-    if (now - (this.hudAt || 0) < 200) return;
-    this.hudAt = now;
+    const set = (el, html) => { if (el._v !== html) { el._v = html; el.innerHTML = html; } };
     const t = Math.min(this.t, this.stop);
-    document.getElementById('clock').textContent = ampm(t);
-    document.getElementById('clock-note').textContent = t >= this.end ? 'Evening over: the last cars finish their trips' : `${ampm(this.begin)} to ${ampm(this.end)}`;
-    document.getElementById('progress').style.width = `${Math.min(100, (t - this.begin) / (this.stop - this.begin) * 100)}%`;
+    set(document.getElementById('clock'), ampm(t));
+    set(document.getElementById('clock-note'), t >= this.end ? 'Evening over: the last cars finish their trips' : `${ampm(this.begin)} to ${ampm(this.end)}`);
+    const bar = document.getElementById('progress'), width = `${Math.min(100, (t - this.begin) / (this.stop - this.begin) * 100).toFixed(1)}%`;
+    if (bar.style.width !== width) bar.style.width = width;
     const fmt = { waiting: x => x.toLocaleString(), finished: x => x.toLocaleString(), delay: x => `${Math.round(x)}<small>s</small>` };
-    const val = {};
-    for (const arm of ARMS) if (a[arm]) val[arm] = a[arm];
     for (const el of this.counters) {
-      const s = val[el.dataset.arm]; if (!s) continue;
-      el.innerHTML = fmt[el.dataset.k](s[el.dataset.k]);
-      const other = val[el.dataset.arm === 'old' ? 'plan' : 'old'];
+      const s = a[el.dataset.arm]; if (!s) continue;
+      set(el, fmt[el.dataset.k](s[el.dataset.k]));
+      const other = a[el.dataset.arm === 'old' ? 'plan' : 'old'];
       el.parentElement.classList.toggle('better', el.dataset.arm === 'plan' && !!other && el.dataset.k !== 'finished' && s[el.dataset.k] < other[el.dataset.k]);
     }
+    if (a.old && a.plan) this.gap(a.old.waiting - a.plan.waiting, a.plan.finished - a.old.finished);
+  }
+  gap(n, f) {
+    const box = document.getElementById('gap'), num = document.getElementById('gap-n');
+    box.classList.toggle('even', n <= 0);
+    if (n > 0 && num._v !== n) {
+      num._v = n; num.textContent = n.toLocaleString();
+      const hundred = Math.floor(n / 100);
+      if (hundred > (this.hundred || 0) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        num.animate([{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+      }
+      this.hundred = hundred;
+    }
+    document.getElementById('gap-sub').hidden = f <= 0;
+    const fin = document.getElementById('gap-f');
+    if (f > 0 && fin._v !== f) { fin._v = f; fin.textContent = f.toLocaleString(); }
   }
   finish() {
     this.done = true; this.playing = false;
-    this.hudAt = 0; this.draw();
+    this.draw();
     document.getElementById('play').disabled = true;
     const overlay = document.getElementById('overlay');
     overlay.innerHTML = endCard(this.d, this.final, !this.live);
