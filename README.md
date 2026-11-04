@@ -6,7 +6,8 @@ The club leads said pre-built code is allowed.
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
 Open the printed Slides URL. The launcher uses only Python's standard library and runs no simulations.
 It also prints links to the PDF, video and the two synthetic-road engineer cards. Press N in the slides for speaker notes.
-Operator walkthrough and claim limits: [docs/DEMO.md](docs/DEMO.md). Sprint scope: [SPEC.md](SPEC.md).
+Start with the [revised slide deck](dashboard/signal-learner/index.html).
+Operator walkthrough: [docs/DEMO.md](docs/DEMO.md). Presentation scope and team plan: [SPEC.md](SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](docs/WHAT-WE-BUILT.md).
 
 **This repo is private. Keep the code and data inside the team.** VTA said on Nov 2 that we may use its counts and
@@ -17,7 +18,7 @@ Vistro data in our hackathon presentation. Every slide or page that shows them m
 Traffic changes, but most traffic lights run timing plans that stay the same until someone retimes them.
 Smart systems that change timing on the go exist, but few lights have them, because they cost money and take time to set up.
 
-Signal Learner is a cheap first step. Point it at a new road and it:
+Signal Learner is an inspectable simulation workflow. On a configured road, it:
 
 1. **Maps** the road from a public map.
 2. **Watches** the road sensors while the old timing keeps running.
@@ -44,14 +45,14 @@ Everything so far runs in a computer simulation (SUMO, a free traffic simulator)
 
 Every results screen says "simulated". Any VTA number credits VTA. Full rules: [docs/LEARNER-SPEC.md](docs/LEARNER-SPEC.md).
 
-## Where it stands (Nov 1, 2026)
+## Original study (Nov 1, 2026)
 
 | Part | Status |
 |---|---|
-| Learner software, all six steps | Built, 103 tests pass |
+| Original learner software, all six steps | Built; original test results preserved |
 | Independent code review before the test | Passed |
 | One-time test on two unseen roads | Done |
-| Slides (16), PDF, Wolfe Rd video | Done, every number checked against the results |
+| Slides (15), PDF, Wolfe Rd video | Revised for the judge presentation; results checked against saved artifacts |
 | Real city data | Not received |
 
 ### Results
@@ -67,7 +68,7 @@ We wrote the test rules first and ran the test once. The software got sensor dat
 
 On Stevens Creek, our earlier plan "v5" scored 369 s. It had full access to the true traffic, so it still beats the learner there.
 
-The numbers are a **delay score**, not stopwatch time. The score adds 900 s for each trip that never finishes.
+The numbers are a **delay score**, not stopwatch time: total completed-trip delay plus 900 seconds per unfinished trip and stuck-car removal, divided by all requested trips.
 
 On De Anza, a later check on new runs (not part of the test) showed the plan the learner rejected was 6.4% worse. So "no change" was the right call.
 
@@ -79,7 +80,7 @@ Say these before someone else finds them.
 - "Old timing" is a stand-in we built from out-of-date traffic. It is not Cupertino's timing.
 - It watched only 3 simulated evening rush hours.
 - On Wolfe Rd, one group of drivers got about 203 s worse.
-- The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer trips. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
+- The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer signal-turn passages (a vehicle may cross several signals); this is not a unique-trip count. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
 - The undo check failed its test on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two unseen roads is a small test.
 
@@ -102,19 +103,19 @@ Saarth holds these email threads. Send any new question through Saarth, so the c
 
 `dashboard/deck.html` and `dashboard/index.html` are the **old** project. Use `dashboard/signal-learner/`.
 
-## What is left
+## Further validation
 
 | Job | Notes |
 |---|---|
-| Fix the shared-lane error | The cause of the De Anza copy error. Findings: [reports/learner_story/findings.md](reports/learner_story/findings.md) |
-| Watch longer than 3 rush hours | May cut the undo check's false alarms. Untested |
-| Test on fresh roads | Choose the roads and write the rules before any run |
+| Resolve shared-lane ambiguity | Improve reconstruction and validate a copy-quality gate separately |
+| Validate rollback | Test harmful-change detection and harmless-change false alarms separately |
+| Test on fresh roads | Fix roads, seeds and rules before running; report every outcome |
 | Use real city data | Only if the city sends it |
 | Practice the presentation | Speaker notes are in the slides |
 
-**Open questions:** how do judges score projects? Can we show VTA's numbers? Slide 12 uses them for Stevens Creek. If there is no OK by the presentation, remove that row.
+**Submission check:** confirm the organizers' judging criteria. VTA approved presentation use with the exact credit above; keep the repository and raw data private.
 
-Nobody has an assigned job yet. Agree on this as a team.
+The presentation scope and proposed team handoff are in [SPEC.md](SPEC.md). Experimental learner changes are reviewed separately; this presentation update does not change the simulator or revalidate the historical results.
 
 ## Test rules that protect the results
 

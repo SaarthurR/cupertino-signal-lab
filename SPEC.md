@@ -1,33 +1,31 @@
-# Hackathon sprint: reproducible setup and team demo
+# Hackathon presentation: scope and team plan
 
-Status: approved by the user's 2026-11-02 instruction to write the spec and complete their assigned part in the same turn.
+Status: approved by Advaita's instruction to correct PR #2 to Saarth's requested scope on 2026-11-02.
 
-## Goal and project contract
-Signal Learner observes simulated detectors, reconstructs traffic, searches bounded timings, recommends a change or no change, and monitors an approved simulated change. The existing `docs/LEARNER-SPEC.md` remains the research contract. No real signals are connected. Synthetic traffic, constructed old timing, copy predictions and held-out measurements must remain distinct.
+## Goal
+Present Signal Learner as a working simulation project motivated by rush-hour backups on Stevens Creek toward Glenbrook. Explain the original results clearly and finish with a short limitations section and a traffic-engineer ask. Keep the existing visual design.
 
-## Ownership and scope
-- Advaita (this sprint): reproducible fresh-clone instructions, a one-command local presentation launcher, and a complete operator runbook using the existing deck, video and engineer cards.
-- Saarth: shared-lane reconstruction and a copy-quality gate. Validate using observable counts, without substituting hidden truth for missing turn information.
-- Third teammate: undo-rule variability and fresh-road evaluation. Preregister new roads, seeds and pass/fail rules before running; measure harmful-change detection and harmless-change false alarms.
+## Scope and ownership
+- Advaita: the HTML deck, matching PDF, natural speaker notes, README, demo runbook and local presentation launcher.
+- Saarth: review the project story and facts; decide separately whether experimental learner/simulator changes should be accepted.
+- Prithvi: proposed presentation rehearsal, organizer/submission check and help coordinating engineer feedback, subject to the team agreeing.
 
-The teammate work is a backlog, not an acceptance condition for Advaita's completed lane. Keep the original held-out artifacts and their decisions byte-for-byte unchanged. The existing data-use restriction applies to the entire demo: team-only until VTA approves public use, or the team prepares a separately reviewed public version.
+Experimental learner code, monitoring changes, new simulations and their reports belong in a separate draft PR. They are not required to merge the presentation. The research contract in `docs/LEARNER-SPEC.md` and all original experiment artifacts remain unchanged.
 
 ## Demo path
-Clone and install with Python 3.12 and the existing requirements. Run the tests. Launch `python -m tools.demo` without SUMO or any third-party Python package: it serves a temporary, allowlisted copy of the existing presentation assets and the two synthetic-road cards, bound to localhost. Use the slides to explain the six steps, play Wolfe's recorded comparison, show the measured Wolfe improvement and De Anza rejection, inspect the cards, and state the limitations. Stop with Ctrl-C. No simulations or report writes occur when launching the demo.
-
-For a development simulation, explicitly build Homestead's generated world before `tools.learner run`. Keep this expensive operation separate from presenting saved results. Never rerun the completed held-out test.
+Run `python3 -m tools.demo`. Present 15 slides: Stevens Creek motivation, the working workflow, the saved Wolfe video, original results, one short limitations section, the proposed city workflow and the engineer ask. Use N for notes. Keep the PDF as the offline fallback. The launcher serves allowlisted presentation assets on localhost and does not run experiments or rewrite research reports.
 
 ## Acceptance checks
-- **A1 — Fresh setup:** the README documents all required generation steps. On an isolated clean copy, install the pinned requirements, build Homestead's world, and run the learner through recommendation successfully. For bounded verification, use the existing `practice(..., trials=1)` argument in a test harness around the unchanged CLI; do not repeat the unchanged 150-trial experiment. Keep the normal documented 150-trial run available. No source checkout reports are overwritten.
-- **A2 — Local demo:** `python -m tools.demo --help` and the real server work using the standard library. Deck, PDF, video and cards return successfully; non-allowlisted repo files are unavailable. Bind only to `127.0.0.1`; invalid ports and missing assets fail clearly. Check GET, HEAD, denied paths and shutdown.
-- **A3 — Presentable workflow:** verify slide navigation, notes, video and both card links in Chrome at 1280px and 375px, with no application console errors. The runbook distinguishes forecast scores from held-out scores and explains the preserved De Anza card's outdated reason. Retain the existing visual design.
-- **A4 — Regression and handoff:** all existing and new unit tests pass; review the diff for correctness and file/network exposure; confirm frozen-result checksums match; document evidence and remaining teammate work; make a focused local commit. No push, publication, outreach or deployment.
+- **A1 — Scope:** the complete PR diff contains only the deck/PDF, README, this team plan, demo runbook, `tools/demo.py` and directly related presentation/demo tests. No simulator/learner source, research-contract edits, experimental tests or fresh-validation reports. Confirm with a file-list assertion against main.
+- **A2 — Story and evidence:** remove the fresh-validation slide; keep 15 slides with one short limitations section at slide 13. Slide 11 explains in a plain sentence that its rejected-plan comparison was checked afterward. Preserve accurate original scores, signal-turn passage labels, synthetic-data labels and the VTA credit. Check every slide and its notes.
+- **A3 — Working presentation:** click through all slides in Advaita's existing signed-in Chrome Profile 1 at 1280px and 375px. Check notes, keyboard navigation, video playback, card links and application errors. Regenerate the PDF and verify 15 pages and matching content. Run the full presentation-branch test suite and protected-artifact checks.
+- **A4 — Review handoff:** keep the replacement presentation PR description to 3–5 plain lines and request Saarth's review. Preserve experimental work in a separate draft PR for later review. Replace the mixed PR #2 with clean branches from main and link it to both replacements. Do not merge or deploy. A student still needs to read the talk aloud and rehearse on the actual presentation laptop; assistant/browser checks are not human rehearsal.
 
-## Out of scope and failure handling
-No new frontend, dependencies, neural network, optimizer tuning, real controller adapter or permission assumption. A missing generated route file must be repaired through the documented world-build step, not by editing saved results. Missing demo assets fail before the server starts. An occupied port produces a clear error; the default uses an available port. Mobile is a scaled presentation deck, not a redesigned mobile app.
+## Boundaries
+No new simulator behavior, dependencies, optimizer tuning, real signal connection or field-benefit claim. VTA approved the hackathon presentation with the exact credit *VTA, 2024 CMP Monitoring and Conformance Report*. Keep the repository and raw data private. Preserve original held-out artifacts byte-for-byte and never rerun them.
 
 ## Verification — 2026-11-02
-- **A1 passed:** isolated clean clone, Python 3.12, `uv pip install -r requirements.txt` and `uv pip install -e .`; all 43 installed pinned versions matched. `build-world --road homestead` succeeded. The real `tools.learner` CLI ran watch, learn, practice (one trial via its existing function argument) and recommend, with one simulation worker; a labeled “no change” card was produced. Full 150-trial optimization was not repeated.
-- **A2 passed:** five demo tests cover real GET/HEAD delivery, text card rendering, directory/path denial, rejected POST, missing/unsafe assets, invalid ports, an occupied port and cancelled-transfer logging. Real standard-library launcher, `--help`, video/PDF/card URLs, a cancelled video transfer and Ctrl-C shutdown/temporary-copy cleanup were checked. Client disconnects log briefly; unrelated I/O errors still propagate.
-- **A3 passed:** Chrome screenshots at 1280×720 and 375×812; slide keys, speaker notes, 88-second video playback, both card URLs and runbook checked. No application console errors recorded. Existing mobile scaling retained; no frontend or deck edits.
-- **A4 passed:** `PYTHONPATH=src python -m unittest discover -s tests -v`: 108 tests passed in the isolated environment with pinned packages. `git diff --check` and Python compilation passed. Correctness/security diff review found no blocking issue: only allowlisted copies served, loopback bind, no report-write endpoint, input validation and actionable startup errors. All 84 protected files under learner reports, held-out reports, worlds and roads retained their original SHA-256 hashes in the source checkout. Commit is local only.
+- **A1 passed:** an exact file-list assertion found only the eight allowed presentation files; simulator/learner source and the research contract match main.
+- **A2 passed:** all 15 slides and speaking notes reviewed; the later De Anza comparison is explained in one plain sentence; the removed fresh-validation slide is absent. The PDF has 15 pages at 1440 × 810 points, with matching text and inspected page renders.
+- **A3 passed:** the presentation branch's full 111-test suite passed. Every slide was exercised at 1280px and 375px in the existing Desktop Chrome Profile 1; no horizontal overflow or application errors were recorded. Keyboard navigation, notes and advancing video playback were checked. Real demo HTTP/card delivery is covered by the demo tests. All 104 protected original artifacts retained their hashes.
+- **A4 prepared:** the presentation and experimental research use separate branches from main. The research branch passed 148 tests, while its failed scientific validation remains unresolved. Student spoken rehearsal and the actual presentation-laptop check remain pending.

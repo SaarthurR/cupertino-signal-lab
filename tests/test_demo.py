@@ -14,6 +14,16 @@ from tools import demo
 
 
 class DemoTests(unittest.TestCase):
+    def test_historical_card_view_clarifies_rejection_without_editing_source(self):
+        original = (demo.ROOT/'reports/learner/deanza/card.md').read_bytes()
+        with tempfile.TemporaryDirectory() as temp:
+            demo.prepare(temp)
+            shown = (Path(temp)/'cards/deanza.md').read_text()
+            self.assertIn('forecast below belongs to a rejected candidate', shown)
+            self.assertIn('Presentation annotations do not change its recorded decision', shown)
+            self.assertTrue(shown.endswith(original.decode('utf-8')))
+        self.assertEqual((demo.ROOT/'reports/learner/deanza/card.md').read_bytes(), original)
+
     def test_cancelled_transfers_are_logged_and_other_io_errors_propagate(self):
         handler = demo.Handler.__new__(demo.Handler)
         for error in (BrokenPipeError, ConnectionResetError):
