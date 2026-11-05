@@ -127,8 +127,8 @@ async function data(road) {
 
 async function contextRoads() {
   if (cache.context) return cache.context;
-  const texts = await Promise.all(CONTEXT.map(r => get(`data/${r}/road.yaml`)));
-  return (cache.context = texts.map((t, i) => ({ road: CONTEXT[i], ...roadYaml(t) })));
+  const [texts, ms] = await Promise.all([Promise.all(CONTEXT.map(r => get(`data/${r}/road.yaml`))), Promise.all(CONTEXT.map(metricsFor))]);
+  return (cache.context = texts.map((t, i) => ({ road: CONTEXT[i], ...roadYaml(t), role: ms[i]?.role })));
 }
 
 function heldout(d) {
@@ -256,7 +256,8 @@ function by15Panel(d, rows, keys, viewKey, title, w = 640, drill = '') {
 
 function corridorsScreen(ds, ctx) {
   const roads = [...ctx.map(r => ({ ...r, context: true })), ...ds.map(d => ({
-    road: d.road, street: d.info.street, points: d.info.points, status: STATUS[statusKey(d)][0], cls: STATUS[statusKey(d)][1] }))];
+    road: d.road, street: d.info.street, points: d.info.points, role: d.m?.role, status: STATUS[statusKey(d)][0], cls: STATUS[statusKey(d)][1] }))];
+  const heldOut = ds.every(d => d.m?.role === 'heldout');
   const nSig = ds.reduce((a, d) => a + d.card.signals.length, 0);
   const inbox = ds.map(d => {
     const h = heldout(d), change = isChange(d);
@@ -283,10 +284,10 @@ function corridorsScreen(ds, ctx) {
   }).join('');
   const first = ds.find(d => statusKey(d) === 'pending') || ds[0];
   return `<div class="page">
-    ${head('Corridors', { meta: [term('heldout', `${ds.length} held-out test corridors`), `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'],
+    ${head('Corridors', { meta: [heldOut ? term('heldout', `${ds.length} held-out test corridors`) : `${ds.length} corridors`, `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'],
       actions: `<a class="btn primary" href="${go(first.road)}">Open ${esc(first.info.street)} ›</a>` })}
     <div class="grid g-map">
-      ${panel('Map', cityMap(roads), { tools: '<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span><span><i class="ln ctx"></i>Practice road</span></div>' })}
+      ${panel('Map', cityMap(roads), { tools: `<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span>${roads.some(r => r.context && r.role === 'practice') ? '<span><i class="ln ctx"></i>Practice road</span>' : ''}</div>` })}
       ${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
     </div>
     ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>

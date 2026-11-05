@@ -143,10 +143,10 @@ function cityMap(roads, w = 640, h = 330) {
     const pts = [...r.points].sort((a, b) => ns ? b.lat - a.lat : a.lon - b.lon).map(P);
     const line = `<polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}"/>`;
     const dots = pts.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.context ? 3 : 4.5}"/>`).join('');
-    const mx = mean(pts.map(p => p[0])), my = mean(pts.map(p => p[1])), text = r.context ? `${r.street} · Practice road` : r.street;
+    const mx = mean(pts.map(p => p[0])), my = mean(pts.map(p => p[1])), text = r.role === 'practice' ? `${r.street} · Practice road` : r.street;
     const name = ns ? `<text x="${(mx - 12).toFixed(1)}" y="${my.toFixed(1)}" text-anchor="middle" transform="rotate(-90 ${(mx - 12).toFixed(1)} ${my.toFixed(1)})">${esc(text)}</text>`
       : `<text x="${pts[0][0].toFixed(1)}" y="${(pts[0][1] - 12).toFixed(1)}">${esc(text)}</text>`;
-    if (r.context) return `<g class="ctx"><title>${esc(r.street)}: practice road, used to develop the learner; not part of the held-out test</title>${line}${dots}${name}</g>`;
+    if (r.context) return `<g class="ctx"><title>${esc(r.role === 'practice' ? `${r.street}: practice road, used to develop the learner; not part of the held-out test` : r.street)}</title>${line}${dots}${name}</g>`;
     return `<a href="#/${r.road}" class="cor ${r.cls}" aria-label="${esc(`${r.street}: ${r.status}, ${r.points.length} signals`)}"><title>${esc(`${r.street}: ${r.status}`)}</title>${line}${dots}${name}</a>`;
   };
   return `<svg class="city" viewBox="0 0 ${w} ${h}" role="group" aria-label="Map of Cupertino corridors, north up">
