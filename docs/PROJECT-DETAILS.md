@@ -12,7 +12,7 @@ Start with the [revised slide deck](../dashboard/signal-learner/index.html).
 Operator walkthrough: [docs/DEMO.md](DEMO.md). Presentation scope and team plan: [SPEC.md](../SPEC.md).
 Plain-English version: [docs/WHAT-WE-BUILT.md](WHAT-WE-BUILT.md).
 
-**This repo is private. Keep the code and data inside the team.** VTA said on Nov 2 that we may use its counts and
+VTA said on Nov 2 that we may use its counts and
 Vistro data in our hackathon presentation. Every slide or page that shows them must cite: *VTA, 2024 CMP Monitoring and Conformance Report*.
 
 ## The project in one minute
