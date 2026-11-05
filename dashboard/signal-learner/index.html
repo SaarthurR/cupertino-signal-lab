@@ -281,7 +281,7 @@ html.render #notesPanel { display: none !important; }
     <p class="who reveal d3">Monta Vista AI Club &middot; Cupertino</p>
   </div>
   <div class="mark reveal d2" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
-  <aside class="notes">[Target: main deck about 150 seconds including the demo, about 15 seconds per slide.] One afternoon, traffic on Stevens Creek was backed up all the way to Glenbrook. That made us ask a simple question: are these lights timed for the traffic we have today? So we built Signal Learner.</aside>
+  <aside class="notes">[Main talk: slides 1&ndash;6, 150 seconds including the live demo. Advaita, 8 s.] Stevens Creek backs up all the way to Glenbrook. Are these lights timed for today's traffic? So we built Signal Learner.</aside>
 </section>
 
 <!-- === 2. THE PROBLEM === -->
@@ -318,49 +318,31 @@ html.render #notesPanel { display: none !important; }
       </div>
     </div>
   </div>
-  <aside class="notes">We asked the city. Their transportation manager wrote back that Stevens Creek runs time-of-day plans. Those plans change by time of day. Traffic can still change from day to day. The person who decides when to retime is a city traffic engineer. We built this for them.</aside>
+  <aside class="notes">[Advaita, 15 s.] We asked the city. Their transportation manager wrote back: Stevens Creek runs time-of-day plans. The plans stay fixed; traffic keeps changing. The person who decides when to retime is a city traffic engineer. Saarth will show you.</aside>
 </section>
 
-<!-- === 3. WHAT WE BUILT === -->
-<section class="slide" aria-label="What we built">
-  <div class="wrap">
-    <div class="kicker">What we built</div>
-    <h2>Signal Learner watches a road, practices on a copy, and recommends one change.</h2>
-    <div class="body">
-      <div class="steps">
-        <div class="step reveal"><svg viewBox="0 0 60 60"><path d="M4 30 C 14 14, 46 14, 56 30 C 46 46, 14 46, 4 30 Z"/><circle cx="30" cy="30" r="8"/></svg><div class="n">1</div><h3>Watch</h3><p>Reads the road sensors. Changes nothing.</p></div>
-        <div class="step reveal d1"><svg viewBox="0 0 60 60"><path d="M8 52 H54 M14 44 V30 M26 44 V16 M38 44 V24 M50 44 V10"/></svg><div class="n">2</div><h3>Learn</h3><p>Learns the traffic and builds a practice copy of the road.</p></div>
-        <div class="step reveal d2"><svg viewBox="0 0 60 60"><path d="M48 22 A 20 20 0 1 0 50 36 M48 10 V22 H36"/></svg><div class="n">3</div><h3>Practice</h3><p>Tries 150 timing plans on the copy.</p></div>
-        <div class="step last reveal d3"><svg viewBox="0 0 60 60"><rect x="10" y="6" width="40" height="48" rx="4"/><path d="M18 20 H42 M18 30 H42 M18 40 H32"/></svg><div class="n">4</div><h3>Recommend</h3><p>One card. The engineer approves or rejects it.</p></div>
-      </div>
-      <div class="band reveal d3"><i></i>It never touches a real light.</div>
-    </div>
-  </div>
-  <aside class="notes">Four steps. It watches the road's sensors. It learns the traffic and builds a practice copy of the road. It tries 150 timing plans on that copy. Then it gives the engineer one card to approve or reject. It never touches a real light.</aside>
-</section>
-
-<!-- === 4. LIVE DEMO === -->
+<!-- === 3. LIVE DEMO === -->
 <section class="slide" aria-label="Live demo">
   <div class="wrap">
     <div class="kicker">Live demo</div>
-    <h2>Watch an engineer approve a new timing plan and test it live.</h2>
+    <h2>Watch an engineer review, approve and test a new timing plan.</h2>
     <div class="body">
       <div class="demo-cue reveal"><span class="live">DEMO</span><p>Switch to the engineer console.</p></div>
       <div class="path">
-        <div class="card reveal"><div class="num">1</div><h3>Open the recommendation</h3><span class="btnlike primary">Open the recommendation</span></div>
-        <div class="card reveal d1"><div class="num">2</div><h3>Approve</h3><span class="btnlike primary">Approve</span></div>
-        <div class="card reveal d2"><div class="num">3</div><h3>Run the simulation</h3><span class="btnlike">Run the simulation</span></div>
+        <div class="card reveal"><div class="num">1</div><h3>Find the road</h3><span class="btnlike primary">Wolfe Road</span></div>
+        <div class="card reveal d1"><div class="num">2</div><h3>Review and approve</h3><span class="btnlike primary">Approve</span></div>
+        <div class="card reveal d2"><div class="num">3</div><h3>Simulate, then deploy</h3><span class="btnlike">Run the simulation</span></div>
       </div>
-      <a class="open-console reveal d3" href="console/#/wolfe/recommendation" target="_blank" rel="noopener">Open the engineer console &rarr; <span>/console/</span></a>
+      <a class="open-console reveal d3" href="console/#/corridors" target="_blank" rel="noopener">Open the engineer console &rarr; <span>/console/</span></a>
     </div>
   </div>
-  <aside class="notes">Let's see it. [Switch to the console.] Open the recommendation for Wolfe Road. It shows the old and new timing for each light. Click Approve, then Run the simulation. Watch both timings handle the same evening. [Switch back to the slides.]</aside>
+  <aside class="notes">[Saarth, 85 s. Script with clicks and seconds: docs/DEMO.md.] Let me show you what the engineer sees. [Switch to the console tab, already open on Corridors. Set the simulation to 240&times; and talk while it plays. Switch back to slide 4 at the end.]</aside>
 </section>
 
-<!-- === 5. RESULT: WOLFE RD === -->
+<!-- === 4. RESULT: WOLFE RD === -->
 <section class="slide" aria-label="Result on Wolfe Rd">
   <div class="wrap">
-    <div class="kicker">Result 1 &middot; Wolfe Rd, an unseen test road</div>
+    <div class="kicker">Result &middot; Wolfe Rd, an unseen test road &middot; simulation</div>
     <h2>On a road it had never seen, the delay score dropped 26%.</h2>
     <div class="body row" style="gap:72px;">
       <div class="reveal" style="width:960px;">
@@ -390,39 +372,10 @@ html.render #notesPanel { display: none !important; }
     <video src="wolfe_side_by_side.mp4" poster="wolfe_side_by_side_poster.png" controls muted playsinline preload="none" loop aria-label="Wolfe Rd simulation: old timing on the left, Signal Learner on the right"></video>
     <button type="button" data-video="close">Close video (Esc)</button>
   </div>
-  <aside class="notes">First result: Wolfe Road, a road it had never seen. The delay score is extra time per trip versus an empty road; a trip that never finishes counts as fifteen minutes. Old timing: 870 seconds. Ours: 643. That's 26 percent lower on average, and better in all 20 test rush hours. [Click the video to play it. If asked why the right side shows more cars: cars still waiting to get onto the road are not drawn, and the old timing leaves more of them stuck outside.]</aside>
+  <aside class="notes">[Saarth, 12 s.] Across 20 test rush hours on a road it had never seen: 870 down to 643 seconds, 26 percent lower, better in all 20. That's a simulation score, not a commute time. [Do not play the video in the main talk; the demo already showed it. Play it only if the live demo failed. If asked why the right side shows more cars: cars still waiting to get onto the road are not drawn, and the old timing leaves more of them stuck outside.]</aside>
 </section>
 
-<!-- === 6. RESULT: DE ANZA BLVD === -->
-<section class="slide" aria-label="Result on De Anza Blvd">
-  <div class="wrap">
-    <div class="kicker">Result 2 &middot; De Anza Blvd, an unseen test road</div>
-    <h2>On De Anza, it said &ldquo;keep the old timing,&rdquo; and that was right.</h2>
-    <div class="body row" style="gap:72px;">
-      <div class="reveal" style="width:600px;">
-        <div class="card no-card">
-          <p class="label">The card said</p>
-          <p class="big">No change</p>
-          <span class="pill idle">Keep the old timing</span>
-        </div>
-      </div>
-      <div class="reveal d1" style="flex:1;">
-        <p class="label">The plan it turned down, run on 20 new test rush hours</p>
-        <div class="bars" style="margin-top:30px;">
-          <div class="r"><div class="name">Old timing</div><div class="track"><div class="fill" style="width:480px"></div><div class="v">275<small>s</small></div></div></div>
-          <div class="r"><div class="name">The plan it turned down</div><div class="track"><div class="fill bad" style="width:511px"></div><div class="v">292<small>s</small></div><div class="delta bad" style="font-size:56px; margin-left:12px;">6.4% worse</div></div></div>
-        </div>
-        <div class="row" style="gap:32px; align-items:center; margin-top:52px;">
-          <div class="dots" aria-hidden="true"><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i></div>
-          <p class="dots-cap" style="margin-top:0;">Worse in 13 of 20</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Second test road: De Anza. Here it said, keep the old timing. Was that right? We ran the plan it turned down on 20 new rush hours. It was 6.4 percent worse, and worse in 13 of them. Knowing when not to change matters too.</aside>
-</section>
-
-<!-- === 7. HOW IT FITS THE CITY === -->
+<!-- === 5. HOW IT FITS THE CITY === -->
 <section class="slide" aria-label="How it fits the city">
   <div class="wrap">
     <div class="kicker">How it fits the city</div>
@@ -459,13 +412,82 @@ html.render #notesPanel { display: none !important; }
       </svg>
     </div>
   </div>
-  <aside class="notes">How would this fit in Cupertino? Sensors in the road count cars. A cabinet at each corner runs the timing plan. The city's central system links the cabinets. Signal Learner would only read that data and hand the engineer a card. The engineer makes every change.</aside>
+  <aside class="notes">[Prithvi, 15 s.] How would this fit in Cupertino? Sensors count cars, a cabinet at each corner runs the timing, and the city's central system links them. Signal Learner only reads that data and hands the engineer a card. The engineer makes every change.</aside>
 </section>
 
-<!-- === 8. LIMITS AND NEXT STEPS === -->
-<section class="slide" aria-label="Limits and next steps">
+<!-- === 6. CLOSE === -->
+<section class="slide s-close" aria-label="Close">
   <div class="wrap">
-    <div class="kicker">Limits and next steps</div>
+    <p class="lead reveal">Our ask: one Cupertino traffic engineer.</p>
+    <h1 class="reveal d1">Review our card with <em>real city timing.</em></h1>
+    <div class="recap reveal d2"><span class="pill ok">Wolfe Rd: delay score &minus;26%</span><span class="pill info">De Anza: kept the old timing, correctly</span></div>
+    <p class="who reveal d3">Monta Vista AI Club</p>
+  </div>
+  <div class="mark reveal d2" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
+  <aside class="notes">[Advaita, 10 s.] Our ask: one Cupertino traffic engineer to check our card against the city's real timing. Thank you. [If asked about the second pill: on De Anza it kept the old timing, and the plan it turned down was 6.4% worse; backup slide 9.]</aside>
+</section>
+
+<!-- === BACKUP DIVIDER === -->
+<section class="slide s-divider" data-backup aria-label="Backup">
+  <div class="wrap">
+    <div class="kicker">Backup</div>
+    <h1 class="reveal" style="margin-top:28px;">For questions</h1>
+    <p class="sub reveal d1">What we built &middot; De Anza &middot; limits &middot; how a light works &middot; the AI &middot; the fair test &middot; all four roads &middot; existing systems &middot; the delay score &middot; hardware</p>
+  </div>
+  <aside class="notes">Backup slides for judge questions. Press End to jump to the last slide, or type the slide number after # in the address bar.</aside>
+</section>
+
+<!-- === B1. WHAT WE BUILT === -->
+<section class="slide" data-backup aria-label="What we built">
+  <div class="wrap">
+    <div class="kicker">Backup &middot; What we built</div>
+    <h2>Signal Learner watches a road, practices on a copy, and recommends one change.</h2>
+    <div class="body">
+      <div class="steps">
+        <div class="step reveal"><svg viewBox="0 0 60 60"><path d="M4 30 C 14 14, 46 14, 56 30 C 46 46, 14 46, 4 30 Z"/><circle cx="30" cy="30" r="8"/></svg><div class="n">1</div><h3>Watch</h3><p>Reads the road sensors. Changes nothing.</p></div>
+        <div class="step reveal d1"><svg viewBox="0 0 60 60"><path d="M8 52 H54 M14 44 V30 M26 44 V16 M38 44 V24 M50 44 V10"/></svg><div class="n">2</div><h3>Learn</h3><p>Learns the traffic and builds a practice copy of the road.</p></div>
+        <div class="step reveal d2"><svg viewBox="0 0 60 60"><path d="M48 22 A 20 20 0 1 0 50 36 M48 10 V22 H36"/></svg><div class="n">3</div><h3>Practice</h3><p>Tries 150 timing plans on the copy.</p></div>
+        <div class="step last reveal d3"><svg viewBox="0 0 60 60"><rect x="10" y="6" width="40" height="48" rx="4"/><path d="M18 20 H42 M18 30 H42 M18 40 H32"/></svg><div class="n">4</div><h3>Recommend</h3><p>One card. The engineer approves or rejects it.</p></div>
+      </div>
+      <div class="band reveal d3"><i></i>It never touches a real light.</div>
+    </div>
+  </div>
+  <aside class="notes">Four steps. It watches the road's sensors. It learns the traffic and builds a practice copy of the road. It tries 150 timing plans on that copy. Then it gives the engineer one card to approve or reject. It never touches a real light.</aside>
+</section>
+
+<!-- === B2. RESULT: DE ANZA BLVD === -->
+<section class="slide" data-backup aria-label="Result on De Anza Blvd">
+  <div class="wrap">
+    <div class="kicker">Backup &middot; De Anza Blvd, an unseen test road</div>
+    <h2>On De Anza, it said &ldquo;keep the old timing,&rdquo; and that was right.</h2>
+    <div class="body row" style="gap:72px;">
+      <div class="reveal" style="width:600px;">
+        <div class="card no-card">
+          <p class="label">The card said</p>
+          <p class="big">No change</p>
+          <span class="pill idle">Keep the old timing</span>
+        </div>
+      </div>
+      <div class="reveal d1" style="flex:1;">
+        <p class="label">The plan it turned down, run on 20 new test rush hours</p>
+        <div class="bars" style="margin-top:30px;">
+          <div class="r"><div class="name">Old timing</div><div class="track"><div class="fill" style="width:480px"></div><div class="v">275<small>s</small></div></div></div>
+          <div class="r"><div class="name">The plan it turned down</div><div class="track"><div class="fill bad" style="width:511px"></div><div class="v">292<small>s</small></div><div class="delta bad" style="font-size:56px; margin-left:12px;">6.4% worse</div></div></div>
+        </div>
+        <div class="row" style="gap:32px; align-items:center; margin-top:52px;">
+          <div class="dots" aria-hidden="true"><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="bad"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i><i class="even"></i></div>
+          <p class="dots-cap" style="margin-top:0;">Worse in 13 of 20</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Second test road: De Anza. Here it said, keep the old timing. Was that right? We ran the plan it turned down on 20 new rush hours. It was 6.4 percent worse, and worse in 13 of them. Knowing when not to change matters too.</aside>
+</section>
+
+<!-- === B3. LIMITS AND NEXT STEPS === -->
+<section class="slide" data-backup aria-label="Limits and next steps">
+  <div class="wrap">
+    <div class="kicker">Backup &middot; Limits and next steps</div>
     <h2>Next: real city data and a traffic engineer&rsquo;s review.</h2>
     <div class="body">
       <div class="limits">
@@ -478,29 +500,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">Three limits. Everything so far is simulated, with computer-made traffic on the test roads. On Wolfe, one group of drivers had a delay score about 203 seconds higher. And our safety undo was too jumpy on De Anza. Real city data is the next step for all three.</aside>
 </section>
 
-<!-- === 9. CLOSE === -->
-<section class="slide s-close" aria-label="Close">
-  <div class="wrap">
-    <p class="lead reveal">Our ask: one Cupertino traffic engineer.</p>
-    <h1 class="reveal d1">Review our card with <em>real city timing.</em></h1>
-    <div class="recap reveal d2"><span class="pill ok">Wolfe Rd: delay score &minus;26%</span><span class="pill info">De Anza: kept the old timing, correctly</span></div>
-    <p class="who reveal d3">Monta Vista AI Club</p>
-  </div>
-  <div class="mark reveal d2" aria-hidden="true"><i></i><i></i><i class="on"></i></div>
-  <aside class="notes">Our ask: one Cupertino traffic engineer to review our card with the city's real timing and tell us what's missing. On roads it had never seen, it found a 26 percent better plan on one and knew to leave the other alone. Thank you.</aside>
-</section>
-
-<!-- === BACKUP DIVIDER === -->
-<section class="slide s-divider" data-backup aria-label="Backup">
-  <div class="wrap">
-    <div class="kicker">Backup</div>
-    <h1 class="reveal" style="margin-top:28px;">For questions</h1>
-    <p class="sub reveal d1">How a light works &middot; the AI &middot; the fair test &middot; all four roads &middot; existing systems &middot; the delay score &middot; hardware</p>
-  </div>
-  <aside class="notes">Backup slides for judge questions. Press End to jump to the last slide, or type the slide number after # in the address bar.</aside>
-</section>
-
-<!-- === B1. HOW A TRAFFIC LIGHT WORKS === -->
+<!-- === B4. HOW A TRAFFIC LIGHT WORKS === -->
 <section class="slide" data-backup aria-label="How a traffic light works">
   <div class="wrap">
     <div class="kicker">Backup &middot; How a traffic light works</div>
@@ -562,7 +562,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">A controller box at the corner runs the light. Sensors in the road tell it who is waiting. The cycle is one full round of greens. Green time is how long one direction gets to go. The offset is when the next light's green starts, so cars driving down the road can hit green after green. A separate safety unit switches the light to flashing if two crossing directions ever get green.</aside>
 </section>
 
-<!-- === B2. WHAT THE AI IS === -->
+<!-- === B5. WHAT THE AI IS === -->
 <section class="slide" data-backup aria-label="What the AI is">
   <div class="wrap">
     <div class="kicker">Backup &middot; What the AI actually is</div>
@@ -582,7 +582,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">The AI has two parts. First, it turns the sensor counts into a traffic pattern and builds a practice copy of the road. Then Optuna, a search tool, picks each new timing plan based on how the earlier tries scored. It ran 150 tries on Wolfe. Each dot is one try; hollow dots broke a simulation rule. It is pattern learning plus a smart search, not a neural network.</aside>
 </section>
 
-<!-- === B3. HOW THE TEST WAS KEPT FAIR === -->
+<!-- === B6. HOW THE TEST WAS KEPT FAIR === -->
 <section class="slide" data-backup aria-label="How the test was kept fair">
   <div class="wrap">
     <div class="kicker">Backup &middot; How the test was kept fair</div>
@@ -603,7 +603,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">Signal Learner only gets the map, the list of signals, the old timing and the sensor counts. It never sees the test trips; an automatic test fails if its code tries to look. We wrote the rules down before testing, ran each unseen road once, and gave every plan the same 20 rush hours. For comparison, a textbook retiming with perfect counts scored 846 on Wolfe; ours scored 643.</aside>
 </section>
 
-<!-- === B4. ALL FOUR ROADS === -->
+<!-- === B7. ALL FOUR ROADS === -->
 <section class="slide" data-backup aria-label="All four roads">
   <div class="wrap">
     <div class="kicker">Backup &middot; All four roads</div>
@@ -621,7 +621,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">Homestead and Stevens Creek were practice roads we tuned on: 130 to 77 seconds, and 682 to 471. Wolfe and De Anza were the unseen test roads: Wolfe went from 870 to 643, and De Anza stayed at 270 because it kept the old timing. Stevens Creek uses real counts from VTA, 2024 CMP Monitoring and Conformance Report.</aside>
 </section>
 
-<!-- === B5. EXISTING SYSTEMS === -->
+<!-- === B8. EXISTING SYSTEMS === -->
 <section class="slide" data-backup aria-label="Existing systems">
   <div class="wrap">
     <div class="kicker">Backup &middot; Existing systems</div>
@@ -637,7 +637,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">Adaptive systems like SCOOT, SCATS, InSync, Surtrac and SynchroGreen change timing on the fly. Google Green Light sends recommendations to city engineers. Our difference is that every card comes with the test behind it, so the engineer can check the inputs, the tries and the result before deciding.</aside>
 </section>
 
-<!-- === B6. THE DELAY SCORE === -->
+<!-- === B9. THE DELAY SCORE === -->
 <section class="slide" data-backup aria-label="The delay score">
   <div class="wrap">
     <div class="kicker">Backup &middot; The delay score</div>
@@ -661,7 +661,7 @@ html.render #notesPanel { display: none !important; }
   <aside class="notes">The delay score adds up the extra time every finished trip took compared with an empty road. Each trip that never finished, and each stuck car the simulator had to remove, adds fifteen minutes. Then we divide by every trip that was requested. Lower is better. On Wolfe, trips that never finished fell from 968 to 217 per rush hour.</aside>
 </section>
 
-<!-- === B7. HARDWARE === -->
+<!-- === B10. HARDWARE === -->
 <section class="slide" data-backup aria-label="Hardware">
   <div class="wrap">
     <div class="kicker">Backup &middot; Hardware</div>

@@ -30,17 +30,17 @@ class LearnerDeckTests(unittest.TestCase):
         for slide in self.slides:
             self.assertRegex(slide, r'<aside class="notes">[^<]+</aside>')
         self.assertIn("150 seconds", self.slides[0])
-        self.assertIn('src="wolfe_side_by_side.mp4"', self.slides[4])
-        self.assertIn('src="wolfe_side_by_side_poster.png"', self.slides[4])
-        self.assertEqual([("data-backup" in s) for s in self.slides], [False] * 9 + [True] * 8)
+        self.assertIn('src="wolfe_side_by_side.mp4"', self.slides[3])
+        self.assertIn('src="wolfe_side_by_side_poster.png"', self.slides[3])
+        self.assertEqual([("data-backup" in s) for s in self.slides], [False] * 6 + [True] * 11)
 
     def test_demo_link_is_served_by_the_launcher(self):
-        link = re.search(r'href="(console/[^"#]*)', self.slides[3]).group(1)
+        link = re.search(r'href="(console/[^"#]*)', self.slides[2]).group(1)
         self.assertIn(link + "index.html", demo.ASSETS)
 
     def test_numbers_match_saved_facts(self):
         f = self.facts
-        wolfe = visible(self.slides[4])
+        wolfe = visible(self.slides[3])
         self.assertIn(str(round(f[("wolfe", "old_delay")])), wolfe)
         self.assertIn(str(round(f[("wolfe", "learner_delay")])), wolfe)
         self.assertIn(self.pct("wolfe"), wolfe)
@@ -48,14 +48,14 @@ class LearnerDeckTests(unittest.TestCase):
         self.assertEqual(len(f[("wolfe", "test_seeds")]), 20)
 
         posthoc = f[("deanza", "deanza_posthoc")]
-        deanza = visible(self.slides[5])
+        deanza = visible(self.slides[8])
         self.assertEqual(f[("deanza", "decision")], "no change")
         self.assertIn(str(round(posthoc["old_delay_s"])), deanza)
         self.assertIn(str(round(posthoc["rejected_plan"]["all_requested_delay_s"]["mean"])), deanza)
         self.assertIn(f"{100 * posthoc['change_share']:.1f}% worse", deanza)
         self.assertIn(f"{posthoc['seeds_worse']} of {len(posthoc['seeds'])}", deanza)
 
-        limits = visible(self.slides[7])
+        limits = visible(self.slides[9])
         self.assertIn(f"+{round(f[('wolfe', 'learner_worst_origin_change')])} s", limits)
         self.assertIn(f"{round(10 * f[('deanza', 'go_back_noop_undone')])} of 10", limits)
 
@@ -77,7 +77,7 @@ class LearnerDeckTests(unittest.TestCase):
                 self.assertIn("VTA, 2024 CMP Monitoring and Conformance Report", text)
             for hedge in ("not measured", "sketch", "we have not shown", "POST-HOC"):
                 self.assertNotIn(hedge, text.lower() if hedge.islower() else text)
-            if i != 7:
+            if i != 9:
                 self.assertNotIn("+203", text)
 
     def test_pdf_has_one_page_per_slide(self):
