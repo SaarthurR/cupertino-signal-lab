@@ -481,7 +481,7 @@ function decisionPanel(d) {
   const when = x.when ? new Date(x.when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
   if (!isChange(d)) {
     return panel('Decision', s === 'acknowledged'
-      ? `<p class="done"><b>Acknowledged</b> · ${new Date(x.at).toLocaleTimeString()}</p><div class="row"><button class="btn ghost" data-action="reopen">Undo</button></div>`
+      ? `<p class="done"><b>Acknowledged</b> · ${new Date(x.at).toLocaleTimeString()}</p><div class="row"><a class="btn primary" href="#/corridors">Back to corridors</a><button class="btn ghost" data-action="reopen">Undo</button></div>`
       : `<div class="row"><button class="btn primary" data-action="acknowledge">Acknowledge · keep current</button></div>`);
   }
   if (s !== 'pending') {
@@ -556,7 +556,7 @@ function auditPanel() {
 function deployScreen(d) {
   const s = statusKey(d), n = d.card.signals.length, sigs = d.card.signals;
   const ctlStatus = { deployed: ['New plan', 'live'], rolled_back: ['Rolled back', 'bad'] }[s] || (isChange(d) ? ['Waiting', 'calm'] : ['Current kept', 'calm']);
-  const actions = !isChange(d) ? ''
+  const actions = !isChange(d) ? `<a class="btn" href="${go(d.road, 'review')}">Open recommendation</a>`
     : s === 'deployed' ? '<button class="btn danger" data-action="rollback">Roll back</button>'
       : ['approved', 'scheduled', 'rolled_back'].includes(s) ? `<button class="btn primary" data-action="deploy">${s === 'rolled_back' ? 'Deploy again' : `Deploy to ${n} controllers`}</button>`
         : `<a class="btn primary" href="#/${d.road}/review">Review recommendation</a>`;
