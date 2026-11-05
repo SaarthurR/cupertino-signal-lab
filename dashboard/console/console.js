@@ -71,21 +71,27 @@ function roadYaml(text) {
   return { street: top('street'), begin: top('begin'), end: top('end'), drain: Number(top('drain_s')), points };
 }
 
-// Yellow and all-red after each green, from the main phase chain (before the first <param>).
+// Yellow and all-red after each green. Actuated greens list their successors in `next`; every path is walked to the next
+// green, and the clearance is kept only when all paths agree. Otherwise it is null (unknown), never 0.
 function clearances(xml) {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   const out = {};
   for (const tl of doc.querySelectorAll('tlLogic')) {
-    const chain = [];
-    for (const el of tl.children) { if (el.tagName === 'param') break; chain.push(el); }
-    const byPhase = {};
-    chain.forEach((el, i) => {
-      if (!el.hasAttribute('minDur')) return;
+    const ph = [...tl.querySelectorAll(':scope > phase')];
+    const nexts = i => (ph[i].getAttribute('next') || String(i + 1)).trim().split(/\s+/).map(Number);
+    const walk = j => {
       let yellow = 0, red = 0;
-      for (let j = i + 1; j < chain.length && !chain[j].hasAttribute('minDur'); j++) {
-        const st = chain[j].getAttribute('state'), dur = Number(chain[j].getAttribute('duration'));
+      for (let n = 0; ph[j] && !ph[j].hasAttribute('minDur') && n < ph.length; n++, j = nexts(j)[0]) {
+        const st = ph[j].getAttribute('state'), dur = Number(ph[j].getAttribute('duration'));
         if (st.includes('y')) yellow += dur; else if (/^r+$/.test(st)) red += dur;
       }
+      return ph[j]?.hasAttribute('minDur') ? `${+yellow.toFixed(1)}|${+red.toFixed(1)}` : null;
+    };
+    const byPhase = {};
+    ph.forEach((el, i) => {
+      if (!el.hasAttribute('minDur')) return;
+      const paths = [...new Set(nexts(i).filter(j => j !== i).map(walk))];
+      const [yellow, red] = paths.length === 1 && paths[0] ? paths[0].split('|').map(Number) : [null, null];
       byPhase[i] = { yellow, red };
     });
     out[tl.getAttribute('id')] = byPhase;
@@ -155,10 +161,11 @@ function goBack(d) {
 function phases(d, sig, which) {
   const clear = d.clear[sig.sumo_tls_id] || {};
   return sig[which].greens.map(g => {
-    const { yellow = 0, red = 0 } = clear[g.phase] || {};
-    return { ...g, yellow, red, split: g.max_green_s + yellow + red };
+    const { yellow = null, red = null } = clear[g.phase] || {};
+    return { ...g, yellow, red, split: ok(yellow) && ok(red) ? g.max_green_s + yellow + red : null };
   });
 }
+const opt = v => ok(v) ? f1(v) : '<span class="na" title="Varies with the next phase (actuated)">–</span>';
 
 const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
 const TURNS = { L: 'left', T: 'through', R: 'right' };
@@ -276,10 +283,10 @@ function corridorsScreen(ds, ctx) {
   }).join('');
   const first = ds.find(d => statusKey(d) === 'pending') || ds[0];
   return `<div class="page">
-    ${head('Corridors', { meta: [`${ds.length} corridors`, `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'],
+    ${head('Corridors', { meta: [term('heldout', `${ds.length} held-out test corridors`), `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'],
       actions: `<a class="btn primary" href="${go(first.road)}">Open ${esc(first.info.street)} ›</a>` })}
     <div class="grid g-map">
-      ${panel('Map', cityMap(roads), { tools: '<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span><span><i class="ln ctx"></i>Training road</span></div>' })}
+      ${panel('Map', cityMap(roads), { tools: '<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span><span><i class="ln ctx"></i>Practice road</span></div>' })}
       ${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
     </div>
     ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>
@@ -353,6 +360,7 @@ function corridorScreen(d) {
 function timingSheet(d, sig) {
   const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
   const scale = Math.max(sig.old.cycle_s, sig.new.cycle_s);
+  const has = k => [...old, ...neu].some(p => ok(p[k])), hasY = has('yellow'), hasR = has('red'), hasS = has('split');
   const dlt = (a, b) => Math.abs(b - a) < 0.05 ? '<span class="na">–</span>' : `<span class="delta ${b > a ? 'up' : 'down'}">${signed(b - a, 1)}</span>`;
   return `<dl class="kv">
       <div><dt>${term('cycle', 'Cycle')}</dt><dd>${sameOr(sig.old.cycle_s, sig.new.cycle_s)} <small>s</small></dd></div>
@@ -362,11 +370,11 @@ function timingSheet(d, sig) {
     <div class="cycles"><span class="k">Current</span>${bar(old, sig.old.cycle_s, scale, 'old')}<span class="c num">${f1(sig.old.cycle_s)} s</span>
       <span class="k">${planName(d)}</span>${bar(neu, sig.new.cycle_s, scale, 'new')}<span class="c num strong">${f1(sig.new.cycle_s)} s</span></div>
     <table class="tbl sheet-t"><thead><tr><th rowspan="2">Phase</th><th rowspan="2">${term('mv', 'Movements')}</th><th class="n" rowspan="2">Min green</th>
-      <th class="n grp" colspan="3">Max green</th><th class="n" rowspan="2">Yellow</th><th class="n" rowspan="2">All-red</th><th class="n grp" colspan="2">${term('split', 'Split')}</th></tr>
-      <tr><th class="n">Now</th><th class="n">Plan</th><th class="n">Δ</th><th class="n">Now</th><th class="n">Plan</th></tr></thead>
+      <th class="n grp" colspan="3">Max green</th>${hasY ? '<th class="n" rowspan="2">Yellow</th>' : ''}${hasR ? '<th class="n" rowspan="2">All-red</th>' : ''}${hasS ? `<th class="n grp" colspan="2">${term('split', 'Split')}</th>` : ''}</tr>
+      <tr><th class="n">Now</th><th class="n">Plan</th><th class="n">Δ</th>${hasS ? '<th class="n">Now</th><th class="n">Plan</th>' : ''}</tr></thead>
     <tbody>${old.map((p, i) => `<tr><td class="n">${p.phase}</td><td>${moves(p.serves)}</td><td class="n">${f1(p.min_green_s)}</td>
       <td class="n">${f1(p.max_green_s)}</td><td class="n strong">${f1(neu[i].max_green_s)}</td><td class="n">${dlt(p.max_green_s, neu[i].max_green_s)}</td>
-      <td class="n">${f1(p.yellow)}</td><td class="n">${f1(p.red)}</td><td class="n">${f1(p.split)}</td><td class="n strong">${f1(neu[i].split)}</td></tr>`).join('')}</tbody></table>
+      ${hasY ? `<td class="n">${opt(p.yellow)}</td>` : ''}${hasR ? `<td class="n">${opt(p.red)}</td>` : ''}${hasS ? `<td class="n">${opt(p.split)}</td><td class="n strong">${opt(neu[i].split)}</td>` : ''}</tr>`).join('')}</tbody></table>
     ${sig.reason && isChange(d) ? `<p class="reason"><span>Reason</span>${esc(sig.reason.replace(/\b([NSEW]):([LRT]+)/g, (_, leg, t) => `${BOUND[leg]} ${t}`))}</p>` : ''}`;
 }
 
@@ -535,10 +543,10 @@ function sheet(d) {
         <p class="small">Cycle ${ch(sig.old.cycle_s, sig.new.cycle_s)} s · Offset ${ch(sig.old.offset_s, sig.new.offset_s)} s</p>
         <table><thead><tr><th>Phase</th><th>Movements</th><th class="n">Min green</th><th class="n">Max green</th><th class="n">Yellow</th><th class="n">All-red</th><th class="n">Split</th></tr></thead><tbody>
         ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="n">${f1(p.min_green_s)}</td><td class="n">${ch(p.max_green_s, neu[i].max_green_s)}</td>
-          <td class="n">${f1(p.yellow)}</td><td class="n">${f1(p.red)}</td><td class="n">${ch(p.split, neu[i].split)}</td></tr>`).join('')}
+          <td class="n">${opt(p.yellow)}</td><td class="n">${opt(p.red)}</td><td class="n">${ok(p.split) && ok(neu[i].split) ? ch(p.split, neu[i].split) : opt()}</td></tr>`).join('')}
         </tbody></table></div>`;
     }).join('')}
-    <p class="small muted" style="margin-top:12px">Seconds. Split = max green + yellow + all-red. Phase numbers come from the simulation; match them to the controller's phases when entering.</p>
+    <p class="small muted" style="margin-top:12px">Seconds. Split = max green + yellow + all-red; – means it varies with the next phase (actuated). Phase numbers come from the simulation; match them to the controller's phases when entering.</p>
     <div class="sign"><div>Reviewed by (traffic engineer)</div><div>Entered into controller / central system by</div><div>Date entered</div></div>
   </section>`;
 }
