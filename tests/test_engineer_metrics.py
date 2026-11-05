@@ -28,7 +28,7 @@ class EngineerMetricsTest(unittest.TestCase):
                 path = ROOT/f'dashboard/console/data/{name}/metrics.json'
                 self.assertLess(path.stat().st_size, 1_500_000)
                 data = json.loads(path.read_text())
-                self.assertEqual(set(data), {'road', 'name', 'window', 'seeds', 'source', 'status', 'corridor', 'signals', 'time_space'})
+                self.assertEqual(set(data), {'road', 'role', 'name', 'window', 'seeds', 'source', 'status', 'corridor', 'signals', 'time_space'})
                 self.assertEqual(data['road'], name)
                 self.assertEqual(data['seeds'], [200])
                 self.assertEqual(data['window'], '16:30-18:30')
@@ -40,6 +40,14 @@ class EngineerMetricsTest(unittest.TestCase):
                 self.assertIn('SUMO', data['source'])
                 self.assertIn('900 s', data['source'])
                 self.assertIn('HBEFA', data['source'])
+                if name in ('homestead', 'stevens_creek'):
+                    self.assertEqual(data['role'], 'practice')
+                    self.assertIn('development-road measurement, seed 200; not held-out-road evaluation', data['source'])
+                    self.assertNotIn('held-out simulation seed', data['source'])
+                else:
+                    self.assertEqual(data['role'], 'heldout')
+                    self.assertIn('held-out simulation seed 200', data['source'])
+                self.assertIn('VTA 2024 counts' if name == 'stevens_creek' else 'synthetic hidden-world demand', data['source'])
                 finite(data)
                 directions = ('EB', 'WB') if name in ('homestead', 'stevens_creek') else ('NB', 'SB')
                 for arm, ref_arm in (('baseline', 'old'), ('proposed', 'learner')):
