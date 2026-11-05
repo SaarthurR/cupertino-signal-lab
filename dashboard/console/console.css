@@ -146,7 +146,7 @@ main { padding: 16px 24px 40px; min-width: 0; outline: none; }
 .ln.base { border-color: var(--base); border-top-style: dashed; } .ln.prop { border-color: var(--prop); border-top-width: 3px; }
 .ln.calm { border-color: #475467; border-top-width: 3px; } .ln.ctx { border-color: #cfd4dc; border-top-width: 3px; }
 .ln.green { border-color: var(--go); border-top-width: 3px; } .ln.red { border-color: #f1a7a7; border-top-width: 3px; }
-.ln.nb { border-color: #1d4ed8; } .ln.sb { border-color: #c2410c; }
+.ln.dir0 { border-color: #1d4ed8; } .ln.dir1 { border-color: #c2410c; }
 .legend .dot { width: 6px; height: 6px; background: #344054; }
 
 /* ---------- Controls ---------- */
@@ -312,8 +312,8 @@ main [id][tabindex="-1"]:focus { outline: none; }
 .chart .ts-red { stroke: #f4b4b4; stroke-width: 5; }
 .chart .ts-green { stroke: var(--go); stroke-width: 5; }
 .chart .traj { fill: none; stroke-width: 1.1; opacity: .7; }
-.chart .traj.nb { stroke: #1d4ed8; }
-.chart .traj.sb { stroke: #c2410c; }
+.chart .traj.dir0 { stroke: #1d4ed8; }
+.chart .traj.dir1 { stroke: #c2410c; }
 .chart .pcd-green rect { fill: rgba(22, 163, 74, .3); }
 .chart .pcd-dots { stroke: #344054; stroke-width: 2.6; stroke-linecap: round; fill: none; }
 .chart .bar.good { fill: #3aa76d; }

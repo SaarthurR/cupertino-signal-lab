@@ -51,7 +51,11 @@ function lineChart({ labels, series, unit, label, w = 640, h = 230 }) {
 
 /* ---------- Time-space diagram ---------- */
 
+// Car directions in the order both arms and the legend share (NB, SB or EB, WB), whatever the road.
+const trajDirs = side => [...new Set((side?.trajectories || []).map(t => t.dir))].sort();
+
 function timeSpace(ts, signals, label, [t0, t1], hrefOf = () => '') {
+  const dirs = trajDirs(ts);
   const w = 1120, h = 320, m = { l: 132, r: 14, t: 12, b: 28 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
   const xs = signals.map(s => s.x_m).filter(ok);
   const pts = ts.trajectories.flatMap(tr => tr.pts.map(p => p[1]));
@@ -71,16 +75,17 @@ function timeSpace(ts, signals, label, [t0, t1], hrefOf = () => '') {
       ${greens.map(g => `<line class="ts-green" x1="${x(Math.max(t0, g.start_s))}" x2="${x(Math.min(t1, g.end_s))}" y1="${y(s.x_m)}" y2="${y(s.x_m)}"/>`).join('')}</g>`;
   }).join('');
   const paths = ts.trajectories.filter(tr => tr.pts.length > 1).map(tr =>
-    `<polyline class="traj ${tr.dir === 'SB' ? 'sb' : 'nb'}" points="${tr.pts.filter(p => p[0] >= t0 && p[0] <= t1).map(p => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ')}"/>`).join('');
-  const nb = ts.trajectories.filter(t => t.dir !== 'SB').length, sb = ts.trajectories.length - nb;
-  return `<svg class="chart ts" viewBox="0 0 ${w} ${h}" role="group" aria-label="${esc(`${label}. ${clock(t0)} to ${clock(t1)}. ${signals.length} signals by distance; ${nb} northbound and ${sb} southbound car paths.`)}">
+    `<polyline class="traj dir${Math.max(0, dirs.indexOf(tr.dir))}" points="${tr.pts.filter(p => p[0] >= t0 && p[0] <= t1).map(p => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ')}"/>`).join('');
+  const counts = dirs.map(dir => `${ts.trajectories.filter(t => t.dir === dir).length} ${dir}`).join(' and ');
+  return `<svg class="chart ts" viewBox="0 0 ${w} ${h}" role="group" aria-label="${esc(`${label}. ${clock(t0)} to ${clock(t1)}. ${signals.length} signals by distance; ${counts} car paths.`)}">
     <defs><clipPath id="ts-clip"><rect x="${m.l}" y="${m.t - 4}" width="${iw}" height="${ih + 8}"/></clipPath></defs>
     ${grid}${rows}<g clip-path="url(#ts-clip)">${paths}</g></svg>`;
 }
 
 /* ---------- Purdue Coordination Diagram ---------- */
 
-// green holds one [start, end] per cycle with no cycle start times, so cycles are spread evenly over the arrivals' time span.
+// green holds one [start, end] per cycle; cycle_starts (same length) places each band at its real time.
+// Older exports without cycle_starts fall back to spreading cycles evenly over the arrivals' span.
 function pcd(side, label) {
   const arr = side.arrivals || [], green = side.green || [];
   if (!arr.length) return '';
@@ -89,7 +94,10 @@ function pcd(side, label) {
   const ymax = ticks(0, Math.max(...arr.map(a => a[1]), ...green.map(g => g[1])), 4);
   const top = ymax[ymax.length - 1] || 1;
   const x = t => m.l + (t - t0) / span * iw, y = v => m.t + ih - v / top * ih, cw = iw / (green.length || 1);
-  const bands = green.map((g, k) => g[1] > g[0] ? `<rect x="${(m.l + k * cw).toFixed(1)}" width="${(cw + .4).toFixed(1)}" y="${y(g[1]).toFixed(1)}" height="${(y(g[0]) - y(g[1])).toFixed(1)}"/>` : '').join('');
+  const cs = side.cycle_starts, real = Array.isArray(cs) && cs.length === green.length && cs.length > 1;
+  const bandX = k => real ? [Math.max(t0, cs[k]), Math.min(t1, cs[k + 1] ?? cs[k] + (cs[k] - cs[k - 1]))].map(x) : [m.l + k * cw, m.l + (k + 1) * cw + .4];
+  const bands = green.map((g, k) => { const [a, b] = bandX(k);
+    return g[1] > g[0] && b > a ? `<rect x="${a.toFixed(1)}" width="${(b - a).toFixed(1)}" y="${y(g[1]).toFixed(1)}" height="${(y(g[0]) - y(g[1])).toFixed(1)}"/>` : ''; }).join('');
   const grid = ymax.map(v => `<line class="gl" x1="${m.l}" x2="${w - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="tick" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`).join('');
   const xt = ticks(t0, t1, 4).filter(t => t >= t0 && t <= t1).map(t => `<text class="tick" x="${x(t)}" y="${h - 8}" text-anchor="middle">${clock(t)}</text>`).join('');
   const dots = arr.map(a => `M${x(a[0]).toFixed(1)} ${y(a[1]).toFixed(1)}h0`).join('');

@@ -165,6 +165,9 @@ const TURNS = { L: 'left', T: 'through', R: 'right' };
 const serves = codes => codes.map(code => { const [leg, turns] = code.split(':'); return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`; }).join(' · ');
 const BOUND = { N: 'SB', S: 'NB', E: 'WB', W: 'EB' };
 const moves = codes => codes.map(c => { const [leg, turns] = c.split(':'); return `<span class="mv">${BOUND[leg] || leg} ${esc(turns)}</span>`; }).join('');
+// Travel-time directions follow the road (NB/SB or EB/WB); read whichever keys the data has, in its order.
+const ttDirs = c => [...new Set([c?.baseline, c?.proposed].flatMap(x => Object.keys(x?.travel_time_s || {})))];
+const ttKey = dir => `tt_${dir.toLowerCase()}_s`;
 const isChange = d => d.card.decision === 'change';
 const metricSignal = (d, sig) => d.m?.signals?.find(s => s.id === sig.sumo_tls_id) || null;
 const window_ = d => `${ampm(seconds(d.info.begin))}–${ampm(seconds(d.info.end))}`;
@@ -258,7 +261,8 @@ function corridorsScreen(ds, ctx) {
         : `<span>Candidate ${term('jammed', 'jammed')} in ${dl(go(d.road, 'review', { p: 'impact' }), `<b>${jams(d).jammed} of ${jams(d).n}</b>`)} practice runs</span><span>${dl(go(d.road, '', { p: 'signals' }), `${d.card.signals.length} signals`)}</span>`}</div>
     </li>`;
   }).join('');
-  const withM = ds.some(d => d.m?.corridor);
+  // shortcut: one column per direction across all corridors, so mixing NB/SB and EB/WB roads gives four columns with dashes; merge into two direction-labelled columns if an east-west corridor is added.
+  const dirs = [...new Set(ds.flatMap(d => ttDirs(d.m?.corridor)))];
   const mcell = (d, f, dp, unit, v) => { const c = d.m?.corridor, b = c && f(c.baseline || {}), p = c && f(c.proposed || {});
     return `<td class="n">${ok(b) && ok(p) ? dl(go(d.road, '', { p: 'by15', c15: v }), Math.abs(p - b) < 1e-9 ? `${fmt(b, dp)}<small>${unit}</small>` : `${cmp(b, p, dp, unit)} ${delta(b, p)}`) : '<span class="na">–</span>'}</td>`; };
   const rows = ds.map(d => {
@@ -266,7 +270,7 @@ function corridorsScreen(ds, ctx) {
     return `<tr><td><a class="strong" href="${go(d.road)}">${esc(d.info.street)}</a></td><td>${dl(go(d.road, 'review', { p: 'decision' }), pill(d))}</td><td class="n">${dl(go(d.road, '', { p: 'signals' }), d.card.signals.length)}</td>
       <td class="n">${change ? dl(imp, `${cmp(h.oldMean, h.planMean, 0, 's')} ${delta(h.oldMean, h.planMean)}`) : dl(imp, '<span class="na">No change</span>')}</td>
       <td class="n">${dl(imp, change ? `${cmp(h.unfOld, h.unfPlan)} ${delta(h.unfOld, h.unfPlan)}` : fmt(h.unfOld))}</td>
-      ${withM ? [mcell(d, c => c.travel_time_s?.NB, 0, 's', 'tt_nb_s'), mcell(d, c => c.travel_time_s?.SB, 0, 's', 'tt_sb_s')].join('') : ''}
+      ${dirs.map(dir => mcell(d, c => c.travel_time_s?.[dir], 0, 's', ttKey(dir))).join('')}
       <td class="nw">${dl(imp, `${h.n} evenings`)}</td>
       <td class="n"><a class="chev" href="${go(d.road)}" aria-label="Open ${esc(d.info.street)}">›</a></td></tr>`;
   }).join('');
@@ -279,7 +283,7 @@ function corridorsScreen(ds, ctx) {
       ${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
     </div>
     ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>
-      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${withM ? '<th class="n">Travel time NB</th><th class="n">Travel time SB</th>' : ''}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
+      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${dirs.map(dir => `<th class="n">Travel time ${esc(dir)}</th>`).join('')}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
   </div>`;
 }
 
@@ -293,7 +297,7 @@ function kpiPanel(d) {
   const test = [kpi(term('score', 'Delay score'), h.oldMean, h.planMean, 0, 's', imp), kpi(term('unfinished', 'Unfinished trips'), h.unfOld, h.unfPlan, 0, '', imp),
     isChange(d) ? `<div class="kpi"><div class="kpi-l">Better on</div><a class="kpi-v dl" href="${imp}"><span class="p">${h.better}</span><small>of ${h.n}</small></a><div class="kpi-b">evenings</div></div>` : ''].join('');
   const seed = c ? [kpi(term('score', 'Delay per car'), b.avg_delay_s_per_veh, p.avg_delay_s_per_veh, 1, 's', by('delay_s')), kpi('Stops per car', b.stops_per_veh, p.stops_per_veh, 2, '', sim),
-    kpi('Travel time NB', b.travel_time_s?.NB, p.travel_time_s?.NB, 0, 's', by('tt_nb_s')), kpi('Travel time SB', b.travel_time_s?.SB, p.travel_time_s?.SB, 0, 's', by('tt_sb_s')),
+    ...ttDirs(c).map(dir => kpi(`Travel time ${esc(dir)}`, b.travel_time_s?.[dir], p.travel_time_s?.[dir], 0, 's', by(ttKey(dir)))),
     kpi('CO₂', b.co2_kg, p.co2_kg, 0, 'kg', sim)].join('') : '';
   return `<section class="panel kpis" id="kpis" tabindex="-1" aria-label="Key results, current vs ${propName(d).toLowerCase()}">
     <div class="kpi-group"><h2 class="kpi-h">${term('heldout', `Held-out test · ${h.n} evenings`)}</h2><div class="kpi-row">${test}</div></div>
@@ -324,7 +328,7 @@ function timeSpacePanel(d) {
   return panel(`${term('ts', 'Time-space diagram')} <span class="h-sub">${clock(ts.window_s[0])}–${clock(ts.window_s[1])}</span>`,
     timeSpace(side, sigs, `Time-space diagram, ${arm === 'baseline' ? 'current' : propName(d).toLowerCase()} timing`, ts.window_s,
       s => { const i = d.card.signals.findIndex(c => c.sumo_tls_id === s.id); return i < 0 ? '' : go(d.road, `signal/${i + 1}`, { p: 'timing' }); }),
-    { anchor: 'ts', tools: `<div class="legend"><span><i class="ln green"></i>Green</span><span><i class="ln red"></i>Red</span><span><i class="ln nb"></i>NB car</span><span><i class="ln sb"></i>SB car</span></div>${toggle('ts', 'Timing', opts, arm)}` });
+    { anchor: 'ts', tools: `<div class="legend"><span><i class="ln green"></i>Green</span><span><i class="ln red"></i>Red</span>${trajDirs(side).map((dir, i) => `<span><i class="ln dir${i}"></i>${esc(dir)} car</span>`).join('')}</div>${toggle('ts', 'Timing', opts, arm)}` });
 }
 
 function corridorScreen(d) {
@@ -338,7 +342,7 @@ function corridorScreen(d) {
     ${kpiPanel(d)}
     <div class="grid g-2">
       ${panel('Signals', `<div class="map strip" data-road="${d.road}" data-along data-links role="group" aria-label="Map of ${esc(d.info.street)}, north on the left, signals numbered 1 to ${d.card.signals.length}."></div>${signalsTable(d)}`, { anchor: 'signals' })}
-      ${by15Panel(d, d.m?.corridor?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ['tt_nb_s', 'Travel time NB', 's'], ['tt_sb_s', 'Travel time SB', 's']], 'c15', 'By 15 minutes', 640, drill)}
+      ${by15Panel(d, d.m?.corridor?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ...ttDirs(d.m?.corridor).map(dir => [ttKey(dir), `Travel time ${dir}`, 's'])], 'c15', 'By 15 minutes', 640, drill)}
     </div>
     ${timeSpacePanel(d)}
   </div>`;
