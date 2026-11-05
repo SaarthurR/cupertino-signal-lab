@@ -3,8 +3,8 @@
 **Software that learns how traffic moves on a road, then suggests better traffic-light timing to a city engineer.**
 Built in simulation by Saarth, Advaita and Prithvi for the Monta Vista AI Club hackathon (Nov 16–23, 2026).
 
-> This repo is private. VTA allowed its counts in our presentation only. Every slide that shows them cites
-> *VTA, 2024 CMP Monitoring and Conformance Report*.
+> Traffic counts and timing in `data/processed/vta_*` are from the Santa Clara Valley Transportation
+> Authority (VTA), *2024 CMP Monitoring and Conformance Report*, shared with us by VTA. Credit VTA if you reuse them.
 
 ## The project in 30 seconds
 
