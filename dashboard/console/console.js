@@ -1,35 +1,57 @@
 'use strict';
-// Every number on screen comes from the copied report files in data/, the recording, or the live run.
+// Every number on screen comes from the copied report files in data/, metrics.json, the recording, or the live run.
+// metrics.json panels hide when the file or a field is missing. ?fixture swaps in a fake fixture, with a banner.
 
 const ROADS = ['wolfe', 'deanza'];
-const STORE = 'signal-learner-console-v2';
-const SPEEDS = [60, 120, 240];
-const ARMS = ['old', 'plan'];
-const ARM_NAME = { old: 'Current timing', plan: 'Signal Learner plan' };
+const CONTEXT = ['homestead', 'stevens_creek'];
+const STORE = 'signal-learner-console-v3';
+const FIXTURE = new URLSearchParams(location.search).has('fixture');
 
 const main = document.getElementById('main');
 const cache = {};
-let route = { road: 'wolfe', screen: 'overview' };
-let decisions = loadDecisions();
-let rejecting = false;
+let route = { road: 'wolfe', screen: 'corridors' };
+let state = load();
+let form = null;
 let player = null;
+const drafts = {};
+const view = { c15: 'delay_s', s15: 'delay_s', ts: 'proposed' };
 
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const f1 = x => Number(x).toFixed(1);
-const betterOn = h => h.better === h.n ? `all ${h.n}` : `${h.better} of ${h.n}`;
-const pct = (from, to) => `${to < from ? '−' : '+'}${Math.abs(Math.round((to - from) / from * 100))}%`;
-const mean = v => v.reduce((a, b) => a + b, 0) / v.length;
-const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
-const TURNS = { L: 'left', T: 'through', R: 'right' };
-const seconds = t => { const [h, m] = t.split(':').map(Number); return h * 3600 + m * 60; };
-const ampm = s => { const h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60; return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; };
+const TERMS = {
+  score: 'Average extra seconds per requested trip. A trip that never finishes counts 900 s.',
+  aog: 'Arrivals on green: share of cars that reach the stop bar while the light is green.',
+  sf: 'Split failures: cycles where the queue did not clear before the light turned red.',
+  pcd: 'Purdue Coordination Diagram. Each dot is a car arriving: time of day across, seconds into the cycle up. Green bands show when the light was green.',
+  cycle: 'One full round of greens for every direction.',
+  offset: 'When this light’s cycle starts, relative to the corridor’s reference clock.',
+  split: 'Max green + yellow + all-red.',
+  unfinished: 'Trips still waiting or on the road when the evening ended.',
+  ts: 'Distance along the road (up) against time (across). Lines are car paths; bars show each light’s green.',
+  mv: 'Direction of travel and the turns served: L left, T through, R right.',
+  worst: 'Average delay for the worst-off group of drivers (same starting point).',
+  practice: 'A copy of the road built only from sensor counts. Plans are tried here first.',
+  heldout: 'Evenings the learner never saw, tested once with the rules written first.',
+  jammed: 'The simulation had to remove stuck cars more often than with the current timing.',
+  posthoc: 'Run after the frozen test; not part of the pre-registered result.',
+};
+const term = (key, text) => `<span class="term" tabindex="0">${text}<span class="tip" role="tooltip">${esc(TERMS[key])}</span></span>`;
 
-function loadDecisions() {
-  try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; }
+/* ---------- State: decisions and the audit log ---------- */
+
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.decisions && Array.isArray(s.log)) return s; } catch { /* fall through */ }
+  return { decisions: {}, log: [] };
 }
-function saveDecisions() {
-  try { localStorage.setItem(STORE, JSON.stringify(decisions)); } catch { /* private mode: keep in memory */ }
+function save() {
+  try { localStorage.setItem(STORE, JSON.stringify(state)); } catch { /* private mode: keep in memory */ }
 }
+function act(road, action, decision, note = '') {
+  const at = new Date().toISOString();
+  if (decision === null) delete state.decisions[road];
+  else if (decision) state.decisions[road] = { ...decision, at, note };
+  state.log.push({ at, road, action, note });
+  save();
+}
+const dec = d => state.decisions[d.road] || {};
 
 /* ---------- Data ---------- */
 
@@ -41,7 +63,8 @@ function csv(text) {
 
 function roadYaml(text) {
   const top = key => (text.match(new RegExp(`^${key}:\\s*'?([^'\\n]*)'?`, 'm')) || [])[1];
-  return { street: top('street'), begin: top('begin'), end: top('end'), drain: Number(top('drain_s')) };
+  const points = [...text.matchAll(/^- name: '?([^'\n]+)'?\n\s+lat: ([\d.-]+)\n\s+lon: ([\d.-]+)/gm)].map(m => ({ name: m[1], lat: +m[2], lon: +m[3] }));
+  return { street: top('street'), begin: top('begin'), end: top('end'), drain: Number(top('drain_s')), points };
 }
 
 // Yellow and all-red after each green, from the main phase chain (before the first <param>).
@@ -56,8 +79,8 @@ function clearances(xml) {
       if (!el.hasAttribute('minDur')) return;
       let yellow = 0, red = 0;
       for (let j = i + 1; j < chain.length && !chain[j].hasAttribute('minDur'); j++) {
-        const state = chain[j].getAttribute('state'), dur = Number(chain[j].getAttribute('duration'));
-        if (state.includes('y')) yellow += dur; else if (/^r+$/.test(state)) red += dur;
+        const st = chain[j].getAttribute('state'), dur = Number(chain[j].getAttribute('duration'));
+        if (st.includes('y')) yellow += dur; else if (/^r+$/.test(st)) red += dur;
       }
       byPhase[i] = { yellow, red };
     });
@@ -66,34 +89,63 @@ function clearances(xml) {
   return out;
 }
 
-async function get(path, kind = 'text') {
-  const response = await fetch(path);
-  if (!response.ok) throw new Error(`Could not load ${path}`);
+async function get(p, kind = 'text') {
+  const response = await fetch(p);
+  if (!response.ok) throw new Error(`Could not load ${p}`);
   return response[kind]();
+}
+
+// The real path never shows a fixture, even if one is copied into place by mistake.
+async function metricsFor(road) {
+  try {
+    const m = FIXTURE ? (await get('data/_fixture/metrics.json', 'json'))[road] : await get(`data/${road}/metrics.json`, 'json');
+    if (!m || typeof m !== 'object' || m.road !== road) return null;
+    if (!FIXTURE && (m._fixture || /fixture|fake/i.test(m.source || ''))) return null;
+    return m;
+  } catch { return null; }
 }
 
 async function data(road) {
   if (cache[road]) return cache[road];
   const base = `data/${road}/`;
-  const [card, practice, plan, yaml, results, geo] = await Promise.all([
-    get(base + 'card.json', 'json'), get(base + 'practice.json', 'json'), get(base + 'plan.add.xml'),
-    get(base + 'road.yaml'), get('data/heldout/results.csv'), get(`geo/${road}.json`, 'json')]);
-  return (cache[road] = { road, card, practice, clear: clearances(plan), info: roadYaml(yaml), results: csv(results), geo });
+  const [card, practice, plan, yaml, results, geo, goBack, m] = await Promise.all([
+    get(base + 'card.json', 'json'), get(base + 'practice.json', 'json'), get(base + 'plan.add.xml'), get(base + 'road.yaml'),
+    get('data/heldout/results.csv'), get(`geo/${road}.json`, 'json'), get('data/heldout/go_back.json', 'json'), metricsFor(road)]);
+  const posthoc = road === 'deanza' ? await get('data/deanza/posthoc.json', 'json') : null;
+  return (cache[road] = { road, card, practice, clear: clearances(plan), info: roadYaml(yaml), results: csv(results), geo, goBack, posthoc, m });
+}
+
+async function contextRoads() {
+  if (cache.context) return cache.context;
+  const texts = await Promise.all(CONTEXT.map(r => get(`data/${r}/road.yaml`)));
+  return (cache.context = texts.map((t, i) => ({ road: CONTEXT[i], ...roadYaml(t) })));
 }
 
 function heldout(d) {
   const rows = d.results.filter(r => r.road === d.road);
-  const by = arm => Object.fromEntries(rows.filter(r => r.arm === arm).map(r => [r.seed, Number(r.all_requested_delay_s)]));
-  const old = by('old'), plan = by('learner');
-  const seeds = Object.keys(old).filter(s => s in plan);
-  const oldMean = mean(seeds.map(s => old[s])), planMean = mean(seeds.map(s => plan[s]));
-  return { n: seeds.length, oldMean, planMean, better: seeds.filter(s => plan[s] < old[s]).length };
+  const by = (arm, k) => Object.fromEntries(rows.filter(r => r.arm === arm).map(r => [r.seed, Number(r[k])]));
+  const old = by('old', 'all_requested_delay_s'), plan = by('learner', 'all_requested_delay_s');
+  const seeds = Object.keys(old).filter(s => s in plan).sort((a, b) => a - b);
+  const avg = (o) => mean(seeds.map(s => o[s]));
+  const per = seeds.map(s => ({ seed: s, v: share(old[s], plan[s]) * 100 }));
+  return {
+    n: seeds.length, seeds, per, oldMean: avg(old), planMean: avg(plan), better: seeds.filter(s => plan[s] < old[s]).length,
+    unfOld: avg(by('old', 'unfinished')), unfPlan: avg(by('learner', 'unfinished')),
+    worstOld: avg(by('old', 'worst_origin_delay_s')), worstPlan: avg(by('learner', 'worst_origin_delay_s')),
+  };
 }
+const betterOn = h => h.better === h.n ? `all ${h.n}` : `${h.better} of ${h.n}`;
 
 // De Anza: how many confirmation runs of the best new plan jammed (removed more stuck cars than the margin allows).
 function jams(d) {
   const p = d.practice, margin = p.settings.teleport_margin;
   return { n: p.confirm_new.length, jammed: p.confirm_new.filter((run, i) => run.teleports > p.confirm_old[i].teleports + margin).length };
+}
+
+function goBack(d) {
+  const runs = d.goBack.filter(r => r.road === d.road), bad = runs.filter(r => r.program === 'bad'), noop = runs.filter(r => r.program === 'noop');
+  const mins = bad.filter(r => r.go_back).map(r => (r.time_s - r.change_s) / 60).sort((a, b) => a - b);
+  return { bad: bad.length, caught: mins.length, noop: noop.length, false: noop.filter(r => r.go_back).length, median: mins[Math.floor(mins.length / 2)] };
 }
 
 function phases(d, sig, which) {
@@ -104,187 +156,339 @@ function phases(d, sig, which) {
   });
 }
 
-function serves(codes) {
-  return codes.map(code => {
-    const [leg, turns] = code.split(':');
-    return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`;
-  }).join(' · ');
-}
-
+const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
+const TURNS = { L: 'left', T: 'through', R: 'right' };
+const serves = codes => codes.map(code => { const [leg, turns] = code.split(':'); return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`; }).join(' · ');
+const BOUND = { N: 'SB', S: 'NB', E: 'WB', W: 'EB' };
+const moves = codes => codes.map(c => { const [leg, turns] = c.split(':'); return `<span class="mv">${BOUND[leg] || leg} ${esc(turns)}</span>`; }).join('');
 const isChange = d => d.card.decision === 'change';
-const decision = d => decisions[d.road] || {};
+const metricSignal = (d, sig) => d.m?.signals?.find(s => s.id === sig.sumo_tls_id) || null;
+const window_ = d => `${ampm(seconds(d.info.begin))}–${ampm(seconds(d.info.end))}`;
+const planName = d => isChange(d) ? 'Proposed' : 'Recommended';
+// metrics.json "proposed" for a keep-current road is either the kept timing or the rejected candidate; name it by what it is.
+const propName = d => isChange(d) ? 'Proposed' : JSON.stringify(d.m?.corridor?.baseline) === JSON.stringify(d.m?.corridor?.proposed) ? 'Recommended' : 'Rejected candidate';
 
-/* ---------- Map (real SUMO lane shapes) ---------- */
-
-// Projection that fits the road's bounds into a w×h box, north up.
-// along: the road's length runs left→right across the full width (north on the left); side streets past the box edge are cut off.
-function fit(geo, w, h, pad = 14, along = false) {
-  const [x0, y0, x1, y1] = geo.bounds;
-  if (along) {
-    const k = (w - 2 * pad) / (y1 - y0), mid = (x0 + x1) / 2;
-    return { k, x: (x, y) => pad + (y1 - y) * k, y: (x, y) => h / 2 - (x - mid) * k };
-  }
-  const k = Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0));
-  const ox = (w - (x1 - x0) * k) / 2, oy = (h - (y1 - y0) * k) / 2;
-  return { k, x: (x, y) => ox + (x - x0) * k, y: (x, y) => h - oy - (y - y0) * k };
-}
-
-function path(ctx, p, xy) {
-  ctx.beginPath();
-  ctx.moveTo(p.x(xy[0], xy[1]), p.y(xy[0], xy[1]));
-  for (let i = 2; i < xy.length; i += 2) ctx.lineTo(p.x(xy[i], xy[i + 1]), p.y(xy[i], xy[i + 1]));
-}
-
-function canvasFor(box) {
-  const canvas = box.querySelector('canvas') || box.appendChild(document.createElement('canvas'));
-  const w = box.clientWidth, h = box.clientHeight, r = window.devicePixelRatio || 1;
-  canvas.width = Math.round(w * r); canvas.height = Math.round(h * r);
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(r, 0, 0, r, 0, 0);
-  return { canvas, ctx, w, h };
-}
-
-function drawRoads(ctx, geo, p) {
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.fillStyle = '#dfe4ea';
-  for (const j of geo.junctions) { path(ctx, p, j); ctx.closePath(); ctx.fill(); }
-  ctx.strokeStyle = '#dfe4ea';
-  ctx.lineWidth = Math.max(3.2 * p.k, 1.2);
-  for (const xy of geo.internal) { path(ctx, p, xy); ctx.stroke(); }
-  for (const lane of geo.lanes) {
-    ctx.strokeStyle = lane.main ? '#cfd6df' : '#dfe4ea';
-    ctx.lineWidth = Math.max(lane.w * p.k, 1.2);
-    path(ctx, p, lane.xy); ctx.stroke();
-  }
-}
-
-const centre = sig => {
-  const xs = sig.stops.map(s => s.xy[2]), ys = sig.stops.map(s => s.xy[3]);
-  return [mean(xs), mean(ys)];
+const STATUS = {
+  pending: ['Recommendation pending', 'new'], keep: ['Keep current timing', 'calm'], acknowledged: ['Keep current timing', 'calm'],
+  approved: ['Approved', 'ok'], scheduled: ['Scheduled', 'ok'], rejected: ['Rejected', 'bad'],
+  deployed: ['Deployed · simulated', 'live'], rolled_back: ['Rolled back', 'bad'],
 };
+const statusKey = d => dec(d).status || (isChange(d) ? 'pending' : 'keep');
+const pill = d => { const [t, c] = STATUS[statusKey(d)]; return `<span class="pill ${c}">${t}</span>`; };
 
-const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+/* ---------- Markup pieces ---------- */
 
-function halo(ctx, text, x, y, color) {
-  ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(251,252,253,.92)'; ctx.lineJoin = 'round';
-  ctx.strokeText(text, x, y);
-  ctx.fillStyle = color; ctx.fillText(text, x, y);
+function crumbs(list) {
+  return `<nav class="crumbs" aria-label="Breadcrumb"><ol>${list.map(([t, href], i) => i === list.length - 1
+    ? `<li><span aria-current="page">${esc(t)}</span></li>` : `<li><a href="${href}">${esc(t)}</a></li>`).join('')}</ol></nav>`;
+}
+function head(title, { status = '', meta = [], actions = '' } = {}) {
+  return `<header class="page-h"><div><div class="title-row"><h1>${esc(title)}</h1>${status}</div>
+    ${meta.length ? `<p class="meta-line">${meta.filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>')}</p>` : ''}</div>
+    ${actions ? `<div class="actions">${actions}</div>` : ''}</header>`;
+}
+let panelId = 0;
+function panel(title, body, { tools = '', cls = '' } = {}) {
+  if (!body) return '';
+  const id = `p${++panelId}`;
+  return `<section class="panel ${cls}" aria-labelledby="${id}"><header class="panel-h"><h2 id="${id}">${title}</h2>${tools}</header><div class="panel-b">${body}</div></section>`;
+}
+function toggle(name, label, options, current) {
+  return `<div class="seg" role="group" aria-label="${esc(label)}">${options.map(([k, t]) =>
+    `<button type="button" data-view="${name}" data-val="${k}" aria-pressed="${k === current}">${esc(t)}</button>`).join('')}</div>`;
+}
+function delta(b, p, dp = 0) {
+  if (!ok(b) || !ok(p)) return '';
+  const d = p - b, cls = Math.abs(d) < 1e-9 ? 'flat' : d < 0 ? 'good' : 'bad';
+  const txt = b ? `${signed(Math.round(share(b, p) * 100))}%` : signed(d, dp);
+  return `<span class="delta ${cls}">${cls === 'flat' ? '0%' : txt}</span>`;
+}
+const cmp = (b, p, dp = 0, unit = '') => ok(b) && ok(p)
+  ? `<span class="cmp"><span class="b">${fmt(b, dp)}</span><span class="arr" aria-label="to">→</span><span class="p">${fmt(p, dp)}${unit ? `<small>${unit}</small>` : ''}</span></span>` : '<span class="na">–</span>';
+const sameOr = (a, b, dp = 1) => Math.abs(a - b) < 0.05 ? `<span class="num">${fmt(a, dp)}</span>` : `<span class="num">${fmt(a, dp)} <span class="arr">→</span> <b>${fmt(b, dp)}</b></span>`;
+
+function kpi(label, b, p, dp, unit) {
+  if (!ok(b) || !ok(p)) return '';
+  return `<div class="kpi"><div class="kpi-l">${label}</div><div class="kpi-v"><span class="p">${fmt(p, dp)}</span><small>${unit}</small>${delta(b, p, dp)}</div>
+    <div class="kpi-b">was ${fmt(b, dp)}${unit ? ` ${unit}` : ''}</div></div>`;
 }
 
-// Names for a left→right map: lights above the road (or below when two are close), the ends, and the freeway.
-function nameAlong(ctx, geo, p, w, h, gapFromRoad) {
-  ctx.textBaseline = 'middle';
-  ctx.font = `600 12px ${FONT}`;
-  ctx.textAlign = 'left'; halo(ctx, '← North', 10, 13, '#64748b');
-  ctx.textAlign = 'right'; halo(ctx, 'South →', w - 10, 13, '#64748b');
-  ctx.textAlign = 'center';
-  let free = 10 + ctx.measureText('← North').width + 10;
-  const below = [];
-  const sigs = geo.signals.map(sig => { const [cx, cy] = centre(sig); return { name: sig.name, x: p.x(cx, cy), y: p.y(cx, cy) }; }).sort((a, b) => a.x - b.x);
-  ctx.font = `600 13px ${FONT}`;
-  for (const s of sigs) {
-    const half = ctx.measureText(s.name).width / 2, top = s.x - half > free;
-    const ly = top ? 13 : h - 13;
-    if (top) free = s.x + half + 64; else below.push([s.x - half, s.x + half]);
-    ctx.strokeStyle = '#d5dce4'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(s.x, top ? ly + 10 : ly - 10); ctx.lineTo(s.x, top ? s.y - gapFromRoad : s.y + gapFromRoad); ctx.stroke();
-    halo(ctx, s.name, s.x, ly, '#334155');
-  }
-  const ramps = sigs.filter(s => s.name.startsWith('I-280'));
-  if (ramps.length === 2) {
-    ctx.font = `700 12px ${FONT}`;
-    const x = (ramps[0].x + ramps[1].x) / 2, half = ctx.measureText('I-280 freeway').width / 2;
-    if (!below.some(([a, b]) => x + half > a && x - half < b)) halo(ctx, 'I-280 freeway', x, h - 13, '#64748b');
-  }
-}
-
-// Static map with named light markers (Overview, De Anza card).
-function drawMap(box, geo) {
-  const { ctx, w, h } = canvasFor(box);
-  const along = box.hasAttribute('data-along');
-  const p = fit(geo, w, h, 22, along);
-  drawRoads(ctx, geo, p);
-  ctx.font = `600 12px ${FONT}`;
-  ctx.textBaseline = 'middle';
-  geo.signals.forEach(sig => {
-    const [cx, cy] = centre(sig), x = p.x(cx, cy), y = p.y(cx, cy);
-    ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI);
-    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#0369a1'; ctx.stroke();
-    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2 * Math.PI); ctx.fillStyle = '#0369a1'; ctx.fill();
-    if (along) return;
-    const label = sig.name, tw = ctx.measureText(label).width;
-    const lx = x + 14 + tw + 8 < w ? x + 14 : Math.max(4, x - 14 - tw);
-    ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillRect(lx - 4, y - 10, tw + 8, 20);
-    ctx.fillStyle = '#0f172a'; ctx.fillText(label, lx, y);
-  });
-  if (along) nameAlong(ctx, geo, p, w, h, 12);
-}
-
-const mapLabel = geo => `Map of ${geo.street} from the simulation road network, with ${geo.signals.length} traffic lights: ${geo.signals.map(s => s.name).join(', ')}.`;
-
-/* ---------- Overview ---------- */
-
-function overview(w, z) {
-  const h = heldout(w), j = jams(z), dec = decision(w);
-  const status = dec.status === 'approved' ? ['Approved', 'ok'] : dec.status === 'rejected' ? ['Rejected', 'bad'] : ['Needs review', 'new'];
-  return `<div class="page">
-  <div class="head"><div><h1>Recommendations</h1>
-    <p>You are the traffic engineer. Signal Learner studied two roads in simulation and sent you what it found. Nothing changes until you approve it.</p></div></div>
-  <div class="overview">
-    <section class="card map-card" aria-labelledby="map-title">
-      <div class="row" style="justify-content:space-between"><h2 id="map-title">${esc(w.info.street)}</h2><span class="hint">${w.geo.signals.length} traffic lights</span></div>
-      <div class="map" id="overview-map" data-along role="img" aria-label="${esc(mapLabel(w.geo))} North is on the left."></div>
-    </section>
-    <h2 class="label">Inbox</h2>
-    <section class="inbox" aria-label="Inbox">
-      <article class="card rec primary">
-        <div class="meta"><span class="pill ${status[1]}">${status[0]}</span><span>Evening peak, ${ampm(seconds(w.info.begin))}–${ampm(seconds(w.info.end))}</span></div>
-        <h3>${esc(w.info.street)}: new timing ready for review</h3>
-        <p class="muted">Longer greens for the busiest directions, lined up along the road, at all ${w.card.signals.length} lights.</p>
-        <div class="proof"><b>${pct(h.oldMean, h.planMean)}</b><span>delay, tested on ${h.n} new evenings. Better on ${betterOn(h)}.</span></div>
-        <div class="row"><a class="btn primary lg" href="#/wolfe/review">Review recommendation</a>
-          ${dec.status === 'approved' ? '<a class="btn lg" href="#/wolfe/simulate?run">Run the simulation</a>' : ''}</div>
-      </article>
-      <article class="card rec">
-        <div class="meta"><span class="pill">No change</span><span>Evening peak, ${ampm(seconds(z.info.begin))}–${ampm(seconds(z.info.end))}</span></div>
-        <h3>${esc(z.info.street)}: no change needed</h3>
-        <p class="muted">The best new plan jammed in ${j.jammed} of ${j.n} practice runs, so the current timing stays.</p>
-        <div><a class="btn" href="#/deanza/review">Open</a></div>
-      </article>
-    </section>
-  </div></div>`;
-}
-
-/* ---------- Review ---------- */
-
-function bar(list, cycle, scale, old) {
+// One cycle as coloured segments, scaled so every bar on the page shares one seconds axis.
+function bar(list, cycle, scale, which) {
   const seg = (cls, s, title, text = '') => s > 0 ? `<div class="${cls}" style="width:${s / cycle * 100}%" title="${esc(title)}">${text}</div>` : '';
-  const body = list.map((p, i) => seg(`seg-g${i % 2 ? ' alt' : ''}`, p.max_green_s, `Green ${serves(p.serves)}: up to ${f1(p.max_green_s)} s`,
-      p.max_green_s / scale > 0.07 ? `${Math.round(p.max_green_s)}` : '')
+  const body = list.map((p, i) => seg(`seg-g${i % 2 ? ' alt' : ''}`, p.max_green_s, `Phase ${p.phase} green ${serves(p.serves)}: up to ${f1(p.max_green_s)} s`,
+    p.max_green_s / scale > 0.06 ? `${Math.round(p.max_green_s)}` : '')
     + seg('seg-y', p.yellow, `Yellow ${f1(p.yellow)} s`) + seg('seg-r', p.red, `All-red ${f1(p.red)} s`)).join('');
-  const label = list.map(p => `green ${serves(p.serves)} ${f1(p.max_green_s)} seconds`).join('; ');
-  return `<div class="bar${old ? ' old' : ''}" style="width:${cycle / scale * 100}%" role="img" aria-label="${old ? 'Now' : 'New'}: one round of ${f1(cycle)} seconds; ${esc(label)}">${body}</div>`;
+  const label = list.map(p => `phase ${p.phase} green ${f1(p.max_green_s)} s`).join('; ');
+  return `<div class="cbar ${which}" style="width:${cycle / scale * 100}%" role="img" aria-label="${which === 'old' ? 'Current' : 'Proposed'} cycle ${f1(cycle)} seconds: ${esc(label)}">${body}</div>`;
+}
+const LEGEND_PHASE = '<div class="legend"><span><i class="sw g"></i>Green</span><span><i class="sw y"></i>Yellow</span><span><i class="sw r"></i>All-red</span></div>';
+const LEGEND_ARMS = d => `<div class="legend"><span><i class="ln base"></i>Current</span><span><i class="ln prop"></i>${propName(d)}</span></div>`;
+
+function by15Panel(d, rows, keys, viewKey, title, w = 640) {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const avail = keys.filter(([k]) => rows.some(r => ok(r.baseline?.[k]) || ok(r.proposed?.[k])));
+  if (!avail.length) return '';
+  const cur = avail.find(([k]) => k === view[viewKey]) || avail[0], [k, name, unit] = cur;
+  const chart = lineChart({
+    labels: rows.map(r => r.t), unit, w, label: `${title}: ${name} by 15 minutes, current and ${propName(d).toLowerCase()} timing`,
+    series: [{ name: 'Current', cls: 's-base', values: rows.map(r => r.baseline?.[k]) }, { name: propName(d), cls: 's-prop', values: rows.map(r => r.proposed?.[k]) }],
+  });
+  return panel(`${esc(title)}`, chart, { tools: `${LEGEND_ARMS(d)}${avail.length > 1 ? toggle(viewKey, 'Measure', avail.map(([a, b]) => [a, b]), k) : ''}` });
 }
 
-function changes(d) {
-  const sigs = d.card.signals;
-  const oldC = [...new Set(sigs.map(s => s.old.cycle_s))], newC = [...new Set(sigs.map(s => s.new.cycle_s))];
-  const gains = sigs.flatMap(s => s.new.greens.map((g, i) => g.max_green_s - s.old.greens[i].max_green_s));
-  return [
-    oldC.length === 1 && newC.length === 1
-      ? `All ${sigs.length} lights go from a ${f1(oldC[0])} s round to a ${f1(newC[0])} s round.`
-      : 'Each light gets a new round length.',
-    `The busiest directions get up to ${Math.round(Math.max(...gains))} s more green each round.`,
-    `Greens start at new times so cars meet more greens along ${esc(d.info.street)}. Phase order, yellow, all-red and minimum greens stay the same.`];
+/* ---------- 1 · Corridors ---------- */
+
+function corridorsScreen(ds, ctx) {
+  const roads = [...ctx.map(r => ({ ...r, context: true })), ...ds.map(d => ({
+    road: d.road, street: d.info.street, points: d.info.points, status: STATUS[statusKey(d)][0], cls: STATUS[statusKey(d)][1] }))];
+  const nSig = ds.reduce((a, d) => a + d.card.signals.length, 0);
+  const inbox = ds.map(d => {
+    const h = heldout(d), change = isChange(d);
+    return `<li class="inbox-item${statusKey(d) === 'pending' ? ' unread' : ''}">
+      <div class="inbox-top">${pill(d)}<span class="meta-line">${esc(window_(d))}</span></div>
+      <h3><a href="#/${d.road}/review">${esc(d.info.street)} · ${change ? 'new PM peak timing' : 'keep current timing'}</a></h3>
+      <div class="inbox-facts">${change
+        ? `<span><b class="good-t">${pct(h.oldMean, h.planMean)}</b> ${term('score', 'delay score')}</span><span>better on ${betterOn(h)} ${term('heldout', 'test evenings')}</span><span>${d.card.signals.length} signals</span>`
+        : `<span>Candidate ${term('jammed', 'jammed')} in <b>${jams(d).jammed} of ${jams(d).n}</b> practice runs</span><span>${d.card.signals.length} signals</span>`}</div>
+    </li>`;
+  }).join('');
+  const withM = ds.some(d => d.m?.corridor);
+  const mcell = (d, f, dp, unit) => { const c = d.m?.corridor, b = c && f(c.baseline || {}), p = c && f(c.proposed || {});
+    return `<td class="n">${ok(b) && ok(p) ? (Math.abs(p - b) < 1e-9 ? `${fmt(b, dp)}<small>${unit}</small>` : `${cmp(b, p, dp, unit)} ${delta(b, p)}`) : '<span class="na">–</span>'}</td>`; };
+  const rows = ds.map(d => {
+    const h = heldout(d), change = Math.abs(h.planMean - h.oldMean) > 1e-6;
+    return `<tr><td><a class="strong" href="#/${d.road}">${esc(d.info.street)}</a></td><td>${pill(d)}</td><td class="n">${d.card.signals.length}</td>
+      <td class="n">${change ? `${cmp(h.oldMean, h.planMean, 0, 's')} ${delta(h.oldMean, h.planMean)}` : '<span class="na">No change</span>'}</td>
+      <td class="n">${change ? `${cmp(h.unfOld, h.unfPlan)} ${delta(h.unfOld, h.unfPlan)}` : fmt(h.unfOld)}</td>
+      ${withM ? [mcell(d, c => c.travel_time_s?.NB, 0, 's'), mcell(d, c => c.travel_time_s?.SB, 0, 's')].join('') : ''}
+      <td class="nw" title="Held-out seeds ${h.seeds[0]}–${h.seeds.at(-1)}">${h.n} evenings</td>
+      <td class="n"><a class="btn sm" href="#/${d.road}/review">${isChange(d) ? 'Review' : 'Open'}</a></td></tr>`;
+  }).join('');
+  return `<div class="page">
+    ${head('Corridors', { meta: [`${ds.length} corridors`, `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'] })}
+    <div class="grid g-map">
+      ${panel('Map', cityMap(roads), { tools: '<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span><span><i class="ln ctx"></i>Training road</span></div>' })}
+      <div class="col">${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
+        ${panel('Recent activity', state.log.length ? `<ul class="activity">${state.log.slice(-5).reverse().map(r => `<li><span class="num">${new Date(r.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span><span>${esc(cache[r.road]?.info.street || r.road)} · ${esc(r.action)}</span></li>`).join('')}</ul>` : '<p class="empty">No actions yet this session</p>', { tools: '<a class="btn sm ghost" href="#/wolfe/deploy">Audit log</a>' })}</div>
+    </div>
+    ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>
+      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${withM ? '<th class="n">Travel time NB</th><th class="n">Travel time SB</th>' : ''}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
+  </div>`;
+}
+
+/* ---------- 2 · Corridor ---------- */
+
+function kpiPanel(d) {
+  const h = heldout(d), c = d.m?.corridor, b = c?.baseline || {}, p = c?.proposed || {};
+  const test = [kpi(term('score', 'Delay score'), h.oldMean, h.planMean, 0, 's'), kpi(term('unfinished', 'Unfinished trips'), h.unfOld, h.unfPlan, 0, ''),
+    isChange(d) ? `<div class="kpi"><div class="kpi-l">Better on</div><div class="kpi-v"><span class="p">${h.better}</span><small>of ${h.n}</small></div><div class="kpi-b">evenings</div></div>` : ''].join('');
+  const seed = c ? [kpi(term('score', 'Delay per car'), b.avg_delay_s_per_veh, p.avg_delay_s_per_veh, 1, 's'), kpi('Stops per car', b.stops_per_veh, p.stops_per_veh, 2, ''),
+    kpi('Travel time NB', b.travel_time_s?.NB, p.travel_time_s?.NB, 0, 's'), kpi('Travel time SB', b.travel_time_s?.SB, p.travel_time_s?.SB, 0, 's'),
+    kpi(term('unfinished', 'Unfinished'), b.unfinished_trips, p.unfinished_trips, 0, ''), kpi('CO₂', b.co2_kg, p.co2_kg, 0, 'kg')].join('') : '';
+  return `<section class="panel kpis" aria-label="Key results, current vs ${propName(d).toLowerCase()}">
+    <div class="kpi-group"><h2 class="kpi-h">${term('heldout', `Held-out test · ${h.n} evenings`)}</h2><div class="kpi-row">${test}</div></div>
+    ${seed ? `<div class="kpi-group"><h2 class="kpi-h">Seed ${esc((d.m.seeds || []).join(', '))} · ${propName(d).toLowerCase()} vs current</h2><div class="kpi-row">${seed}</div></div>` : ''}
+  </section>`;
+}
+
+function signalsTable(d) {
+  const any = d.card.signals.some(s => metricSignal(d, s));
+  const lead = ms => ms?.approaches?.find(a => a.approach === ms.pcd?.approach) || ms?.approaches?.[0];
+  return `<table class="tbl"><thead><tr><th class="n">#</th><th>Signal</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th>
+    ${any ? `<th class="n">${term('aog', 'AOG')} %</th><th class="n">Delay s</th>` : ''}<th class="n"><span class="sr">Open</span></th></tr></thead>
+    <tbody>${d.card.signals.map((s, i) => {
+      const a = lead(metricSignal(d, s));
+      return `<tr><td class="n"><span class="badge">${i + 1}</span></td><td><a class="strong" href="#/${d.road}/signal/${i + 1}">${esc(s.signal)}</a></td>
+        <td class="n">${sameOr(s.old.cycle_s, s.new.cycle_s)}</td><td class="n">${sameOr(s.old.offset_s, s.new.offset_s)}</td>
+        ${any ? `<td class="n">${cmp(a?.baseline?.aog_pct, a?.proposed?.aog_pct)}</td><td class="n">${cmp(a?.baseline?.avg_delay_s, a?.proposed?.avg_delay_s, 1)}</td>` : ''}
+        <td class="n"><a class="chev" href="#/${d.road}/signal/${i + 1}" aria-label="Open ${esc(s.signal)}">›</a></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+function timeSpacePanel(d) {
+  const ts = d.m?.time_space, sigs = d.m?.signals;
+  if (!ts || !Array.isArray(ts.window_s) || !Array.isArray(sigs)) return '';
+  const arm = ts[view.ts] ? view.ts : 'baseline', side = ts[arm];
+  if (!side?.green || !side?.trajectories) return '';
+  const opts = [['baseline', 'Current'], ['proposed', propName(d)]].filter(([k]) => ts[k]?.green);
+  return panel(`${term('ts', 'Time-space diagram')} <span class="h-sub">${clock(ts.window_s[0])}–${clock(ts.window_s[1])}</span>`,
+    timeSpace(side, sigs, `Time-space diagram, ${arm === 'baseline' ? 'current' : propName(d).toLowerCase()} timing`, ts.window_s),
+    { tools: `<div class="legend"><span><i class="ln green"></i>Green</span><span><i class="ln red"></i>Red</span><span><i class="ln nb"></i>NB car</span><span><i class="ln sb"></i>SB car</span></div>${toggle('ts', 'Timing', opts, arm)}` });
+}
+
+function corridorScreen(d) {
+  const len = d.m?.corridor?.length_m;
+  const actions = `<a class="btn${isChange(d) && statusKey(d) === 'pending' ? ' primary' : ''}" href="#/${d.road}/review">${isChange(d) ? 'Review recommendation' : 'Open recommendation'}</a>
+    ${d.road === 'wolfe' ? '<a class="btn" href="#/wolfe/simulate">Simulate</a>' : ''}<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`;
+  return `<div class="page">
+    ${crumbs([['Corridors', '#/corridors'], [d.info.street]])}
+    ${head(d.info.street, { status: pill(d), meta: [`${d.card.signals.length} signals`, ok(len) ? `${fmt(len / 1000, 2)} km` : '', `PM peak ${esc(window_(d))}`, d.m?.source ? `<span class="term" tabindex="0">SUMO simulation<span class="tip wide" role="tooltip">${esc(d.m.source)}</span></span>` : 'SUMO simulation'], actions })}
+    ${kpiPanel(d)}
+    <div class="grid g-2">
+      ${panel('Signals', `<div class="map strip" data-road="${d.road}" data-along role="img" aria-label="Map of ${esc(d.info.street)}, north on the left, signals numbered 1 to ${d.card.signals.length}."></div>${signalsTable(d)}`)}
+      ${by15Panel(d, d.m?.corridor?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ['tt_nb_s', 'Travel time NB', 's'], ['tt_sb_s', 'Travel time SB', 's']], 'c15', 'By 15 minutes')}
+    </div>
+    ${timeSpacePanel(d)}
+  </div>`;
+}
+
+/* ---------- 3 · Signal ---------- */
+
+function timingSheet(d, sig) {
+  const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
+  const scale = Math.max(sig.old.cycle_s, sig.new.cycle_s);
+  const dlt = (a, b) => Math.abs(b - a) < 0.05 ? '<span class="na">–</span>' : `<span class="delta ${b > a ? 'up' : 'down'}">${signed(b - a, 1)}</span>`;
+  return `<dl class="kv">
+      <div><dt>${term('cycle', 'Cycle')}</dt><dd>${sameOr(sig.old.cycle_s, sig.new.cycle_s)} <small>s</small></dd></div>
+      <div><dt>${term('offset', 'Offset')}</dt><dd>${sameOr(sig.old.offset_s, sig.new.offset_s)} <small>s</small></dd></div>
+      <div><dt>Plan</dt><dd>PM peak ${esc(window_(d))}</dd></div>
+      <div><dt>Controller</dt><dd class="mono" title="${esc(sig.sumo_tls_id)}">${esc(sig.sumo_tls_id)}</dd></div></dl>
+    <div class="cycles"><span class="k">Current</span>${bar(old, sig.old.cycle_s, scale, 'old')}<span class="c num">${f1(sig.old.cycle_s)} s</span>
+      <span class="k">${planName(d)}</span>${bar(neu, sig.new.cycle_s, scale, 'new')}<span class="c num strong">${f1(sig.new.cycle_s)} s</span></div>
+    <table class="tbl sheet-t"><thead><tr><th rowspan="2">Phase</th><th rowspan="2">${term('mv', 'Movements')}</th><th class="n" rowspan="2">Min green</th>
+      <th class="n grp" colspan="3">Max green</th><th class="n" rowspan="2">Yellow</th><th class="n" rowspan="2">All-red</th><th class="n grp" colspan="2">${term('split', 'Split')}</th></tr>
+      <tr><th class="n">Now</th><th class="n">Plan</th><th class="n">Δ</th><th class="n">Now</th><th class="n">Plan</th></tr></thead>
+    <tbody>${old.map((p, i) => `<tr><td class="n">${p.phase}</td><td>${moves(p.serves)}</td><td class="n">${f1(p.min_green_s)}</td>
+      <td class="n">${f1(p.max_green_s)}</td><td class="n strong">${f1(neu[i].max_green_s)}</td><td class="n">${dlt(p.max_green_s, neu[i].max_green_s)}</td>
+      <td class="n">${f1(p.yellow)}</td><td class="n">${f1(p.red)}</td><td class="n">${f1(p.split)}</td><td class="n strong">${f1(neu[i].split)}</td></tr>`).join('')}</tbody></table>
+    ${sig.reason && isChange(d) ? `<p class="reason"><span>Reason</span>${esc(sig.reason.replace(/\b([NSEW]):([LRT]+)/g, (_, leg, t) => `${BOUND[leg]} ${t}`))}</p>` : ''}`;
+}
+
+function approachTable(d, ms) {
+  const rows = ms?.approaches;
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const cols = [['volume_vph', 'Volume', 'vph', 0], ['aog_pct', term('aog', 'AOG'), '%', 0], ['split_failures', term('sf', 'Split fail.'), '', 0], ['avg_delay_s', 'Delay', 's', 1], ['max_queue_veh', 'Max queue', 'veh', 0]]
+    .filter(([k]) => rows.some(r => ok(r.baseline?.[k])));
+  return `<table class="tbl compact"><thead><tr><th>Approach</th>${cols.map(([, t, u]) => `<th class="n">${t}${u ? ` <small>${u}</small>` : ''}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r => `<tr><td class="strong">${esc(r.approach)}</td>${cols.map(([k, , , dp]) => `<td class="n">${k === 'volume_vph' && r.baseline?.[k] === r.proposed?.[k] ? fmt(r.baseline[k]) : `${cmp(r.baseline?.[k], r.proposed?.[k], dp)}`}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+function pcdPanel(d, ms) {
+  const p = ms?.pcd;
+  if (!p || (!p.baseline?.arrivals?.length && !p.proposed?.arrivals?.length)) return '';
+  const a = ms.approaches?.find(x => x.approach === p.approach);
+  const one = (k, name) => p[k]?.arrivals?.length ? `<figure class="pcd-fig"><figcaption><b>${name}</b>${ok(a?.[k]?.aog_pct) ? `<span>${term('aog', 'AOG')} ${fmt(a[k].aog_pct)}%</span>` : ''}<span>${fmt(p[k].arrivals.length)} arrivals</span></figcaption>
+    ${pcd(p[k], `Purdue Coordination Diagram, ${esc(p.approach || '')} approach, ${name.toLowerCase()} timing`)}</figure>` : '';
+  return panel(`${term('pcd', 'Purdue Coordination Diagram')}${p.approach ? ` <span class="h-sub">${esc(p.approach)} approach</span>` : ''}`,
+    `<div class="pcd-pair">${one('baseline', 'Current')}${one('proposed', propName(d))}</div>`,
+    { tools: '<div class="legend"><span><i class="sw gband"></i>Green</span><span><i class="dot"></i>Car arrival</span></div>' });
+}
+
+function signalScreen(d, i) {
+  const sig = d.card.signals[i], ms = metricSignal(d, sig), n = d.card.signals.length;
+  const nav = `<a class="btn" ${i > 0 ? `href="#/${d.road}/signal/${i}"` : 'aria-disabled="true"'} aria-label="Previous signal">‹ Prev</a>
+    <a class="btn" ${i < n - 1 ? `href="#/${d.road}/signal/${i + 2}"` : 'aria-disabled="true"'} aria-label="Next signal">Next ›</a>`;
+  return `<div class="page">
+    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], [sig.signal]])}
+    ${head(sig.signal, { status: `<span class="badge lg">${i + 1}</span>`, meta: [`Signal ${i + 1} of ${n}`, esc(d.info.street), `${sig.old.greens.length} phases`], actions: nav })}
+    <div class="grid g-sig">
+      ${panel('Timing sheet', timingSheet(d, sig), { tools: LEGEND_PHASE })}
+      <div class="col">
+        ${panel('Location', `<div class="map loc" data-road="${d.road}" data-pick="${i}" data-along role="img" aria-label="Map of ${esc(d.info.street)} with ${esc(sig.signal)} highlighted."></div>`)}
+        ${panel('Approaches', approachTable(d, ms), { tools: LEGEND_ARMS(d).replace('legend', 'legend txt') })}
+      </div>
+    </div>
+    ${pcdPanel(d, ms)}
+    ${by15Panel(d, ms?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ['aog_pct', 'AOG', '%']], 's15', 'By 15 minutes', 1120)}
+  </div>`;
+}
+
+/* ---------- 4 · Recommendation review ---------- */
+
+function diffTable(d) {
+  const scale = Math.max(...d.card.signals.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
+  return `<table class="tbl diff"><thead><tr><th class="n">#</th><th>Signal</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th>
+    <th>Max green by phase, s</th><th class="w-bars">One cycle</th><th class="n"><span class="sr">Evidence</span></th></tr></thead>
+    <tbody>${d.card.signals.map((s, i) => {
+      const old = phases(d, s, 'old'), neu = phases(d, s, 'new');
+      const greens = old.map((p, k) => {
+        const a = p.max_green_s, b = neu[k].max_green_s, same = Math.abs(a - b) < 0.05;
+        return `<span class="chip${same ? ' same' : ''}" title="Phase ${p.phase}: ${esc(serves(p.serves))}"><b>Φ${p.phase}</b> ${same ? f1(a) : `${f1(a)} → ${f1(b)}`}${same ? '' : ` <i class="${b > a ? 'up' : 'down'}">${signed(b - a, 1)}</i>`}</span>`;
+      }).join('');
+      return `<tr><td class="n"><span class="badge">${i + 1}</span></td><td><a class="strong" href="#/${d.road}/signal/${i + 1}">${esc(s.signal)}</a></td>
+        <td class="n">${sameOr(s.old.cycle_s, s.new.cycle_s)}</td><td class="n">${sameOr(s.old.offset_s, s.new.offset_s)}</td>
+        <td><div class="chips">${greens}</div></td>
+        <td class="w-bars"><div class="mini">${bar(old, s.old.cycle_s, scale, 'old')}${bar(neu, s.new.cycle_s, scale, 'new')}</div></td>
+        <td class="n"><a class="chev" href="#/${d.road}/signal/${i + 1}" aria-label="Signal page: ${esc(s.signal)}">›</a></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+function impactRows(rows) {
+  const vals = rows.flatMap(r => [r.lo, r.hi, r.mid]).filter(ok), domain = [Math.min(-10, ...vals) - 4, Math.max(10, ...vals) + 4];
+  return `<table class="tbl impact"><tbody>${rows.map(r => `<tr><th scope="row">${r.label}<small>${r.sub}</small></th>
+    <td class="n big ${r.mid < 0 ? 'good-t' : 'bad-t'}">${signed(Math.round(r.mid))}%</td>
+    <td>${ok(r.lo) ? rangeBar({ ...r, domain }) : ''}<small class="rng">${ok(r.lo) ? `${signed(Math.round(r.lo))}% to ${signed(Math.round(r.hi))}%` : ''}</small></td></tr>`).join('')}</tbody></table>`;
+}
+
+function impactPanel(d) {
+  const e = d.card.expected_in_copy, h = heldout(d), per = h.per.map(p => p.v);
+  if (!isChange(d)) {
+    const j = jams(d), ph = d.posthoc;
+    return panel('Why keep current timing', `${impactRows([
+      { label: `${term('practice', 'Practice copy')}`, sub: `candidate · ${e.copy_seeds.length} evenings`, mid: e.change_share * 100, lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100 },
+      ...(ph ? [{ label: term('posthoc', 'Post-hoc check'), sub: `candidate · ${ph.seeds.length} evenings`, mid: ph.change_share * 100 }] : [])])}
+      <dl class="facts">
+        <div><dt>${term('jammed', 'Jam check')}</dt><dd><span class="bad-t strong">Failed</span> · jammed in ${j.jammed} of ${j.n} practice runs</dd></div>
+        ${ph ? `<div><dt>Worse on</dt><dd>${ph.seeds_worse} of ${ph.seeds.length} post-hoc evenings</dd></div>` : ''}
+        <div><dt>Decision</dt><dd>Keep current timing at all ${d.card.signals.length} signals</dd></div></dl>`);
+  }
+  return panel('Expected impact', `${impactRows([
+    { label: term('practice', 'Practice copy'), sub: `forecast · ${e.copy_seeds.length} evenings`, mid: e.change_share * 100, lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100 },
+    { label: term('heldout', 'Held-out test'), sub: `${h.n} evenings · better on ${betterOn(h)}`, mid: share(h.oldMean, h.planMean) * 100, lo: Math.min(...per), hi: Math.max(...per) }])}
+    <dl class="facts">
+      <div><dt>${term('score', 'Delay score')}</dt><dd>${cmp(h.oldMean, h.planMean, 0, 's')}</dd></div>
+      <div><dt>${term('unfinished', 'Unfinished trips')}</dt><dd>${cmp(h.unfOld, h.unfPlan)} ${delta(h.unfOld, h.unfPlan)}</dd></div>
+      <div><dt>${term('worst', 'Worst-off group')}</dt><dd>${cmp(h.worstOld, h.worstPlan, 0, 's')} ${delta(h.worstOld, h.worstPlan)}</dd></div></dl>`);
+}
+
+function decisionPanel(d) {
+  const s = statusKey(d), x = dec(d), note = drafts[d.road] ?? '';
+  const when = x.when ? new Date(x.when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  if (!isChange(d)) {
+    return panel('Decision', s === 'acknowledged'
+      ? `<p class="done"><b>Acknowledged</b> · ${new Date(x.at).toLocaleTimeString()}</p><div class="row"><button class="btn ghost" data-action="reopen">Undo</button></div>`
+      : `<div class="row"><button class="btn primary" data-action="acknowledge">Acknowledge · keep current</button></div>`);
+  }
+  if (s !== 'pending') {
+    const next = { approved: `<a class="btn primary" href="#/wolfe/simulate?run">Run side-by-side simulation</a><a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`,
+      scheduled: `<a class="btn primary" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`, deployed: `<a class="btn primary" href="#/${d.road}/deploy">Monitor</a>`,
+      rolled_back: `<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`, rejected: '' }[s];
+    return panel('Decision', `<div class="done" role="status">${pill(d)}<span>${new Date(x.at).toLocaleTimeString()}</span>${when ? `<span>for ${esc(when)}</span>` : ''}</div>
+      ${x.note ? `<blockquote class="note-q">${esc(x.note)}</blockquote>` : ''}
+      <div class="row">${next}${['approved', 'scheduled', 'rejected'].includes(s) ? '<button class="btn ghost" data-action="reopen">Reopen</button>' : ''}</div>`);
+  }
+  return panel('Decision', `<label class="field" for="note">Notes</label>
+    <textarea id="note" maxlength="500" data-road="${d.road}" placeholder="Kept with the decision in the audit log">${esc(note)}</textarea>
+    ${form === 'schedule' ? `<div class="sched"><label class="field" for="when">Deploy on</label><input id="when" type="datetime-local" required>
+      <div class="row"><button class="btn primary" data-action="schedule-confirm">Confirm schedule</button><button class="btn ghost" data-action="cancel">Cancel</button></div>
+      <p class="error-t" id="when-err" role="alert" hidden>Pick a date and time.</p></div>`
+      : `<div class="row decide"><button class="btn primary" data-action="approve">Approve</button><button class="btn" data-action="schedule">Schedule</button><button class="btn danger" data-action="reject">Reject</button></div>`}`);
+}
+
+function reviewScreen(d) {
+  const ev = `<ul class="links">${d.card.signals.map((s, i) => `<li><a href="#/${d.road}/signal/${i + 1}"><span class="badge">${i + 1}</span>${esc(s.signal)}</a></li>`).join('')}
+    <li><a href="#/${d.road}">Corridor · ${esc(d.info.street)}</a></li>${d.road === 'wolfe' ? '<li><a href="#/wolfe/simulate">Side-by-side simulation</a></li>' : ''}
+    <li><a href="../cards/${d.road}.md">Engineer card (text)</a></li></ul>`;
+  return `<div class="page">
+    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], ['Recommendation']])}
+    ${head(`${d.info.street} · ${isChange(d) ? 'new PM peak timing' : 'keep current timing'}`, { status: pill(d),
+      meta: [`${d.card.signals.length} signals`, `PM peak ${esc(window_(d))}`, 'Phase order, yellow, all-red, min greens unchanged'],
+      actions: isChange(d) ? '<button class="btn" data-action="print">Download timing sheet</button>' : '' })}
+    <div class="grid g-review">
+      <div class="col">${panel(isChange(d) ? 'Changes by signal' : 'Timing by signal', diffTable(d), { tools: LEGEND_PHASE })}${impactPanel(d)}</div>
+      <div class="col">${decisionPanel(d)}${panel('Evidence', ev)}</div>
+    </div>
+  </div>`;
 }
 
 function sheet(d) {
-  const at = decision(d).at ? new Date(decision(d).at).toLocaleString() : 'Not approved yet';
-  const ch = (a, b) => a === b ? f1(a) : `${f1(a)} → ${f1(b)}`;
+  const x = dec(d), at = x.status === 'approved' || x.status === 'scheduled' ? new Date(x.at).toLocaleString() : 'Not approved yet';
+  const ch = (a, b) => Math.abs(a - b) < 0.05 ? f1(a) : `${f1(a)} → ${f1(b)}`;
   return `<section class="sheet">
     <div class="sheet-head"><div><h2>Timing change sheet</h2><p class="small muted">Signal Learner · simulation result, not city timing</p></div><span class="stamp">Draft for engineer entry</span></div>
     <dl><dt>Road</dt><dd>${esc(d.info.street)}, ${d.card.signals.length} intersections</dd>
-      <dt>Plan</dt><dd>Evening peak, ${esc(d.info.begin)}–${esc(d.info.end)}</dd>
+      <dt>Plan</dt><dd>PM peak, ${esc(d.info.begin)}–${esc(d.info.end)}</dd>
       <dt>Approved</dt><dd>${esc(at)} (in this console)</dd>
       <dt>Unchanged</dt><dd>Phase order, yellow, all-red and minimum greens</dd></dl>
     ${d.card.signals.map(sig => {
@@ -301,420 +505,59 @@ function sheet(d) {
   </section>`;
 }
 
-function review(d) {
-  if (!isChange(d)) return calm(d);
-  const c = d.card, e = c.expected_in_copy, h = heldout(d), dec = decision(d);
-  const scale = Math.max(...c.signals.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
-  const actions = dec.status ? '' : `<div class="decide"><button class="btn lg" data-action="reject">Reject</button><button class="btn primary lg" data-action="approve">Approve</button></div>`;
-  const state = dec.status === 'approved'
-    ? `<div class="status ok" role="status"><span><b>Approved.</b> Nothing was sent to any real light. Next, watch it run on the same traffic as today’s timing.</span>
-        <span class="row"><button class="btn ghost" data-action="reopen">Undo</button><a class="btn primary lg" href="#/wolfe/simulate?run">Run the simulation</a></span></div>`
-    : dec.status === 'rejected'
-      ? `<div class="status bad" role="status"><span><b>Rejected.</b> ${dec.note ? `Note: “${esc(dec.note)}”. ` : ''}The current timing stays.</span><button class="btn" data-action="reopen">Reopen</button></div>`
-      : rejecting
-        ? `<div class="card pad" style="margin-bottom:16px"><label class="field" for="note">Why reject? (optional, kept with the recommendation)</label>
-          <textarea id="note" maxlength="500" placeholder="For example: conflicts with the school-zone plan"></textarea>
-          <div class="row" style="margin-top:10px"><button class="btn danger" data-action="archive">Reject recommendation</button><button class="btn ghost" data-action="cancel">Cancel</button></div></div>`
-        : '';
+/* ---------- 6 · Deploy & monitor ---------- */
+
+function auditPanel() {
+  const rows = [...state.log].reverse();
+  const name = r => cache[r]?.info.street || r;
+  return panel(`Audit log <span class="count">${rows.length}</span>`, rows.length
+    ? `<table class="tbl"><thead><tr><th>Time</th><th>Corridor</th><th>Action</th><th>Note</th></tr></thead><tbody>${rows.map(r =>
+      `<tr><td class="num">${new Date(r.at).toLocaleTimeString()}</td><td>${esc(name(r.road))}</td><td class="strong">${esc(r.action)}</td><td>${esc(r.note || '')}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="empty">No actions yet this session</p>', { tools: '<button class="btn sm ghost" data-action="reset">Reset demo</button>' });
+}
+
+function deployScreen(d) {
+  const s = statusKey(d), n = d.card.signals.length, sigs = d.card.signals;
+  const ctlStatus = { deployed: ['New plan', 'live'], rolled_back: ['Rolled back', 'bad'] }[s] || (isChange(d) ? ['Waiting', 'calm'] : ['Current kept', 'calm']);
+  const actions = !isChange(d) ? ''
+    : s === 'deployed' ? '<button class="btn danger" data-action="rollback">Roll back</button>'
+      : ['approved', 'scheduled', 'rolled_back'].includes(s) ? `<button class="btn primary" data-action="deploy">${s === 'rolled_back' ? 'Deploy again' : `Deploy to ${n} controllers`}</button>`
+        : `<a class="btn primary" href="#/${d.road}/review">Review recommendation</a>`;
+  const steps = [['Review', true], ['Approve', !['pending', 'rejected'].includes(s)], ['Deploy', ['deployed', 'rolled_back'].includes(s)], ['Watch', s === 'deployed']];
+  const stepper = isChange(d) ? `<ol class="steps" aria-label="Progress">${steps.map(([t, on]) => `<li class="${on ? 'on' : ''}">${t}</li>`).join('')}</ol>` : '';
+  const sig0 = sigs[0];
+  const plan = isChange(d) ? `<table class="tbl"><thead><tr><th>Time-of-day plan</th><th>Window</th><th class="n">${term('cycle', 'Cycle')} s</th><th>Controllers</th></tr></thead><tbody>
+      <tr><td class="strong">PM peak · Signal Learner</td><td>${esc(window_(d))}</td><td class="n">${f1(sig0.new.cycle_s)}</td><td>${n} of ${n}</td></tr>
+      <tr><td>All other times</td><td>–</td><td class="n na">unchanged</td><td>–</td></tr></tbody></table>`
+    : '<p class="empty">Nothing to deploy · current timing kept</p>';
+  const ctl = `<table class="tbl"><thead><tr><th class="n">#</th><th>Intersection</th><th>Controller</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th><th>Status</th></tr></thead>
+    <tbody>${sigs.map((x, i) => `<tr><td class="n"><span class="badge">${i + 1}</span></td><td><a class="strong" href="#/${d.road}/signal/${i + 1}">${esc(x.signal)}</a></td>
+      <td class="mono" title="${esc(x.sumo_tls_id)}">${esc(x.sumo_tls_id)}</td><td class="n">${sameOr(x.old.cycle_s, x.new.cycle_s)}</td><td class="n">${sameOr(x.old.offset_s, x.new.offset_s)}</td>
+      <td><span class="pill ${ctlStatus[1]}">${ctlStatus[0]}</span></td></tr>`).join('')}</tbody></table>`;
+  let watch = '';
+  if (isChange(d)) {
+    const e = d.card.expected_in_copy, h = heldout(d), g = goBack(d), per = h.per;
+    const band = { lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100, mid: e.change_share * 100 };
+    watch = ['deployed', 'rolled_back'].includes(s) ? `<div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">Forecast · ${term('practice', 'practice copy')}</div><div class="kpi-v"><span class="p">${signed(Math.round(band.mid))}%</span></div><div class="kpi-b">${signed(Math.round(band.lo))}% to ${signed(Math.round(band.hi))}%</div></div>
+        <div class="kpi"><div class="kpi-l">Measured · ${term('heldout', `${h.n} test evenings`)}</div><div class="kpi-v"><span class="p">${pct(h.oldMean, h.planMean)}</span></div><div class="kpi-b">${signed(Math.round(Math.min(...per.map(p => p.v))))}% to ${signed(Math.round(Math.max(...per.map(p => p.v))))}% · better on ${betterOn(h)}</div></div>
+        <div class="kpi"><div class="kpi-l">Roll-back rule · bad plan</div><div class="kpi-v"><span class="p">${g.caught}</span><small>of ${g.bad} caught</small></div><div class="kpi-b">median ${fmt(g.median)} min after change</div></div>
+        <div class="kpi"><div class="kpi-l">Roll-back rule · harmless change</div><div class="kpi-v"><span class="p">${g.false}</span><small>of ${g.noop} false alarms</small></div><div class="kpi-b">simulated feed</div></div></div>
+      <div class="chart-h"><span>${term('score', 'Delay score')} change per evening</span><div class="legend"><span><i class="sw bar-good"></i>Measured</span><span><i class="sw band"></i>Forecast range</span></div></div>
+      ${eveningsChart({ rows: per.map(p => ({ v: p.v, label: `Seed ${p.seed}`, short: String(p.seed) })), band, label: `Delay score change on each of ${h.n} held-out evenings, with the practice-copy forecast range ${signed(Math.round(band.lo))}% to ${signed(Math.round(band.hi))}%.` })}`
+      : '<p class="empty">Starts after deploy</p>';
+  }
   return `<div class="page">
-  <a class="back" href="#/overview">← Overview</a>
-  <div class="head"><div><h1>${esc(d.info.street)}: new timing</h1>
-    <p>Evening peak, ${ampm(seconds(d.info.begin))}–${ampm(seconds(d.info.end))}, all ${c.signals.length} lights. You approve or reject; an engineer enters any change.</p></div>${actions}</div>
-  ${state}
-  <div class="review">
-    <section class="card lights" aria-labelledby="lights-title">
-      <div class="lights-head"><h2 id="lights-title">One round of each light, now and new</h2>
-        <div class="legend"><span><i style="background:var(--go)"></i>Green (seconds)</span><span><i style="background:var(--amber)"></i>Yellow</span><span><i style="background:var(--stop)"></i>All-red</span></div></div>
-      ${c.signals.map(sig => {
-        const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
-        return `<div class="light"><div class="name">${esc(sig.signal)}</div>
-          <div class="bars"><span class="k">Now</span>${bar(old, sig.old.cycle_s, scale, true)}<span class="c num">${f1(sig.old.cycle_s)} s</span>
-            <span class="k">New</span>${bar(neu, sig.new.cycle_s, scale, false)}<span class="c num chg">${f1(sig.new.cycle_s)} s</span></div></div>`;
-      }).join('')}
-    </section>
-    <aside class="stack">
-      <section class="card facts-card"><h2>What changes</h2>
-        <ul class="changes small" style="margin-top:10px">${changes(d).map(t => `<li>${t}</li>`).join('')}</ul>
-        <div class="forecast"><h3 class="small muted">Tested on ${h.n} new evenings</h3>
-          <p class="big num" style="color:var(--go-deep)">${pct(h.oldMean, h.planMean)} delay</p>
-          <p class="xs muted">Better on ${betterOn(h)}. ${f1(h.oldMean)} → ${f1(h.planMean)} s average delay score.</p></div>
-        <div class="forecast"><h3 class="small muted">Forecast on the practice copy</h3>
-          <p class="num"><b>${pct(e.old_delay_s, e.new_delay_s)}</b> <span class="xs muted">${f1(e.old_delay_s)} → ${f1(e.new_delay_s)} s, ${e.copy_seeds.length} practice evenings on a copy of the road built from sensor counts</span></p></div>
-      </section>
-      <button class="btn" data-action="print" style="width:100%">Download timing sheet</button>
-    </aside>
-  </div></div>`;
-}
-
-function calm(d) {
-  const j = jams(d);
-  return `<div class="page">
-  <a class="back" href="#/overview">← Overview</a>
-  <div class="card calm">
-    <div class="stack"><span class="pill">No change</span>
-      <h1>${esc(d.info.street)}: no change needed</h1>
-      <p class="muted" style="max-width:56ch">The best new plan jammed in ${j.jammed} of ${j.n} practice runs, so Signal Learner keeps the current timing at all ${d.card.signals.length} lights.</p>
-      <p class="xs faint">Jammed: the simulation had to remove stuck cars more often than the current timing does.</p>
-      <div class="row" style="margin-top:16px"><a class="btn" href="#/overview">Back to inbox</a></div></div>
-    <div class="map" id="calm-map" role="img" aria-label="${esc(mapLabel(d.geo))}"></div>
-  </div></div>`;
-}
-
-/* ---------- Simulate ---------- */
-
-function simulate(d) {
-  const h = heldout(d), begin = seconds(d.info.begin), end = seconds(d.info.end);
-  const arrow = up => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${up ? 'M6 2 11 9H1z' : 'M6 10 1 3h10z'}"/></svg>`;
-  const panel = arm => `<section class="arm ${arm}" aria-labelledby="h-${arm}">
-    <div class="arm-head">
-      <h2 id="h-${arm}"><span class="sw"></span>${ARM_NAME[arm]}</h2>
-      <div class="counter hero"><b data-k="waiting" data-arm="${arm}"><small>–</small></b><span>cars waiting to get onto the road</span></div>
-      <div class="counter"><b data-k="finished" data-arm="${arm}"><small>–</small></b><span>trips finished</span></div>
-      <div class="counter tiny"><span>Avg delay of finished trips</span><b data-k="delay" data-arm="${arm}"><small>–</small></b></div>
-    </div>
-    <div class="sim-map" id="map-${arm}" role="img" aria-label="Live map, ${ARM_NAME[arm]}: ${esc(d.info.street)} runs left to right, north on the left. Moving cars green, stopped cars red."></div>
-  </section>`;
-  return `<div class="page sim-page">
-  <div class="sim-top">
-    <div><h1>One evening on ${esc(d.info.street)}</h1><p class="small muted" style="margin-top:4px">Same traffic, same clock, two timings.</p></div>
-    <div class="clock" aria-live="off"><b id="clock">${ampm(begin)}</b><span id="clock-note">${ampm(begin)} to ${ampm(end)}</span></div>
-    <div class="right"><span class="pill" id="source">Ready</span>
-      <button class="btn" id="play" data-action="toggle" disabled aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
-      <div class="seg" role="group" aria-label="Speed">${SPEEDS.map(s => `<button type="button" data-speed="${s}" aria-pressed="${s === 120}">${s}×</button>`).join('')}</div></div>
-  </div>
-  <div class="progress" aria-hidden="true"><i id="progress"></i></div>
-  <div class="card stage">
-    ${panel('old')}
-    <div class="gap even" id="gap">
-      <p class="gap-main">${arrow(true)}<b id="gap-n">0</b><span class="gap-on">more cars stuck waiting with current timing</span><span class="gap-off">Same cars, same evening: watch the queues</span></p>
-      <p class="gap-sub" id="gap-sub" hidden>${arrow(false)}<b id="gap-f">0</b>more trips finished with the plan</p>
-    </div>
-    ${panel('plan')}
-    <div class="overlay" id="overlay">
-      <div class="card pad start" id="start"><h2>Watch both timings handle the same evening</h2>
-        <p class="small muted">${ampm(begin)} to ${ampm(end)}, about ${Math.round((end - begin) / 120)} seconds at 120×. Each dot is a car.</p>
-        <button class="btn primary lg" data-action="start">Run the simulation</button></div>
-    </div>
-  </div>
-  <div class="sim-foot">
-    <span class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span><span><i class="sig"></i>Live signal at each light, one stripe per lane</span></span>
-    <span class="hint">Headline result: ${pct(h.oldMean, h.planMean)} delay over ${h.n} new evenings.</span>
-  </div>
-  <p class="sr" aria-live="polite" id="sim-status"></p>
-</div>`;
-}
-
-function endCard(d, final, recorded) {
-  const h = heldout(d), o = final.old.delay_s, p = final.plan.delay_s;
-  return `<div class="card endcard" role="dialog" aria-labelledby="end-title" tabindex="-1">
-    <div><h2 id="end-title">This one evening</h2>
-      <p class="score">${f1(o)} s → <b>${f1(p)} s</b></p>
-      <p class="pct">${pct(o, p)}</p>
-      <p class="xs muted" style="margin-top:6px">Delay score: average extra seconds per trip. A trip that never finishes counts 900 s. ${recorded ? 'From the recorded run.' : 'From this live run.'}</p></div>
-    <div><h2>Tested on ${h.n} new evenings</h2>
-      <p class="score">${f1(h.oldMean)} s → <b>${f1(h.planMean)} s</b></p>
-      <p class="pct">${pct(h.oldMean, h.planMean)}</p>
-      <p class="xs muted" style="margin-top:6px">Better on ${betterOn(h)}. This is the headline result.</p></div>
-    <div class="foot"><span class="small">After approval, Signal Learner keeps watching and switches back if traffic gets worse.</span>
-      <span class="row"><button class="btn" data-action="start">Replay</button><a class="btn primary" href="#/overview">Done</a></span></div>
+    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], ['Deploy & monitor']])}
+    ${head(`Deploy & monitor · ${d.info.street}`, { status: pill(d), meta: [`${n} controllers`, `PM peak ${esc(window_(d))}`, 'Simulated rollout · no real controller is touched'], actions })}
+    ${stepper}
+    <div class="grid g-deploy">${panel('Rollout plan', plan)}${panel('Controllers', ctl)}</div>
+    ${watch ? panel('Watch after deploy', watch) : ''}
+    ${auditPanel()}
   </div>`;
 }
 
-// One side of one frame: car arrays (metres) + lights + counters.
-function side(cars, lights, waiting, finished, delay) {
-  const n = cars.ids.length;
-  return { ...cars, n, lights, waiting, finished, delay };
-}
-
-function fromLive(f) {
-  const out = { t: f.t };
-  for (const arm of ARMS) {
-    const s = f[arm]; if (!s) continue;
-    const c = s.cars, n = c.length / 4, ids = new Uint32Array(n), x = new Float32Array(n), y = new Float32Array(n), stop = new Uint8Array(n);
-    for (let i = 0; i < n; i++) { ids[i] = c[4 * i]; x[i] = c[4 * i + 1] / 10; y[i] = c[4 * i + 2] / 10; stop[i] = c[4 * i + 3]; }
-    out[arm] = side({ ids, x, y, stop }, s.lights, s.waiting, s.finished, s.delay);
-  }
-  return out;
-}
-
-// Recording: see tools/live_sim.py write_recording for the byte layout.
-async function loadRecording() {
-  const response = await fetch('geo/wolfe_seed200.rec.gz');
-  if (!response.ok) throw new Error('The recording is missing.');
-  const buf = await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
-  const dv = new DataView(buf), td = new TextDecoder();
-  if (td.decode(new Uint8Array(buf, 0, 4)) !== 'SLR1') throw new Error('The recording is not readable.');
-  const len = dv.getUint32(4, true), head = JSON.parse(td.decode(new Uint8Array(buf, 8, len)));
-  const lightLen = head.lights.reduce((a, b) => a + b, 0);
-  let o = 8 + len;
-  const frames = [];
-  for (let k = 0; k < head.frames; k++) {
-    const f = { t: dv.getUint32(o, true) }; o += 4;
-    for (const arm of ARMS) {
-      const n = dv.getUint16(o, true); o += 2;
-      const ids = new Uint32Array(n), x = new Float32Array(n), y = new Float32Array(n), stop = new Uint8Array(n);
-      for (let i = 0; i < n; i++) ids[i] = dv.getUint16(o + 2 * i, true);
-      o += 2 * n;
-      for (let i = 0; i < n; i++) x[i] = dv.getUint16(o + 2 * i, true) / 10;
-      o += 2 * n;
-      for (let i = 0; i < n; i++) y[i] = dv.getUint16(o + 2 * i, true) / 10;
-      o += 2 * n;
-      for (let i = 0; i < n; i++) stop[i] = dv.getUint8(o + i);
-      o += n;
-      const text = td.decode(new Uint8Array(buf, o, lightLen)); o += lightLen;
-      const lights = []; let at = 0;
-      for (const l of head.lights) { lights.push(text.slice(at, at + l)); at += l; }
-      f[arm] = side({ ids, x, y, stop }, lights, dv.getUint16(o, true), dv.getUint16(o + 2, true), dv.getUint16(o + 4, true) / 10);
-      o += 6;
-    }
-    frames.push(f);
-  }
-  return { frames, final: head.final };
-}
-
-// One bar per approach at each light, across its stop line, with one stripe per lane (lanes are too close to draw apart).
-function approaches(stops, p) {
-  const groups = [];
-  for (const s of stops) {
-    const [ax, ay, bx, by] = s.xy, x = p.x(bx, by), y = p.y(bx, by);
-    const dx = x - p.x(ax, ay), dy = y - p.y(ax, ay), l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
-    let g = groups.find(g => g.ux * ux + g.uy * uy > 0.8);
-    if (!g) groups.push(g = { ux, uy, lanes: [] });
-    g.lanes.push({ x, y, links: s.links });
-  }
-  return groups.map(({ ux, uy, lanes }) => {
-    const nx = -uy, ny = ux, cx = mean(lanes.map(l => l.x)), cy = mean(lanes.map(l => l.y));
-    const across = l => (l.x - cx) * nx + (l.y - cy) * ny;
-    lanes.sort((a, b) => across(a) - across(b));
-    return { x: cx - ux * 2, y: cy - uy * 2, nx, ny, len: Math.max(lanes.length * 5, 10), links: lanes.map(l => l.links) };
-  });
-}
-
-const lightColor = (state, links) => {
-  let c = 'r';
-  for (const i of links) { const s = state[i]; if (s === 'G' || s === 'g') return '#16a34a'; if (s === 'y' || s === 'Y') c = 'y'; }
-  return c === 'y' ? '#d4a106' : '#dc2626';
-};
-
-class Player {
-  constructor(d) {
-    this.d = d;
-    this.begin = seconds(d.info.begin); this.end = seconds(d.info.end); this.stop = this.end + d.info.drain;
-    this.frames = []; this.t = this.begin; this.speed = 120; this.playing = false; this.done = null;
-    this.views = ARMS.map(arm => ({ arm, box: document.getElementById(`map-${arm}`) }));
-    this.counters = [...document.querySelectorAll('[data-k]')];
-    this.layout();
-    this.resize = () => { this.layout(); this.draw(); };
-    window.addEventListener('resize', this.resize);
-  }
-  layout() {
-    for (const v of this.views) {
-      Object.assign(v, canvasFor(v.box));
-      v.p = fit(this.d.geo, v.w, v.h, 16, true);
-      v.bg = document.createElement('canvas');
-      v.bg.width = v.canvas.width; v.bg.height = v.canvas.height;
-      const bg = v.bg.getContext('2d');
-      const r = window.devicePixelRatio || 1;
-      bg.setTransform(r, 0, 0, r, 0, 0);
-      drawRoads(bg, this.d.geo, v.p);
-      nameAlong(bg, this.d.geo, v.p, v.w, v.h, 18);
-      v.stops = this.d.geo.signals.map(sig => approaches(sig.stops, v.p));
-    }
-  }
-  async start() {
-    this.stopSource();
-    this.frames = []; this.idx = 0; this.t = this.begin; this.done = null; this.playing = true; this.last = performance.now(); this.hundred = 0;
-    document.getElementById('overlay').hidden = true;
-    document.getElementById('play').disabled = false;
-    this.say('Starting the simulation');
-    document.getElementById('clock-note').textContent = 'Filling the road with traffic first';
-    this.setSource('Starting…', '');
-    this.abort = new AbortController();
-    try {
-      const response = await fetch('/api/sim/stream', { signal: this.abort.signal });
-      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).reason || `HTTP ${response.status}`);
-      this.live = true;
-      this.setSource('Live · SUMO', 'live');
-      this.control({ speed: this.speed, paused: false });
-      this.loop();
-      await this.read(response.body.getReader());
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      if (this.live && this.frames.length) return this.fail(err.message);
-      this.live = false;
-      this.reason = err.message;
-      try {
-        this.setSource('Loading recording…', '');
-        const rec = await loadRecording();
-        this.frames = rec.frames; this.final = rec.final;
-        this.setSource('Recording', '');
-        document.getElementById('source').title = `Live simulation unavailable: ${this.reason}`;
-        this.t = this.frames[0].t; this.last = performance.now();
-        this.loop();
-      } catch (e2) { this.fail(e2.message); }
-    }
-  }
-  async read(reader) {
-    const dec = new TextDecoder();
-    let text = '';
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      text += dec.decode(value, { stream: true });
-      let cut;
-      while ((cut = text.indexOf('\n\n')) >= 0) {
-        const block = text.slice(0, cut); text = text.slice(cut + 2);
-        const kind = (block.match(/^event: (.+)$/m) || [])[1], body = (block.match(/^data: (.+)$/m) || [])[1];
-        if (!kind || !body) continue;
-        const value = JSON.parse(body);
-        if (kind === 'frame') this.frames.push(fromLive(value));
-        else if (kind === 'end') this.final = value;
-        else if (kind === 'failed') throw new Error(value.reason);
-      }
-    }
-    if (!this.final) throw new Error('The simulation stopped early.');
-  }
-  control(body) {
-    if (this.live) fetch('/api/sim/control', { method: 'POST', body: JSON.stringify(body) }).catch(() => {});
-  }
-  setSpeed(s) { this.speed = s; this.control({ speed: s }); }
-  toggle() {
-    if (!this.frames.length || this.done) return;
-    this.playing = !this.playing; this.last = performance.now();
-    this.control({ paused: !this.playing });
-    const b = document.getElementById('play');
-    b.setAttribute('aria-label', this.playing ? 'Pause' : 'Play');
-    b.innerHTML = this.playing ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>'
-      : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>';
-    this.say(this.playing ? 'Playing' : 'Paused');
-  }
-  loop() {
-    cancelAnimationFrame(this.raf);
-    const tick = now => {
-      const dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
-      const f = this.frames;
-      if (this.playing && f.length) {
-        this.t += dt * this.speed * (this.t >= this.end ? 4 : 1);
-        const newest = f[f.length - 1].t;
-        if (this.live && !this.final) {
-          // Stay just behind the newest frame from the server so there is always a next frame to move toward.
-          const lag = this.speed * 0.15;
-          this.t = Math.min(Math.max(this.t, newest - lag * 4), Math.max(f[0].t, newest - lag));
-        }
-        if (this.t >= newest) {
-          this.t = newest;
-          if (this.final) return this.finish();
-        }
-      }
-      this.draw();
-      this.raf = requestAnimationFrame(tick);
-    };
-    this.raf = requestAnimationFrame(tick);
-  }
-  frameAt(t) {
-    const f = this.frames;
-    if (this.live) while (f.length > 2 && f[1].t <= t) f.shift();
-    else { while (this.idx < f.length - 2 && f[this.idx + 1].t <= t) this.idx++; while (this.idx > 0 && f[this.idx].t > t) this.idx--; }
-    const i = this.live ? 0 : this.idx;
-    return [f[i], f[i + 1] || f[i]];
-  }
-  draw() {
-    if (!this.frames.length) { for (const v of this.views) { v.ctx.clearRect(0, 0, v.w, v.h); v.ctx.drawImage(v.bg, 0, 0, v.w, v.h); } return; }
-    const [a, b] = this.frameAt(this.t);
-    const u = b.t > a.t ? Math.min(1, Math.max(0, (this.t - a.t) / (b.t - a.t))) : 0;
-    for (const v of this.views) {
-      const sa = a[v.arm], sb = b[v.arm] || sa, { ctx, p } = v;
-      ctx.clearRect(0, 0, v.w, v.h);
-      ctx.drawImage(v.bg, 0, 0, v.w, v.h);
-      if (!sa) continue;
-      if (!sa.index) { sa.index = new Map(); for (let i = 0; i < sa.n; i++) sa.index.set(sa.ids[i], i); }
-      const r = Math.max(2.6, 4 * p.k);
-      for (const stopped of [0, 1]) {
-        ctx.fillStyle = stopped ? '#dc2626' : '#16a34a';
-        ctx.beginPath();
-        for (let i = 0; i < sb.n; i++) {
-          if (sb.stop[i] !== stopped) continue;
-          const j = sa.index.get(sb.ids[i]);
-          const x = j === undefined ? sb.x[i] : sa.x[j] + (sb.x[i] - sa.x[j]) * u;
-          const y = j === undefined ? sb.y[i] : sa.y[j] + (sb.y[i] - sa.y[j]) * u;
-          const px = p.x(x, y), py = p.y(x, y);
-          ctx.moveTo(px + r, py); ctx.arc(px, py, r, 0, 6.2832);
-        }
-        ctx.fill();
-      }
-      v.stops.forEach((bars, k) => {
-        const state = sa.lights[k] || '';
-        for (const s of bars) {
-          const x0 = s.x - s.nx * s.len / 2, y0 = s.y - s.ny * s.len / 2, step = s.len / s.links.length;
-          ctx.lineCap = 'round'; ctx.lineWidth = 8; ctx.strokeStyle = '#fff';
-          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + s.nx * s.len, y0 + s.ny * s.len); ctx.stroke();
-          ctx.lineCap = 'butt'; ctx.lineWidth = 5;
-          s.links.forEach((links, i) => {
-            ctx.strokeStyle = lightColor(state, links);
-            ctx.beginPath(); ctx.moveTo(x0 + s.nx * step * i, y0 + s.ny * step * i); ctx.lineTo(x0 + s.nx * step * (i + 1), y0 + s.ny * step * (i + 1)); ctx.stroke();
-          });
-        }
-      });
-    }
-    this.hud(a);
-  }
-  // Writes only what changed, so it can run every frame.
-  hud(a) {
-    const set = (el, html) => { if (el._v !== html) { el._v = html; el.innerHTML = html; } };
-    const t = Math.min(this.t, this.stop);
-    set(document.getElementById('clock'), ampm(t));
-    set(document.getElementById('clock-note'), t >= this.end ? 'Evening over: the last cars finish their trips' : `${ampm(this.begin)} to ${ampm(this.end)}`);
-    const bar = document.getElementById('progress'), width = `${Math.min(100, (t - this.begin) / (this.stop - this.begin) * 100).toFixed(1)}%`;
-    if (bar.style.width !== width) bar.style.width = width;
-    const fmt = { waiting: x => x.toLocaleString(), finished: x => x.toLocaleString(), delay: x => `${Math.round(x)}<small>s</small>` };
-    for (const el of this.counters) {
-      const s = a[el.dataset.arm]; if (!s) continue;
-      set(el, fmt[el.dataset.k](s[el.dataset.k]));
-      const other = a[el.dataset.arm === 'old' ? 'plan' : 'old'];
-      el.parentElement.classList.toggle('better', el.dataset.arm === 'plan' && !!other && el.dataset.k !== 'finished' && s[el.dataset.k] < other[el.dataset.k]);
-    }
-    if (a.old && a.plan) this.gap(a.old.waiting - a.plan.waiting, a.plan.finished - a.old.finished);
-  }
-  gap(n, f) {
-    const box = document.getElementById('gap'), num = document.getElementById('gap-n');
-    box.classList.toggle('even', n <= 0);
-    if (n > 0 && num._v !== n) {
-      num._v = n; num.textContent = n.toLocaleString();
-      const hundred = Math.floor(n / 100);
-      if (hundred > (this.hundred || 0) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        num.animate([{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)' });
-      }
-      this.hundred = hundred;
-    }
-    document.getElementById('gap-sub').hidden = f <= 0;
-    const fin = document.getElementById('gap-f');
-    if (f > 0 && fin._v !== f) { fin._v = f; fin.textContent = f.toLocaleString(); }
-  }
-  finish() {
-    this.done = true; this.playing = false;
-    this.draw();
-    document.getElementById('play').disabled = true;
-    const overlay = document.getElementById('overlay');
-    overlay.innerHTML = endCard(this.d, this.final, !this.live);
-    overlay.hidden = false;
-    overlay.querySelector('.endcard').focus();
-    this.say('The evening is over. Results are shown.');
-  }
-  fail(message) {
-    this.playing = false;
-    cancelAnimationFrame(this.raf);
-    const overlay = document.getElementById('overlay');
-    overlay.innerHTML = `<div class="card pad start"><h2>The simulation stopped</h2><p class="small error">${esc(message)}</p><button class="btn primary" data-action="start">Try again</button></div>`;
-    overlay.hidden = false;
-    this.setSource('Stopped', 'bad');
-  }
-  setSource(text, kind) { const s = document.getElementById('source'); if (s) { s.textContent = text; s.className = `pill ${kind}`; } }
-  say(text) { const s = document.getElementById('sim-status'); if (s) s.textContent = text; }
-  stopSource() { this.abort?.abort(); cancelAnimationFrame(this.raf); this.live = false; this.final = null; }
-  destroy() { this.stopSource(); window.removeEventListener('resize', this.resize); }
-}
-
-/* ---------- How it connects (dialog) ---------- */
+/* ---------- 7 · How it connects ---------- */
 
 function box(x, y, w, h, title, lines, opts = {}) {
   return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${opts.fill || '#fff'}" stroke="${opts.stroke || '#cfd7e1'}" ${opts.dash ? 'stroke-dasharray="6 4"' : ''} stroke-width="1.5"/>
@@ -723,7 +566,7 @@ function box(x, y, w, h, title, lines, opts = {}) {
 const arrow = (x1, y1, x2, y2, opts = {}) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${opts.color || '#5a6371'}" stroke-width="1.8" ${opts.dash ? 'stroke-dasharray="5 4"' : ''} marker-end="url(#${opts.color ? 'ha' : 'h'})"/>`;
 
 function connect() {
-  const A = '#0369a1';
+  const A = '#1d4ed8';
   const svg = `<svg class="diagram" viewBox="-2 0 1064 400" role="img" aria-label="Road sensors feed the signal cabinet. The cabinet links to the city's central system, which the engineer uses. Signal Learner sits beside them, read-only, and gives the engineer a recommendation.">
     <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5a6371"/></marker>
       <marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="${A}"/></marker></defs>
@@ -772,64 +615,94 @@ function connect() {
   </ol></details></div>`;
 }
 
-const dialog = document.getElementById('connect');
-function openConnect() {
-  document.getElementById('connect-body').innerHTML = connect();
-  dialog.showModal();
+function connectScreen() {
+  return `<div class="page">${crumbs([['Corridors', '#/corridors'], ['How it connects']])}${head('How it connects')}<div class="connect">${connect()}</div></div>`;
 }
-document.getElementById('connect-open').addEventListener('click', openConnect);
-document.getElementById('connect-close').addEventListener('click', () => dialog.close());
 
 /* ---------- Shell ---------- */
 
-// Old deck links keep working: recommendation → review, test → simulate, connect → the dialog.
+// Old deck links keep working: #/overview, #/wolfe/recommendation, #/wolfe/test, #/wolfe/connect.
 function parseRoute() {
   const [hash, query = ''] = location.hash.split('?');
-  const [, a, b] = hash.split('/');
-  if (!ROADS.includes(a)) return { road: 'wolfe', screen: 'overview' };
+  const [a, b, c] = hash.replace(/^#\/?/, '').split('/');
+  if (a === 'connect') return { road: route.road, screen: 'connect' };
+  if (!ROADS.includes(a)) return { road: route.road, screen: 'corridors' };
   if (b === 'review' || b === 'recommendation') return { road: a, screen: 'review' };
   if (b === 'simulate' || b === 'test') return { road: 'wolfe', screen: 'simulate', run: query === 'run' };
-  return { road: a, screen: 'overview', connect: b === 'connect' };
+  if (b === 'deploy') return { road: a, screen: 'deploy' };
+  if (b === 'connect') return { road: a, screen: 'connect' };
+  if (b === 'signal') return { road: a, screen: 'signal', i: Number(c) - 1 };
+  return { road: a, screen: 'corridor' };
 }
 
-const TITLES = { overview: 'Overview', review: 'Review', simulate: 'Simulate' };
+const TITLES = { corridors: 'Corridors', corridor: 'Corridor', signal: 'Signal', review: 'Review', simulate: 'Simulate', deploy: 'Deploy & monitor', connect: 'How it connects' };
+const NAV_OF = { corridor: 'corridors', signal: 'corridors' };
+
+function shell(ds) {
+  const r = route.road;
+  document.getElementById('nav-review').href = `#/${r}/review`;
+  document.getElementById('nav-deploy').href = `#/${r}/deploy`;
+  const active = NAV_OF[route.screen] || route.screen;
+  document.querySelectorAll('#nav a[data-screen]').forEach(a => {
+    if (a.dataset.screen === active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  document.getElementById('nav-roads').innerHTML = ds.map(d => `<li><a href="#/${d.road}"${['corridor', 'signal', 'review', 'deploy'].includes(route.screen) && route.road === d.road ? ' class="here"' : ''}>
+    <i class="dot ${STATUS[statusKey(d)][1]}" aria-hidden="true"></i>${esc(d.info.street)}<span class="sr">, ${STATUS[statusKey(d)][0]}</span></a></li>`).join('');
+  const pending = ds.filter(d => statusKey(d) === 'pending').length;
+  document.getElementById('nav-count').textContent = pending || '';
+  document.getElementById('fixture').hidden = !FIXTURE;
+}
+
+function drawMaps() {
+  document.querySelectorAll('.map[data-road]').forEach(box => {
+    const d = cache[box.dataset.road];
+    if (d) drawMap(box, d.geo, box.dataset.pick === undefined ? -1 : Number(box.dataset.pick));
+  });
+}
 
 async function render() {
   player?.destroy(); player = null;
   const next = parseRoute();
-  const moved = next.screen !== route.screen || next.road !== route.road;
-  if (moved) rejecting = false;
+  const moved = next.screen !== route.screen || next.road !== route.road || next.i !== route.i;
+  if (moved) form = null;
   route = next;
-  document.querySelectorAll('#nav a').forEach(a => {
-    if (a.dataset.screen === route.screen) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
-  });
   try {
-    const [w, z] = await Promise.all(ROADS.map(data));
-    const d = route.road === 'deanza' ? z : w;
+    const ds = await Promise.all(ROADS.map(data));
+    const d = ds[ROADS.indexOf(route.road)];
+    if (route.screen === 'signal' && !(route.i >= 0 && route.i < d.card.signals.length)) route.screen = 'corridor';
+    shell(ds);
     document.title = `${TITLES[route.screen]} · Signal Learner`;
-    if (route.screen === 'overview') {
-      main.innerHTML = overview(w, z);
-      drawMap(document.getElementById('overview-map'), w.geo);
-    } else if (route.screen === 'review') {
-      main.innerHTML = review(d);
-      const m = document.getElementById('calm-map');
-      if (m) drawMap(m, d.geo);
-    } else {
-      main.innerHTML = simulate(w);
-      player = new Player(w);
+    if (route.screen === 'corridors') main.innerHTML = corridorsScreen(ds, await contextRoads());
+    else if (route.screen === 'corridor') main.innerHTML = corridorScreen(d);
+    else if (route.screen === 'signal') main.innerHTML = signalScreen(d, route.i);
+    else if (route.screen === 'review') main.innerHTML = reviewScreen(d);
+    else if (route.screen === 'deploy') main.innerHTML = deployScreen(d);
+    else if (route.screen === 'connect') main.innerHTML = connectScreen();
+    else {
+      main.innerHTML = simulate(ds[0]);
+      player = new Player(ds[0]);
       player.draw();
-      if (route.run) { history.replaceState(null, '', '#/wolfe/simulate'); player.start(); }
+      if (route.run) { history.replaceState(null, '', '#/wolfe/simulate'); act('wolfe', 'Ran side-by-side simulation'); player.start(); }
     }
+    drawMaps();
   } catch (err) {
-    main.innerHTML = `<div class="page"><div class="error"><b>Could not load the saved files.</b> ${esc(err.message)}. Start the console with python -m tools.demo, then reload.</div></div>`;
+    main.innerHTML = `<div class="page"><div class="error"><b>Could not load the saved files.</b> ${esc(err.message)}. Start the console with python3 -m tools.demo, then reload.</div></div>`;
   }
-  if (route.connect) openConnect();
   if (moved) {
     const h1 = main.querySelector('h1');
     if (h1 && document.activeElement !== document.body) { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
     window.scrollTo(0, 0);
   }
 }
+
+async function rerender(focusSel) {
+  await render();
+  (focusSel && main.querySelector(focusSel))?.focus();
+}
+
+main.addEventListener('input', event => {
+  if (event.target.id === 'note') drafts[event.target.dataset.road] = event.target.value;
+});
 
 main.addEventListener('click', async event => {
   const speed = event.target.closest('[data-speed]');
@@ -838,24 +711,32 @@ main.addEventListener('click', async event => {
     document.querySelectorAll('[data-speed]').forEach(b => b.setAttribute('aria-pressed', String(b === speed)));
     return;
   }
+  const v = event.target.closest('[data-view]');
+  if (v) { view[v.dataset.view] = v.dataset.val; return rerender(`[data-view="${v.dataset.view}"][data-val="${v.dataset.val}"]`); }
+  if (event.target.closest('a[aria-disabled="true"]')) return event.preventDefault();
   const button = event.target.closest('[data-action]');
   if (!button) return;
   const action = button.dataset.action;
-  if (action === 'start') return player?.start();
+  if (action === 'start') { act('wolfe', 'Ran side-by-side simulation'); return player?.start(); }
   if (action === 'toggle') return player?.toggle();
-  const d = await data(route.road);
-  if (action === 'approve') decisions[d.road] = { status: 'approved', at: new Date().toISOString() };
-  else if (action === 'archive') decisions[d.road] = { status: 'rejected', at: new Date().toISOString(), note: document.getElementById('note').value.trim() };
-  else if (action === 'reopen') delete decisions[d.road];
-  else if (action === 'reject') { rejecting = true; await render(); return document.getElementById('note')?.focus(); }
-  else if (action === 'print') {
-    document.getElementById('print').innerHTML = sheet(d);
-    return window.print();
+  const d = await data(route.road), note = (drafts[d.road] || '').trim();
+  const done = () => { delete drafts[d.road]; form = null; };
+  if (action === 'approve') { act(d.road, 'Approved recommendation', { status: 'approved' }, note); done(); }
+  else if (action === 'reject') { act(d.road, 'Rejected recommendation', { status: 'rejected' }, note); done(); }
+  else if (action === 'schedule') { form = 'schedule'; return rerender('#when'); }
+  else if (action === 'cancel') { form = null; return rerender('[data-action="schedule"]'); }
+  else if (action === 'schedule-confirm') {
+    const when = document.getElementById('when').value;
+    if (!when) { document.getElementById('when-err').hidden = false; return document.getElementById('when').focus(); }
+    act(d.road, `Scheduled for ${new Date(when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`, { status: 'scheduled', when }, note); done();
   }
-  rejecting = false;
-  saveDecisions();
-  await render();
-  main.querySelector('.status .btn.primary, .decide .btn.primary, .status .btn')?.focus();
+  else if (action === 'acknowledge') act(d.road, 'Acknowledged: keep current timing', { status: 'acknowledged' }, note);
+  else if (action === 'reopen') act(d.road, 'Reopened recommendation', null);
+  else if (action === 'deploy') act(d.road, `Deployed PM peak plan to ${d.card.signals.length} controllers (simulated)`, { ...dec(d), status: 'deployed' });
+  else if (action === 'rollback') act(d.road, 'Rolled back to current timing (simulated)', { ...dec(d), status: 'rolled_back' });
+  else if (action === 'reset') { state = { decisions: {}, log: [] }; save(); }
+  else if (action === 'print') { document.getElementById('print').innerHTML = sheet(d); return window.print(); }
+  await rerender('.panel .done ~ .row .btn, .actions .btn.primary, .actions .btn.danger, .decide .btn.primary');
 });
 
 document.addEventListener('keydown', event => {
@@ -863,11 +744,5 @@ document.addEventListener('keydown', event => {
 });
 window.addEventListener('hashchange', render);
 let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    const o = document.getElementById('overview-map') || document.getElementById('calm-map');
-    if (o) drawMap(o, cache[route.road === 'deanza' && route.screen === 'review' ? 'deanza' : 'wolfe'].geo);
-  }, 120);
-});
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawMaps, 120); });
 render();

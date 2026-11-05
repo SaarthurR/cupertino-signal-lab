@@ -20,7 +20,12 @@ ASSETS = {name: DECK/name for name in (
     'index.html', 'signal-learner.pdf', 'wolfe_side_by_side.mp4', 'wolfe_side_by_side_poster.png')}
 ASSETS.update({f'cards/{name}.md': Path(f'reports/learner/{name}/card.md') for name in ('wolfe', 'deanza')})
 ASSETS['runbook.txt'] = Path('docs/DEMO.md')
-ASSETS.update({f'console/{name}': Path('dashboard/console')/name for name in ('index.html', 'console.css', 'console.js')})
+ASSETS.update({f'console/{name}': Path('dashboard/console')/name
+               for name in ('index.html', 'console.css', 'console.js', 'charts.js', 'sim.js', 'data/_fixture/metrics.json')})
+ASSETS.update({f'console/data/{road}/road.yaml': Path(f'roads/{road}/road.yaml') for road in ('homestead', 'stevens_creek')})
+# Built by the metrics step; the console hides the panels that need them while they are missing.
+OPTIONAL = {f'console/data/{road}/metrics.json': Path(f'dashboard/console/data/{road}/metrics.json')
+            for road in ('wolfe', 'deanza', 'homestead', 'stevens_creek')}
 for corridor in ('wolfe', 'deanza'):
     ASSETS[f'console/data/{corridor}/road.yaml'] = Path(f'roads/{corridor}/road.yaml')
     ASSETS.update({f'console/data/{corridor}/{name}': Path(f'reports/learner/{corridor}/{name}')
@@ -54,7 +59,9 @@ def prepare(folder):
         path = (ROOT/source).resolve()
         if not path.is_relative_to(ROOT.resolve()) or not path.is_file():
             raise FileNotFoundError(f'Missing or unsafe demo asset: {source}. Restore it from the repository.')
-    for target, source in ASSETS.items():
+    optional = {target: source for target, source in OPTIONAL.items()
+                if (ROOT/source).resolve().is_relative_to(ROOT.resolve()) and (ROOT/source).is_file()}
+    for target, source in {**ASSETS, **optional}.items():
         dest = Path(folder)/target
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT/source, dest)
@@ -84,6 +91,8 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/api/sim/stream':
             return self.stream()
+        if self.path[1:] in OPTIONAL and not (Path(self.directory)/self.path[1:]).is_file():
+            return self.send_json(200, None)  # not a 404: the console reads null as "no data yet"
         return super().do_GET()
 
     def do_POST(self):

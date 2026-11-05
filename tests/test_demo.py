@@ -177,9 +177,13 @@ class DemoTests(unittest.TestCase):
                 worker.start()
                 url = f'http://127.0.0.1:{httpd.server_port}'
                 try:
-                    for path in ('/console/', '/console/console.js', '/console/console.css'):
+                    for path in ('/console/', '/console/console.js', '/console/console.css', '/console/charts.js', '/console/sim.js'):
                         with urlopen(url+path) as response:
                             self.assertEqual(response.status, 200)
+                    for target, source in demo.OPTIONAL.items():
+                        with urlopen(f'{url}/{target}') as response:
+                            expected = (demo.ROOT/source).read_bytes() if (demo.ROOT/source).is_file() else b'null'
+                            self.assertEqual(response.read(), expected)
                     for road in ('wolfe', 'deanza'):
                         for name in ('card.json', 'plan.add.xml', 'pattern.csv', 'practice.json', 'road.yaml',
                                      'feed0.csv', 'feed1.csv', 'feed2.csv'):

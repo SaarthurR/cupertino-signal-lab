@@ -25,7 +25,7 @@ Every one of us must be able to explain the whole project, not only our own part
    - **Slides:** slides 1–9 are the talk, about 2.5 minutes plus the demo. Slides 10–17 are backup, only for judge questions. Press **N** for speaker notes. Read every note.
    - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Its Simulate screen runs two real simulations side by side on the real Wolfe Road map: today's timing on top, our plan below, same cars, with a live count of stuck cars.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
-3. Click this path in the console once: **Overview → Review recommendation → Approve → Run the simulation** (watch the whole evening play) **→ How it connects** (link at the bottom left).
+3. Click this path in the console once: **Corridors → Wolfe Road → Review recommendation → Approve → Run the simulation** (watch the whole evening play) **→ Deploy & monitor → How it connects** (left menu).
 4. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
 
 ### Step 2 · Learn your own part

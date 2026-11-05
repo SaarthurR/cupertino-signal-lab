@@ -10,34 +10,38 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="#/overview">
+  <a class="brand" href="#/corridors">
     <svg class="brand-mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="1" width="10" height="18" rx="3"/><circle cx="10" cy="5.5" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="10" cy="14.5" r="2"/></svg>
     <strong>Signal Learner</strong>
   </a>
-  <span class="tag">Simulation demo</span>
+  <span class="ws">Cupertino · Traffic signals</span>
+  <span class="top-r">
+    <span class="fixture" id="fixture" hidden>Fixture data · fake numbers</span>
+    <span class="sim-tag"><i aria-hidden="true"></i>Simulation · not connected to the city</span>
+  </span>
 </header>
 <div class="app">
   <nav class="side" aria-label="Screens">
     <ul class="nav" id="nav">
-      <li><a href="#/overview" data-screen="overview">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12v9H2zM2 9h3.5l1 1.5h3l1-1.5H14"/></svg>Overview</a></li>
-      <li><a href="#/wolfe/review" data-screen="review">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3zM5.5 9l1.8 1.8L10.8 7"/></svg>Review</a></li>
+      <li><a href="#/corridors" data-screen="corridors">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2v12M11 2v12M2 6h12M2 11h12"/></svg>Corridors</a></li>
+      <li><a href="#/wolfe/review" id="nav-review" data-screen="review">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3zM5.5 9l1.8 1.8L10.8 7"/></svg>Review<span class="nav-count" id="nav-count"></span></a></li>
       <li><a href="#/wolfe/simulate" data-screen="simulate">
         <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.8"/><path d="M6.6 5.6v4.8L10.4 8z"/></svg>Simulate</a></li>
+      <li><a href="#/wolfe/deploy" id="nav-deploy" data-screen="deploy">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12.5h12M4 10l2.5-3 2.5 2 3-4.5"/></svg>Deploy &amp; monitor</a></li>
+      <li><a href="#/connect" data-screen="connect">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.8"/><circle cx="12.5" cy="4" r="1.8"/><circle cx="12.5" cy="12" r="1.8"/><path d="M5.2 7.2l5.6-2.4M5.2 8.8l5.6 2.4"/></svg>How it connects</a></li>
     </ul>
-    <button type="button" class="nav-link" id="connect-open">How it connects</button>
+    <h2 class="nav-h" id="roads-h">Corridors</h2>
+    <ul class="nav roads" id="nav-roads" aria-labelledby="roads-h"></ul>
   </nav>
   <main id="main" tabindex="-1"></main>
 </div>
-<dialog id="connect" aria-labelledby="connect-title">
-  <div class="dialog-head">
-    <h2 id="connect-title">How it connects</h2>
-    <button type="button" class="btn ghost" id="connect-close">Close</button>
-  </div>
-  <div id="connect-body"></div>
-</dialog>
 <div id="print" aria-hidden="true"></div>
+<script src="charts.js"></script>
+<script src="sim.js"></script>
 <script src="console.js"></script>
 </body>
 </html>
