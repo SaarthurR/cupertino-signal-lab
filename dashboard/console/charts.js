@@ -51,7 +51,7 @@ function lineChart({ labels, series, unit, label, w = 640, h = 230 }) {
 
 /* ---------- Time-space diagram ---------- */
 
-function timeSpace(ts, signals, label, [t0, t1]) {
+function timeSpace(ts, signals, label, [t0, t1], hrefOf = () => '') {
   const w = 1120, h = 320, m = { l: 132, r: 14, t: 12, b: 28 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
   const xs = signals.map(s => s.x_m).filter(ok);
   const pts = ts.trajectories.flatMap(tr => tr.pts.map(p => p[1]));
@@ -65,14 +65,15 @@ function timeSpace(ts, signals, label, [t0, t1]) {
   placed.forEach((s, i) => labelY.set(s, i ? Math.min(y(s.x_m), labelY.get(placed[i - 1]) - 13) : y(s.x_m)));
   const rows = placed.map(s => {
     const greens = ts.green.filter(g => g.signal === s.id);
-    return `<g><text class="tick strong" x="${m.l - 10}" y="${labelY.get(s) + 4}" text-anchor="end">${esc(s.name)}</text>
+    const name = `<text class="tick strong" x="${m.l - 10}" y="${labelY.get(s) + 4}" text-anchor="end">${esc(s.name)}</text>`;
+    return `<g>${hrefOf(s) ? `<a class="ts-link" href="${hrefOf(s)}">${name}</a>` : name}
       <line class="ts-red" x1="${m.l}" x2="${m.l + iw}" y1="${y(s.x_m)}" y2="${y(s.x_m)}"/>
       ${greens.map(g => `<line class="ts-green" x1="${x(Math.max(t0, g.start_s))}" x2="${x(Math.min(t1, g.end_s))}" y1="${y(s.x_m)}" y2="${y(s.x_m)}"/>`).join('')}</g>`;
   }).join('');
   const paths = ts.trajectories.filter(tr => tr.pts.length > 1).map(tr =>
     `<polyline class="traj ${tr.dir === 'SB' ? 'sb' : 'nb'}" points="${tr.pts.filter(p => p[0] >= t0 && p[0] <= t1).map(p => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' ')}"/>`).join('');
   const nb = ts.trajectories.filter(t => t.dir !== 'SB').length, sb = ts.trajectories.length - nb;
-  return `<svg class="chart ts" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(`${label}. ${clock(t0)} to ${clock(t1)}. ${signals.length} signals by distance; ${nb} northbound and ${sb} southbound car paths.`)}">
+  return `<svg class="chart ts" viewBox="0 0 ${w} ${h}" role="group" aria-label="${esc(`${label}. ${clock(t0)} to ${clock(t1)}. ${signals.length} signals by distance; ${nb} northbound and ${sb} southbound car paths.`)}">
     <defs><clipPath id="ts-clip"><rect x="${m.l}" y="${m.t - 4}" width="${iw}" height="${ih + 8}"/></clipPath></defs>
     ${grid}${rows}<g clip-path="url(#ts-clip)">${paths}</g></svg>`;
 }
@@ -223,15 +224,17 @@ function nameAlong(ctx, geo, p, w, h, gapFromRoad) {
   }
 }
 
-// Static map with numbered signal markers; `pick` highlights one signal (0-based).
-function drawMap(box, geo, pick = -1) {
+// Static map with numbered signal markers; `pick` highlights one signal (0-based). links[i] = {href, label} makes marker i a real link.
+function drawMap(box, geo, pick = -1, links = []) {
   const { ctx, w, h } = canvasFor(box);
   const along = box.hasAttribute('data-along');
   const p = fit(geo, w, h, 22, along);
   drawRoads(ctx, geo, p);
   ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  box.querySelectorAll('a.mk').forEach(a => a.remove());
   geo.signals.forEach((sig, i) => {
     const [cx, cy] = centre(sig), x = p.x(cx, cy), y = p.y(cx, cy), on = pick < 0 || pick === i;
+    if (links[i]) box.insertAdjacentHTML('beforeend', `<a class="mk" href="${links[i].href}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" aria-label="${esc(links[i].label)}" title="${esc(links[i].label)}"></a>`);
     ctx.beginPath(); ctx.arc(x, y, 9, 0, 2 * Math.PI);
     ctx.fillStyle = on ? '#1d4ed8' : '#fff'; ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = on ? '#fff' : '#94a0b0'; ctx.stroke();

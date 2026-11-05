@@ -266,7 +266,25 @@ th .term .tip { font-weight: 450; }
 .inbox-item:hover h3 a { color: var(--accent); }
 .inbox-facts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; }
 .inbox-facts b { font-size: 13px; }
-.inbox-facts .term { position: relative; z-index: 1; }
+.inbox-facts .term, .inbox-facts .dl { position: relative; z-index: 1; }
+
+/* ---------- Drill-down links: look like the value they wrap ---------- */
+a.dl { color: inherit; text-decoration: none; border-radius: 3px; }
+a.dl:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+a.dl:hover .p, a.dl:hover .b, a.dl:hover b { color: var(--accent); }
+a.chips.dl { display: flex; }
+a.mini.dl { display: block; }
+.map .mk { position: absolute; width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; }
+.map .mk:hover { box-shadow: 0 0 0 3px rgba(29, 78, 216, .3); }
+.ts-link:hover text { fill: var(--accent); text-decoration: underline; }
+main [id][tabindex="-1"] { scroll-margin-top: 56px; }
+main [id][tabindex="-1"]:focus { outline: none; }
+.panel.flash { animation: flash 1.4s ease-out; }
+@keyframes flash { from { box-shadow: 0 0 0 3px rgba(29, 78, 216, .35); } to { box-shadow: 0 0 0 3px rgba(29, 78, 216, 0); } }
+.panel-f { display: flex; justify-content: flex-end; margin-top: 8px; }
+.each { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+.each-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 10px; align-items: start; }
+.each caption { text-align: left; font-weight: 600; font-size: 12px; padding: 0 0 6px; }
 
 /* ---------- Maps ---------- */
 .map { position: relative; width: 100%; }
@@ -364,10 +382,6 @@ th .term .tip { font-weight: 450; }
 .sched .row { margin-top: 8px; }
 .done { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; margin-bottom: 10px; }
 .note-q { border-left: 2px solid var(--line-strong); padding: 2px 0 2px 10px; color: var(--muted); margin-bottom: 10px; }
-.activity { list-style: none; margin: -4px 0; padding: 0; display: grid; gap: 0; font-size: 12px; }
-.activity li { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 5px 0; color: var(--muted); }
-.activity li + li { border-top: 1px solid var(--line); }
-.activity .num { color: var(--faint); }
 .links { list-style: none; margin: -6px 0; padding: 0; }
 .links li a { display: flex; align-items: center; gap: 8px; padding: 6px 0; text-decoration: none; }
 .links li a:hover { text-decoration: underline; }
