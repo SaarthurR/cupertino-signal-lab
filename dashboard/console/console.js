@@ -32,6 +32,7 @@ const TERMS = {
   heldout: 'Evenings the learner never saw, tested once with the rules written first.',
   jammed: 'The simulation had to remove stuck cars more often than with the current timing.',
   posthoc: 'Run after the frozen test; not part of the pre-registered result.',
+  tt: 'Completed end-to-end trips along the corridor.',
   rollback: 'Watches the sensor feed after a change and tells the engineer to go back if delay rises past its limit. Tested in simulation on deliberately bad plans and on harmless changes.',
 };
 const term = (key, text) => `<span class="term" tabindex="0">${text}<span class="tip" role="tooltip">${esc(TERMS[key])}</span></span>`;
@@ -240,16 +241,16 @@ function bar(list, cycle, scale, which) {
 const LEGEND_PHASE = '<div class="legend"><span><i class="sw g"></i>Green</span><span><i class="sw y"></i>Yellow</span><span><i class="sw r"></i>All-red</span></div>';
 const LEGEND_ARMS = d => `<div class="legend"><span><i class="ln base"></i>Current</span><span><i class="ln prop"></i>${propName(d)}</span></div>`;
 
-function by15Panel(d, rows, keys, viewKey, title, w = 640, drill = '') {
+function by15Panel(d, rows, keys, viewKey, title, w = 640, drill = '', sub = '') {
   if (!Array.isArray(rows) || !rows.length) return '';
   const avail = keys.filter(([k]) => rows.some(r => ok(r.baseline?.[k]) || ok(r.proposed?.[k])));
   if (!avail.length) return '';
   const cur = avail.find(([k]) => k === view[viewKey]) || avail[0], [k, name, unit] = cur;
   const chart = lineChart({
-    labels: rows.map(r => r.t), unit, w, label: `${title}: ${name} by 15 minutes, current and ${propName(d).toLowerCase()} timing`,
+    labels: rows.map(r => r.t), unit, w, label: `${title}${sub ? `, ${sub}` : ''}: ${name} by 15 minutes, current and ${propName(d).toLowerCase()} timing`,
     series: [{ name: 'Current', cls: 's-base', values: rows.map(r => r.baseline?.[k]) }, { name: propName(d), cls: 's-prop', values: rows.map(r => r.proposed?.[k]) }],
   });
-  return panel(`${esc(title)}`, `${chart}${drill ? `<div class="panel-f">${drill}</div>` : ''}`, { anchor: 'by15', tools: `${LEGEND_ARMS(d)}${avail.length > 1 ? toggle(viewKey, 'Measure', avail.map(([a, b]) => [a, b]), k) : ''}` });
+  return panel(`${esc(title)}${sub ? ` <span class="h-sub">${esc(sub)}</span>` : ''}`, `${chart}${drill ? `<div class="panel-f">${drill}</div>` : ''}`, { anchor: 'by15', tools: `${LEGEND_ARMS(d)}${avail.length > 1 ? toggle(viewKey, 'Measure', avail.map(([a, b]) => [a, b]), k) : ''}` });
 }
 
 /* ---------- 1 · Corridors ---------- */
@@ -270,7 +271,7 @@ function corridorsScreen(ds, ctx) {
     </li>`;
   }).join('');
   // shortcut: one column per direction across all corridors, so mixing NB/SB and EB/WB roads gives four columns with dashes; merge into two direction-labelled columns if an east-west corridor is added.
-  const dirs = [...new Set(ds.flatMap(d => ttDirs(d.m?.corridor)))];
+  const dirs = [...new Set(ds.flatMap(d => ttDirs(d.m?.corridor)))], seedOf = (ds.find(d => d.m?.seeds)?.m.seeds || []).join(', ');
   const mcell = (d, f, dp, unit, v) => { const c = d.m?.corridor, b = c && f(c.baseline || {}), p = c && f(c.proposed || {});
     return `<td class="n">${ok(b) && ok(p) ? dl(go(d.road, '', { p: 'by15', c15: v }), Math.abs(p - b) < 1e-9 ? `${fmt(b, dp)}<small>${unit}</small>` : `${cmp(b, p, dp, unit)} ${delta(b, p)}`) : '<span class="na">–</span>'}</td>`; };
   const rows = ds.map(d => {
@@ -291,7 +292,7 @@ function corridorsScreen(ds, ctx) {
       ${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
     </div>
     ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>
-      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${dirs.map(dir => `<th class="n">Travel time ${esc(dir)}</th>`).join('')}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
+      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${dirs.map(dir => `<th class="n">${term('tt', `Travel ${esc(dir)}`)} · seed ${esc(seedOf)}</th>`).join('')}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
   </div>`;
 }
 
@@ -304,8 +305,8 @@ function kpiPanel(d) {
   const sim = d.road === 'wolfe' ? '#/wolfe/simulate' : by('delay_s');
   const test = [kpi(term('score', 'Delay score'), h.oldMean, h.planMean, 0, 's', imp), kpi(term('unfinished', 'Unfinished trips'), h.unfOld, h.unfPlan, 0, '', imp),
     isChange(d) ? `<div class="kpi"><div class="kpi-l">Better on</div><a class="kpi-v dl" href="${imp}"><span class="p">${h.better}</span><small>of ${h.n}</small></a><div class="kpi-b">evenings</div></div>` : ''].join('');
-  const seed = c ? [kpi(term('score', 'Delay per car'), b.avg_delay_s_per_veh, p.avg_delay_s_per_veh, 1, 's', by('delay_s')), kpi('Stops per car', b.stops_per_veh, p.stops_per_veh, 2, '', sim),
-    ...ttDirs(c).map(dir => kpi(`Travel time ${esc(dir)}`, b.travel_time_s?.[dir], p.travel_time_s?.[dir], 0, 's', by(ttKey(dir)))),
+  const seed = c ? [kpi(term('score', 'Delay score'), b.avg_delay_s_per_veh, p.avg_delay_s_per_veh, 1, 's', by('delay_s')), kpi('Stops / completed trip', b.stops_per_veh, p.stops_per_veh, 2, '', sim),
+    ...ttDirs(c).map(dir => kpi(term('tt', `Travel time ${esc(dir)}`), b.travel_time_s?.[dir], p.travel_time_s?.[dir], 0, 's', by(ttKey(dir)))),
     kpi('CO₂', b.co2_kg, p.co2_kg, 0, 'kg', sim)].join('') : '';
   return `<section class="panel kpis" id="kpis" tabindex="-1" aria-label="Key results, current vs ${propName(d).toLowerCase()}">
     <div class="kpi-group"><h2 class="kpi-h">${term('heldout', `Held-out test · ${h.n} evenings`)}</h2><div class="kpi-row">${test}</div></div>
@@ -367,10 +368,10 @@ function timingSheet(d, sig) {
       <div><dt>${term('cycle', 'Cycle')}</dt><dd>${sameOr(sig.old.cycle_s, sig.new.cycle_s)} <small>s</small></dd></div>
       <div><dt>${term('offset', 'Offset')}</dt><dd>${sameOr(sig.old.offset_s, sig.new.offset_s)} <small>s</small></dd></div>
       <div><dt>Plan</dt><dd>${dl(go(d.road, 'deploy', { p: 'rollout' }), `PM peak ${esc(window_(d))}`)}</dd></div>
-      <div><dt>Controller</dt><dd class="mono" title="${esc(sig.sumo_tls_id)}">${dl(go(d.road, 'deploy', { p: 'controllers' }), esc(sig.sumo_tls_id))}</dd></div></dl>
+      <div><dt>Model signal ID</dt><dd class="mono" title="${esc(sig.sumo_tls_id)}">${dl(go(d.road, 'deploy', { p: 'controllers' }), esc(sig.sumo_tls_id))}</dd></div></dl>
     <div class="cycles"><span class="k">Current</span>${bar(old, sig.old.cycle_s, scale, 'old')}<span class="c num">${f1(sig.old.cycle_s)} s</span>
       <span class="k">${planName(d)}</span>${bar(neu, sig.new.cycle_s, scale, 'new')}<span class="c num strong">${f1(sig.new.cycle_s)} s</span></div>
-    <table class="tbl sheet-t"><thead><tr><th rowspan="2">Phase</th><th rowspan="2">${term('mv', 'Movements')}</th><th class="n" rowspan="2">Min green</th>
+    <table class="tbl sheet-t"><thead><tr><th rowspan="2">SUMO phase</th><th rowspan="2">${term('mv', 'Movements')}</th><th class="n" rowspan="2">Min green</th>
       <th class="n grp" colspan="3">Max green</th>${hasY ? '<th class="n" rowspan="2">Yellow</th>' : ''}${hasR ? '<th class="n" rowspan="2">All-red</th>' : ''}${hasS ? `<th class="n grp" colspan="2">${term('split', 'Split')}</th>` : ''}</tr>
       <tr><th class="n">Now</th><th class="n">Plan</th><th class="n">Δ</th>${hasS ? '<th class="n">Now</th><th class="n">Plan</th>' : ''}</tr></thead>
     <tbody>${old.map((p, i) => `<tr><td class="n">${p.phase}</td><td>${moves(p.serves)}</td><td class="n">${f1(p.min_green_s)}</td>
@@ -379,26 +380,29 @@ function timingSheet(d, sig) {
     ${sig.reason && isChange(d) ? `<p class="reason"><span>Reason</span>${esc(sig.reason.replace(/\b([NSEW]):([LRT]+)/g, (_, leg, t) => `${BOUND[leg]} ${t}`))}</p>` : ''}`;
 }
 
-// Each cell links to what explains it: PCD for arrivals on green (its approach only), the timing sheet for volume and split
-// failures (the plan's reason and splits), the signal's 15-minute chart for delay and queue.
+// Each cell links to what explains it: PCD for arrivals on green (its approach only), that approach's 15-minute chart for
+// AOG, delay, queue and split failures (queue left at red). Volume has no series, so it is a plain value.
 function approachTable(d, ms, i) {
   const rows = ms?.approaches;
   if (!Array.isArray(rows) || !rows.length) return '';
-  const sp = `signal/${i + 1}`, timing = go(d.road, sp, { p: 'timing' }), by = v => go(d.road, sp, { p: 'by15', s15: v });
-  const pcdOf = r => r.approach === ms.pcd?.approach ? go(d.road, sp, { p: 'pcd' }) : by('aog_pct');
-  const cols = [['volume_vph', 'Volume', 'vph', 0, () => timing], ['aog_pct', term('aog', 'AOG'), '%', 0, pcdOf], ['split_failures', term('sf', 'Split fail.'), '', 0, () => timing],
-    ['avg_delay_s', 'Delay', 's', 1, () => by('delay_s')], ['max_queue_veh', 'Max queue', 'veh', 0, () => by('queue_veh')]]
+  const sp = `signal/${i + 1}`, by = (v, r) => go(d.road, sp, { p: 'by15', s15: v, ...(Array.isArray(r.by15) ? { a: r.approach } : {}) });
+  const pcdOf = r => r.approach === ms.pcd?.approach ? go(d.road, sp, { p: 'pcd' }) : by('aog_pct', r);
+  const cols = [['volume_vph', 'Volume', 'vph', 0, null], ['aog_pct', term('aog', 'AOG'), '%', 0, pcdOf], ['split_failures', term('sf', 'Split fail.'), '', 0, r => by('queue_veh', r)],
+    ['avg_delay_s', 'Delay', 's', 1, r => by('delay_s', r)], ['max_queue_veh', 'Max queue', 'veh', 0, r => by('queue_veh', r)]]
     .filter(([k]) => rows.some(r => ok(r.baseline?.[k])));
+  const cell = (r, k, dp) => k === 'volume_vph' && r.baseline?.[k] === r.proposed?.[k] ? fmt(r.baseline[k]) : cmp(r.baseline?.[k], r.proposed?.[k], dp);
   return `<table class="tbl compact"><thead><tr><th>Approach</th>${cols.map(([, t, u]) => `<th class="n">${t}${u ? ` <small>${u}</small>` : ''}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(r => `<tr><td class="strong">${dl(pcdOf(r), esc(r.approach), `${r.approach} approach: ${r.approach === ms.pcd?.approach ? 'coordination diagram' : 'by 15 minutes'}`)}</td>${cols.map(([k, , , dp, href]) => `<td class="n">${ok(r.baseline?.[k]) ? dl(href(r), k === 'volume_vph' && r.baseline?.[k] === r.proposed?.[k] ? fmt(r.baseline[k]) : cmp(r.baseline?.[k], r.proposed?.[k], dp)) : cmp()}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    <tbody>${rows.map(r => `<tr><td class="strong">${dl(pcdOf(r), esc(r.approach), `${r.approach} approach: ${r.approach === ms.pcd?.approach ? 'coordination diagram' : 'by 15 minutes'}`)}</td>${cols.map(([k, , , dp, href]) => `<td class="n">${ok(r.baseline?.[k]) ? (href ? dl(href(r), cell(r, k, dp)) : cell(r, k, dp)) : cmp()}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 }
 
 function pcdPanel(d, ms) {
   const p = ms?.pcd;
   if (!p || (!p.baseline?.arrivals?.length && !p.proposed?.arrivals?.length)) return '';
-  const a = ms.approaches?.find(x => x.approach === p.approach);
-  const one = (k, name) => p[k]?.arrivals?.length ? `<figure class="pcd-fig"><figcaption><b>${name}</b>${ok(a?.[k]?.aog_pct) ? `<span>${term('aog', 'AOG')} ${fmt(a[k].aog_pct)}%</span>` : ''}<span>${fmt(p[k].arrivals.length)} arrivals</span></figcaption>
-    ${pcd(p[k], `Purdue Coordination Diagram, ${esc(p.approach || '')} approach, ${name.toLowerCase()} timing`)}</figure>` : '';
+  const a = ms.approaches?.find(x => x.approach === p.approach), top = Math.max(pcdTop(p.baseline), pcdTop(p.proposed));
+  // The export keeps at most 3,000 arrivals per arm, evenly sampled.
+  const count = n => `${fmt(n)} ${n >= 3000 ? 'sampled arrivals' : 'arrivals'}`;
+  const one = (k, name) => p[k]?.arrivals?.length ? `<figure class="pcd-fig"><figcaption><b>${name}</b>${ok(a?.[k]?.aog_pct) ? `<span>${term('aog', 'AOG')} ${fmt(a[k].aog_pct)}%</span>` : ''}<span>${count(p[k].arrivals.length)}</span></figcaption>
+    ${pcd(p[k], `Purdue Coordination Diagram, ${esc(p.approach || '')} approach, ${name.toLowerCase()} timing`, top)}</figure>` : '';
   return panel(`${term('pcd', 'Purdue Coordination Diagram')}${p.approach ? ` <span class="h-sub">${esc(p.approach)} approach</span>` : ''}`,
     `<div class="pcd-pair">${one('baseline', 'Current')}${one('proposed', propName(d))}</div>`,
     { anchor: 'pcd', tools: '<div class="legend"><span><i class="sw gband"></i>Green</span><span><i class="dot"></i>Car arrival</span></div>' });
@@ -406,6 +410,7 @@ function pcdPanel(d, ms) {
 
 function signalScreen(d, i) {
   const sig = d.card.signals[i], ms = metricSignal(d, sig), n = d.card.signals.length;
+  const ap = ms?.approaches?.find(x => x.approach === route.a && Array.isArray(x.by15));
   const nav = `${i > 0 ? `<a class="btn" href="${go(d.road, `signal/${i}`)}" aria-label="Previous signal: ${esc(d.card.signals[i - 1].signal)}">‹ Prev</a>` : ''}
     ${i < n - 1 ? `<a class="btn" href="${go(d.road, `signal/${i + 2}`)}" aria-label="Next signal: ${esc(d.card.signals[i + 1].signal)}">Next ›</a>` : ''}
     <a class="btn primary" href="${go(d.road, 'review')}">${isChange(d) ? 'Review recommendation' : 'Open recommendation'} ›</a>`;
@@ -413,14 +418,15 @@ function signalScreen(d, i) {
     ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], [sig.signal]])}
     ${head(sig.signal, { status: `<span class="badge lg">${i + 1}</span>`, meta: [`Signal ${i + 1} of ${n}`, dl(go(d.road), esc(d.info.street)), `${sig.old.greens.length} phases`], actions: nav })}
     <div class="grid g-sig">
-      ${panel('Timing sheet', timingSheet(d, sig), { tools: LEGEND_PHASE, anchor: 'timing' })}
+      ${panel('Timing sheet <span class="h-sub">Simulation plan</span>', timingSheet(d, sig), { tools: LEGEND_PHASE, anchor: 'timing' })}
       <div class="col">
         ${panel('Location', `<div class="map loc" data-road="${d.road}" data-pick="${i}" data-along data-links role="group" aria-label="Map of ${esc(d.info.street)} with ${esc(sig.signal)} highlighted."></div>`)}
         ${panel('Approaches', approachTable(d, ms, i), { tools: LEGEND_ARMS(d).replace('legend', 'legend txt'), anchor: 'approaches' })}
       </div>
     </div>
     ${pcdPanel(d, ms)}
-    ${by15Panel(d, ms?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ['aog_pct', 'AOG', '%']], 's15', 'By 15 minutes', 1120)}
+    ${by15Panel(d, ap?.by15 || ms?.by15, [['delay_s', 'Delay', 's'], ['queue_veh', 'Queue', 'veh'], ['aog_pct', 'AOG', '%']], 's15', 'By 15 minutes', 1120,
+      ap ? `<a class="btn sm ghost" href="${go(d.road, `signal/${i + 1}`, { p: 'by15' })}">All approaches ›</a>` : '', ap ? `${ap.approach} approach` : 'All approaches')}
   </div>`;
 }
 
@@ -429,7 +435,7 @@ function signalScreen(d, i) {
 function diffTable(d) {
   const scale = Math.max(...d.card.signals.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
   return `<table class="tbl diff"><thead><tr><th class="n">#</th><th>Signal</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th>
-    <th>Max green by phase, s</th><th class="w-bars">One cycle</th><th class="n"><span class="sr">Evidence</span></th></tr></thead>
+    <th>Max green by SUMO phase, s</th><th class="w-bars">Configured max-green sequence</th><th class="n"><span class="sr">Evidence</span></th></tr></thead>
     <tbody>${d.card.signals.map((s, i) => {
       const old = phases(d, s, 'old'), neu = phases(d, s, 'new');
       const greens = old.map((p, k) => {
@@ -542,7 +548,7 @@ function sheet(d) {
       const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
       return `<div class="int"><h3>${esc(sig.signal)}</h3>
         <p class="small">Cycle ${ch(sig.old.cycle_s, sig.new.cycle_s)} s · Offset ${ch(sig.old.offset_s, sig.new.offset_s)} s</p>
-        <table><thead><tr><th>Phase</th><th>Movements</th><th class="n">Min green</th><th class="n">Max green</th><th class="n">Yellow</th><th class="n">All-red</th><th class="n">Split</th></tr></thead><tbody>
+        <table><thead><tr><th>SUMO phase</th><th>Movements</th><th class="n">Min green</th><th class="n">Max green</th><th class="n">Yellow</th><th class="n">All-red</th><th class="n">Split</th></tr></thead><tbody>
         ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="n">${f1(p.min_green_s)}</td><td class="n">${ch(p.max_green_s, neu[i].max_green_s)}</td>
           <td class="n">${opt(p.yellow)}</td><td class="n">${opt(p.red)}</td><td class="n">${ok(p.split) && ok(neu[i].split) ? ch(p.split, neu[i].split) : opt()}</td></tr>`).join('')}
         </tbody></table></div>`;
@@ -573,14 +579,14 @@ function deployScreen(d) {
     : s === 'deployed' ? '<button class="btn danger" data-action="rollback">Roll back</button>'
       : ['approved', 'scheduled', 'rolled_back'].includes(s) ? `<button class="btn primary" data-action="deploy">${s === 'rolled_back' ? 'Deploy again' : `Deploy to ${n} controllers`}</button>`
         : `<a class="btn primary" href="#/${d.road}/review">Review recommendation</a>`;
-  const steps = [['Review', true], ['Approve', !['pending', 'rejected'].includes(s)], ['Deploy', ['deployed', 'rolled_back'].includes(s)], ['Watch', s === 'deployed']];
+  const steps = [['Review', true], ['Approve', !['pending', 'rejected'].includes(s)], ['Deploy', ['deployed', 'rolled_back'].includes(s)], ['Evidence', s === 'deployed']];
   const stepper = isChange(d) ? `<ol class="steps" aria-label="Progress">${steps.map(([t, on]) => `<li class="${on ? 'on' : ''}">${t}</li>`).join('')}</ol>` : '';
   const sig0 = sigs[0];
   const plan = isChange(d) ? `<table class="tbl"><thead><tr><th>Time-of-day plan</th><th>Window</th><th class="n">${term('cycle', 'Cycle')} s</th><th>Controllers</th></tr></thead><tbody>
       <tr><td class="strong">PM peak · Signal Learner</td><td>${esc(window_(d))}</td><td class="n">${dl(go(d.road, 'review', { p: 'changes' }), f1(sig0.new.cycle_s))}</td><td>${dl(go(d.road, 'deploy', { p: 'controllers' }), `${n} of ${n}`)}</td></tr>
       <tr><td>All other times</td><td>–</td><td class="n na">unchanged</td><td>–</td></tr></tbody></table>`
     : '<p class="empty">Nothing to deploy · current timing kept</p>';
-  const ctl = `<table class="tbl"><thead><tr><th class="n">#</th><th>Intersection</th><th>Controller</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th><th>Status</th></tr></thead>
+  const ctl = `<table class="tbl"><thead><tr><th class="n">#</th><th>Intersection</th><th>Model signal ID</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th><th>Status</th></tr></thead>
     <tbody>${sigs.map((x, i) => { const timing = go(d.road, `signal/${i + 1}`, { p: 'timing' }); return `<tr><td class="n"><span class="badge">${i + 1}</span></td><td><a class="strong" href="${go(d.road, `signal/${i + 1}`)}">${esc(x.signal)}</a></td>
       <td class="mono" title="${esc(x.sumo_tls_id)}">${esc(x.sumo_tls_id)}</td><td class="n">${dl(timing, sameOr(x.old.cycle_s, x.new.cycle_s))}</td><td class="n">${dl(timing, sameOr(x.old.offset_s, x.new.offset_s))}</td>
       <td><span class="pill ${ctlStatus[1]}">${ctlStatus[0]}</span></td></tr>`; }).join('')}</tbody></table>`;
@@ -604,7 +610,7 @@ function deployScreen(d) {
     ${head(`Deploy & monitor · ${d.info.street}`, { status: pill(d), meta: [`${n} controllers`, `PM peak ${esc(window_(d))}`, 'Simulated rollout · no real controller is touched'], actions })}
     ${stepper}
     <div class="grid g-deploy">${panel('Rollout plan', plan, { anchor: 'rollout' })}${panel('Controllers', ctl, { anchor: 'controllers' })}</div>
-    ${panel('Watch after deploy', watch, { anchor: 'watch' })}
+    ${panel('Saved simulation evidence', watch, { anchor: 'watch' })}
     ${auditPanel()}
   </div>`;
 }
@@ -687,7 +693,7 @@ function parseRoute() {
   if (b === 'simulate' || b === 'test') return { road: 'wolfe', screen: 'simulate', run: q.has('run') };
   if (b === 'deploy') return { road: a, screen: 'deploy', p };
   if (b === 'connect') return { road: a, screen: 'connect', p };
-  if (b === 'signal') return { road: a, screen: 'signal', i: Number(c) - 1, p };
+  if (b === 'signal') return { road: a, screen: 'signal', i: Number(c) - 1, p, a: q.get('a') || '' };
   return { road: a, screen: 'corridor', p };
 }
 
@@ -781,7 +787,13 @@ main.addEventListener('click', async event => {
     return;
   }
   const v = event.target.closest('[data-view]');
-  if (v) { view[v.dataset.view] = v.dataset.val; return rerender(`[data-view="${v.dataset.view}"][data-val="${v.dataset.val}"]`); }
+  if (v) {
+    view[v.dataset.view] = v.dataset.val;
+    // render() re-reads the hash, so a view set by a drill-down link must be replaced there too.
+    const [hash, query = ''] = location.hash.split('?'), q = new URLSearchParams(query);
+    if (q.has(v.dataset.view)) { q.set(v.dataset.view, v.dataset.val); q.delete('p'); history.replaceState(null, '', `${hash}?${q}`); }
+    return rerender(`[data-view="${v.dataset.view}"][data-val="${v.dataset.val}"]`);
+  }
   const button = event.target.closest('[data-action]');
   if (!button) return;
   const action = button.dataset.action;

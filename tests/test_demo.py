@@ -232,11 +232,11 @@ class DemoTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             url = self.serve(temp)
             with mock.patch.object(demo, 'live_ready', return_value='The simulator is not installed for this Python.'):
-                with self.assertRaises(HTTPError) as caught:
-                    urlopen(url+'/api/sim/stream', timeout=10)
-                self.assertEqual(caught.exception.code, 503)
-                self.assertIn('not installed', json.loads(caught.exception.read())['reason'])
-                caught.exception.close()
+                with urlopen(url+'/api/sim/stream', timeout=10) as response:
+                    self.assertEqual(response.status, 200)
+                    events = sse(response.read().decode())
+                self.assertEqual(events, [('unavailable', dict(reason='The simulator is not installed for this Python.'))])
+                self.assertFalse(demo.SIM_LOCK.locked())
             with mock.patch.object(demo, 'live_ready', return_value=None), demo.SIM_LOCK:
                 with self.assertRaises(HTTPError) as caught:
                     urlopen(url+'/api/sim/stream', timeout=10)

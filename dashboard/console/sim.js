@@ -59,7 +59,7 @@ function endCard(d, final, recorded) {
       <p class="score">${f1(h.oldMean)} s → <b>${f1(h.planMean)} s</b></p>
       <p class="pct">${pct(h.oldMean, h.planMean)}</p>
       <p class="xs muted" style="margin-top:6px">Better on ${betterOn(h)}. This is the headline result.</p></div>
-    <div class="foot"><span class="small">After approval, Signal Learner keeps watching and switches back if traffic gets worse.</span>
+    <div class="foot"><span class="small">Next: review the simulated rollout and saved roll-back rule results.</span>
       <span class="row"><button class="btn" data-action="start">Replay</button><a class="btn primary" href="#/${d.road}/deploy">Deploy &amp; monitor</a></span></div>
   </div>`;
 }
@@ -177,14 +177,10 @@ class Player {
     try {
       const response = await fetch('/api/sim/stream', { signal: this.abort.signal });
       if (!response.ok) throw new Error((await response.json().catch(() => ({}))).reason || `HTTP ${response.status}`);
-      this.live = true;
-      this.setSource('Live · SUMO', 'live');
-      this.control({ speed: this.speed, paused: false });
-      this.loop();
       await this.read(response.body.getReader());
     } catch (err) {
       if (err.name === 'AbortError') return;
-      if (this.live && this.frames.length) return this.fail(err.message);
+      if (this.live) return this.fail(err.message);
       this.live = false;
       this.reason = err.message;
       try {
@@ -211,7 +207,13 @@ class Player {
         const kind = (block.match(/^event: (.+)$/m) || [])[1], body = (block.match(/^data: (.+)$/m) || [])[1];
         if (!kind || !body) continue;
         const value = JSON.parse(body);
-        if (kind === 'frame') this.frames.push(fromLive(value));
+        if (kind === 'status') {
+          this.live = true;
+          this.setSource('Live · SUMO', 'live');
+          this.control({ speed: this.speed, paused: false });
+          this.loop();
+        } else if (kind === 'unavailable') throw new Error(value.reason);
+        else if (kind === 'frame') this.frames.push(fromLive(value));
         else if (kind === 'end') this.final = value;
         else if (kind === 'failed') throw new Error(value.reason);
       }

@@ -56,13 +56,14 @@ const trajDirs = side => [...new Set((side?.trajectories || []).map(t => t.dir))
 
 function timeSpace(ts, signals, label, [t0, t1], hrefOf = () => '') {
   const dirs = trajDirs(ts);
-  const w = 1120, h = 320, m = { l: 132, r: 14, t: 12, b: 28 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
+  const w = 1120, h = 320, m = { l: 132, r: 52, t: 12, b: 28 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
   const xs = signals.map(s => s.x_m).filter(ok);
   const pts = ts.trajectories.flatMap(tr => tr.pts.map(p => p[1]));
   const lo = Math.min(...xs, ...pts), hi = Math.max(...xs, ...pts), span = hi - lo || 1;
   const x = t => m.l + (t - t0) / (t1 - t0) * iw, y = d => m.t + ih - (d - lo) / span * ih;
   const minute = ticks(t0, t1, 10).filter(t => t >= t0 && t <= t1 && t % 60 === 0);
-  const grid = minute.map(t => `<line class="gl" x1="${x(t)}" x2="${x(t)}" y1="${m.t}" y2="${m.t + ih}"/><text class="tick" x="${x(t)}" y="${h - 8}" text-anchor="middle">${clock(t)}</text>`).join('');
+  const grid = minute.map(t => `<line class="gl" x1="${x(t)}" x2="${x(t)}" y1="${m.t}" y2="${m.t + ih}"/><text class="tick" x="${x(t)}" y="${h - 8}" text-anchor="middle">${clock(t)}</text>`).join('')
+    + ticks(lo, hi, 4).filter(d => d >= lo && d <= hi).map(d => `<text class="tick" x="${m.l + iw + 6}" y="${y(d) + 4}">${fmt(d)} m</text>`).join('');
   // Labels keep 13 px apart; the lines stay at their true distance.
   const placed = signals.filter(s => ok(s.x_m)).sort((a, b) => y(b.x_m) - y(a.x_m));
   const labelY = new Map();
@@ -86,12 +87,14 @@ function timeSpace(ts, signals, label, [t0, t1], hrefOf = () => '') {
 
 // green holds one [start, end] per cycle; cycle_starts (same length) places each band at its real time.
 // Older exports without cycle_starts fall back to spreading cycles evenly over the arrivals' span.
-function pcd(side, label) {
+// yTop: shared top of the seconds-in-cycle axis, so a before/after pair compares at one scale.
+const pcdTop = side => Math.max(...(side?.arrivals || []).map(a => a[1]), ...(side?.green || []).map(g => g[1]));
+function pcd(side, label, yTop = pcdTop(side)) {
   const arr = side.arrivals || [], green = side.green || [];
   if (!arr.length) return '';
   const w = 540, h = 260, m = { l: 40, r: 10, t: 12, b: 28 }, iw = w - m.l - m.r, ih = h - m.t - m.b;
   const t0 = Math.min(...arr.map(a => a[0])), t1 = Math.max(...arr.map(a => a[0])), span = t1 - t0 || 1;
-  const ymax = ticks(0, Math.max(...arr.map(a => a[1]), ...green.map(g => g[1])), 4);
+  const ymax = ticks(0, yTop, 4);
   const top = ymax[ymax.length - 1] || 1;
   const x = t => m.l + (t - t0) / span * iw, y = v => m.t + ih - v / top * ih, cw = iw / (green.length || 1);
   const cs = side.cycle_starts, real = Array.isArray(cs) && cs.length === green.length && cs.length > 1;

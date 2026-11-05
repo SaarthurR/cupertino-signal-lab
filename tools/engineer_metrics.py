@@ -252,14 +252,16 @@ def run(cfg, net, path, seed, positions, axis):
             aog_pct=mean([100*green for _, green, _ in points]) if all(green is not None for _, green, _ in points) else None, split_failures=split_failures[k],
             avg_delay_s=round(loss[k]/len(visits[k]), 3) if visits[k] else None,
             max_queue_veh=queue_max[k])
-    signal_by15 = {}
-    for sid, selected in sid_keys.items():
-        signal_by15[sid] = []
+    def quarter_hours(selected):
+        out = []
         for b in range((end-begin)//900):
             n = sum(len(by_visits[k, b]) for k in selected)
             a = [green for k in selected for _, green, bucket in arrivals[k] if bucket == b]
-            signal_by15[sid].append(dict(t=clock(begin+b*900), delay_s=round(sum(by_loss[k, b] for k in selected)/n, 3) if n else None,
-                                        queue_veh=sum(mean(by_queue[k, b]) or 0 for k in selected), aog_pct=mean([100*g for g in a]) if all(g is not None for g in a) else None))
+            out.append(dict(t=clock(begin+b*900), delay_s=round(sum(by_loss[k, b] for k in selected)/n, 3) if n else None,
+                            queue_veh=sum(mean(by_queue[k, b]) or 0 for k in selected), aog_pct=mean([100*g for g in a]) if all(g is not None for g in a) else None))
+        return out
+    signal_by15 = {sid: quarter_hours(selected) for sid, selected in sid_keys.items()}
+    approach_by15 = {k: quarter_hours([k]) for k in keys}
     headline = dict(avg_delay_s_per_veh=stats['all_requested_delay_s'], stops_per_veh=stats['mean_waiting_count'],
                     travel_time_s={d: mean([duration for _, duration in travels[d]]) for d in directions}, unfinished_trips=stats['unfinished'],
                     vehicles=stats['requested'], **emissions)
@@ -270,7 +272,7 @@ def run(cfg, net, path, seed, positions, axis):
         for start in range(WINDOW[0], WINDOW[1], 60):
             candidates = [pts for (_, d), pts in paths.items() if d == direction and start <= pts[0][0] < start+60]
             trajectories.extend(dict(dir=direction, pts=pts) for pts in sample(candidates, 4))
-    return dict(headline=headline, by15=by15, approaches=approaches, signal_by15=signal_by15,
+    return dict(headline=headline, by15=by15, approaches=approaches, signal_by15=signal_by15, approach_by15=approach_by15,
                 pcd_points=pcd_points, pcd_bands=pcd_bands, cycle_starts=cycle_starts, stats=stats,
                 emission_classes=sorted(emission_classes), time_space=dict(green=greens, trajectories=trajectories))
 
@@ -313,7 +315,8 @@ def export(name, seed=200):
         main = [k for k in keys if k[1] in (('NB', 'SB') if axis else ('EB', 'WB'))]
         chosen = max(main, key=lambda k: sides['baseline']['approaches'][k]['volume_vph']) if main else None
         out['signals'].append(dict(id=sid, name=signal['name'], x_m=positions[sid], timing={a: ts[sid] for a, ts in timings.items()},
-            approaches=[dict(approach=k[1], **{a: s['approaches'][k] for a, s in sides.items()}) for k in keys],
+            approaches=[dict(approach=k[1], **{a: s['approaches'][k] for a, s in sides.items()},
+                             by15=merge(sides['baseline']['approach_by15'][k], sides['proposed']['approach_by15'][k])) for k in keys],
             by15=merge(sides['baseline']['signal_by15'][sid], sides['proposed']['signal_by15'][sid]),
             pcd=dict(approach=chosen[1] if chosen else None, **{a: dict(arrivals=sample(s['pcd_points'][chosen], 3000),
                 green=s['pcd_bands'][chosen], cycle_starts=s['cycle_starts'][sid]) for a, s in sides.items()})))

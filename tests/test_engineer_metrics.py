@@ -8,6 +8,8 @@ import unittest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+PRACTICE_SCORES = {('homestead', 'baseline'): (132.34455068986205, 0), ('homestead', 'proposed'): (75.89342291541692, 0),
+                   ('stevens_creek', 'baseline'): (717.6687771704588, 918), ('stevens_creek', 'proposed'): (465.9814077793314, 76)}
 
 
 class EngineerMetricsTest(unittest.TestCase):
@@ -62,6 +64,9 @@ class EngineerMetricsTest(unittest.TestCase):
                         ref = refs[name, ref_arm]
                         self.assertAlmostEqual(h['avg_delay_s_per_veh'], float(ref['all_requested_delay_s']), places=6)
                         self.assertEqual(h['unfinished_trips'], int(ref['unfinished']))
+                    else:  # practice roads have no held-out reference; pin the scores the exporter has always produced
+                        self.assertAlmostEqual(h['avg_delay_s_per_veh'], PRACTICE_SCORES[name, arm][0], places=6)
+                        self.assertEqual(h['unfinished_trips'], PRACTICE_SCORES[name, arm][1])
                     self.assertGreater(h['vehicles'], h['unfinished_trips'])
                     series = data['corridor']['by15']
                     self.assertEqual(len(series), 8)
@@ -83,6 +88,9 @@ class EngineerMetricsTest(unittest.TestCase):
                         self.assertEqual(len(signal['by15']), 8)
                         for point in signal['by15']:
                             self.assertEqual(set(point[arm]), {'delay_s', 'queue_veh', 'aog_pct'})
+                        # The approach series split the intersection series: queues add up per 15 minutes.
+                        for b, point in enumerate(signal['by15']):
+                            self.assertAlmostEqual(point[arm]['queue_veh'], sum(a['by15'][b][arm]['queue_veh'] for a in signal['approaches']), places=6)
                         timing = signal['timing'][arm]
                         self.assertEqual(set(timing), {'cycle_s', 'offset_s', 'phases'})
                         saved = saved_timings[signal['id']]['new' if arm == 'proposed' and recommendation['decision'] == 'change' else 'old']
@@ -95,6 +103,10 @@ class EngineerMetricsTest(unittest.TestCase):
                             self.assertIsNone(phase['yellow_s'])
                             self.assertIsNone(phase['red_s'])
                         for a in signal['approaches']:
+                            self.assertEqual(set(a), {'approach', 'baseline', 'proposed', 'by15'})
+                            self.assertEqual([p['t'] for p in a['by15']], [p['t'] for p in signal['by15']])
+                            for point in a['by15']:
+                                self.assertEqual(set(point[arm]), {'delay_s', 'queue_veh', 'aog_pct'})
                             self.assertEqual(set(a[arm]), approach)
                             self.assertIsInstance(a[arm]['split_failures'], int)
                             self.assertGreaterEqual(a[arm]['split_failures'], 0)

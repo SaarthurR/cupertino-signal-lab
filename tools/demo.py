@@ -112,8 +112,9 @@ class Handler(SimpleHTTPRequestHandler):
     def stream(self):
         """Server-Sent Events: both Wolfe plans run live in SUMO, same traffic, same clock, paced to SIM['speed']."""
         reason = live_ready()
-        if reason:
-            return self.send_json(503, dict(ok=False, reason=reason))
+        if reason:  # expected on laptops without SUMO: an answer, not an error, so the console quietly plays the recording
+            self.start_events()
+            return self.event('unavailable', dict(reason=reason))
         if not SIM_LOCK.acquire(blocking=False):
             return self.send_json(409, dict(ok=False, reason='A simulation is already running.'))
         context = multiprocessing.get_context('spawn')
@@ -124,10 +125,7 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             for process in workers:
                 process.start()
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/event-stream')
-            self.send_header('Cache-Control', 'no-store')
-            self.end_headers()
+            self.start_events()
             self.event('status', dict(phase='starting'))
             self.pace(arms, queues, workers, time.monotonic()+SIM_MAX_S)
         except (BrokenPipeError, ConnectionResetError):
@@ -186,6 +184,12 @@ class Handler(SimpleHTTPRequestHandler):
                 self.event('frame', dict(t=t, **{arm: last[arm] for arm in arms if arm in last}))
                 sent = t
         self.event('end', dict(seed=live_sim.SEED, **done))
+
+    def start_events(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/event-stream')
+        self.send_header('Cache-Control', 'no-store')
+        self.end_headers()
 
     def event(self, kind, value):
         self.wfile.write(f'event: {kind}\ndata: {json.dumps(value, separators=(",", ":"))}\n\n'.encode())
