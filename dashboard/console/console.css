@@ -488,6 +488,11 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; font-w
   :root { background: #fff; }
 }
 
+@media (max-width: 1480px) {
+  .g-review { grid-template-columns: minmax(0, 1fr); }
+  .tbl th, .tbl td.n, .tbl .nw, .tbl .pill { white-space: normal; }
+  .tbl .tip { max-width: 200px; }
+}
 @media (max-width: 1180px) {
   .g-map, .g-2, .g-sig, .g-review, .g-deploy { grid-template-columns: minmax(0, 1fr); }
   .kpi-group + .kpi-group { border-left: 0; border-top: 1px solid var(--line); }
