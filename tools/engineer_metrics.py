@@ -86,8 +86,9 @@ def run(cfg, net, path, seed, positions, axis):
     routes = {v.get('id'): v.find('route').get('edges').split()
               for v in ET.parse(worlds.routes(cfg['name'])).getroot().findall('vehicle')}
     detectors = {f'metrics_{i}': lane for i, lane in enumerate(lane_ids)}
-    greens, paths, chosen = [], {}, defaultdict(set)
+    greens, paths = [], {}
     cycle_start, previous_phase, open_green = {}, {}, {}
+    cycle_starts = defaultdict(list)
     pcd_points, pcd_bands = defaultdict(list), defaultdict(list)
     split_failures, green_queue, was_green = defaultdict(int), {}, {}
     emission_classes, emissions, travels = set(), {}, defaultdict(list)
@@ -121,8 +122,9 @@ def run(cfg, net, path, seed, positions, axis):
                 phases = {sid: sumo.trafficlight.getPhase(sid) for sid in sid_keys}
                 t0 = sumo.simulation.getTime()
                 for sid, phase in phases.items():
-                    if phase == 0 and previous_phase.get(sid) != 0:
+                    if phase == 0 and sid in previous_phase and previous_phase[sid] != 0:
                         cycle_start[sid] = t0
+                        cycle_starts[sid].append(t0)
                     previous_phase[sid] = phase
                 sumo.simulationStep()
                 t = sumo.simulation.getTime()
@@ -195,16 +197,13 @@ def run(cfg, net, path, seed, positions, axis):
                             loss[k] += delta
                             by_visits[k, bucket].add(vid)
                             by_loss[k, bucket] += delta
-                    if WINDOW[0] <= t <= WINDOW[1] and int(t) % 5 == 0:
+                    if WINDOW[0] <= t < WINDOW[1] and int(t) % 5 == 0:
                         edge = lane.rsplit('_', 1)[0] if lane and not lane.startswith(':') else None
                         if edge in cfg['mainline_edges']:
                             e = net.getEdge(edge)
                             direction = ('NB' if e.getToNode().getCoord()[1] > e.getFromNode().getCoord()[1] else 'SB') if axis == 1 else ('EB' if e.getToNode().getCoord()[0] > e.getFromNode().getCoord()[0] else 'WB')
-                            if vid not in chosen[direction] and len(chosen[direction]) < 40:
-                                chosen[direction].add(vid)
-                            if vid in chosen[direction]:
-                                coordinate = values[tc.VAR_POSITION][axis]-positions['_origin']
-                                paths.setdefault((vid, direction), []).append([t, round(coordinate, 2)])
+                            coordinate = values[tc.VAR_POSITION][axis]-positions['_origin']
+                            paths.setdefault((vid, direction), []).append([t, round(coordinate, 2)])
                 for vid in sumo.simulation.getArrivedIDList():
                     previous_loss.pop(vid, None)
         finally:
@@ -266,9 +265,14 @@ def run(cfg, net, path, seed, positions, axis):
                     vehicles=stats['requested'], **emissions)
     by15 = [dict(t=clock(begin+b*900), delay_s=by_score[b], queue_veh=round(sum(mean(by_queue[k, b]) or 0 for k in keys), 3),
                  **{f'tt_{d.lower()}_s': mean([duration for entry, duration in travels[d] if begin+b*900 <= entry < begin+(b+1)*900]) for d in directions}) for b in range((end-begin)//900)]
+    trajectories = []
+    for direction in directions:
+        for start in range(WINDOW[0], WINDOW[1], 60):
+            candidates = [pts for (_, d), pts in paths.items() if d == direction and start <= pts[0][0] < start+60]
+            trajectories.extend(dict(dir=direction, pts=pts) for pts in sample(candidates, 4))
     return dict(headline=headline, by15=by15, approaches=approaches, signal_by15=signal_by15,
-                pcd_points=pcd_points, pcd_bands=pcd_bands, stats=stats,
-                emission_classes=sorted(emission_classes), time_space=dict(green=greens, trajectories=[dict(dir=d, pts=pts) for (_, d), pts in paths.items()]))
+                pcd_points=pcd_points, pcd_bands=pcd_bands, cycle_starts=cycle_starts, stats=stats,
+                emission_classes=sorted(emission_classes), time_space=dict(green=greens, trajectories=trajectories))
 
 
 def export(name, seed=200):
@@ -312,7 +316,7 @@ def export(name, seed=200):
             approaches=[dict(approach=k[1], **{a: s['approaches'][k] for a, s in sides.items()}) for k in keys],
             by15=merge(sides['baseline']['signal_by15'][sid], sides['proposed']['signal_by15'][sid]),
             pcd=dict(approach=chosen[1] if chosen else None, **{a: dict(arrivals=sample(s['pcd_points'][chosen], 3000),
-                green=s['pcd_bands'][chosen]) for a, s in sides.items()})))
+                green=s['pcd_bands'][chosen], cycle_starts=s['cycle_starts'][sid]) for a, s in sides.items()})))
     encoded = json.dumps(out, separators=(',', ':'), allow_nan=False)+'\n'
     assert len(encoded.encode()) < 1_500_000
     target = ROOT/'dashboard/console/data'/name/'metrics.json'

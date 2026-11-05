@@ -1,5 +1,6 @@
 """Saved console data must retain evaluation provenance and the shared JSON contract."""
 import csv
+from bisect import bisect_left
 import json
 import math
 from pathlib import Path
@@ -70,6 +71,10 @@ class EngineerMetricsTest(unittest.TestCase):
                     self.assertEqual(set(space), {'green', 'trajectories'})
                     for direction in ('NB', 'SB', 'EB', 'WB'):
                         self.assertLessEqual(sum(t['dir'] == direction for t in space['trajectories']), 40)
+                    for direction in directions:
+                        starts = [t['pts'][0][0] for t in space['trajectories'] if t['dir'] == direction]
+                        self.assertEqual({int((t-61200)//60) for t in starts}, set(range(10)))
+                        self.assertTrue(all(sum(start <= t < start+60 for t in starts) <= 4 for start in range(61200, 61800, 60)))
                     for t in space['trajectories']:
                         self.assertTrue(all(61200 <= p[0] <= 61800 for p in t['pts']))
                     for signal in data['signals']:
@@ -96,7 +101,18 @@ class EngineerMetricsTest(unittest.TestCase):
                             if a[arm]['aog_pct'] is not None:
                                 self.assertLessEqual(a[arm]['aog_pct'], 100)
                         pcd = signal['pcd'][arm]
-                        self.assertEqual(set(pcd), {'arrivals', 'green'})
+                        self.assertEqual(set(pcd), {'arrivals', 'green', 'cycle_starts'})
+                        starts = pcd['cycle_starts']
+                        self.assertTrue(starts)
+                        self.assertEqual(starts, sorted(set(starts)))
+                        self.assertTrue(all(58500 < t < 68400 for t in starts))
+                        for arrival, into_cycle in pcd['arrivals']:
+                            index = bisect_left(starts, arrival-into_cycle-.02)
+                            self.assertLess(index, len(starts))
+                            self.assertAlmostEqual(arrival-into_cycle, starts[index], delta=.02)
+                            self.assertLessEqual(starts[index], arrival+.02)
+                            if index+1 < len(starts):
+                                self.assertLessEqual(arrival, starts[index+1]+.02)
                         self.assertLessEqual(len(pcd['arrivals']), 3000)
                         self.assertTrue(all(len(p) == 2 and 59400 <= p[0] <= 66600 for p in pcd['arrivals']))
                 if name == 'deanza':
