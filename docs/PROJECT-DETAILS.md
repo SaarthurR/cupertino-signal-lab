@@ -6,10 +6,10 @@ The team start page is the [README](../README.md). This page keeps every detail 
 The club leads said pre-built code is allowed.
 
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
-Open the printed Slides URL. The launcher uses only Python's standard library and runs no simulations.
+Open the printed Slides URL. The launcher uses Python's standard library. The console can run the Wolfe comparison when SUMO and its generated inputs are available.
 It also prints links to the PDF, video and the two synthetic-road engineer cards. Press N in the slides for speaker notes.
 Start with the [revised slide deck](../dashboard/signal-learner/index.html).
-Operator walkthrough: [docs/DEMO.md](DEMO.md). Presentation scope and team plan: [SPEC.md](../SPEC.md).
+See the [demo walkthrough](DEMO.md) and the [team plan](../README.md#game-plan-read-this-do-these-in-order).
 Plain-English version: [docs/WHAT-WE-BUILT.md](WHAT-WE-BUILT.md).
 
 VTA said on Nov 2 that we may use its counts and
@@ -27,7 +27,7 @@ Signal Learner is an inspectable simulation workflow. On a configured road, it:
 3. **Learns** the traffic pattern and builds a practice copy of the road.
 4. **Practices** by trying 150 timing plans on the copy.
 5. **Recommends** a change on a one-page card. An engineer approves or rejects it.
-6. **Checks** the sensors afterward and goes back to the old timing if traffic gets clearly worse.
+6. **Checks** simulated sensor readings after a change and can trigger a rollback when occupancy or traffic flow changes for several windows.
 
 ## What it is not
 
@@ -54,8 +54,8 @@ Every results screen says "simulated". Any VTA number credits VTA. Full rules: [
 | Original learner software, all six steps | Built; original test results preserved |
 | Independent code review before the test | Passed |
 | One-time test on two unseen roads | Done |
-| Slides (15), PDF, Wolfe Rd video | Revised for the judge presentation; results checked against saved artifacts |
-| Real city data | Not received |
+| Slides (17), PDF, Wolfe Rd video | Six pitch slides and eleven backup slides, with a saved Wolfe Road comparison |
+| Current City of Cupertino signal timing | Not used in the study |
 
 ### Results
 
@@ -70,9 +70,9 @@ We wrote the test rules first and ran the test once. The software got sensor dat
 
 On Stevens Creek, our earlier plan "v5" scored 369 s. It had full access to the true traffic, so it still beats the learner there.
 
-The numbers are a **delay score**, not stopwatch time: total completed-trip delay plus 900 seconds per unfinished trip and stuck-car removal, divided by all requested trips.
+The **delay score** is total completed-trip delay plus 900 seconds per unfinished trip and per vehicle relocation by SUMO, divided by all requested trips.
 
-On De Anza, a later check on new runs (not part of the test) showed the plan the learner rejected was 6.4% worse. So "no change" was the right call.
+On De Anza, the candidate failed a vehicle relocation limit in the practice model. A later check on twenty new runs found a 6.4% higher average delay score for the rejected plan. Its score was higher in thirteen of twenty runs.
 
 ### Weak points
 
@@ -115,9 +115,7 @@ Saarth holds these email threads. Send any new question through Saarth, so the c
 | Use real city data | Only if the city sends it |
 | Practice the presentation | Speaker notes are in the slides |
 
-**Submission check:** confirm the organizers' judging criteria. VTA approved presentation use with the exact credit above; keep the repository and raw data private.
-
-The presentation scope and proposed team handoff are in [SPEC.md](../SPEC.md). Experimental learner changes are reviewed separately; this presentation update does not change the simulator or revalidate the historical results.
+See the [README](../README.md) for judging and submission preparation.
 
 ## Test rules that protect the results
 
