@@ -12,9 +12,9 @@ Built in simulation by Saarth, Advaita and Prithvi for the Monta Vista AI Club h
 |---|---|
 | **Problem** | Stevens Creek backs up toward Glenbrook. The city told us (Nov 1, 2026) its lights run fixed time-of-day plans. Traffic changes; the plans stay the same until an engineer retimes them. |
 | **User** | A Cupertino traffic engineer deciding when and how to retime a road. |
-| **What we built** | Signal Learner watches a road's sensors, learns the traffic pattern, tries 150 timing plans on a practice copy, and hands the engineer one card to approve or reject. It never touches a real light. |
-| **Result** | On a test road it had never seen (Wolfe Rd), the delay score dropped 26% and it won all 20 test runs. On a second unseen road (De Anza) it said "keep the old timing", which was the right call. |
-| **Honest limit** | Everything is simulated. A real engineer, real timing files and real streets come next. |
+| **What we built** | Signal Learner uses simulated sensor readings to model traffic, try 150 timings and give an engineer one recommendation to review. |
+| **Result** | On Wolfe Road, the simulated delay score fell 26%. It was lower in all 20 held-out runs. On De Anza Boulevard, the learner recommended keeping the modeled old timing. |
+| **Next step** | Review a recommendation with a Cupertino traffic engineer using the city’s actual timing and counts. |
 
 ## Game plan: read this, do these in order
 
@@ -23,7 +23,7 @@ Every one of us must be able to explain the whole project, not only our own part
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
 2. Run `python3 -m tools.demo` and open the links it prints in Chrome:
    - **Slides:** slides 1–6 are the talk, 150 seconds including the live demo. Slides 7–17 are backup, only for judge questions. Press **N** for speaker notes. Read every note.
-   - **Engineer console:** the live demo, a clickable version of the tool a city engineer would use. Its Simulate screen runs two real simulations side by side on the real Wolfe Road map: today's timing on top, our plan below, same cars, with a live count of stuck cars.
+   - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below. The console plays the saved run if SUMO or its generated inputs are missing.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
 3. Click the demo path in the console once, following the timed script in [docs/DEMO.md](docs/DEMO.md#demo-script-85-seconds): **Corridors → Wolfe Road → Vallco Pkwy → Review → Approve → Run the simulation at 240× → Deploy & monitor**. Then open **How it connects** (left menu).
 4. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
@@ -42,7 +42,7 @@ If one of us is away on the day, the other two cover their part. That is why Ste
 ### Step 3 · Prepare
 | To do | Who | By |
 |---|---|---|
-| Ask the club leads: where to submit, deadline and time zone, pitch length, Q&A length, rubric, Wi-Fi, AI-use disclosure, private-repo access for judges | Prithvi | Nov 4 |
+| Ask the club leads about submission, deadline and time zone, pitch length, Q&A, rubric, Wi-Fi and AI-use disclosure | Prithvi | Nov 4 |
 | Finish Step 1 and Step 2 | All 3 | Nov 7 |
 | Rewrite your slides' speaker notes in your own words | All 3 | Nov 8 |
 | Set up the presentation laptop (below) and run the demo with Wi-Fi **off** | Saarth | Nov 10 |
@@ -67,7 +67,7 @@ Order: Advaita (slides 1–2) → Saarth (slide 3, live demo, slide 4) → Prith
 | Hand-offs | | 5 |
 | **Total** | | **150** |
 
-If the slot is 2 minutes: skip the Vallco Pkwy step (−10 s), say the Deploy line over the end card without clicking Deploy (−8 s), and go from the demo straight to slide 5, since the end card already shows −26% (−12 s). That is 120 s.
+For a 2-minute slot, cap the demo at 67 seconds. From Wolfe Road go straight to Review, then show the simulation at 240×. End on the comparison card and return to slide 5. The card already shows the Wolfe result.
 
 ## Setup on a new laptop
 
