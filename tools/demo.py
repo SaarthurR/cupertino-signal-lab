@@ -178,9 +178,8 @@ class Handler(SimpleHTTPRequestHandler):
             # After 6:30 PM only the cars already on the road finish; play that part 4x faster.
             speed = SIM['speed']*(4 if any(frame['drain'] for frame in last.values()) else 1)
             due = max(due+1/speed, time.monotonic()-0.25)  # never burst to catch up after a stall
-            remaining = due-time.monotonic()
-            if remaining > 0:
-                time.sleep(remaining)
+            if due > time.monotonic():
+                time.sleep(due-time.monotonic())
             if t-sent >= speed/FPS or len(done) == len(arms):
                 self.event('frame', dict(t=t, **{arm: last[arm] for arm in arms if arm in last}))
                 sent = t

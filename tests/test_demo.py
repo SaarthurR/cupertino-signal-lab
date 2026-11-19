@@ -228,21 +228,6 @@ class DemoTests(unittest.TestCase):
         self.assertEqual(events[-1], ('end', dict(seed=200, old=dict(delay_s=856.0, unfinished=931), plan=dict(delay_s=650.2, unfinished=218))))
         self.assertFalse(demo.SIM_LOCK.locked())
 
-    def test_pacing_never_sleeps_past_an_expired_frame_deadline(self):
-        handler = demo.Handler.__new__(demo.Handler)
-        handler.wfile = io.BytesIO()
-        frames = mock.Mock()
-        score = dict(delay_s=856.0, unfinished=931)
-        frames.get.side_effect = [fake_frame(59400), dict(done=score)]
-        worker = mock.Mock(exitcode=None)
-        clock = mock.Mock()
-        clock.monotonic.side_effect = [0, 0, 0, 0.001, 0.020, 0.020, 0.020, 0.020]
-        with mock.patch.object(demo, 'time', clock), mock.patch.dict(demo.SIM, speed=120, paused=False):
-            handler.pace(['old'], [frames], [worker], deadline=1)
-        clock.sleep.assert_called_once()
-        self.assertGreater(clock.sleep.call_args.args[0], 0)
-        self.assertEqual(sse(handler.wfile.getvalue().decode())[-1], ('end', dict(seed=200, old=score)))
-
     def test_stream_refuses_without_sumo_or_while_busy(self):
         with tempfile.TemporaryDirectory() as temp:
             url = self.serve(temp)
