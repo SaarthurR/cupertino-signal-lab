@@ -4,7 +4,7 @@ import json
 import statistics
 import xml.etree.ElementTree as ET
 
-from . import practice, road
+from . import learn, practice, road
 
 LABEL = 'SIMULATED recommendation from a copy learned only from the detector feed. Not city timing; no live control.'
 TURN = {'l': 'L', 's': 'T', 'r': 'R'}  # left, through, right
@@ -37,6 +37,9 @@ def settings(path, cfg, network):
 
 def why(result):
     """The card sentence: name the gate that blocked the change, not just 'no clear gain'."""
+    if result.get('fit_failures'):
+        fields = ', '.join(key.replace('_', ' ') for key in result['fit_failures'])
+        return f'No change: the model failed its fit checks ({fields}). The search did not run.'
     if result['clear_gain']:
         return 'The copy predicts a clear gain.'
     if result['best_trial'] == 0:
@@ -50,17 +53,33 @@ def why(result):
     over = [str(n['seed']) for n, o in zip(new, old) if n['teleports'] > o['teleports']+practice.TELEPORT_MARGIN]
     if over:
         failed.append(f"teleports more than old + {practice.TELEPORT_MARGIN} on copy seeds {', '.join(over)}")
-    if practice.side(new) > practice.SIDE_LIMIT*practice.side(old)+1e-9:
-        failed.append(f"side-street delay {practice.side(new)/practice.side(old):.2f}x old, limit {practice.SIDE_LIMIT}x")
+    old_side, new_side = practice.side(old), practice.side(new)
+    if new_side > practice.SIDE_LIMIT*old_side+1e-9:
+        value = f'{new_side/old_side:.2f}x old' if old_side else f'{new_side:.1f} s versus zero'
+        failed.append(f'side-street delay {value}, limit {practice.SIDE_LIMIT}x old')
+    if result.get('approach_regressions'):
+        failed.append(f"approach delay above {practice.APPROACH_LIMIT}x old: {', '.join(result['approach_regressions'])}")
     return (f"No change: in the copy the best plan cut delay {result['confirm_gain']:.1%} (p = {result['confirm_p']:.3f}), "
             f"but it failed the limits: {'; '.join(failed)}.")
+
+
+def selected_plan(name, cfg):
+    out = road.OUT/name
+    evidence = learn.digest(out/'practice.json')
+    current = practice.current(cfg, out)
+    saved = json.loads((out/'card.json').read_text())
+    decision = 'change' if current['clear_gain'] else 'no change'
+    if saved.get('practice_sha256') != evidence or saved['decision'] != decision:
+        raise ValueError('Recommendation is out of date. Run recommend again.')
+    return out/'plan.add.xml' if decision == 'change' else None
 
 
 def recommend(name):
     cfg = road.load(name)
     network = road.net(cfg)
     out = road.OUT/name
-    result = json.loads((out/'practice.json').read_text())
+    evidence = learn.digest(out/'practice.json')
+    result = practice.current(cfg, out)
     peak = {}
     with open(out/'pattern.csv') as stream:
         for r in csv.DictReader(stream):
@@ -80,23 +99,39 @@ def recommend(name):
             reasons.append(f"offset {a['offset_s']:.0f} -> {b['offset_s']:.0f} s to fit the {b['cycle_s']:.0f} s cycle")
         signals.append(dict(signal=signal['name'], sumo_tls_id=signal['sumo_tls_id'], old=a, new=b,
                             reason='; '.join(reasons) or 'no material change'))
-    before = [s['all_requested_delay_s'] for s in result['confirm_old']]
-    diffs = sorted(result['confirm_diffs_s'])
-    expected = dict(copy_seeds=result['confirm_seeds'], old_delay_s=round(statistics.mean(before), 1),
-                    new_delay_s=round(statistics.mean(before)+statistics.mean(diffs), 1),
-                    change_s=round(statistics.mean(diffs), 1), change_range_s=[round(diffs[0], 1), round(diffs[-1], 1)],
-                    change_share=round(-result['confirm_gain'], 4), p_value=round(result['confirm_p'], 4))
+    expected, approaches = None, []
+    if not result.get('fit_failures'):
+        before = statistics.mean(s['all_requested_delay_s'] for s in result['confirm_old'])
+        diffs = sorted(result['confirm_diffs_s'])
+        expected = dict(copy_seeds=result['confirm_seeds'], old_delay_s=round(before, 1),
+                        new_delay_s=round(before+statistics.mean(diffs), 1),
+                        change_s=round(statistics.mean(diffs), 1), change_range_s=[round(diffs[0], 1), round(diffs[-1], 1)],
+                        change_share=round(-result['confirm_gain'], 4), p_value=round(result['confirm_p'], 4))
+        arms = [[s['origin_delay_s'] for s in result[key]] for key in ('confirm_old', 'confirm_new')]
+        labels = road.approaches(cfg, network)
+        for edge in sorted(arms[0][0]):
+            a, b = [[run[edge] for run in arm] for arm in arms]
+            approaches.append(dict(edge=edge, approach=' '.join(labels.get(edge, (edge,))),
+                                   old_s=round(statistics.mean(a), 1), candidate_s=round(statistics.mean(b), 1),
+                                   worst_increase_s=round(max(y-x for x, y in zip(a, b)), 1)))
+    if evidence != learn.digest(out/'practice.json'):
+        raise ValueError('Practice changed during recommendation. Run recommend again.')
     card = dict(road=name, label=LABEL, decision='change' if change else 'no change', why=why(result),
+                practice_sha256=evidence, approach_delay_s=approaches,
                 expected_in_copy=expected, limits='Phase order, clearances and minimum greens are unchanged. '
-                'Changes are bounded max greens, cycle and offsets. An engineer approves or rejects; the check '
-                'rule goes back to old timing if the feed shows traffic clearly worse.', signals=signals)
+                'Changes are bounded max greens, cycle and offsets. Rollback alarms are experimental. '
+                'Any trial in the simulator expires after 15 minutes.', signals=signals)
     (out/'card.json').write_text(json.dumps(card, indent=2)+'\n')
-    lines = [f'# Signal Learner card: {name}', '', f'**{LABEL}**', '', f"**Decision: {card['decision']}.** {card['why']}", '',
-             f"Expected in the copy ({len(diffs)} simulated rush hours): delay per requested trip "
-             f"{expected['old_delay_s']} s -> {expected['new_delay_s']} s, change {expected['change_s']:+} s "
-             f"(range {expected['change_range_s'][0]:+} to {expected['change_range_s'][1]:+} s), one-sided p = {expected['p_value']}.", '',
-             'Phases list the legs they serve: N:LT is traffic from the north leg turning left or going through.', '',
-             '| Signal | Cycle s | Offset s | Max greens s (old -> new) | Reason |', '|---|---|---|---|---|']
+    lines = [f'# Signal Learner card: {name}', '', f'**{LABEL}**', '', f"**Decision: {card['decision']}.** {card['why']}", '']
+    if expected is not None:
+        lines += [f"Candidate delay score in the copy across {len(diffs)} runs was "
+                  f"{expected['new_delay_s']} s per requested trip. Old timing scored {expected['old_delay_s']} s.", '',
+                  '| Origin approach (edge) | Old score (s) | Candidate score (s) | Worst paired change (s) |',
+                  '|---|---:|---:|---:|']
+        lines.extend(f"| {a['approach']} ({a['edge']}) | {a['old_s']} | {a['candidate_s']} | {a['worst_increase_s']:+} |"
+                     for a in approaches)
+    lines += ['', 'Phases list the legs they serve. N:LT is traffic from the north leg turning left or going through.', '',
+              '| Signal | Cycle s | Offset s | Max greens s (old -> new) | Reason |', '|---|---|---|---|---|']
     for s in signals:
         greens = '; '.join(f"{' '.join(g0['serves'])}: {g0['max_green_s']:.0f} -> {g1['max_green_s']:.0f}"
                            for g0, g1 in zip(s['old']['greens'], s['new']['greens']))

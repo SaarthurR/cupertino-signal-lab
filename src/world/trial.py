@@ -62,8 +62,12 @@ def run_learner(name, allow_heldout=False, completed=None, on_step=None):
 
 def arms(name):
     cfg = road.load(name)
-    change = json.loads((road.OUT/name/'card.json').read_text())['decision'] == 'change'
-    timings = {'old': road.file(cfg, 'old_timing'), 'learner': road.OUT/name/'plan.add.xml' if change else None}
+    if name in HELDOUT_ROADS:
+        change = json.loads((road.OUT/name/'card.json').read_text())['decision'] == 'change'
+        selected = road.OUT/name/'plan.add.xml' if change else None
+    else:
+        selected = card.selected_plan(name, cfg)
+    timings = {'old': road.file(cfg, 'old_timing'), 'learner': selected}
     fresh = w.TRUTH/name/'fresh_timing.add.xml'
     if fresh.exists():
         timings['fresh'] = fresh
@@ -116,10 +120,40 @@ def summary(rows, arm):
     return out
 
 
+def alarm_summary(runs, seeds):
+    """Compare alarms with measured harm in an independently scored no-op pair."""
+    seeds = set(seeds)
+    pairs = {(r['program'], r['seed']): r for r in runs}
+    if not seeds or len(pairs) != len(runs) or pairs.keys() != {(arm, s) for arm in ('bad', 'noop') for s in seeds}:
+        raise ValueError('Alarm evaluation needs every paired bad and no-op run exactly once')
+    score = 'all_requested_delay_s'
+    bad = [pairs['bad', s] for s in sorted(seeds)]
+    noop = [pairs['noop', s] for s in sorted(seeds)]
+    harmful = [r for r, control in zip(bad, noop) if r['held'][score] > control['held'][score]]
+    harmless = [r for r in bad if r not in harmful]
+    def early_alarm(run):
+        return run['alarm'] and run['change_s'] < run['alarm_time_s'] < run['time_s']
+
+    detected = sum(early_alarm(r) for r in harmful)
+    false_alarms = sum(early_alarm(r) for r in noop)
+    other_false_alarms = sum(early_alarm(r) for r in harmless)
+    restore = all(r['program_changes'] for r in runs)
+    return dict(pairs=len(seeds), harmful=len(harmful), detected=detected, noop_alarms=false_alarms,
+                harmless_candidates=len(harmless), harmless_candidate_alarms=other_false_alarms,
+                improves_harmful=sum(r['with_rule'][score] < r['held'][score] for r in harmful),
+                restoration_verified=restore,
+                passed=restore and bool(harmful) and detected/len(harmful) >= BAD_MIN
+                and false_alarms/len(noop) <= NOOP_MAX
+                and (not harmless or other_false_alarms/len(harmless) <= NOOP_MAX))
+
+
 def go_back(name, seeds, checkpoint=None):
     """Bad plan and a no-op change applied at 17:00; the learner's rule reads the feed and may go back."""
     cfg = road.load(name)
+    seeds = tuple(seeds)
     runs = json.loads(Path(checkpoint).read_text()) if checkpoint and Path(checkpoint).exists() else []
+    if any('alarm' not in r or not r.get('program_changes') for r in runs):
+        raise ValueError('Legacy alarm checkpoint. Use a new output path.')
     with tempfile.TemporaryDirectory() as temp:
         plans = {'bad': Path(temp)/'bad.xml', 'noop': Path(temp)/'noop.xml'}
         w.bad_plan(cfg, plans['bad'])
@@ -140,12 +174,7 @@ def go_back(name, seeds, checkpoint=None):
                 raise error
     selected = sorted((r for r in runs if r['road'] == name and r['seed'] in seeds),
                       key=lambda r: (r['program'], r['seed']))
-    rate = lambda k: statistics.mean(r['go_back'] for r in selected if r['program'] == k)
-    mean = lambda k, arm: statistics.mean(r[arm]['all_requested_delay_s'] for r in selected if r['program'] == k)
-    return dict(runs=selected, bad_go_back_rate=rate('bad'), noop_go_back_rate=rate('noop'),
-                bad_held_delay_s=mean('bad', 'held'), bad_with_rule_delay_s=mean('bad', 'with_rule'),
-                passed=rate('bad') >= BAD_MIN and rate('noop') <= NOOP_MAX
-                and mean('bad', 'with_rule') < mean('bad', 'held'))
+    return dict(runs=selected, **alarm_summary(selected, seeds))
 
 
 def dev_check(name):
@@ -153,14 +182,13 @@ def dev_check(name):
         raise ValueError('Dev check runs on dev roads only')
     start = time.monotonic()
     out = w.TRUTH/name
-    prior = json.loads((out/'dev_check.json').read_text()) if (out/'dev_check.json').exists() else {}
     w.fresh_plan(name)
-    rows = compare(name, DEV_SEEDS, out/'dev_check.csv')
+    rows = compare(name, DEV_SEEDS)
     arm_names = [a for a in ('v5', 'learner', 'fresh') if any(r['arm'] == a for r in rows)]
     result = dict(road=name, seeds=list(DEV_SEEDS), arms={a: summary(rows, a) for a in arm_names},
-                  old=summary(rows, 'old'), go_back=prior.get('go_back') or go_back(name, DEV_GOBACK_SEEDS),
+                  old=summary(rows, 'old'), go_back=go_back(name, DEV_GOBACK_SEEDS),
                   copy_vs_truth=w.truth_fit(name))
-    result['wall_s'] = prior.get('wall_s', time.monotonic()-start)
+    result['wall_s'] = time.monotonic()-start
     out.mkdir(parents=True, exist_ok=True)
     p.write_csv(out/'dev_check.csv', sorted(rows, key=_row_key))
     (out/'dev_check.json').write_text(json.dumps(result, indent=2)+'\n')

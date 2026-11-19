@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import random
 import shutil
@@ -10,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 from learner import card, check, learn, practice, road
 from signal_lab import pipeline as p
-from world import trial
+from world import trial, worlds
 
 LEARNER = p.ROOT/'src/learner'
 ACCESS = []
@@ -55,7 +56,7 @@ class GuardTests(unittest.TestCase):
                 RECORDING.append(True)
                 try:
                     learn.learn(name)
-                    practice.practice(name, trials=1, search_seeds=range(1), confirm_seeds=range(1))
+                    practice.practice(name, trials=1, search_seeds=(0,), confirm_seeds=(1,))
                     card.recommend(name)
                     check.decide(name, learn.read(name, 'feed')[0], 0)
                 finally:
@@ -136,6 +137,46 @@ class BoundsTests(unittest.TestCase):
                                         next(k for k in old if k.startswith('share_')): 1.5}, Path(temp)/'x.xml')
 
 
+class RecommendationGuardTests(unittest.TestCase):
+    def test_poor_fit_skips_search_and_keeps_old_timing(self):
+        name = 'homestead'
+        cfg = road.load(name)
+        fit = json.loads((road.OUT/'deanza'/'learn.json').read_text())
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(road, 'OUT', Path(temp)), \
+                mock.patch.object(practice.optuna, 'create_study') as search:
+            out = road.OUT/name
+            out.mkdir()
+            copy = out/'copy.rou.xml'
+            copy.write_text('<routes/>')
+            fit.update(inputs=learn.model_inputs(cfg, out), copy_sha256=learn.digest(copy))
+            (out/'learn.json').write_text(json.dumps(fit))
+            (out/'pattern.csv').write_text('site,approach,mean_count\n')
+            result = practice.practice(name)
+            self.assertEqual(result['trials'], 0)
+            search.assert_not_called()
+            self.assertEqual(set(result['fit_failures']), set(learn.FIT_LIMITS))
+            saved = card.recommend(name)
+            self.assertIsNone(saved['expected_in_copy'])
+            self.assertEqual(saved['decision'], 'no change')
+            self.assertIsNone(card.selected_plan(name, cfg))
+            copy.write_text('<routes> </routes>')
+            with self.assertRaisesRegex(ValueError, 'Run learn again'):
+                card.recommend(name)
+
+    def test_approach_regression_blocks_an_aggregate_gain(self):
+        old = [dict(seed=1, teleports=0, side_all_requested_delay_s=100, origin_delay_s={'a': 90., 'b': 110.})]
+        new = [{**old[0], 'side_all_requested_delay_s': 50, 'origin_delay_s': {'a': 20., 'b': 116.}}]
+        self.assertFalse(practice.feasible(new, old))
+        self.assertEqual(practice.regressions(new, old), ['b'])
+        new[0]['origin_delay_s']['b'] = 115.5
+        self.assertTrue(practice.feasible(new, old))
+        new[0]['seed'] = 2
+        self.assertFalse(practice.feasible(new, old))
+        del new[0]['origin_delay_s']['a']
+        with self.assertRaisesRegex(ValueError, 'missing origin'):
+            practice.regressions(new, old)
+
+
 class GoBackRuleTests(unittest.TestCase):
     def rows(self, start, rises, approaches=('A', 'B', 'C', 'D'), base=10., ok=1, raised=('A', 'B'), count=5):
         return [dict(window_end=f'2026-10-31T{(start+300*i)//3600:02d}:{(start+300*i)%3600//60:02d}:00-07:00',
@@ -161,10 +202,25 @@ class GoBackRuleTests(unittest.TestCase):
         # Saturated roads: occupancy cannot rise, but the signals serve fewer vehicles.
         self.assertFalse(self.decide(self.rows(61500, [0]*8, count=4.75))['go_back'], '5% fewer is within range')
         decision = self.decide(self.rows(61500, [0]*8, count=4.5))
-        self.assertEqual((decision['go_back'], decision['time_s']), (True, 61500+300*4))
+        self.assertEqual((decision['go_back'], decision['time_s']), (True, 61500+300*2))
         # A road-wide rise trips the mean test even when no single approach crosses its own threshold.
         everywhere = [{**r, 'occupancy': str(float(r['occupancy'])+8)} for r in self.rows(61500, [0, 0, 0])]
         self.assertTrue(self.decide(everywhere)['go_back'])
+
+    def test_missing_or_partial_windows_break_an_alarm_streak(self):
+        rows = self.rows(61500, [40]*5)
+        self.assertFalse(self.decide(rows[:8]+rows[12:])['go_back'])
+        self.assertFalse(self.decide(rows[:9]+rows[10:])['go_back'])
+
+    def test_program_trace_must_show_actual_return_at_expiry(self):
+        with tempfile.TemporaryDirectory() as temp:
+            trace = Path(temp)/'tls.xml'
+            initial = '<trace><state time="0" programID="actuated"/><state time="61200" programID="bad"/>'
+            trace.write_text(initial+'</trace>')
+            with self.assertRaisesRegex(ValueError, 'did not follow'):
+                worlds.program_changes(trace, 61200, 62100, 'bad')
+            trace.write_text(initial+'<state time="62100" programID="actuated"/></trace>')
+            self.assertEqual(worlds.program_changes(trace, 61200, 62100, 'bad')[-1], [62100, 'actuated'])
 
 
 class CheckpointTests(unittest.TestCase):
@@ -192,8 +248,10 @@ class CheckpointTests(unittest.TestCase):
 
     def test_go_back_saves_completed_jobs_and_resumes(self):
         def run(name, path, program, seed):
-            stats = self.stats(seed)
-            return dict(road=name, program=program, seed=seed, go_back=program == 'bad',
+            stats = self.stats(seed, 10 if program == 'bad' else 0)
+            return dict(road=name, program=program, seed=seed, go_back=True, alarm=program == 'bad',
+                        change_s=0, time_s=900, alarm_time_s=600 if program == 'bad' else None,
+                        program_changes={'A': [[900, 'actuated']]},
                         held=stats, with_rule={**stats, 'all_requested_delay_s': stats['all_requested_delay_s']-1})
 
         with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial.road, 'load', return_value={}), \
@@ -207,6 +265,19 @@ class CheckpointTests(unittest.TestCase):
             resumed = trial.go_back('road', (1, 2), checkpoint)
             check_run.assert_not_called()
             self.assertEqual(result, resumed)
+
+    def test_expiry_does_not_count_as_detection(self):
+        bad = dict(seed=1, program='bad', go_back=True, alarm=True, change_s=0, time_s=900,
+                   alarm_time_s=900, program_changes={'A': [[900, 'actuated']]},
+                   held=self.stats(1, 10), with_rule=self.stats(1, 5))
+        noop = {**bad, 'program': 'noop', 'held': self.stats(1), 'alarm': False, 'alarm_time_s': None}
+        result = trial.alarm_summary([bad, noop], (1,))
+        self.assertTrue(result['restoration_verified'])
+        self.assertEqual((result['harmful'], result['detected'], result['noop_alarms']), (1, 0, 0))
+        self.assertFalse(result['passed'])
+        early = trial.alarm_summary([{**bad, 'alarm_time_s': 600}, noop], (1,))
+        self.assertEqual(early['detected'], 1)
+        self.assertTrue(early['passed'])
 
 
 class RefusalTests(unittest.TestCase):
