@@ -73,8 +73,9 @@ learner does not beat stale timing, the demo says so and shows the current advis
 - **Measure alarms independently.** An alarm needs three consecutive matched five-minute windows from a baseline
   with at least three observation runs. A missing or partial window breaks the streak. Check occupancy and served
   counts against the observed variation. A scheduled return is verified from every simulated signal's program
-  trace. Compare the held degraded plan's score with the paired no-op control to identify harm. The alarm check
-  requires detection of at least 80% of harmful runs and alarms on at most 20% of either harmless control group.
+  trace. Compare the held degraded plan's score with the paired no-op control to identify harm. Count only alerts
+  raised after the change and before the scheduled return. The alarm check requires detection of at least 80% of
+  harmful runs and early alerts on at most 20% of either harmless control group.
 
 Run the separate experiment with the repository's pinned Python 3.12 environment and a new output directory:
 
@@ -89,7 +90,13 @@ per-seed metrics and actual signal transitions. The runner refuses an existing o
 
 In the two-signal grid, 28.1% of counts met the GEH target, aggregate absolute count error was 47.6%, and mean
 absolute occupancy error was 14.4 points. The learner kept the old timing and ran zero search trials.
-All 18 bounded trials restored both signals at 900 seconds. The alarm detected 0 of 9 harmful cases within the
-trial window and flagged 0 of 9 no-op controls. The alarm failed the detection check and remains advisory.
+All 18 bounded trials restored both signals at 900 seconds. There were 0 early alerts in the 9 harmful cases
+and 0 in the 9 no-op controls. Three five-minute windows make the third reading arrive at expiry, so the current
+rule cannot give an early warning. The alarm remains experimental.
+
+A separate local prototype compared the first two windows after the change with the last two before it, using
+historical changes in stop-line counts and upstream occupancy as a reference. On six new synthetic profiles with
+three seeds each, it alerted at 10 minutes in 15 of 18 harmful cases and 4 of 18 no-op controls. Only three of six
+profiles passed both limits. This prototype is outside the trial path.
 
 City timing and simultaneous field measurements of traffic, queues and travel times are needed for a city comparison.

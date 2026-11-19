@@ -250,7 +250,8 @@ class CheckpointTests(unittest.TestCase):
         def run(name, path, program, seed):
             stats = self.stats(seed, 10 if program == 'bad' else 0)
             return dict(road=name, program=program, seed=seed, go_back=True, alarm=program == 'bad',
-                        program_changes={'A': [[10, 'actuated']]},
+                        change_s=0, time_s=900, alarm_time_s=600 if program == 'bad' else None,
+                        program_changes={'A': [[900, 'actuated']]},
                         held=stats, with_rule={**stats, 'all_requested_delay_s': stats['all_requested_delay_s']-1})
 
         with tempfile.TemporaryDirectory() as temp, mock.patch.object(trial.road, 'load', return_value={}), \
@@ -266,13 +267,17 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(result, resumed)
 
     def test_expiry_does_not_count_as_detection(self):
-        bad = dict(seed=1, program='bad', go_back=True, alarm=False, program_changes={'A': [[10, 'actuated']]},
+        bad = dict(seed=1, program='bad', go_back=True, alarm=True, change_s=0, time_s=900,
+                   alarm_time_s=900, program_changes={'A': [[900, 'actuated']]},
                    held=self.stats(1, 10), with_rule=self.stats(1, 5))
-        noop = {**bad, 'program': 'noop', 'held': self.stats(1)}
+        noop = {**bad, 'program': 'noop', 'held': self.stats(1), 'alarm': False, 'alarm_time_s': None}
         result = trial.alarm_summary([bad, noop], (1,))
         self.assertTrue(result['restoration_verified'])
         self.assertEqual((result['harmful'], result['detected'], result['noop_alarms']), (1, 0, 0))
         self.assertFalse(result['passed'])
+        early = trial.alarm_summary([{**bad, 'alarm_time_s': 600}, noop], (1,))
+        self.assertEqual(early['detected'], 1)
+        self.assertTrue(early['passed'])
 
 
 class RefusalTests(unittest.TestCase):

@@ -131,9 +131,12 @@ def alarm_summary(runs, seeds):
     noop = [pairs['noop', s] for s in sorted(seeds)]
     harmful = [r for r, control in zip(bad, noop) if r['held'][score] > control['held'][score]]
     harmless = [r for r in bad if r not in harmful]
-    detected = sum(r['alarm'] for r in harmful)
-    false_alarms = sum(r['alarm'] for r in noop)
-    other_false_alarms = sum(r['alarm'] for r in harmless)
+    def early_alarm(run):
+        return run['alarm'] and run['change_s'] < run['alarm_time_s'] < run['time_s']
+
+    detected = sum(early_alarm(r) for r in harmful)
+    false_alarms = sum(early_alarm(r) for r in noop)
+    other_false_alarms = sum(early_alarm(r) for r in harmless)
     restore = all(r['program_changes'] for r in runs)
     return dict(pairs=len(seeds), harmful=len(harmful), detected=detected, noop_alarms=false_alarms,
                 harmless_candidates=len(harmless), harmless_candidate_alarms=other_false_alarms,
