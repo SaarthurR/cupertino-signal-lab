@@ -9,7 +9,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from learner import check, practice, road
+from learner import card, check, practice, road
 from signal_lab import baseline, demand as d, pipeline as p
 
 WORLDS = p.ROOT/'worlds'
@@ -53,22 +53,26 @@ def turn_counts(cfg, network, seed):
     return counts
 
 
-def build_demand(name):
-    cfg = road.load(name)
+def profile_routes(cfg, seed, output):
+    """Generate an independent synthetic demand profile into the supplied workspace."""
     network = road.net(cfg)
-    folder = WORLDS/name
-    folder.mkdir(parents=True, exist_ok=True)
-    counts = turn_counts(cfg, network, SEEDS[name])
+    counts = turn_counts(cfg, network, seed)
     with tempfile.TemporaryDirectory() as temp:
         pairs = {pair: pair for t in counts.values() for pair in t}
         d.candidate_routes(network, pairs, Path(temp)/'candidates.xml')
         d.turn_file(counts, Path(temp)/'turns.xml')
-        log = d.sample(Path(temp)/'candidates.xml', Path(temp)/'turns.xml', folder/'routes.rou.xml')
-    root = ET.parse(folder/'routes.rou.xml').getroot()
+        log = d.sample(Path(temp)/'candidates.xml', Path(temp)/'turns.xml', output)
+    root = ET.parse(output).getroot()
     root.insert(0, ET.Comment(LABEL))
-    p.xml_write(root, folder/'routes.rou.xml')
-    return dict(label=LABEL, seed=SEEDS[name], main_rate=MAIN_RATE, side_rate=SIDE_RATE,
+    p.xml_write(root, output)
+    return dict(label=LABEL, seed=seed, main_rate=MAIN_RATE, side_rate=SIDE_RATE,
                 vehicles=len(root.findall('vehicle')), sample_log=log)
+
+
+def build_demand(name):
+    folder = WORLDS/name
+    folder.mkdir(parents=True, exist_ok=True)
+    return profile_routes(road.load(name), SEEDS[name], folder/'routes.rou.xml')
 
 
 def stale_routes(cfg, source, seed, output):
@@ -171,21 +175,52 @@ def waut(cfg, path, switches):
     return path
 
 
-def check_run(name, plan, program, seed, change_s=d.seconds('17:00')):
-    """Old timing until the approved change, then the change; the learner's rule reads the feed and may go back."""
+def program_changes(path, change_s, return_s, program):
+    changes = []
+    last = -1.
+    for row in ET.parse(path).getroot():
+        t, pid = float(row.get('time')), row.get('programID')
+        if not math.isfinite(t) or t < last or not pid:
+            raise ValueError('Invalid signal program trace')
+        last = t
+        if not changes or changes[-1][1] != pid:
+            changes.append((t, pid))
+    if (not changes or changes[0][0] >= change_s or changes[0][1] != 'actuated'
+            or changes[1:] != [(change_s, program), (return_s, 'actuated')]):
+        raise ValueError(f'Simulator did not follow the bounded schedule: {changes}')
+    return [list(event) for event in changes]
+
+
+def check_run(name, plan, program, seed, change_s=d.seconds('17:00'), demand=None):
+    """Pair a held candidate with a simulated trial that always restores old timing."""
     cfg = road.load(name)
+    begin, end = road.window(cfg)
+    expiry = change_s+check.TRIAL_S
+    if not begin <= change_s < expiry <= end or (change_s-begin) % check.WINDOW_S:
+        raise ValueError('Trial must start on a feed boundary and expire within the observed window')
+    if program == 'learner' and card.selected_plan(name, cfg) != plan:
+        raise ValueError('A current recommended timing plan is needed for a learner trial')
     old = road.file(cfg, 'old_timing')
+    demand = routes(name) if demand is None else demand
     with tempfile.TemporaryDirectory() as temp:
-        held, (rows, _) = road.simulate(cfg, routes(name), old, seed, True,
+        held, (rows, _) = road.simulate(cfg, demand, old, seed, True,
                                         [plan, waut(cfg, Path(temp)/'held.xml', [(change_s, program)])])
-        decision = check.decide(name, rows, change_s)
-        ruled = held
-        if decision['go_back']:
-            ruled, _ = road.simulate(cfg, routes(name), old, seed, False, [plan, waut(
-                cfg, Path(temp)/'back.xml', [(change_s, program), (decision['time_s'], 'actuated')])])
-    pick = lambda s: {k: s[k] for k in ('all_requested_delay_s', 'unfinished', 'teleports', 'worst_origin_delay_s')}
-    return dict(road=name, program=program, seed=seed, change_s=change_s, **decision,
-                held=pick(held), with_rule=pick(ruled))
+        advisory = check.decide(name, [r for r in rows if road.clock(r['window_end']) <= expiry], change_s)
+        schedule = waut(cfg, Path(temp)/'back.xml', [(change_s, program), (expiry, 'actuated')])
+        extra = ET.parse(schedule).getroot()
+        traces = {}
+        for i, signal in enumerate(cfg['signals']):
+            tls = signal['sumo_tls_id']
+            traces[tls] = Path(temp)/f'tls-{i}.xml'
+            ET.SubElement(extra, 'timedEvent', type='SaveTLSSwitchStates', source=tls, dest=str(traces[tls]))
+        p.xml_write(extra, schedule)
+        bounded, _ = road.simulate(cfg, demand, old, seed, False, [plan, schedule])
+        transitions = {tls: program_changes(path, change_s, expiry, program) for tls, path in traces.items()}
+    pick = lambda s: {k: s[k] for k in ('all_requested_delay_s', 'all_requested_delay_0_s', 'all_requested_delay_1800_s',
+                                      'unfinished', 'teleports', 'worst_origin_delay_s', 'origin_delay_s')}
+    return dict(road=name, program=program, seed=seed, change_s=change_s, time_s=expiry,
+                go_back=True, alarm=advisory['go_back'], alarm_time_s=advisory['time_s'], reason=advisory['reason'],
+                program_changes=transitions, held=pick(held), with_rule=pick(bounded))
 
 
 def truth_fit(name):

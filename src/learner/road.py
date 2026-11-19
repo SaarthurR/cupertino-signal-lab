@@ -12,11 +12,12 @@ from signal_lab import evaluate as e, feed as f, pipeline as p
 from signal_lab.demand import seconds, summary_stats
 
 OUT = p.ROOT/'reports/learner'
+ROADS = p.ROOT/'roads'
 MAX_SIMS = 3
 
 
 def load(name):
-    return yaml.safe_load((p.ROOT/'roads'/name/'road.yaml').read_text())
+    return yaml.safe_load((ROADS/name/'road.yaml').read_text())
 
 
 def file(cfg, key):

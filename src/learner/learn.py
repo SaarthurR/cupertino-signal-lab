@@ -1,7 +1,9 @@
 """Learn the 15-minute pattern from the feed and build the copy's demand from counts only."""
 from collections import defaultdict
 import csv
+import hashlib
 import json
+import math
 import statistics
 import tempfile
 import xml.etree.ElementTree as ET
@@ -11,6 +13,37 @@ from signal_lab import demand as d, pipeline as p
 from . import road
 
 COPY_SEEDS = range(3)
+FIT_LIMITS = {'geh_under_5_share': (0.85, 1), 'count_error_share': (0, 0.15),
+              'occupancy_mean_abs_diff': (0, 10)}
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def model_inputs(cfg, out):
+    files = [road.file(cfg, key) for key in ('net', 'detectors', 'old_timing', 'timing_inputs')]
+    observations = sorted(path for kind in ('feed', 'lanes') for path in out.glob(f'feed/seed*/{kind}.csv'))
+    return dict(config=cfg, road_files=[digest(path) for path in files],
+                observations={str(path.relative_to(out)): digest(path) for path in observations})
+
+
+def fit_failures(report):
+    failures = []
+    for key, (lower, upper) in FIT_LIMITS.items():
+        value = report.get(key)
+        if type(value) not in (int, float) or not math.isfinite(value) or not lower <= value <= upper:
+            failures.append(key)
+    return failures
+
+
+def current_fit(cfg, out):
+    """Only a fitted copy built from the current inputs can enter the search."""
+    report = json.loads((out/'learn.json').read_text())
+    if (report.get('inputs') != model_inputs(cfg, out)
+            or report.get('copy_sha256') != digest(out/'copy.rou.xml')):
+        raise ValueError('Copy inputs changed or fit is from an older run. Run learn again.')
+    return report
 
 
 def read(name, kind):
@@ -74,6 +107,7 @@ def learn(name):
     cfg = road.load(name)
     network = road.net(cfg)
     out = road.OUT/name
+    inputs = model_inputs(cfg, out)
     lanes = pattern(read(name, 'lanes'), lambda r: r['lane'])
     approaches = pattern(read(name, 'feed'), lambda r: (r['site'], r['approach']))
     p.write_csv(out/'pattern.csv', [dict(quarter_start_s=t, site=s, approach=a, mean_count=round(m, 2), sd_count=round(sd, 2))
@@ -86,8 +120,12 @@ def learn(name):
                      '-t', Path(temp)/'turns.xml', '-o', out/'copy.rou.xml', '--optimize', 'full', '--seed', 0,
                      '--prefix', 'copy', '-a', 'departLane="best" departSpeed="max"')
     fit = copy_fit(cfg, name, approaches)
-    report = dict(road=name, watched_days=len(read(name, 'feed')), quarter_hours=len({t for t, _ in approaches}),
-                  exact_turn_relations=len(exact), copy_vehicles=len(ET.parse(out/'copy.rou.xml').getroot().findall('vehicle')),
+    if inputs != model_inputs(cfg, out):
+        raise ValueError('Copy inputs changed during learning. Run learn again.')
+    report = dict(road=name, inputs=inputs, copy_sha256=digest(out/'copy.rou.xml'),
+                  watched_days=len(read(name, 'feed')), quarter_hours=len({t for t, _ in approaches}),
+                  exact_turn_relations=len(exact), unresolved_turn_relations=len(pairs)-len(exact),
+                  copy_vehicles=len(ET.parse(out/'copy.rou.xml').getroot().findall('vehicle')),
                   routesampler_log=log.strip().splitlines()[-6:], **fit)
     (out/'learn.json').write_text(json.dumps(report, indent=2)+'\n')
     print(f"learn {name}: {report['copy_vehicles']} copy vehicles; GEH<5 vs feed {fit['geh_under_5_share']:.0%}")

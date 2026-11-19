@@ -1,5 +1,6 @@
 """Practice in the copy only: Optuna TPE over bounded max greens, cycle and offsets of the old timing."""
 import json
+import math
 import statistics
 import tempfile
 import time
@@ -10,7 +11,7 @@ import optuna
 from scipy.stats import wilcoxon
 
 from signal_lab import optimize as o, pipeline as p
-from . import road
+from . import learn, road
 
 # Frozen learner settings; docs/PREREGISTRATION-LEARNER.md quotes these.
 TRIALS = 150
@@ -19,6 +20,7 @@ CONFIRM_SEEDS = range(10, 20)
 MIN_GAIN = .02  # mean copy gain on confirm seeds, share of old delay
 ALPHA = .05  # one-sided paired Wilcoxon on confirm seeds
 SIDE_LIMIT = 1.05  # side-street all-requested delay vs old
+APPROACH_LIMIT = 1.05  # each origin approach on each matched simulation seed
 TELEPORT_MARGIN = 2  # per seed, vs old
 
 
@@ -55,8 +57,7 @@ def plan(cfg, params, path):
 
 
 def score(cfg, routes, timing, seeds):
-    return [{k: v for k, v in s.items() if k != 'origin_delay_s'}
-            for s, _ in road.many([(cfg, routes, timing, seed) for seed in seeds])]
+    return [s for s, _ in road.many([(cfg, routes, timing, seed) for seed in seeds])]
 
 
 def side(stats):
@@ -64,18 +65,58 @@ def side(stats):
 
 
 def feasible(stats, base):
-    return (all(s['teleports'] <= b['teleports']+TELEPORT_MARGIN for s, b in zip(stats, base))
-            and side(stats) <= SIDE_LIMIT*side(base)+1e-9)
+    return (bool(stats) and len(stats) == len(base)
+            and all(s['seed'] == b['seed'] and s['teleports'] <= b['teleports']+TELEPORT_MARGIN
+                    for s, b in zip(stats, base))
+            and side(stats) <= SIDE_LIMIT*side(base)+1e-9 and not regressions(stats, base))
+
+
+def regressions(stats, base):
+    """Identify approaches that worsen beyond the limit or cannot be compared."""
+    failed = set()
+    for new, old in zip(stats, base, strict=True):
+        before, after = old['origin_delay_s'], new['origin_delay_s']
+        if not before or before.keys() != after.keys():
+            raise ValueError('A paired run is missing origin-approach scores')
+        for origin, a in before.items():
+            b = after[origin]
+            if not all(math.isfinite(v) and v >= 0 for v in (a, b)):
+                raise ValueError('Invalid origin-approach score')
+            if b > APPROACH_LIMIT*a+1e-9:
+                failed.add(origin)
+    return sorted(failed)
 
 
 def primary(stats):
     return statistics.mean(s['all_requested_delay_s'] for s in stats)
 
 
+def current(cfg, out):
+    result = json.loads((out/'practice.json').read_text())
+    fit = learn.current_fit(cfg, out)
+    if (result.get('fit_sha256') != learn.digest(out/'learn.json')
+            or result.get('fit_failures', []) != learn.fit_failures(fit)
+            or (not result.get('fit_failures') and result.get('plan_sha256') != learn.digest(out/'plan.add.xml'))):
+        raise ValueError('Practice inputs or plan changed. Run practice again.')
+    return result
+
+
 def practice(name, trials=TRIALS, search_seeds=SEARCH_SEEDS, confirm_seeds=CONFIRM_SEEDS):
     cfg = road.load(name)
+    search_seeds, confirm_seeds = tuple(search_seeds), tuple(confirm_seeds)
+    if trials < 1 or not search_seeds or not confirm_seeds or len(set(search_seeds+confirm_seeds)) != len(search_seeds+confirm_seeds):
+        raise ValueError('Practice needs a trial and distinct seeds for search and confirmation')
     out, start = road.OUT/name, time.monotonic()
     copy, old_timing = out/'copy.rou.xml', road.file(cfg, 'old_timing')
+    fit_path = out/'learn.json'
+    fit_sha256 = learn.digest(fit_path)
+    failures = learn.fit_failures(learn.current_fit(cfg, out))
+    if failures:
+        result = dict(road=name, fit_sha256=fit_sha256, fit_failures=failures, trials=0,
+                      clear_gain=False, confirm_old=[], confirm_new=[])
+        (out/'practice.json').write_text(json.dumps(result, indent=2)+'\n')
+        print(f"practice {name}: no search; copy failed {', '.join(failures)}")
+        return result
     old = old_params(cfg)
     base = score(cfg, copy, old_timing, search_seeds)
     optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -84,6 +125,8 @@ def practice(name, trials=TRIALS, search_seeds=SEARCH_SEEDS, confirm_seeds=CONFI
 
     def objective(trial):
         params = {k: trial.suggest_float(k, *bounds(k, old['cycle_s'])) for k in old if searched(k)}
+        if trial.number == 0:
+            return primary(base)
         with tempfile.TemporaryDirectory() as temp:
             timing = Path(temp)/'plan.xml'
             try:
@@ -91,19 +134,31 @@ def practice(name, trials=TRIALS, search_seeds=SEARCH_SEEDS, confirm_seeds=CONFI
             except ValueError:
                 return 1e9  # cycle cannot hold the bounded greens and clearances
             stats = score(cfg, copy, timing, search_seeds)
-        trial.set_user_attr('stats', stats)
         return primary(stats) if feasible(stats, base) else 1e9
     study.optimize(objective, n_trials=trials)
     best = study.best_trial
-    plan(cfg, best.params, out/'plan.add.xml')
     before = score(cfg, copy, old_timing, confirm_seeds)
-    after = before if best.number == 0 else score(cfg, copy, out/'plan.add.xml', confirm_seeds)
+    with tempfile.TemporaryDirectory(dir=out) as temp:
+        candidate = Path(temp)/'plan.xml'
+        if best.number == 0:
+            candidate.write_bytes(old_timing.read_bytes())
+        else:
+            plan(cfg, best.params, candidate)
+        after = before if best.number == 0 else score(cfg, copy, candidate, confirm_seeds)
+        learn.current_fit(cfg, out)
+        if fit_sha256 != learn.digest(fit_path):
+            raise ValueError('Copy or fit changed during practice. Run practice again.')
+        plan_sha256 = learn.digest(candidate)
+        candidate.replace(out/'plan.add.xml')
     diffs = [a['all_requested_delay_s']-b['all_requested_delay_s'] for a, b in zip(after, before)]
     test = wilcoxon(diffs, alternative='less') if any(diffs) else None
-    gain = -statistics.mean(diffs)/primary(before)
+    old_delay = primary(before)
+    gain = -statistics.mean(diffs)/old_delay if old_delay > 0 else 0.
     p_value = float(test.pvalue) if test else 1.
     clear = best.number != 0 and gain >= MIN_GAIN and p_value < ALPHA and feasible(after, before)
-    result = dict(road=name, trials=trials, search_seeds=list(search_seeds), confirm_seeds=list(confirm_seeds),
+    result = dict(road=name, fit_sha256=fit_sha256, plan_sha256=plan_sha256,
+                  approach_regressions=regressions(after, before), trials=trials,
+                  search_seeds=list(search_seeds), confirm_seeds=list(confirm_seeds),
                   best_trial=best.number, best_search_delay_s=best.value, old_search_delay_s=primary(base),
                   params=best.params, old_params={k: v for k, v in old.items() if searched(k)},
                   confirm_old=before, confirm_new=after, confirm_diffs_s=diffs, confirm_gain=gain,
@@ -112,6 +167,6 @@ def practice(name, trials=TRIALS, search_seeds=SEARCH_SEEDS, confirm_seeds=CONFI
                                 sampler='TPE seed 0', max_parallel_sims=road.MAX_SIMS),
                   wall_s=time.monotonic()-start)
     (out/'practice.json').write_text(json.dumps(result, indent=2)+'\n')
-    study.trials_dataframe().drop(columns=['user_attrs_stats'], errors='ignore').to_csv(out/'trials.csv', index=False)
+    study.trials_dataframe().to_csv(out/'trials.csv', index=False)
     print(f'practice {name}: best trial {best.number}, copy gain {gain:.1%}, p={p_value:.3g}, clear={clear}')
     return result
