@@ -92,6 +92,7 @@ Slides and the console need only `python3 -m tools.demo`, no setup. Without the 
 | [dashboard/signal-learner/](dashboard/signal-learner/) | Slides, PDF, video |
 | [dashboard/console/](dashboard/console/) | The engineer console (live demo) |
 | [docs/DEMO.md](docs/DEMO.md) | How the demo launcher works |
+| [docs/media/signal-learner-demo.mp4](docs/media/signal-learner-demo.mp4) | 97-second demo video: the console walkthrough, then the full simulated evening. No voiceover. |
 | [docs/PROJECT-DETAILS.md](docs/PROJECT-DETAILS.md) | Every detail of the study, results and limits |
 | [docs/research-hardware.md](docs/research-hardware.md) | Sourced facts on signal hardware and city systems |
 | `src/learner/`, `tools/learner.py` | The learner code and its commands |
