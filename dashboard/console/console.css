@@ -81,7 +81,9 @@ html { scrollbar-color: #c3c9d2 transparent; }
 .sim-tag { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; }
 .sim-tag i { width: 6px; height: 6px; border-radius: 50%; background: #d97706; }
 .fixture { color: #fff; background: #b42318; letter-spacing: .02em; }
-.fixture[hidden] { display: none; }
+.fixture[hidden], .back-deck[hidden] { display: none; }
+.back-deck { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 14px; font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-weak); text-decoration: none; }
+.back-deck:hover { color: var(--accent-hover); background: #e2eafd; }
 .app { display: grid; grid-template-columns: 208px minmax(0, 1fr); min-height: calc(100vh - 48px); background: linear-gradient(90deg, var(--surface) 207px, var(--line) 207px 208px, transparent 208px); }
 .side { padding: 12px 8px; position: sticky; top: 48px; height: calc(100vh - 48px); background: var(--surface); overflow: auto; }
 .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
@@ -471,6 +473,21 @@ details summary { cursor: pointer; color: var(--accent); font-size: 13px; font-w
 .rb.now { height: 9px; }
 .gain { font-size: 13px; color: var(--muted); white-space: nowrap; }
 .gain b { color: var(--text); font-weight: 650; }
+
+/* Steps 1 and 2 fill the window: the map and the per-light rows take the spare height. */
+.path-page.fill { min-height: calc(100vh - 104px); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+.fill .g-step { align-items: stretch; }
+.fill .g-step > .col { align-content: center; gap: 20px; }
+.fill .g-step > .panel { display: flex; flex-direction: column; }
+.fill .g-step > .panel > .panel-b { flex: 1; display: flex; flex-direction: column; }
+.fill .map.road { flex: 1; height: auto; min-height: 190px; }
+.fill .g-step:has(.map.road) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+.fill .g-step:has(.map.road) > .col { display: flex; align-items: flex-end; gap: 48px; }
+.fill .g-step:has(.map.road) .stat { margin: 0; padding: 0 0 4px 48px; border-top: 0; border-left: 1px solid var(--line); }
+.fill .rounds { flex: 1; display: grid; grid-auto-rows: minmax(64px, 1fr); }
+.fill .rbs { gap: 6px 10px; }
+.fill .rb { height: 22px; }
+.fill .rb.now { height: 14px; }
 
 /* Decision */
 .verdict { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }

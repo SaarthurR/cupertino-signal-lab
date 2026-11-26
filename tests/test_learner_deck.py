@@ -28,16 +28,23 @@ class LearnerDeckTests(unittest.TestCase):
             self.assertRegex(slide, r'<aside class="notes">[^<]+</aside>')
         self.assertEqual([("data-backup" in s) for s in self.slides], [False] * 8 + [True] * 9 + [False])
         self.assertIn("End of talk", visible(self.slides[7]))
-        self.assertEqual(re.findall(r'href="#(\d+)"', self.slides[7]), list(map(str, range(10, 19))))
+        self.assertEqual(re.findall(r'href="#(\d+)"', self.slides[7]), list(map(str, range(9, 18))))
         self.assertEqual(re.findall(r'data-label="Backup (B\d)"', "".join(self.slides[8:17])), [f"B{i}" for i in range(1, 10)])
         self.assertIn("60 seconds", visible(self.slides[17]))
 
-    def test_demo_slide_embeds_the_served_console(self):
-        link = re.search(r'<iframe id="console" src="(console/)#/wolfe/review"', self.slides[3]).group(1)
+    def test_console_slide_opens_the_served_console(self):
+        self.assertNotIn("<iframe", self.deck)
+        link = re.search(r'<a class="open" href="(console/)\?from=deck#/wolfe/problem"', self.slides[3]).group(1)
         self.assertIn(link + "index.html", demo.ASSETS)
-        self.assertIn('src="img/live.png"', self.slides[3])
+        self.assertIn('src="img/console_proof.png"', self.slides[3])
         for src in re.findall(r'<img[^>]+src="([^"]+)"', self.deck):
             self.assertIn(src, demo.ASSETS)
+        console = (ROOT / "dashboard/console/index.html").read_text()
+        self.assertIn('id="back-deck" href="../#5" hidden', console)
+
+    def test_no_ask_left_in_the_deck(self):
+        for phrase in ("real case", "help us check", "our ask"):
+            self.assertNotIn(phrase, self.deck.lower())
 
     def test_numbers_match_saved_facts(self):
         f = self.facts
@@ -52,7 +59,8 @@ class LearnerDeckTests(unittest.TestCase):
 
         numbers = visible(self.slides[8])
         self.assertIn(f"{f[('wolfe', 'old_delay')]:.1f} → {f[('wolfe', 'learner_delay')]:.1f} s", numbers)
-        self.assertIn(f"−{-100 * f[('wolfe', 'learner_change')]:.1f}%", numbers)
+        self.assertIn(pct, numbers)
+        self.assertIn("lower in all 20", numbers)
         self.assertIn(f"{f[('wolfe', 'copy_old_delay')]:.1f} → {f[('wolfe', 'copy_old_delay')] * (1 + f[('wolfe', 'predicted_change')]):.1f} s", numbers)
         self.assertIn(f"−{round(-100 * f[('wolfe', 'predicted_change')])}%", numbers)
 

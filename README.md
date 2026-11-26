@@ -35,17 +35,17 @@ Every one of us must be able to explain the whole project, not only our own part
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
 2. Open the **judge deck** (Google Slides in Saarth’s Drive, not in this repo). It is the main talk: slides 1–7 are the talk (about 2.5 minutes), then an “End of talk” slide; B1–B9 after it are backup for questions only, and the last slide is the 60-second version. Read every speaker note.
 3. Run `python3 -m tools.demo` and open the links in Chrome:
-   - **Slides:** the same 18 slides as the judge deck, with the live engineer console inside slide 4. Press **N** for speaker notes.
+   - **Slides:** the same 18 slides as the judge deck, with a console preview on slide 4. Press Right there to open the live console; **Back to slides** returns to slide 5. Press **N** for speaker notes.
    - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
-4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **Wolfe Road: 1 The problem → See the fix → See the proof → Run the simulation (240×) → result slide**. Then look at **Deploy & monitor** and **How it connects** (under More) for questions only. They are not part of the main talk.
+4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **slide 4 preview → Right → Wolfe Road: 1 The problem → See the fix → See the proof → Run the simulation (240×) → Back to slides**. Then look at **Deploy & monitor** and **How it connects** (under More) for questions only. They are not part of the main talk.
 5. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
 
 ### Step 2 · Learn your own part
 
 | | **Advaita: the story** | **Saarth: the simulation and the demo** | **Prithvi: the real-world side** |
 |---|---|---|---|
-| **Presents** | Slides 1–3: the problem, the result up front and how it works (37 s). Slide 7: our ask (10 s). | Slides 4–5: the live demo and the Wolfe Rd result (63 s). | Slide 6: no-change and our limits (20 s). Slide 7: the engineer decides (8 s). Leads Q&A with the backup slides. |
+| **Presents** | Slides 1–3: the problem, the result up front and how it works (37 s). | Slides 4–5: the live demo and the Wolfe Rd result (63 s). | Slide 6: no-change and our limits (20 s). Slide 7: thank you (8 s). Leads Q&A with the backup slides. |
 | **Learns deeply** | Guide sections [1](docs/PRESENTER-GUIDE.md#1-the-problem) and [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does). The city email and the VTA data in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). | Guide sections [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does) and [4](docs/PRESENTER-GUIDE.md#4-the-results-and-what-the-numbers-mean). The results in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). How the code runs: `src/learner/`, `tools/learner.py`. | Guide sections [2](docs/PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [5](docs/PRESENTER-GUIDE.md#5-how-it-would-connect-to-a-real-city). The sourced facts in [research-hardware](docs/research-hardware.md). The "How it connects" screen in the console. |
 | **Answers judge questions on** | Why Cupertino needs this. Who the user is. What we do next. | What the AI is. Is the data real. Is the test fair. What −26% means. Could it make things worse. | What hardware is in a traffic light. How it connects. Is it safe. Don't smart systems already exist. |
 | **Also owns** | The backup screen recording of the demo | The presentation laptop setup and the live demo working | Club rules, time-keeping in rehearsal, the submission |
@@ -70,17 +70,15 @@ Laptop charged. Chrome open on the judge deck and the console (already on Wolfe 
 
 | Slide | Who | Seconds |
 |---|---|---:|
-| 1 · Hook: Stevens Creek backs up toward Glenbrook | Advaita | 12 |
-| 2 · The result up front: Wolfe Rd −26% | Advaita | 14 |
-| 3 · Try timing changes on a computer first | Advaita | 15 |
-| 4 · Practice and test are kept apart | Saarth | 23 |
-| 5 · Live demo in the console ([script](docs/DEMO.md#demo-script-45-seconds)) | Saarth | 45 |
-| 6 · Result: Wolfe Rd −26.1%, lower in 20 of 20 runs | Saarth | 19 |
-| 7 · Sometimes the answer is no change, and our limits | Prithvi | 21 |
-| 8 · The engineer stays in charge | Prithvi | 14 |
-| 9 · Our ask | Advaita | 12 |
+| 1 · Stevens Creek backs up at rush hour | Advaita | 12 |
+| 2 · The result up front: Wolfe Rd −26% | Advaita | 10 |
+| 3 · How it works | Advaita | 15 |
+| 4 · The engineer console, then the live console ([script](docs/DEMO.md#demo-script-45-seconds)) | Saarth | 45 |
+| 5 · Result: −26% less delay per trip, lower on all 20 test evenings | Saarth | 18 |
+| 6 · It can also say no, and our limits | Prithvi | 20 |
+| 7 · Thank you | Prithvi | 8 |
 | Hand-offs | | 5 |
-| **Total** | | **180** |
+| **Total** | | **133** |
 
 The seconds are word-count targets, so time a real rehearsal. If the demo breaks, go to slide 5. If the whole talk breaks, or the slot is shorter than 2.5 minutes, give the 60-second version (last slide).
 

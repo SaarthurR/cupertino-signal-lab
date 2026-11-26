@@ -511,7 +511,7 @@ function stepper(d, at) {
 
 function pathPage(d, at, headline, body) {
   const next = STEPS[STEPS.findIndex(([k]) => k === at) + 1];
-  return `<div class="page path-page">
+  return `<div class="page path-page${at === 'proof' ? '' : ' fill'}">
     <div class="path-top"><p class="road">${esc(d.info.street)}</p>${stepper(d, at)}</div>
     <header class="path-h"><h1>${headline}</h1>${next ? `<a class="btn primary lg" href="${go(d.road, next[0])}">See ${next[1].toLowerCase()} ›</a>` : ''}</header>
     ${body}
@@ -915,6 +915,15 @@ main.addEventListener('click', async event => {
   else if (action === 'reset') { state = { decisions: {}, log: [] }; save(); }
   else if (action === 'print') { document.getElementById('print').innerHTML = sheet(d); return window.print(); }
   await redraw('.verdict .row .btn, .actions .btn.primary, .actions .btn.danger');
+});
+
+// Opened from the slides (?from=deck): a chip and a presentation clicker's PageDown go on to the result slide; PageUp goes back.
+const FROM_DECK = new URLSearchParams(location.search).get('from') === 'deck';
+const backDeck = document.getElementById('back-deck');
+backDeck.hidden = !FROM_DECK;
+document.addEventListener('keydown', event => {
+  if (FROM_DECK && event.key === 'PageDown') { event.preventDefault(); location.href = backDeck.href; }
+  else if (FROM_DECK && event.key === 'PageUp') { event.preventDefault(); history.back(); }
 });
 
 document.addEventListener('keydown', event => {

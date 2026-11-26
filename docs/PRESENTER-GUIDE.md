@@ -86,7 +86,7 @@ The conflict monitor in every cabinet can put a light into flash if it sees conf
 
 ## 8. On stage: the demo and the fallback
 
-- **The demo is 45 seconds** (judge deck slide 4; full script in [DEMO.md](DEMO.md#demo-script-45-seconds)). Start with the console already on Wolfe Road step 1, The problem. Point at 870 s, click See the fix and point at the longer rounds, then See the proof and Run the simulation (it starts at 240×) for about 25 seconds, say "This is one evening; next is the full test," and go to the result slide at 45 seconds even if the run is still playing.
+- **The demo is 45 seconds** (judge deck slide 4; full script in [DEMO.md](DEMO.md#demo-script-45-seconds)). Point at the three callouts on the console preview for 5 seconds, then press Right to open the live console on Wolfe Road step 1, The problem. Point at 870 s, click See the fix and point at the longer rounds, then See the proof and Run the simulation (it starts at 240×) for about 20 seconds, say "That's one evening. Here's the full test," and click Back to slides (top right) at 45 seconds even if the run is still playing. It opens the result slide.
 - **Never open Deploy & monitor in the main talk.** It previews a future workflow; no real controller is touched. Show it only if a judge asks.
 - **If the screen says Recording**, say "This is a saved run of the same evening."
-- **If the demo breaks**, talk over the slide's screenshot and go to the result slide. **If the whole talk breaks**, give the 60-second version on the judge deck's last slide: what it does, the Wolfe −26% result, the limits and our ask. No app, terminal or video needed.
+- **If the demo breaks**, go back to the slides, talk over the console preview and go to the result slide. **If the whole talk breaks**, give the 60-second version on the judge deck's last slide: what it does, the Wolfe −26% result and the limits. No app, terminal or video needed.

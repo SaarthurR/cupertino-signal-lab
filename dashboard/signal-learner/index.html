@@ -69,8 +69,6 @@ p { font-size: 32px; line-height: 1.4; color: var(--ink-2); letter-spacing: -.01
 .green { color: var(--green); }
 .red { color: var(--red); }
 .card { background: var(--parch); border-radius: var(--r); padding: 48px; }
-.frame { background: #fff; border-radius: var(--r-in); overflow: hidden; box-shadow: var(--shadow), 0 0 0 1px var(--hair); }
-.frame img { display: block; width: 100%; height: auto; max-height: none; }
 .dot { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 30px; font-weight: 600; flex: none; }
 .dot.ink { background: var(--ink); }
 .rows > * { display: block; padding: 22px 0; border-top: 1px solid var(--hair-2); }
@@ -79,86 +77,102 @@ p { font-size: 32px; line-height: 1.4; color: var(--ink-2); letter-spacing: -.01
 /* Motion: slides crossfade, screenshots settle in. Text only fades. */
 .slide { transition: opacity .45s var(--ease), visibility 0s linear .45s; }
 .slide.active { transition: opacity .55s var(--ease) .05s, visibility 0s; }
-.slide .frame { transform: scale(.97); transition: transform 1s cubic-bezier(.16, 1, .3, 1) .05s; }
-.slide.active .frame { transform: scale(1.0001); }
 
-/* 1 problem */
-.s-problem .body { display: grid; grid-template-columns: 540px 1fr; gap: 64px; align-items: stretch; align-content: center; }
-.s-problem .card { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
-.s-problem .who { font-size: 28px; font-weight: 600; color: var(--muted); }
-.s-problem blockquote { text-wrap: balance; font-size: 54px; line-height: 1.12; font-weight: 600; letter-spacing: -.022em; text-indent: -.42em; }
-.s-problem .src { font-size: 26px; color: var(--muted); }
+/* Talk slides 1–7: each is built around one picture or one big number. Headings are two-tone: ink, then grey. */
+.t { padding: 96px; }
+.t h2 { font-size: 64px; letter-spacing: -.03em; }
+.two span { color: var(--faint); }
+.panel { position: relative; background: var(--parch); border-radius: var(--r); overflow: hidden; }
+.panel > img.fill { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+.credit { position: absolute; right: 20px; bottom: 16px; font-size: 16px; color: var(--muted); background: rgba(255, 255, 255, .88); padding: 4px 10px; border-radius: 8px; }
+.win { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0, 0, 0, .07), rgba(0, 0, 0, .05) 0 2px 6px, rgba(0, 0, 0, .16) 0 32px 72px -12px; }
+.win > header { position: relative; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 500; color: var(--muted); background: #fbfbfd; border-bottom: 1px solid var(--hair); }
+.win > header::before { content: ""; position: absolute; left: 18px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: #dcdce0; box-shadow: 20px 0 #dcdce0, 40px 0 #dcdce0; }
+.win img, .frag img { display: block; width: 100%; height: auto; max-width: none; max-height: none; }
+.frag { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0, 0, 0, .06), rgba(0, 0, 0, .12) 0 20px 48px -12px; }
+.slide .win, .slide .frag { transform: translateY(16px) scale(.98); transition: transform 1s cubic-bezier(.16, 1, .3, 1) .05s; }
+.slide.active .win, .slide.active .frag { transform: none; }
 
-/* 2 title */
-.s-title { justify-content: center; }
-.s-title .grid { display: grid; grid-template-columns: 940px 1fr; gap: 80px; align-items: center; }
-.s-title .name { font-size: 36px; font-weight: 600; color: var(--blue); letter-spacing: -.01em; }
-.s-title h1 { font-size: 104px; line-height: 1.0; letter-spacing: -.035em; margin-top: 28px; }
-.s-title .hero { display: flex; align-items: center; gap: 36px; margin-top: 72px; }
-.s-title .hero b { font-size: 176px; line-height: .9; font-weight: 600; letter-spacing: -.045em; color: var(--green); }
-.s-title .hero span { font-size: 38px; line-height: 1.2; color: var(--ink-2); max-width: 280px; }
-.s-title .team { margin-top: 88px; }
-.s-title .team b { display: block; font-size: 32px; font-weight: 600; }
-.s-title .team span { display: block; font-size: 26px; color: var(--muted); margin-top: 8px; }
+/* 1 problem: heading and the city's words, then the map across the stage */
+.s1 .panel { flex: 1; margin-top: 48px; }
+.s1 .panel img.fill { object-position: 50% 26%; }
+.s1 .quote { position: absolute; top: 32px; right: 32px; width: 600px; padding: 32px 36px; border-radius: 20px; background: rgba(255, 255, 255, .95);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .05), rgba(0, 0, 0, .12) 0 20px 48px -16px; font-size: 34px; line-height: 1.25; font-weight: 600; letter-spacing: -.015em; color: var(--ink); text-indent: -.4em; }
+.s1 .quote span { display: block; text-indent: 0; font-size: 22px; font-weight: 500; color: var(--faint); letter-spacing: 0; margin-bottom: 12px; }
+.s1 .quote cite { display: block; text-indent: 0; font-style: normal; font-size: 22px; font-weight: 400; color: var(--faint); letter-spacing: 0; margin-top: 16px; }
 
-/* 3 how */
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 72px; }
-.steps .card { position: relative; min-height: 440px; padding: 52px; display: flex; flex-direction: column; }
-.steps .card.last { background: var(--blue-soft); }
-.steps h3 { font-size: 50px; letter-spacing: -.025em; margin-top: 120px; }
-.steps p { font-size: 32px; color: var(--muted); margin-top: 16px; }
-.steps .card + .card::before { content: ""; position: absolute; left: -52px; top: 50%; width: 32px; height: 32px; margin-top: -16px;
-    background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E"); }
+/* 2 title: name and the one number, then Wolfe Road and its 5 lights */
+.s2 .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 64px; }
+.s2 .name { font-size: 32px; font-weight: 600; color: var(--blue); letter-spacing: -.01em; }
+.s2 h1 { font-size: 96px; line-height: 1; letter-spacing: -.04em; margin-top: 24px; }
+.s2 .team { font-size: 28px; color: var(--muted); margin-top: 40px; }
+.s2 .team b { font-weight: 600; color: var(--ink); margin-right: 16px; }
+.s2 .hero { text-align: right; }
+.s2 .hero b { display: block; font-size: 208px; line-height: .82; font-weight: 600; letter-spacing: -.05em; color: var(--green); }
+.s2 .hero span { display: block; font-size: 28px; line-height: 1.35; color: var(--ink-2); margin-top: 28px; }
+.s2 .hero span + span { margin-top: 0; color: var(--faint); }
+.s2 .panel { flex: 1; margin-top: 56px; }
 
-/* 4 demo: the real console, live */
-.s-demo { padding: 0; }
-.s-demo::after { display: none; }
-.demo-h { height: 136px; padding: 0 64px; display: flex; align-items: center; gap: 24px; flex: none; }
-.demo-h h2 { font-size: 52px; letter-spacing: -.025em; margin-right: auto; }
-.chip { display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 24px; border-radius: 999px; font-size: 24px; font-weight: 600; white-space: nowrap; }
-.chip i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
-.chip.live { color: var(--green); background: var(--green-soft); }
-.chip.live i { animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 50% { opacity: .35; } }
-.chip.back { color: var(--blue); background: var(--blue-soft); opacity: 0; transition: opacity .3s var(--ease); }
-body.in-console .chip.back { opacity: 1; }
-.demo-frame { position: relative; margin: 0 64px; height: 904px; border-radius: var(--r-in); overflow: hidden; background: var(--parch); box-shadow: 0 0 0 1px var(--hair-2); }
-.demo-frame iframe { position: absolute; left: 0; top: 0; width: 1344px; height: 678px; border: 0; transform: scale(1.33334); transform-origin: 0 0; background: #fff; }
-.demo-frame .still { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
-.s-demo.fallback iframe { display: none; }
-.s-demo.fallback .still { display: block; }
+/* 3 how it works: three cards, each a real piece of the console on a soft backdrop */
+.trio { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 56px; }
+.trio .panel { display: flex; flex-direction: column; padding: 44px 44px 0; }
+.trio h3 { font-size: 34px; line-height: 1.25; letter-spacing: -.02em; }
+.trio h3 span { display: block; color: var(--faint); }
+.trio h3 i { font-style: normal; color: var(--blue); margin-right: 12px; }
+.trio figure { flex: 1; margin: 40px -32px 12px; border-radius: 20px; background: #e9e9ee; display: grid; place-items: center; overflow: hidden; }
+.trio .frag { width: 86%; }
+
+/* 4 the engineer console: one window on the Wolfe Road map, three callouts, then the live console */
+.s4 .top { display: flex; align-items: center; justify-content: space-between; }
+.open { display: inline-flex; align-items: center; gap: 14px; height: 64px; padding: 0 34px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 26px; font-weight: 600; text-decoration: none; letter-spacing: -.01em; }
+.open svg { width: 22px; height: 22px; }
+.open:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+.fallback .open { display: none; }
+.s4 .panel { flex: 1; margin-top: 48px; }
+.s4 .win { position: absolute; left: 304px; top: 48px; width: 1120px; }
+.leads { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; pointer-events: none; overflow: visible; }
+.leads path { stroke: var(--ink); stroke-width: 2; fill: none; }
+.leads circle { fill: var(--blue); stroke: #fff; stroke-width: 3; }
+.co { position: absolute; width: 264px; transform: translateY(-100%); }
+.co b { display: block; font-size: 25px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); }
+.co span { display: block; font-size: 22px; line-height: 1.3; color: var(--muted); margin-top: 6px; }
 
 /* 5 result: the one moving moment */
-.s-result .body { display: grid; grid-template-columns: 720px 1fr; gap: 80px; align-items: center; align-content: center; }
-.big { font-size: 272px; line-height: .85; font-weight: 600; letter-spacing: -.05em; color: var(--green); white-space: nowrap; }
-.s-result .big + p { font-size: 38px; margin-top: 40px; max-width: 600px; }
-.bars h3 { font-size: 30px; color: var(--muted); }
-.bars .r { margin-top: 56px; }
-.bars .name { font-size: 34px; font-weight: 600; color: var(--ink-2); }
-.bars .track { display: flex; align-items: center; gap: 28px; margin-top: 18px; }
-.bars .bar { height: 104px; border-radius: 16px; background: var(--old); transform-origin: 0 50%; transform: scaleX(0); transition: transform 1.3s var(--ease); }
+.s5 .body { display: grid; grid-template-columns: 760px 1fr; gap: 96px; align-items: stretch; margin-top: 56px; }
+.s5 .body > div:first-child { display: flex; flex-direction: column; justify-content: center; }
+.big { font-size: 300px; line-height: .85; font-weight: 600; letter-spacing: -.05em; color: var(--green); white-space: nowrap; }
+.s5 .big + p { font-size: 40px; line-height: 1.25; color: var(--ink); font-weight: 600; letter-spacing: -.015em; margin-top: 48px; }
+.s5 .big + p + p { font-size: 30px; margin-top: 12px; color: var(--muted); }
+.bars { background: var(--parch); border-radius: var(--r); padding: 64px; display: flex; flex-direction: column; justify-content: center; }
+.bars h3 { font-size: 30px; color: var(--ink); }
+.bars h3 span { display: block; color: var(--faint); font-weight: 400; }
+.bars .r { margin-top: 64px; }
+.bars .name { font-size: 30px; font-weight: 600; color: var(--ink-2); }
+.bars .track { display: flex; align-items: center; gap: 28px; margin-top: 16px; }
+.bars .bar { height: 96px; border-radius: 16px; background: var(--old); transform-origin: 0 50%; transform: scaleX(0); transition: transform 1.3s var(--ease); }
 .bars .r.new .bar { background: var(--green); transition-delay: .25s; }
 .bars .v { font-size: 64px; font-weight: 600; letter-spacing: -.03em; opacity: 0; transition: opacity .5s var(--ease) 1.1s; }
+.bars .v small { font-size: 30px; font-weight: 500; color: var(--faint); margin-left: 6px; letter-spacing: 0; }
 .bars .r.new .v { color: var(--green); transition-delay: 1.35s; }
 .played .bars .bar { transform: scaleX(1.0001); }
 .played .bars .v { opacity: 1; }
 
-/* 6 limits */
-.s-no .body { display: grid; grid-template-columns: 920px 1fr; gap: 96px; align-items: center; align-content: center; }
-.s-no .card { padding: 48px; }
-.s-no .card h3 { font-size: 44px; margin-top: 44px; }
-.s-no .card p { margin-top: 14px; color: var(--muted); }
-.s-no .limits h3 { font-size: 44px; margin-bottom: 32px; }
-.s-no .limits .rows > * { font-size: 36px; line-height: 1.3; color: var(--ink-2); padding: 30px 0; }
-.s-no .limits .rows > b { color: var(--ink); font-weight: 600; }
+/* 6 limits: a feature row, the De Anza screen on the left, the words on the right */
+.s6 .panel { flex: 1; display: grid; grid-template-columns: 1052px 1fr; }
+.s6 .shot { margin: 16px 0 16px 16px; border-radius: 20px; background: #e9e9ee; display: grid; place-items: center; overflow: hidden; }
+.s6 .shot .win { width: 960px; }
+.s6 .copy { padding: 56px 56px 60px; display: flex; flex-direction: column; justify-content: flex-end; }
+.s6 h2 { font-size: 48px; line-height: 1.15; }
+.s6 .rows { margin-top: 48px; }
+.s6 .rows > * { font-size: 28px; line-height: 1.3; color: var(--ink-2); padding: 20px 0; }
+.s6 .rows > b { color: var(--ink); font-weight: 600; }
 
-/* 7 ask */
-.s-ask { justify-content: center; }
-.s-ask h1 { font-size: 132px; line-height: 1; letter-spacing: -.04em; }
-.s-ask .sub { font-size: 42px; color: var(--muted); margin-top: 40px; max-width: 1400px; }
-.s-ask .thanks { margin-top: 140px; padding-top: 56px; border-top: 1px solid var(--hair-2); display: flex; align-items: baseline; gap: 40px; }
-.s-ask .thanks b { font-size: 80px; font-weight: 600; letter-spacing: -.035em; }
-.s-ask .thanks span { font-size: 34px; color: var(--muted); }
+/* 7 close: one statement */
+.s7 { align-items: center; justify-content: center; text-align: center; }
+.s7 h1 { font-size: 200px; line-height: 1; letter-spacing: -.05em; }
+.s7 .sub { font-size: 44px; line-height: 1.3; color: var(--faint); margin-top: 48px; letter-spacing: -.015em; }
+.s7 .team { margin-top: 120px; font-size: 32px; color: var(--muted); }
+.s7 .team b { display: block; font-size: 40px; font-weight: 600; color: var(--ink); margin-bottom: 10px; letter-spacing: -.015em; }
 
 /* End of talk */
 .s-end { --slide-bg: var(--parch); background: var(--parch); align-items: center; justify-content: center; text-align: center; }
@@ -184,11 +198,15 @@ body.in-console .chip.back { opacity: 1; }
 .cols .card p { font-size: 26px; color: var(--muted); margin-top: 14px; }
 
 /* B1 */
-.b1 .card { min-height: 520px; display: flex; flex-direction: column; }
-.b1 .num { font-size: 92px; line-height: 1; font-weight: 600; letter-spacing: -.04em; margin-top: 40px; color: var(--muted); }
-.b1 .num.word { font-size: 46px; line-height: 92px; white-space: nowrap; }
-.b1 .from { font-size: 32px; font-weight: 600; color: var(--ink-2); margin-top: 24px; min-height: 40px; }
-.b1 .card p { margin-top: auto; }
+.b1 .c4 { grid-template-columns: 1fr 1fr 1.45fr 1fr; align-items: stretch; }
+.b1 .card { min-height: 560px; display: flex; flex-direction: column; }
+.b1 .card h3 { font-size: 30px; line-height: 1.25; min-height: 2.5em; }
+.b1 .num { font-size: 80px; line-height: 1; font-weight: 600; letter-spacing: -.04em; margin-top: auto; color: var(--muted); }
+.b1 .ok .num { font-size: 170px; color: var(--green); }
+.b1 .num.word { font-size: 44px; line-height: 80px; white-space: nowrap; color: var(--ink-2); }
+.b1 .card .lab { font-size: 25px; line-height: 1.3; color: var(--ink-2); margin-top: 20px; min-height: 3.9em; }
+.b1 .ok .lab { font-size: 30px; color: var(--ink); font-weight: 600; }
+.b1 .card .from { font-size: 22px; color: var(--muted); margin-top: 28px; min-height: 1.4em; }
 
 /* B2 table */
 table { width: 100%; border-collapse: collapse; font-size: 32px; }
@@ -252,7 +270,8 @@ td.test { color: var(--green); font-weight: 600; }
 /* B7 */
 .b7 .card { padding: 56px; min-height: 400px; }
 .b7 .num { font-size: 150px; line-height: 1; font-weight: 600; letter-spacing: -.045em; margin-top: 36px; }
-.b7 .card p { color: var(--ink-2); margin-top: 28px; }
+.b7 .card p { color: var(--ink); font-weight: 600; margin-top: 28px; }
+.b7 .card p.from { color: var(--muted); font-weight: 400; font-size: 22px; margin-top: 12px; }
 
 /* B8 */
 .b8 .card { padding: 40px 44px; }
@@ -272,6 +291,7 @@ td.test { color: var(--green); font-weight: 600; }
 .s60 .rows > b { color: var(--ink); font-weight: 600; }
 .s60 .big { font-size: 120px; margin-top: 36px; }
 .s60 .ok p { font-size: 27px; color: var(--ink-2); margin-top: 28px; }
+.s60 .ok p.from { font-size: 22px; color: var(--muted); margin-top: 16px; }
 
 /* Speaker notes (N): presenter chrome, outside the slide design */
 .notes-panel { position: fixed; left: 50%; bottom: 20px; width: min(1100px, calc(100vw - 40px)); max-height: 44vh; overflow: auto; transform: translateX(-50%); z-index: 10;
@@ -290,13 +310,12 @@ html.render .slide, html.render .slide *, html.render .notes-panel { transition:
 html.render .notes-panel { display: none; }
 @media (prefers-reduced-motion: reduce) {
     .slide, .slide *, .notes-panel { transition: none !important; animation: none !important; }
-    .slide .frame { transform: none; }
+    .slide .win, .slide .frag { transform: none; }
 }
 @media print {
     .notes-panel { display: none !important; }
-    .slide .frame { transform: none !important; }
-    .s-demo iframe { display: none !important; }
-    .s-demo .still { display: block !important; }
+    .slide .win, .slide .frag { transform: none !important; }
+    .open { display: none !important; }
     .bars .bar { transform: none !important; }
     .bars .v { opacity: 1 !important; }
 }
@@ -307,16 +326,13 @@ html.render .notes-panel { display: none; }
 <div class="deck-stage" id="stage" tabindex="-1">
 
 <!-- ================================================================ THE TALK, slides 1–7 -->
-<section class="slide s-problem" data-label="1 / 7">
+<section class="slide t s1" data-label="1 / 7">
     <h2>Stevens Creek backs up at rush hour.</h2>
-    <div class="body">
-        <div class="card">
-            <p class="who">The city told us</p>
-            <blockquote>“Stevens Creek Blvd is running time of day plans.”</blockquote>
-            <p class="src">City of Cupertino, Nov 2026</p>
-        </div>
-        <figure class="frame"><img src="img/stevens_creek_map.png" alt="Map of Stevens Creek Blvd from Mary Ave to De Anza Blvd. The evening rush backs up toward Glenbrook Apartments."></figure>
-    </div>
+    <figure class="panel">
+        <img class="fill" src="img/stevens_creek_map.png" alt="Map of Stevens Creek Blvd from Mary Ave to De Anza Blvd. The evening rush backs up toward Glenbrook Apartments.">
+        <blockquote class="quote"><span>The city told us</span>“Stevens Creek Blvd is running time of day plans.”<cite>City of Cupertino, Nov 2026</cite></blockquote>
+        <figcaption class="credit">© OpenStreetMap contributors</figcaption>
+    </figure>
     <aside class="notes">Advaita, 12 s
 
 At rush hour, Stevens Creek backs up all the way to Glenbrook.
@@ -326,16 +342,18 @@ We asked: could better timing help?
 [Point at Glenbrook on the map. Source if asked: email from the City of Cupertino transportation team, Nov 1, 2026. Sensors can still change how a plan runs.]</aside>
 </section>
 
-<section class="slide s-title" data-label="2 / 7">
-    <div class="grid">
+<section class="slide t s2" data-label="2 / 7">
+    <div class="head">
         <div>
             <p class="name">Signal Learner</p>
-            <h1>Better signal timing for Cupertino.</h1>
-            <div class="hero"><b>−26%</b><span>less delay on Wolfe Road</span></div>
-            <div class="team"><b>Advaita, Saarth and Prithvi</b><span>Monta Vista AI Club hackathon</span></div>
+            <h1>Better signal timing<br>for Cupertino.</h1>
+            <p class="team"><b>Advaita, Saarth and Prithvi</b>Monta Vista AI Club hackathon</p>
         </div>
-        <figure class="frame"><img src="img/wolfe_card.png" alt="Engineer console card: Wolfe Road, new timing ready for review."></figure>
+        <div class="hero"><b>−26%</b><span>less delay per trip on Wolfe Road</span><span>average of 20 test evenings</span></div>
     </div>
+    <figure class="panel">
+        <img class="fill" src="img/wolfe_map.png" alt="Map of Wolfe Road with its 5 traffic lights: Vallco Pkwy, the I-280 south and north ramps, Pruneridge Ave and Apple Park Way.">
+    </figure>
     <aside class="notes">Advaita, 10 s
 
 We're Advaita, Saarth and Prithvi. We built Signal Learner.
@@ -344,14 +362,15 @@ It finds better light timing. On Wolfe Road it cut our delay score twenty-six pe
 [Point at the big number once. Slide 5 explains it.]</aside>
 </section>
 
-<section class="slide" data-label="3 / 7">
+<section class="slide t s3" data-label="3 / 7">
     <h2>How it works</h2>
-    <div class="body">
-        <div class="steps">
-            <div class="card"><span class="dot">1</span><h3>Count the cars</h3><p>From road sensors</p></div>
-            <div class="card"><span class="dot">2</span><h3>Try 150 timings</h3><p>On a practice copy of the road</p></div>
-            <div class="card last"><span class="dot">3</span><h3>Engineer decides</h3><p>Approve or reject one plan</p></div>
-        </div>
+    <div class="trio">
+        <article class="panel"><h3><i>1</i>Count the cars<span>From road sensors</span></h3>
+            <figure><div class="frag"><img src="img/step_cars.png" alt="Simulated cars on Wolfe Road, queued at Apple Park Way and Pruneridge Ave."></div></figure></article>
+        <article class="panel"><h3><i>2</i>Try 150 timings<span>On a practice copy of the road</span></h3>
+            <figure><div class="frag"><img src="img/step_timing.png" alt="Green time at three lights, now and with the new timing."></div></figure></article>
+        <article class="panel"><h3><i>3</i>Engineer decides<span>Approve or reject one plan</span></h3>
+            <figure><div class="frag"><img src="img/step_decide.png" alt="Approve new timing and Reject buttons from the engineer console."></div></figure></article>
     </div>
     <aside class="notes">Advaita, 15 s
 
@@ -363,48 +382,58 @@ Saarth?
 [Hand off to Saarth.]</aside>
 </section>
 
-<section class="slide s-demo" data-label="4 / 7">
-    <header class="demo-h">
-        <h2>Same trips. Different timing.</h2>
-        <span class="chip back">Esc returns to the slides</span>
-        <span class="chip live"><i></i>Live demo</span>
-    </header>
-    <div class="demo-frame">
-        <iframe id="console" src="console/#/wolfe/review" title="Engineer console, Wolfe Road"></iframe>
-        <img class="still" src="img/live.png" alt="Engineer console: one evening on Wolfe Road, current timing above the Signal Learner plan.">
+<section class="slide t s4" data-label="4 / 7" data-console>
+    <div class="top">
+        <h2>The engineer console</h2>
+        <a class="open" href="console/?from=deck#/wolfe/problem">Open the console<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
-    <aside class="notes">Saarth, 45 s (live demo)
+    <div class="panel">
+        <img class="fill" src="img/wolfe_backdrop.png" alt="">
+        <div class="win"><header>Signal Learner</header><img src="img/console_proof.png" alt="Engineer console, Wolfe Road, step 3: the current timing and the new timing run on the same evening, with −26% and Approve or Reject below."></div>
+        <svg class="leads" width="1728" height="773" viewBox="0 0 1728 773" aria-hidden="true">
+            <path d="M40 339H500"/><circle cx="510" cy="339" r="9"/>
+            <path d="M40 726H500"/><circle cx="510" cy="726" r="9"/>
+            <path d="M1374 720H1704"/><circle cx="1364" cy="720" r="9"/>
+        </svg>
+        <p class="co" style="left: 40px; top: 325px"><b>What changes</b><span>The timing, at all 5 lights</span></p>
+        <p class="co" style="left: 40px; top: 712px"><b>The proof</b><span>−26% delay per trip, lower on all 20 test evenings</span></p>
+        <p class="co" style="left: 1440px; top: 706px"><b>The engineer decides</b><span>Approve or reject</span></p>
+    </div>
+    <aside class="notes">Saarth, 45 s (preview, then the live console)
 
-[Before the talk: console open on Wolfe Road, step 1, The problem. The stepper should end in "Approve or reject". If the badge says Recording, say: "This is a saved run of the same evening."]
+[Before the talk: open the console once and check Wolfe Road ends in "Approve or reject". If not, Reopen on step 3.]
 
+[Preview, 5 s. Point at the three callouts] This is the engineer console. What changes, the proof, and the engineer decides.
+[Press Right, or click Open the console. It opens full screen on Wolfe Road, step 1.]
 [Step 1, point at 870 s, 5 s] This is Wolfe Road in the evening rush. With the current timing, the average trip loses 870 seconds, and 968 cars never get through.
 [Click See the fix, 5 s] Our fix: every light gets a longer round, and the busy directions get more green. The dark blue is Wolfe Road's green.
-[Click See the proof, then Run the simulation, let it play about 25 s] Same cars, same evening. Top is the current timing, bottom is ours. Watch the two big numbers: cars still waiting to get on the road.
-[Point at the green "fewer waiting" line, 10 s] That's one evening. Here's the full test.
+[Click See the proof, then Run the simulation, let it play about 20 s] Same cars, same evening. Top is the current timing, bottom is ours. Watch the two big numbers: cars still waiting to get on the road.
+[Point at the green "fewer waiting" line, then click Back to slides, top right, 10 s] That's one evening. Here's the full test.
 
-[At 45 s go to slide 5, even if it's still playing. Don't open Deploy. Esc, then Right arrow.]
+[Back to slides opens slide 5, even if the run is still playing. A clicker's Page Down does the same. Browser Back returns to this slide. Don't open Deploy.]
+[If the badge says Recording, say: "This is a saved run of the same evening."]
 [The 42% forecast is only under "Details for engineers". It's the practice copy's guess, not the test. Don't read it out.]
-[If the console breaks: talk over this screenshot. Whole talk breaks: jump to the last slide.]</aside>
+[If the console breaks: Back to slides, talk over this screenshot, go on. Whole talk breaks: jump to the last slide.]</aside>
 </section>
 
-<section class="slide s-result" data-label="5 / 7" data-countup>
-    <h2>Less delay in all 20 test runs.</h2>
+<section class="slide t s5" data-label="5 / 7" data-countup>
+    <h2>Less delay on all 20 test evenings.</h2>
     <div class="body">
         <div>
             <div class="big" data-count="26">−26%</div>
-            <p>average delay score on Wolfe Road</p>
+            <p>less delay per trip on Wolfe Road</p>
+            <p>Simulated evenings on a road the tool never practiced on</p>
         </div>
         <div class="bars">
-            <h3>Seconds of delay per trip</h3>
-            <div class="r"><div class="name">Old timing</div><div class="track"><div class="bar" style="width: 720px"></div><span class="v">870</span></div></div>
-            <div class="r new"><div class="name">Signal Learner</div><div class="track"><div class="bar" style="width: 532px"></div><span class="v">643</span></div></div>
+            <h3>Seconds of delay per trip<span>average of 20 test evenings</span></h3>
+            <div class="r"><div class="name">Current timing</div><div class="track"><div class="bar" style="width: 520px"></div><span class="v">870<small>s</small></span></div></div>
+            <div class="r new"><div class="name">Signal Learner</div><div class="track"><div class="bar" style="width: 384px"></div><span class="v">643<small>s</small></span></div></div>
         </div>
     </div>
-    <p class="caption">Simulated test runs on a road the tool never practiced on.</p>
     <aside class="notes">Saarth, 18 s
 
-We tested on twenty runs of Wolfe Road the tool never practiced on.
-Our delay score fell twenty-six percent, from about eight seventy to six forty-three seconds.
+We tested on twenty evenings of Wolfe Road the tool never practiced on.
+Our delay score fell twenty-six percent, from about eight seventy to six forty-three seconds per trip.
 It was lower in all twenty.
 Prithvi?
 
@@ -412,19 +441,14 @@ Prithvi?
 [Unfinished trips fell from about 968 to 217 per run. Each one counts as 15 minutes.]</aside>
 </section>
 
-<section class="slide s-no" data-label="6 / 7">
-    <h2>It can also say no.</h2>
-    <div class="body">
-        <div class="card">
-            <figure class="frame"><img src="img/deanza.png" alt="Engineer console: De Anza Boulevard, no change needed."></figure>
-            <h3>De Anza: no change</h3>
-            <p>The best new plan failed a jam check, so it kept the old timing.</p>
-        </div>
-        <div class="limits">
-            <h3>Limits</h3>
+<section class="slide t s6" data-label="6 / 7">
+    <div class="panel">
+        <div class="shot"><div class="win"><header>Signal Learner</header><img src="img/console_deanza.png" alt="Engineer console, De Anza Boulevard, step 2: the best new timing jammed in 4 of 10 practice runs, so the timing stays as it is at all 4 lights."></div></div>
+        <div class="copy">
+            <h2 class="two">It can also say no. <span>On De Anza, the best new plan failed a jam check, so it kept the old timing.</span></h2>
             <div class="rows">
                 <span>Test traffic was simulated</span>
-                <span>Worst-off start point on Wolfe got slower (about 203 s)</span>
+                <span>Worst-off start point on Wolfe got slower (about 203 s more delay per trip)</span>
                 <b>Not ready for real lights</b>
             </div>
         </div>
@@ -438,18 +462,16 @@ It's not ready for real lights.
 [Only slide with limits. Say them plainly and move on. More: B6, B7.]</aside>
 </section>
 
-<section class="slide s-ask" data-label="7 / 7">
-    <h1>Help us check one real case.</h1>
-    <p class="sub">One Cupertino traffic engineer. Real timing and counts. The engineer decides.</p>
-    <div class="thanks"><b>Thank you</b><span>Advaita, Saarth and Prithvi</span></div>
+<section class="slide t s7" data-label="7 / 7">
+    <h1>Thank you</h1>
+    <p class="sub">The engineer decides. It never touches a real light.</p>
+    <p class="team"><b>Advaita, Saarth and Prithvi</b>Monta Vista AI Club hackathon</p>
     <aside class="notes">Prithvi, 8 s
-Our tool only reads data and recommends. The engineer decides.
 
-Advaita, 10 s
-Our ask: could a Cupertino traffic engineer review one plan with us, using real timing and counts?
-Thank you.
+The engineer decides, and it never touches a real light. Thank you.
+Happy to take questions.
 
-[Then: "Happy to take questions." Prithvi leads Q&amp;A with the backup slides.]</aside>
+[Prithvi leads Q&amp;A with the backup slides.]</aside>
 </section>
 
 <!-- ================================================================ BACKUP, questions only -->
@@ -457,15 +479,15 @@ Thank you.
     <h1>End of talk</h1>
     <p class="sub">Slides after this are backup, for questions only</p>
     <nav class="index" aria-label="Backup slides">
-        <a href="#10"><span>B1</span>Where each number comes from</a>
-        <a href="#11"><span>B2</span>Real counts for practice, made-up traffic for the test</a>
-        <a href="#12"><span>B3</span>What learns and what searches</a>
-        <a href="#13"><span>B4</span>Practice and test are kept apart</a>
-        <a href="#14"><span>B5</span>Cars that never finish still count</a>
-        <a href="#15"><span>B6</span>Why De Anza said no</a>
-        <a href="#16"><span>B7</span>Who could lose?</a>
-        <a href="#17"><span>B8</span>What already exists</a>
-        <a href="#18"><span>B9</span>Who did what</a>
+        <a href="#9"><span>B1</span>Where each number comes from</a>
+        <a href="#10"><span>B2</span>Real counts for practice, made-up traffic for the test</a>
+        <a href="#11"><span>B3</span>What learns and what searches</a>
+        <a href="#12"><span>B4</span>Practice and test are kept apart</a>
+        <a href="#13"><span>B5</span>Cars that never finish still count</a>
+        <a href="#14"><span>B6</span>Why De Anza said no</a>
+        <a href="#15"><span>B7</span>Who could lose?</a>
+        <a href="#16"><span>B8</span>What already exists</a>
+        <a href="#17"><span>B9</span>Who did what</a>
     </nav>
     <aside class="notes">Prithvi, leads Q&amp;A. Don't present these.
 
@@ -477,19 +499,20 @@ B1 numbers, B2 data, B3 the AI, B4 fair test, B5 score, B6 De Anza, B7 who loses
     <h2>Where each number comes from</h2>
     <div class="body">
         <div class="cols c4">
-            <div class="card"><h3>Forecast</h3><div class="num">−42%</div><div class="from">137.6 → 79.6 s</div><p>Practice copy. Used to pick the plan</p></div>
-            <div class="card"><h3>One evening</h3><div class="num" style="color: var(--ink-2)">−24%</div><div class="from">856.0 → 650.2 s</div><p>The demo run, test seed 200</p></div>
-            <div class="card ok"><h3>20-run test</h3><div class="num green">−26.1%</div><div class="from">870.5 → 643.1 s</div><p>Seeds 200–219, lower in all 20. The headline</p></div>
-            <div class="card"><h3>Real streets</h3><div class="num word">Not measured</div><div class="from"></div><p>No field test or city timing comparison yet</p></div>
+            <div class="card"><h3>What did the tool guess before testing?</h3><div class="num">−42%</div><p class="lab">A guess on the practice copy, used only to pick the plan</p><p class="from">137.6 → 79.6 s per trip</p></div>
+            <div class="card"><h3>What happened in the demo evening?</h3><div class="num">−24%</div><p class="lab">The one test evening you watch in the console</p><p class="from">856.0 → 650.2 s per trip</p></div>
+            <div class="card ok"><h3>What happened in the real test?</h3><div class="num green">−26%</div><p class="lab">20 new evenings, lower in all 20. The only result</p><p class="from">870.5 → 643.1 s per trip, average</p></div>
+            <div class="card"><h3>On real streets?</h3><div class="num word">Not tested yet</div><p class="lab">No field test or city timing comparison</p><p class="from"></p></div>
         </div>
-        <p class="caption">Wolfe Road, delay score in seconds per trip. All simulated.</p>
+        <p class="caption">Wolfe Road. Seconds are delay per trip. All simulated.</p>
     </div>
     <aside class="notes">Saarth, 25 s
 
-The forecast chose the plan. It's the practice copy's guess, forty-two percent.
-This one evening is what you saw in the demo, twenty-four percent.
-The twenty-run average is our real simulated result, twenty-six percent. That's the one we lead with.
-We haven't measured anything on real streets.</aside>
+Four questions, left to right.
+Before testing, the tool guessed forty-two percent on its practice copy. That guess only picked the plan.
+The one evening you watch in the demo came out twenty-four percent lower. That's test seed 200.
+The real test is twenty new evenings, seeds 200 to 219. Twenty-six percent lower on average, lower in all twenty. That's the only result we claim.
+On real streets, we haven't tested anything yet.</aside>
 </section>
 
 <section class="slide backup" data-backup data-label="Backup B2">
@@ -584,13 +607,13 @@ Words, if asked: synthetic = made up for the test. Held-out = kept out of plan p
     <div class="body">
         <div class="card formula">
             <p><span class="muted">Delay score = </span>delay of finished trips</p>
-            <p>+ 900 s × each unfinished trip + 900 s × each stuck-car move</p>
+            <p>+ 900 s (15 min) for each unfinished trip and each stuck-car move</p>
             <p>÷ every requested trip</p>
         </div>
         <p class="example-h">Made-up example, not real data</p>
         <div class="card example">
             <p>3 trips. Two finish with 60 s and 120 s of delay. One never finishes.</p>
-            <p>(60 + 120 + 900) ÷ 3 = 360 s</p>
+            <p>(60 + 120 + 900) ÷ 3 = 360 s of delay per trip</p>
         </div>
         <p class="caption">Delay includes time spent waiting to enter the road.</p>
     </div>
@@ -608,14 +631,14 @@ So a plan can't look better just because fewer cars got through.
     <h2>Why De Anza said no</h2>
     <div class="body">
         <div class="cols c3">
-            <div class="card line"><h3>In the practice copy</h3><div class="kv">
-                <div><span>Forecast gain</span><b>11.2%</b></div><div><span>Jam rule</span><b>Failed on 4 of 10 runs</b></div><div><span>Decision</span><b>Keep the old timing</b></div></div></div>
-            <div class="card line"><h3>Main test, seeds 200–219</h3><div class="kv">
-                <div><span>Old timing</span><b>269.9 s</b></div><div><span>Learner</span><b>269.9 s</b></div><div><span>Result</span><b>No change</b></div></div></div>
-            <div class="card"><h3>Later check, seeds 230–249</h3><div class="kv">
-                <div><span>Old timing</span><b>274.5 s</b></div><div><span>Rejected plan</span><b>292.1 s, +6.4%</b></div><div><span>Worse on</span><b>13 of 20 runs</b></div></div></div>
+            <div class="card line"><h3>Before testing, on the practice copy</h3><div class="kv">
+                <div><span>Less delay the best plan promised</span><b>11.2%</b></div><div><span>Jam check</span><b>Failed on 4 of 10 practice runs</b></div><div><span>Decision</span><b>Keep the old timing</b></div></div></div>
+            <div class="card line"><h3>Test, 20 new evenings</h3><div class="kv">
+                <div><span>Old timing, delay per trip</span><b>269.9 s</b></div><div><span>Signal Learner, delay per trip</span><b>269.9 s</b></div><div><span>Result</span><b>No change</b></div></div></div>
+            <div class="card"><h3>Later check, 20 more evenings</h3><div class="kv">
+                <div><span>Old timing, delay per trip</span><b>274.5 s</b></div><div><span>The rejected plan, delay per trip</span><b>292.1 s, +6.4%</b></div><div><span>Evenings it made worse</span><b>13 of 20 runs</b></div></div></div>
         </div>
-        <p class="caption">Jam rule: at most 2 more stuck-car moves than the old timing on each run. The later check came after the main test.</p>
+        <p class="caption">Jam check: at most 2 more stuck-car moves than the old timing on each run. Delay per trip is the average over the evenings. The later check came after the main test.</p>
     </div>
     <aside class="notes">Saarth, 30 s
 
@@ -628,10 +651,10 @@ Later, we tested the rejected plan on twenty new runs. It was six point four per
     <h2>Who could lose?</h2>
     <div class="body">
         <div class="cols c2">
-            <div class="card ok"><h3>Everyone on average</h3><div class="num green">−26%</div><p>Delay score 870.5 → 643.1 s</p></div>
-            <div class="card bad"><h3>Worst-origin delay score</h3><div class="num red">+203 s</div><p>Worst-origin delay 2,565.8 → 2,768.6 s</p></div>
+            <div class="card ok"><h3>Everyone, on average</h3><div class="num green">−26%</div><p>less delay per trip</p><p class="from">870.5 → 643.1 s, average of 20 test evenings</p></div>
+            <div class="card bad"><h3>The worst-off start point</h3><div class="num red">+203 s</div><p>more delay per trip</p><p class="from">Worst-origin delay score 2,565.8 → 2,768.6 s</p></div>
         </div>
-        <p class="caption">For each run and plan, we take the highest starting-point delay score, then average over the 20 runs.</p>
+        <p class="caption">Worst-origin delay score: on each test evening, the delay per trip at the start point that did worst, then averaged over the 20 evenings.</p>
     </div>
     <aside class="notes">Prithvi, 25 s
 
@@ -680,18 +703,18 @@ We each own different parts, but all three of us can explain the test.
         <div class="cols c3">
             <div class="card"><h3>What it does</h3><div class="rows">
                 <span>Builds a practice road from simulated sensor counts</span><span>Tries 150 timing plans</span><span>Gives an engineer one card</span><span>Never touches a real light</span></div></div>
-            <div class="card ok"><h3>Wolfe Road result</h3><div class="big">−26%</div><p>Delay score 870.5 → 643.1 s, lower in all 20 simulated test runs</p></div>
-            <div class="card"><h3>Limits and our ask</h3><div class="rows">
-                <span>Test traffic was made up</span><span>De Anza kept its old timing</span><span>Worst-off Wolfe start point got slower</span><b>Ask: review one real case with a Cupertino engineer</b></div></div>
+            <div class="card ok"><h3>Wolfe Road result</h3><div class="big">−26%</div><p>less delay per trip, average of 20 test evenings, lower on all 20</p><p class="from">Seconds of delay per trip: 870.5 → 643.1 s</p></div>
+            <div class="card"><h3>Limits</h3><div class="rows">
+                <span>Test traffic was simulated</span><span>De Anza kept its old timing</span><span>Worst-off Wolfe start point got slower</span><b>Not ready for real lights</b></div></div>
         </div>
     </div>
     <aside class="notes">Advaita, Saarth and Prithvi, 60 s
 
 60-second fallback. Use if the demo breaks. No app, no terminal, no video.
-If it breaks halfway through the normal talk, skip to the result, limits and ask lines only.
+If it breaks halfway through the normal talk, skip to the result and limits lines only.
 
 Advaita, 0 to 12 s
-"Stevens Creek uses time-of-day signal plans. We built a tool to help an engineer test timing changes on a computer before thinking about a real road."
+"Stevens Creek uses time-of-day signal plans. We built a tool that suggests new timing, and an engineer approves or rejects it."
 
 Saarth, 12 to 29 s
 "The demo isn't working, so here are the saved results. Our software builds a practice road from simulated sensor counts and tries timing plans. On twenty unseen Wolfe Road runs, its delay score fell twenty-six percent."
@@ -700,7 +723,8 @@ Saarth, 29 to 45 s
 "The score also counts trips that never finish, so it's not a shorter-commute number. The test traffic was made up. De Anza kept its old timing, and on Wolfe the worst-off starting point got about two hundred seconds slower."
 
 Prithvi, 45 to 60 s
-"We never touch real lights. We'd like a Cupertino engineer to review one recommendation with us using real timing and counts, starting by checking that our model matches the road."</aside>
+"It's not ready for real lights, and it never touches one. The engineer decides. Thank you."
+Happy to take questions.</aside>
 </section>
 
 </div>
@@ -713,13 +737,12 @@ Prithvi, 45 to 60 s
 
 <script>
 /* Right, Down, Space, PageDown: next. Left, Up, PageUp: back. Home, End. N: speaker notes.
-   Slide 4 holds the live console: click into it to use it; Esc (or a click outside it) gives the keys back to the slides.
+   Going forward from slide 4 opens the live console in this tab; its "Back to slides" chip opens #5, and browser Back returns here.
    #5 opens slide 5. ?render shows every slide in its final state, for screenshots and the PDF. */
 const slides = [...document.querySelectorAll('.slide')];
 const stage = document.getElementById('stage');
 const panel = document.getElementById('notesPanel');
-const frame = document.getElementById('console');
-const demo = frame.closest('.slide');
+const demo = document.querySelector('[data-console]');
 const still = new URLSearchParams(location.search).has('render');
 const calm = still || matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (still) document.documentElement.classList.add('render');
@@ -749,7 +772,7 @@ function countUp(slide) {
 function show(i) {
     i = Math.max(0, Math.min(i, slides.length - 1));
     if (i === cur) return;
-    if (document.activeElement === frame) stage.focus();
+    if (i === cur + 1 && slides[cur] === demo && !demo.classList.contains('fallback')) return void (location.href = demo.querySelector('.open').href);
     if (cur >= 0 && !started) started = Date.now();
     cur = i;
     slides.forEach((s, k) => s.classList.toggle('active', k === i));
@@ -786,23 +809,8 @@ document.addEventListener('touchend', (e) => {
     x0 = null;
 });
 
-// The console needs the launcher; opened as a file, slide 4 shows its screenshot instead.
-const fallback = () => demo.classList.add('fallback');
-if (location.protocol === 'file:') fallback();
-frame.addEventListener('load', () => {
-    try {
-        const w = frame.contentWindow;
-        if (!w.document.getElementById('main')) return fallback();
-        w.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { e.preventDefault(); stage.focus(); }
-            else if (e.key === 'PageDown' || e.key === 'PageUp') { e.preventDefault(); show(cur + (e.key === 'PageDown' ? 1 : -1)); }
-        });
-    } catch (err) { fallback(); }
-});
-const inConsole = () => document.body.classList.toggle('in-console', document.activeElement === frame);
-addEventListener('blur', () => setTimeout(inConsole));
-addEventListener('focus', inConsole);
-document.addEventListener('focusin', inConsole);
+// The console needs the launcher; opened as a file (or rendered for the PDF), slide 4 stays a screenshot and Right goes on to slide 5.
+if (location.protocol === 'file:' || still) demo.classList.add('fallback');
 
 if (still) slides.forEach((s) => s.hasAttribute('data-countup') && s.classList.add('played'));
 const fromHash = () => show((parseInt(location.hash.slice(1), 10) || 1) - 1);
