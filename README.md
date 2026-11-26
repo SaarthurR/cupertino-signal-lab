@@ -35,7 +35,7 @@ Every one of us must be able to explain the whole project, not only our own part
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
 2. Open the **judge deck** (Google Slides in Saarth’s Drive, not in this repo). It is the main talk: slides 1–7 are the talk (about 2.5 minutes), then an “End of talk” slide; B1–B9 after it are backup for questions only, and the last slide is the 60-second version. Read every speaker note.
 3. Run `python3 -m tools.demo` and open the links in Chrome:
-   - **Slides:** the repo and offline version of the talk (17 slides, same numbers). Press **N** for speaker notes.
+   - **Slides:** the same 18 slides as the judge deck, with the live engineer console inside slide 4. Press **N** for speaker notes.
    - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
 4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **Wolfe Road Review → Approve → Run side-by-side simulation at 240× → result slide**. Then look at **Deploy & monitor** and **How it connects** for questions only. They are not part of the main talk.

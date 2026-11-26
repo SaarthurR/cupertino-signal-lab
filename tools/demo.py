@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DECK = Path('dashboard/signal-learner')
 ASSETS = {name: DECK/name for name in (
     'index.html', 'signal-learner.pdf', 'wolfe_side_by_side.mp4', 'wolfe_side_by_side_poster.png')}
+ASSETS.update({f'img/{name}.png': DECK/f'img/{name}.png' for name in ('stevens_creek_map', 'wolfe_card', 'live', 'deanza')})
 ASSETS.update({f'cards/{name}.md': Path(f'reports/learner/{name}/card.md') for name in ('wolfe', 'deanza')})
 ASSETS['runbook.txt'] = Path('docs/DEMO.md')
 ASSETS.update({f'console/{name}': Path('dashboard/console')/name
