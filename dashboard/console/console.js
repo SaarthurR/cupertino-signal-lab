@@ -33,7 +33,7 @@ const TERMS = {
   jammed: 'The simulation had to remove stuck cars more often than with the current timing.',
   posthoc: 'Run after the frozen test; not part of the pre-registered result.',
   tt: 'Completed end-to-end trips along the corridor.',
-  rollback: 'Watches the sensor feed after a change and tells the engineer to go back if delay rises past its limit. Tested in simulation on deliberately bad plans and on harmless changes.',
+  rollback: 'Watches the simulated sensor feed after a change and tells the engineer to go back if occupancy or served traffic moves outside the watched range for several windows. Tested in simulation on deliberately bad plans and on harmless changes.',
 };
 const term = (key, text) => `<span class="term" tabindex="0">${text}<span class="tip" role="tooltip">${esc(TERMS[key])}</span></span>`;
 // Drill-down: a screen, optionally a panel on it (p) and a chart view, e.g. go('wolfe', 'signal/1', { p: 'pcd' }).

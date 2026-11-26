@@ -16,7 +16,7 @@ Software that learns a new road by watching it, then suggests a better timing pl
 3. **Learn:** it learns the traffic pattern and builds a practice copy of the road.
 4. **Practice:** it tries 150 timing plans on the copy.
 5. **Recommend:** it makes a one-page card for an engineer, who approves or rejects it.
-6. **Check:** it watches the sensors and goes back to the old timing if traffic gets clearly worse.
+6. **Check:** it watches the simulated sensors and tells the engineer to go back to the old timing if traffic looks clearly worse. It passed on Wolfe Rd but not on De Anza (see below).
 
 It only makes recommendations. It never controls a light.
 
@@ -49,9 +49,9 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 
 The city told us on Nov 1 that Stevens Creek runs time-of-day plans, not adaptive timing. We do not know yet how the city system is set up.
 
-## What we do in hackathon week
+## What comes next (not done yet)
 
-Fix the shared-lane error, watch for longer, test on new roads, and use real city data if it arrives.
+Fix the shared-lane error, watch for longer, and use real city data if it arrives. Any fix gets tested on new roads and new seeds; the original results stay as they are.
 
 ## Files
 
