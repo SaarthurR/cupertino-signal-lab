@@ -33,7 +33,7 @@ Open the links it prints: the slides, the engineer console and the Wolfe Road vi
 ### Step 1 · Everyone learns the whole project (30 minutes)
 Every one of us must be able to explain the whole project, not only our own part.
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
-2. Open the **judge deck** (Google Slides in Saarth’s Drive, not in this repo). It is the main talk: slides 1–9 are the 180-second talk, B1–B14 are backup for questions, and the last slide is the 60-second version. Read every speaker note.
+2. Open the **judge deck** (Google Slides in Saarth’s Drive, not in this repo). It is the main talk: slides 1–7 are the talk (about 2.5 minutes), then an “End of talk” slide; B1–B9 after it are backup for questions only, and the last slide is the 60-second version. Read every speaker note.
 3. Run `python3 -m tools.demo` and open the links in Chrome:
    - **Slides:** the repo and offline version of the talk (17 slides, same numbers). Press **N** for speaker notes.
    - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below.
@@ -45,7 +45,7 @@ Every one of us must be able to explain the whole project, not only our own part
 
 | | **Advaita: the story** | **Saarth: the simulation and the demo** | **Prithvi: the real-world side** |
 |---|---|---|---|
-| **Presents** | Slides 1–3: the hook, the result up front and what it does (41 s). Slide 9: our ask (12 s). | Slides 4–6: how the test is kept fair, the live demo and the Wolfe Rd result (87 s). | Slides 7–8: no-change and our limits, and how it would fit the city (35 s). Leads Q&A with the backup slides. |
+| **Presents** | Slides 1–3: the problem, the result up front and how it works (37 s). Slide 7: our ask (10 s). | Slides 4–5: the live demo and the Wolfe Rd result (63 s). | Slide 6: no-change and our limits (20 s). Slide 7: the engineer decides (8 s). Leads Q&A with the backup slides. |
 | **Learns deeply** | Guide sections [1](docs/PRESENTER-GUIDE.md#1-the-problem) and [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does). The city email and the VTA data in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). | Guide sections [3](docs/PRESENTER-GUIDE.md#3-what-signal-learner-does) and [4](docs/PRESENTER-GUIDE.md#4-the-results-and-what-the-numbers-mean). The results in [PROJECT-DETAILS](docs/PROJECT-DETAILS.md). How the code runs: `src/learner/`, `tools/learner.py`. | Guide sections [2](docs/PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [5](docs/PRESENTER-GUIDE.md#5-how-it-would-connect-to-a-real-city). The sourced facts in [research-hardware](docs/research-hardware.md). The "How it connects" screen in the console. |
 | **Answers judge questions on** | Why Cupertino needs this. Who the user is. What we do next. | What the AI is. Is the data real. Is the test fair. What −26% means. Could it make things worse. | What hardware is in a traffic light. How it connects. Is it safe. Don't smart systems already exist. |
 | **Also owns** | The backup screen recording of the demo | The presentation laptop setup and the live demo working | Club rules, time-keeping in rehearsal, the submission |
@@ -57,7 +57,7 @@ If one of us is away on the day, the other two cover their part. That is why Ste
 |---|---|---|
 | Read the organizers’ submission email when it arrives; ask the club leads about format, pitch length, Q&A, rubric, Wi-Fi and AI-use disclosure | Prithvi | When the email arrives |
 | Finish Step 1 and Step 2 | All 3 | Nov 27 |
-| Put your speaker notes in your own words; fill in “Who did what” (B13) with one thing each of us built | All 3 | Nov 28 |
+| Put your speaker notes in your own words; fill in “Who did what” (B9) with one thing each of us built | All 3 | Nov 28 |
 | Set up the presentation laptop (below) and run the demo with Wi-Fi **off** | Saarth | Nov 28 |
 | Record a backup screen recording of the 45-second demo | Advaita | Nov 28 |
 | Timed rehearsal twice on the real laptop, plus one where the demo “breaks” and we switch to the 60-second version | All 3 | Nov 29 |
@@ -82,7 +82,7 @@ Laptop charged. Chrome open on the judge deck and the console (already on Wolfe 
 | Hand-offs | | 5 |
 | **Total** | | **180** |
 
-The seconds are word-count targets, so time a real rehearsal. If the demo breaks, go to slide 6. If the whole talk breaks, or the slot is shorter than 3 minutes, give the 60-second version (last slide).
+The seconds are word-count targets, so time a real rehearsal. If the demo breaks, go to slide 5. If the whole talk breaks, or the slot is shorter than 2.5 minutes, give the 60-second version (last slide).
 
 ## Setup on a new laptop
 

@@ -28,7 +28,7 @@ Copy this into a message:
 | 7 | Judge access to the repo | | | |
 | 8 | Data credit | | | |
 
-If the pitch is shorter than our 3-minute talk, use the 60-second version (last slide of the judge deck).
+If the pitch is shorter than our 2.5-minute talk, use the 60-second version (last slide of the judge deck).
 
 ## 2. Before submitting
 
@@ -50,5 +50,5 @@ If the pitch is shorter than our 3-minute talk, use the 60-second version (last 
 
 ## 4. Prithvi's own part
 
-- Slides 7–8 in the judge deck: limits, and how it would fit the city. Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
+- Slides 6–7 in the judge deck: limits, and how it would fit the city. Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
 - Leads Q&A. Be able to answer the hardware, safety and "don't smart systems already exist?" questions in [Presenter Guide section 6](PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) without looking.

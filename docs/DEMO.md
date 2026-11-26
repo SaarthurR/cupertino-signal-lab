@@ -14,7 +14,7 @@ Use Left and Right to change slides and N to show speaker notes. In the repo sli
 
 ## Present and rehearse
 
-The main talk is the team’s Google Slides judge deck: slides 1–9 are the 180-second talk, with the demo on slide 5 and the Wolfe result on slide 6. B1–B14 are for questions, and the last slide is the 60-second version. The repo slides (`dashboard/signal-learner/`, served by the launcher) are the offline version with the same numbers: slides 1–6 are the talk, the demo is slide 3 and the result is slide 4. Put the notes in your own words and do a timed pass on the presentation laptop. The [README](../README.md) has the speaking roles.
+The main talk is the team’s Google Slides judge deck: slides 1–7 are the talk, with the demo on slide 4 and the Wolfe result on slide 5. B1–B9 are for questions, and the last slide is the 60-second version. The repo slides (`dashboard/signal-learner/`, served by the launcher) are the offline version with the same numbers: slides 1–6 are the talk, the demo is slide 3 and the result is slide 4. Put the notes in your own words and do a timed pass on the presentation laptop. The [README](../README.md) has the speaking roles.
 
 ## Demo script: 45 seconds
 
