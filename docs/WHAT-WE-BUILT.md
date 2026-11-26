@@ -36,7 +36,7 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 
 ## What did not go well
 
-- On Wolfe Rd, drivers from the worst-off starting point (origin) got worse, by about 203 s.
+- Wolfe’s worst-origin delay score rose about 203 s.
 - The practice copy had real errors. On De Anza it was badly wrong because of one shared lane.
 - The undo check passed on Wolfe Rd but failed on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two roads is a small test.
@@ -47,7 +47,7 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 2. **Recommend:** an engineer enters an approved change by hand. No connection to the lights is needed.
 3. **Automatic:** only with city approval, much later.
 
-The city told us on Nov 1 that Stevens Creek runs time-of-day plans, not adaptive timing. We do not know yet how the city system is set up.
+The city told us on Nov 1 that Stevens Creek runs time-of-day plans. We do not know yet how the city system is set up.
 
 ## What comes next (not done yet)
 

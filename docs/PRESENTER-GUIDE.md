@@ -71,7 +71,7 @@ The conflict monitor in every cabinet can put a light into flash if it sees conf
 | Does −26% mean my commute is 26% shorter? | No. It is a delay score in simulation, with a big penalty for cars that never get through. |
 | Did you test on the same roads you trained on? | No. The two test roads were hidden until the end, with rules written first. |
 | Is the "old timing" the city's real timing? | No. We do not have the city's timing files yet. That is our first ask. |
-| Could it make things worse for someone? | Yes. On Wolfe, drivers from the worst-off starting point (origin) waited about 203 s longer even though the average improved. That is why an engineer decides, and why we'd check each approach first. |
+| Could it make things worse for someone? | Yes. Wolfe’s worst-origin delay score rose about 203 s. The average improvement does not establish fairness. That is why an engineer decides, and why we'd check each approach first. |
 | How does it connect to real lights? What hardware is there? | See section 5. It reads data; the engineer enters changes. No real connection is built yet. |
 
 ## 7. Say this, not that
