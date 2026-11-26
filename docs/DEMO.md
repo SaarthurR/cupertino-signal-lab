@@ -22,7 +22,7 @@ Before the talk, open the console once (`/console/`); it lands on Wolfe Road ste
 
 | s | Screen | Click | Say |
 |---:|---|---|---|
-| 5 | Slide 4, the preview | Point at the three callouts | “This is the engineer console. What changes, the proof, and the engineer decides.” |
+| 5 | Slide 4, the preview | Point at the three callouts | “This is the engineer console. Cars waiting with each timing, the proof, and the engineer decides.” |
 | 0 | Opens on 1 The problem | **Right**, or **Open the console** | |
 | 5 | 1 The problem | Point to the big 870 s | “This is Wolfe Road in the evening rush. With the current timing, the average trip loses 870 seconds, and 968 cars never get through.” |
 | 5 | 2 The fix | **See the fix** | “Our fix: every light gets a longer round, and the busy directions get more green. The dark blue is Wolfe Road’s green.” |
