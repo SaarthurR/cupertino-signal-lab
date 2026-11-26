@@ -2,7 +2,7 @@
 
 The team start page is the [README](../README.md). This page keeps every detail of the study.
 
-**Monta Vista AI Club hackathon project.** The hackathon runs for one week, starts about Nov 16, 2026, and ends Mon Nov 23, 2026.
+**Monta Vista AI Club hackathon project.** Submissions are due Mon Nov 30, 2026; finalists are picked Dec 5 and present about Dec 11 (date not final). Organizers will email the submission format.
 The club leads said pre-built code is allowed.
 
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
