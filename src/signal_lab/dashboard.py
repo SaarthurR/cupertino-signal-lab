@@ -976,6 +976,8 @@ def next_steps(f):
 METHOD = ('The method repeats for another road: real counts, a road model, a simulator, a plan search '
           'and an unseen test. This plan is tuned for this corridor only.')
 RESULT_NOTE = 'Simulation on 2024 VTA counts, compared with a textbook timing plan.'
+OLD_STUDY = ('Older study (Oct 2026), not Signal Learner. This 40.7% is a different experiment from '
+             'Signal Learner\'s 26% Wolfe Road result. <a href="signal-learner/index.html">Current slides</a>')
 
 
 def build_deck(rows, roads, signals):
@@ -1111,7 +1113,10 @@ body.notes-on .note{{display:block}}
 body.notes-on .slide{{padding-bottom:208px}}  /* the longest note is four lines; never cover the slide */
 .count{{position:fixed;right:22px;bottom:16px;z-index:9;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}}
 @media(prefers-reduced-motion:no-preference){{.slide{{transition:opacity .22s ease-out}}}}
+.old{{position:fixed;left:0;right:0;top:0;z-index:9;max-width:none;padding:8px 22px;font-size:16px;line-height:1.4;color:var(--ink);background:var(--soft);border-bottom:1px solid var(--line)}}
+.old a{{color:var(--accent)}}
 </style>
+<p class="old">{OLD_STUDY}</p>
 <div class="viewport"><div class="stage" id="stage">{body}</div></div>
 <p class="count" id="count"></p>
 <script>
@@ -1281,7 +1286,10 @@ footer{{padding:34px 0;font-size:14px;color:var(--muted);border-top:1px solid va
 @media(prefers-reduced-motion:no-preference){{@supports(animation-timeline:view()){{.step{{animation:fade linear both;animation-timeline:view();animation-range:entry 4% entry 30%}}}}}}
 @media(max-width:860px){{.split{{grid-template-columns:1fr;gap:26px}}.split figure{{margin-top:12px}}}}
 @media(max-width:720px){{.card:has(>svg){{overflow-x:auto}}.card>svg{{min-width:560px}}.card:has(>svg)::after{{content:"Swipe diagram sideways to read";display:block;font-size:13px;color:var(--muted);margin-top:10px}}main{{padding:0 18px 52px}}.step{{padding:52px 0}}.scores{{grid-template-columns:1fr;gap:26px}}.card{{padding:16px}}}}
+.old{{margin:16px 0 0;padding:10px 14px;border:1px solid var(--warn);border-radius:10px;font-size:15px;color:var(--ink);background:var(--paper)}}
+.old a{{color:var(--accent)}}
 </style><main>
+<p class="old">{OLD_STUDY}</p>
 <p class="masthead">Cupertino Signal Lab<span>AI Club hackathon project</span></p>
 <header><h1>{f['delay_cut']:.1f}% less rush-hour delay</h1>
 <p class="lead">{f['n_signals']} Stevens Creek lights, retimed in a simulator built from VTA {f['year']} counts. The best of {f['pm_trials']} timing plans, tested on {f['n_test']} rush hours it never saw.</p>

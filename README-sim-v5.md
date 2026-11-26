@@ -1,5 +1,7 @@
 # Cupertino Signal Lab
 
+> **Older study (Oct 2026), not Signal Learner.** Its 40.7% is a different experiment from Signal Learner's 26% Wolfe Road result. The current project is in the [README](README.md).
+>
 > Saved: the simulation-only project is frozen at tag `sim-v5-final`. Earlier work: branch `old-2018-model`, tag `calib-probe`.
 
 A reproducible AI Club hackathon model of Stevens Creek Boulevard, De Anza Boulevard → Mary Avenue. **Current demand inputs mix 2024 De Anza/Stelling counts with 2018 Mary observations and estimates; not current Cupertino traffic.** Demo timing assumptions are not city signal plans.
