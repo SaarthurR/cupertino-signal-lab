@@ -17,22 +17,24 @@ const drafts = {};
 const view = { c15: 'delay_s', s15: 'delay_s', ts: 'proposed' };
 
 const TERMS = {
-  score: 'Average extra seconds per requested trip. A trip that never finishes counts 900 s.',
+  score: 'Average extra seconds per requested trip (the delay score). A trip that never finishes counts 900 s.',
+  current: 'The timing the simulation starts from: modeled stale timing, not verified city timing.',
+  waiting: 'Cars whose trip has started but cannot enter the road because the lane they need is full. They are not on the map yet.',
   aog: 'Arrivals on green: share of cars that reach the stop bar while the light is green.',
   sf: 'Split failures: cycles where the queue did not clear before the light turned red.',
   pcd: 'Purdue Coordination Diagram. Each dot is a car arriving: time of day across, seconds into the cycle up. Green bands show when the light was green.',
   cycle: 'One full round of greens for every direction.',
-  offset: 'When this light’s cycle starts, relative to the corridor’s reference clock.',
+  offset: 'When this light’s cycle starts, relative to the road’s reference clock.',
   split: 'Max green + yellow + all-red.',
   unfinished: 'Trips still waiting or on the road when the evening ended.',
   ts: 'Distance along the road (up) against time (across). Lines are car paths; bars show each light’s green.',
   mv: 'Direction of travel and the turns served: L left, T through, R right.',
-  worst: 'Average delay for the worst-off group of drivers (same starting point).',
+  worst: 'Average delay for trips from the worst-off starting point.',
   practice: 'A copy of the road built only from sensor counts. Plans are tried here first.',
   heldout: 'Evenings the learner never saw, tested once with the rules written first.',
   jammed: 'The simulation had to remove stuck cars more often than with the current timing.',
   posthoc: 'Run after the frozen test; not part of the pre-registered result.',
-  tt: 'Completed end-to-end trips along the corridor.',
+  tt: 'Completed end-to-end trips along the road.',
   rollback: 'Watches the simulated sensor feed after a change and tells the engineer to go back if occupancy or served traffic moves outside the watched range for several windows. Tested in simulation on deliberately bad plans and on harmless changes.',
 };
 const term = (key, text) => `<span class="term" tabindex="0">${text}<span class="tip" role="tooltip">${esc(TERMS[key])}</span></span>`;
@@ -170,7 +172,7 @@ const opt = v => ok(v) ? f1(v) : '<span class="na" title="Varies with the next p
 
 const LEGS = { N: 'north', S: 'south', E: 'east', W: 'west' };
 const TURNS = { L: 'left', T: 'through', R: 'right' };
-const serves = codes => codes.map(code => { const [leg, turns] = code.split(':'); return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`; }).join(' · ');
+const serves = codes => codes.map(code => { const [leg, turns] = code.split(':'); return `from ${LEGS[leg] || leg}: ${[...turns].map(t => TURNS[t] || t).join(', ')}`; }).join('; ');
 const BOUND = { N: 'SB', S: 'NB', E: 'WB', W: 'EB' };
 const moves = codes => codes.map(c => { const [leg, turns] = c.split(':'); return `<span class="mv">${BOUND[leg] || leg} ${esc(turns)}</span>`; }).join('');
 // Travel-time directions follow the road (NB/SB or EB/WB); read whichever keys the data has, in its order.
@@ -184,9 +186,9 @@ const planName = d => isChange(d) ? 'Proposed' : 'Recommended';
 const propName = d => isChange(d) ? 'Proposed' : JSON.stringify(d.m?.corridor?.baseline) === JSON.stringify(d.m?.corridor?.proposed) ? 'Recommended' : 'Rejected candidate';
 
 const STATUS = {
-  pending: ['Recommendation pending', 'new'], keep: ['Keep current timing', 'calm'], acknowledged: ['Keep current timing', 'calm'],
+  pending: ['Needs a decision', 'new'], keep: ['Keep current timing', 'calm'], acknowledged: ['Current timing kept', 'calm'],
   approved: ['Approved', 'ok'], scheduled: ['Scheduled', 'ok'], rejected: ['Rejected', 'bad'],
-  deployed: ['Deployed · simulated', 'live'], rolled_back: ['Rolled back', 'bad'],
+  deployed: ['Deployed (simulated)', 'live'], rolled_back: ['Rolled back', 'bad'],
 };
 const statusKey = d => dec(d).status || (isChange(d) ? 'pending' : 'keep');
 const pill = d => { const [t, c] = STATUS[statusKey(d)]; return `<span class="pill ${c}">${t}</span>`; };
@@ -199,7 +201,7 @@ function crumbs(list) {
 }
 function head(title, { status = '', meta = [], actions = '' } = {}) {
   return `<header class="page-h"><div><div class="title-row"><h1>${esc(title)}</h1>${status}</div>
-    ${meta.length ? `<p class="meta-line">${meta.filter(Boolean).join('<span class="sep" aria-hidden="true">·</span>')}</p>` : ''}</div>
+    ${meta.length ? `<p class="meta-line">${meta.filter(Boolean).map(m => `<span>${m}</span>`).join('')}</p>` : ''}</div>
     ${actions ? `<div class="actions">${actions}</div>` : ''}</header>`;
 }
 let panelId = 0;
@@ -253,64 +255,58 @@ function by15Panel(d, rows, keys, viewKey, title, w = 640, drill = '', sub = '')
   return panel(`${esc(title)}${sub ? ` <span class="h-sub">${esc(sub)}</span>` : ''}`, `${chart}${drill ? `<div class="panel-f">${drill}</div>` : ''}`, { anchor: 'by15', tools: `${LEGEND_ARMS(d)}${avail.length > 1 ? toggle(viewKey, 'Measure', avail.map(([a, b]) => [a, b]), k) : ''}` });
 }
 
-/* ---------- 1 · Corridors ---------- */
+/* ---------- 1 · All roads ---------- */
 
 function corridorsScreen(ds, ctx) {
   const roads = [...ctx.map(r => ({ ...r, context: true })), ...ds.map(d => ({
     road: d.road, street: d.info.street, points: d.info.points, role: d.m?.role, status: STATUS[statusKey(d)][0], cls: STATUS[statusKey(d)][1] }))];
-  const heldOut = ds.every(d => d.m?.role === 'heldout');
   const nSig = ds.reduce((a, d) => a + d.card.signals.length, 0);
   const inbox = ds.map(d => {
     const h = heldout(d), change = isChange(d);
     return `<li class="inbox-item${statusKey(d) === 'pending' ? ' unread' : ''}">
-      <div class="inbox-top">${pill(d)}<span class="meta-line">${esc(window_(d))}</span></div>
-      <h3><a href="${go(d.road, 'review')}">${esc(d.info.street)} · ${change ? 'new PM peak timing' : 'keep current timing'}</a></h3>
-      <div class="inbox-facts">${change
-        ? `<span>${dl(go(d.road, 'review', { p: 'impact' }), `<b class="good-t">${pct(h.oldMean, h.planMean)}</b>`)} ${term('score', 'delay score')}</span><span>better on ${dl(go(d.road, 'review', { p: 'impact' }), betterOn(h))} ${term('heldout', 'test evenings')}</span><span>${dl(go(d.road, '', { p: 'signals' }), `${d.card.signals.length} signals`)}</span>`
-        : `<span>Candidate ${term('jammed', 'jammed')} in ${dl(go(d.road, 'review', { p: 'impact' }), `<b>${jams(d).jammed} of ${jams(d).n}</b>`)} practice runs</span><span>${dl(go(d.road, '', { p: 'signals' }), `${d.card.signals.length} signals`)}</span>`}</div>
+      <div class="inbox-top">${pill(d)}</div>
+      <h3><a href="${go(d.road, 'problem')}">${esc(d.info.street)}: ${change ? 'new evening timing' : 'keep current timing'}</a></h3>
+      <p class="inbox-facts">${change
+        ? `<b class="good-t">${pct(h.oldMean, h.planMean)}</b> ${term('score', 'average delay per trip')}, lower on ${betterOn(h)} ${term('heldout', 'test evenings')}`
+        : `The best new timing ${term('jammed', 'jammed')} in <b>${jams(d).jammed} of ${jams(d).n}</b> ${term('practice', 'practice runs')}`}</p>
     </li>`;
   }).join('');
-  // shortcut: one column per direction across all corridors, so mixing NB/SB and EB/WB roads gives four columns with dashes; merge into two direction-labelled columns if an east-west corridor is added.
-  const dirs = [...new Set(ds.flatMap(d => ttDirs(d.m?.corridor)))], seedOf = (ds.find(d => d.m?.seeds)?.m.seeds || []).join(', ');
-  const mcell = (d, f, dp, unit, v) => { const c = d.m?.corridor, b = c && f(c.baseline || {}), p = c && f(c.proposed || {});
-    return `<td class="n">${ok(b) && ok(p) ? dl(go(d.road, '', { p: 'by15', c15: v }), Math.abs(p - b) < 1e-9 ? `${fmt(b, dp)}<small>${unit}</small>` : `${cmp(b, p, dp, unit)} ${delta(b, p)}`) : '<span class="na">–</span>'}</td>`; };
   const rows = ds.map(d => {
-    const h = heldout(d), change = Math.abs(h.planMean - h.oldMean) > 1e-6, imp = go(d.road, 'review', { p: 'impact' });
-    return `<tr><td><a class="strong" href="${go(d.road)}">${esc(d.info.street)}</a></td><td>${dl(go(d.road, 'review', { p: 'decision' }), pill(d))}</td><td class="n">${dl(go(d.road, '', { p: 'signals' }), d.card.signals.length)}</td>
+    const h = heldout(d), change = Math.abs(h.planMean - h.oldMean) > 1e-6, imp = go(d.road, 'proof', { p: 'impact' });
+    return `<tr><td><a class="strong" href="${go(d.road, 'problem')}">${esc(d.info.street)}</a></td><td>${dl(go(d.road, 'proof', { p: 'decision' }), pill(d))}</td><td class="n">${dl(go(d.road, '', { p: 'signals' }), d.card.signals.length)}</td>
       <td class="n">${change ? dl(imp, `${cmp(h.oldMean, h.planMean, 0, 's')} ${delta(h.oldMean, h.planMean)}`) : dl(imp, '<span class="na">No change</span>')}</td>
-      <td class="n">${dl(imp, change ? `${cmp(h.unfOld, h.unfPlan)} ${delta(h.unfOld, h.unfPlan)}` : fmt(h.unfOld))}</td>
-      ${dirs.map(dir => mcell(d, c => c.travel_time_s?.[dir], 0, 's', ttKey(dir))).join('')}
-      <td class="nw">${dl(imp, `${h.n} evenings`)}</td>
-      <td class="n"><a class="chev" href="${go(d.road)}" aria-label="Open ${esc(d.info.street)}">›</a></td></tr>`;
+      <td class="n">${dl(imp, change ? cmp(h.unfOld, h.unfPlan) : fmt(h.unfOld))}</td>
+      <td class="n">${dl(imp, h.n)}</td>
+      <td class="n"><a class="chev" href="${go(d.road, 'problem')}" aria-label="Open ${esc(d.info.street)}">›</a></td></tr>`;
   }).join('');
   const first = ds.find(d => statusKey(d) === 'pending') || ds[0];
   return `<div class="page">
-    ${head('Corridors', { meta: [heldOut ? term('heldout', `${ds.length} held-out test corridors`) : `${ds.length} corridors`, `${nSig} signals`, `PM peak ${esc(window_(ds[0]))}`, 'SUMO simulation'],
-      actions: `<a class="btn primary" href="${go(first.road)}">Open ${esc(first.info.street)} ›</a>` })}
+    ${head('All roads', { meta: [`${ds.length} test roads`, `${nSig} traffic lights`, `Evening rush, ${esc(window_(ds[0]))}`],
+      actions: `<a class="btn primary" href="${go(first.road, 'problem')}">Start with ${esc(first.info.street)} ›</a>` })}
     <div class="grid g-map">
-      ${panel('Map', cityMap(roads), { tools: `<div class="legend"><span><i class="ln prop"></i>Recommendation</span><span><i class="ln calm"></i>No change</span>${roads.some(r => r.context && r.role === 'practice') ? '<span><i class="ln ctx"></i>Practice road</span>' : ''}</div>` })}
-      ${panel(`Inbox <span class="count">${ds.filter(d => statusKey(d) === 'pending').length}</span>`, `<ul class="inbox">${inbox}</ul>`)}
+      ${panel('Map', cityMap(roads), { tools: `<div class="legend"><span><i class="ln prop"></i>New timing</span><span><i class="ln calm"></i>No change</span>${roads.some(r => r.context && r.role === 'practice') ? '<span><i class="ln ctx"></i>Used to develop the learner</span>' : ''}</div>` })}
+      ${panel('Recommendations', `<ul class="inbox">${inbox}</ul>`)}
     </div>
-    ${panel('All corridors', `<table class="tbl"><thead><tr><th>Corridor</th><th>Status</th><th class="n">Signals</th>
-      <th class="n">${term('score', 'Delay score')}</th><th class="n">${term('unfinished', 'Unfinished trips')}</th>${dirs.map(dir => `<th class="n">${term('tt', `Travel ${esc(dir)}`)} · seed ${esc(seedOf)}</th>`).join('')}<th>${term('heldout', 'Analysed')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
+    ${panel('Results on the test evenings', `<table class="tbl"><thead><tr><th>Road</th><th>Status</th><th class="n">Lights</th>
+      <th class="n">${term('score', 'Average delay per trip')}</th><th class="n">${term('unfinished', 'Cars that never got through')}</th><th class="n">${term('heldout', 'Test evenings')}</th><th class="n"><span class="sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>`)}
   </div>`;
 }
 
-/* ---------- 2 · Corridor ---------- */
+/* ---------- 2 · Road details ---------- */
 
 function kpiPanel(d) {
   const h = heldout(d), c = d.m?.corridor, b = c?.baseline || {}, p = c?.proposed || {};
-  const imp = go(d.road, 'review', { p: 'impact' }), by = v => go(d.road, '', { p: 'by15', c15: v });
+  const imp = go(d.road, 'proof', { p: 'impact' }), by = v => go(d.road, '', { p: 'by15', c15: v });
   // Seed-200 totals with no 15-minute series are explained by watching that evening (Wolfe) or the corridor chart.
-  const sim = d.road === 'wolfe' ? '#/wolfe/simulate' : by('delay_s');
+  const sim = d.road === 'wolfe' ? '#/wolfe/proof' : by('delay_s');
   const test = [kpi(term('score', 'Delay score'), h.oldMean, h.planMean, 0, 's', imp), kpi(term('unfinished', 'Unfinished trips'), h.unfOld, h.unfPlan, 0, '', imp),
     isChange(d) ? `<div class="kpi"><div class="kpi-l">Better on</div><a class="kpi-v dl" href="${imp}"><span class="p">${h.better}</span><small>of ${h.n}</small></a><div class="kpi-b">evenings</div></div>` : ''].join('');
   const seed = c ? [kpi(term('score', 'Delay score'), b.avg_delay_s_per_veh, p.avg_delay_s_per_veh, 1, 's', by('delay_s')), kpi('Stops / completed trip', b.stops_per_veh, p.stops_per_veh, 2, '', sim),
     ...ttDirs(c).map(dir => kpi(term('tt', `Travel time ${esc(dir)}`), b.travel_time_s?.[dir], p.travel_time_s?.[dir], 0, 's', by(ttKey(dir)))),
     kpi('CO₂', b.co2_kg, p.co2_kg, 0, 'kg', sim)].join('') : '';
   return `<section class="panel kpis" id="kpis" tabindex="-1" aria-label="Key results, current vs ${propName(d).toLowerCase()}">
-    <div class="kpi-group"><h2 class="kpi-h">${term('heldout', `Held-out test · ${h.n} evenings`)}</h2><div class="kpi-row">${test}</div></div>
-    ${seed ? `<div class="kpi-group"><h2 class="kpi-h">Seed ${esc((d.m.seeds || []).join(', '))} · ${propName(d).toLowerCase()} vs current</h2><div class="kpi-row">${seed}</div></div>` : ''}
+    <div class="kpi-group"><h2 class="kpi-h">${term('heldout', `Held-out test, ${h.n} evenings`)}</h2><div class="kpi-row">${test}</div></div>
+    ${seed ? `<div class="kpi-group"><h2 class="kpi-h">One test evening (seed ${esc((d.m.seeds || []).join(', '))}), ${propName(d).toLowerCase()} vs current</h2><div class="kpi-row">${seed}</div></div>` : ''}
   </section>`;
 }
 
@@ -342,11 +338,11 @@ function timeSpacePanel(d) {
 
 function corridorScreen(d) {
   const len = d.m?.corridor?.length_m;
-  const actions = `<a class="btn" href="${go(d.road, 'review')}">${isChange(d) ? 'Review recommendation' : 'Open recommendation'}</a>
+  const actions = `<a class="btn" href="${go(d.road, 'problem')}">Back to the 3 steps</a>
     <a class="btn primary" href="${go(d.road, 'signal/1')}">Inspect signals ›</a>`;
-  const drill = d.road === 'wolfe' ? '<a class="btn sm ghost" href="#/wolfe/simulate">Watch this evening ›</a>' : `<a class="btn sm ghost" href="${go(d.road, 'review', { p: 'impact' })}">Why keep current ›</a>`;
+  const drill = d.road === 'wolfe' ? '<a class="btn sm ghost" href="#/wolfe/proof">Watch this evening ›</a>' : `<a class="btn sm ghost" href="${go(d.road, 'proof', { p: 'impact' })}">Why keep current ›</a>`;
   return `<div class="page">
-    ${crumbs([['Corridors', '#/corridors'], [d.info.street]])}
+    ${crumbs([['All roads', '#/corridors'], [d.info.street]])}
     ${head(d.info.street, { status: pill(d), meta: [`${d.card.signals.length} signals`, ok(len) ? `${fmt(len / 1000, 2)} km` : '', `PM peak ${esc(window_(d))}`, d.m?.source ? `<span class="term" tabindex="0">SUMO simulation<span class="tip wide" role="tooltip">${esc(d.m.source)}</span></span>` : 'SUMO simulation'], actions })}
     ${kpiPanel(d)}
     <div class="grid g-2">
@@ -413,9 +409,9 @@ function signalScreen(d, i) {
   const ap = ms?.approaches?.find(x => x.approach === route.a && Array.isArray(x.by15));
   const nav = `${i > 0 ? `<a class="btn" href="${go(d.road, `signal/${i}`)}" aria-label="Previous signal: ${esc(d.card.signals[i - 1].signal)}">‹ Prev</a>` : ''}
     ${i < n - 1 ? `<a class="btn" href="${go(d.road, `signal/${i + 2}`)}" aria-label="Next signal: ${esc(d.card.signals[i + 1].signal)}">Next ›</a>` : ''}
-    <a class="btn primary" href="${go(d.road, 'review')}">${isChange(d) ? 'Review recommendation' : 'Open recommendation'} ›</a>`;
+    <a class="btn primary" href="${go(d.road, 'fix')}">Back to the fix ›</a>`;
   return `<div class="page">
-    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], [sig.signal]])}
+    ${crumbs([['All roads', '#/corridors'], [d.info.street, `#/${d.road}`], [sig.signal]])}
     ${head(sig.signal, { status: `<span class="badge lg">${i + 1}</span>`, meta: [`Signal ${i + 1} of ${n}`, dl(go(d.road), esc(d.info.street)), `${sig.old.greens.length} phases`], actions: nav })}
     <div class="grid g-sig">
       ${panel('Timing sheet <span class="h-sub">Simulation plan</span>', timingSheet(d, sig), { tools: LEGEND_PHASE, anchor: 'timing' })}
@@ -430,7 +426,7 @@ function signalScreen(d, i) {
   </div>`;
 }
 
-/* ---------- 4 · Recommendation review ---------- */
+/* ---------- Timing tables and impact rows (engineer details) ---------- */
 
 function diffTable(d) {
   const scale = Math.max(...d.card.signals.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
@@ -463,83 +459,172 @@ function eachEvening(d) {
   const p = d.practice, margin = p.settings.teleport_margin;
   const tbl = (cap, cols, rows) => `<table class="tbl compact"><caption>${cap}</caption><thead><tr>${cols.map((c, i) => `<th${i ? ' class="n"' : ''}>${c}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  const practice = tbl(`${term('practice', 'Practice copy')} · ${isChange(d) ? 'plan' : 'candidate'}`, ['Evening', 'Delay score s', 'Change', term('jammed', 'Stuck cars removed')],
+  const practice = tbl(`${term('practice', 'Practice copy')}, ${isChange(d) ? 'plan' : 'candidate'}`, ['Evening', 'Delay score s', 'Change', term('jammed', 'Stuck cars removed')],
     p.confirm_old.map((o, i) => { const n = p.confirm_new[i], jam = n.teleports > o.teleports + margin;
       return [o.seed, cmp(o.all_requested_delay_s, n.all_requested_delay_s), delta(o.all_requested_delay_s, n.all_requested_delay_s), `${cmp(o.teleports, n.teleports)}${jam ? ' <span class="pill bad">Jammed</span>' : ''}`]; }));
   const row = (arm, s) => d.results.find(r => r.road === d.road && r.arm === arm && r.seed === s);
-  const test = isChange(d) ? tbl(term('heldout', 'Held-out test'), ['Evening', 'Delay score s', 'Change', 'Unfinished', 'Worst-off s'], heldout(d).seeds.map(s => {
+  const test = isChange(d) ? tbl(term('heldout', 'Held-out test'), ['Evening', 'Delay score s', 'Change', 'Unfinished', 'Worst-origin s'], heldout(d).seeds.map(s => {
     const o = row('old', s), n = row('learner', s), v = k => [Number(o[k]), Number(n[k])];
     return [s, cmp(...v('all_requested_delay_s')), delta(...v('all_requested_delay_s')), cmp(...v('unfinished')), cmp(...v('worst_origin_delay_s'))];
   })) : '';
   return `<details class="each"${route.p === 'impact' ? ' open' : ''}><summary>Each evening</summary><div class="each-grid">${practice}${test}</div></details>`;
 }
 
-function impactPanel(d) {
+// Details for engineers on the proof step: the test that judged the plan, then the forecast that picked it.
+function impactDetails(d) {
   const e = d.card.expected_in_copy, h = heldout(d), per = h.per.map(p => p.v);
+  const forecast = { mid: e.change_share * 100, lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100 };
+  const seeds = list => `seeds ${list[0]}–${list.at(-1)}`;
   if (!isChange(d)) {
     const j = jams(d), ph = d.posthoc;
-    return panel('Why keep current timing', `${impactRows([
-      { label: `${term('practice', 'Practice copy')}`, sub: `candidate · ${e.copy_seeds.length} evenings`, mid: e.change_share * 100, lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100 },
-      ...(ph ? [{ label: term('posthoc', 'Post-hoc check'), sub: `candidate · ${ph.seeds.length} evenings`, mid: ph.change_share * 100 }] : [])])}
+    return `${impactRows([
+      { label: term('practice', 'Practice-copy forecast'), sub: `rejected candidate, ${e.copy_seeds.length} practice evenings, not the test`, ...forecast },
+      ...(ph ? [{ label: term('posthoc', 'Post-hoc check'), sub: `rejected candidate, ${ph.seeds.length} more evenings (${seeds(ph.seeds)})`, mid: ph.change_share * 100 }] : [])])}
       <dl class="facts">
-        <div><dt>${term('jammed', 'Jam check')}</dt><dd><span class="bad-t strong">Failed</span> · jammed in ${j.jammed} of ${j.n} practice runs</dd></div>
-        ${ph ? `<div><dt>Worse on</dt><dd>${ph.seeds_worse} of ${ph.seeds.length} post-hoc evenings</dd></div>` : ''}
-        <div><dt>Decision</dt><dd>Keep current timing at all ${d.card.signals.length} signals</dd></div></dl>${eachEvening(d)}`, { anchor: 'impact' });
+        <div><dt>${term('jammed', 'Jam check')}</dt><dd><span class="bad-t strong">Failed</span>: jammed in ${j.jammed} of ${j.n} practice runs</dd></div>
+        ${ph ? `<div><dt>${term('score', 'Delay score')}, post-hoc</dt><dd>${cmp(ph.old_delay_s, ph.rejected_plan.all_requested_delay_s.mean, 1, 's')} ${delta(ph.old_delay_s, ph.rejected_plan.all_requested_delay_s.mean)}</dd></div>` : ''}
+        <div><dt>Decision</dt><dd>Keep current timing at all ${d.card.signals.length} signals</dd></div></dl>${eachEvening(d)}
+      <p class="eng-links"><a href="../cards/${d.road}.md">Engineer card (text)</a></p>`;
   }
-  return panel('Expected impact', `${impactRows([
-    { label: term('practice', 'Practice copy'), sub: `forecast · ${e.copy_seeds.length} evenings`, mid: e.change_share * 100, lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100 },
-    { label: term('heldout', 'Held-out test'), sub: `${h.n} evenings · better on ${betterOn(h)}`, mid: share(h.oldMean, h.planMean) * 100, lo: Math.min(...per), hi: Math.max(...per) }])}
+  return `${impactRows([
+    { label: term('heldout', 'Held-out test'), sub: `${h.n} test evenings (${seeds(h.seeds)}), lower on ${betterOn(h)}`, mid: share(h.oldMean, h.planMean) * 100, lo: Math.min(...per), hi: Math.max(...per) },
+    { label: term('practice', 'Practice-copy forecast'), sub: `${e.copy_seeds.length} practice evenings, used to pick the plan, not the test`, ...forecast }])}
     <dl class="facts">
       <div><dt>${term('score', 'Delay score')}</dt><dd>${cmp(h.oldMean, h.planMean, 0, 's')}</dd></div>
       <div><dt>${term('unfinished', 'Unfinished trips')}</dt><dd>${cmp(h.unfOld, h.unfPlan)} ${delta(h.unfOld, h.unfPlan)}</dd></div>
-      <div><dt>${term('worst', 'Worst-off group')}</dt><dd>${cmp(h.worstOld, h.worstPlan, 0, 's')} ${delta(h.worstOld, h.worstPlan)}</dd></div></dl>${eachEvening(d)}`, { anchor: 'impact' });
+      <div><dt>${term('worst', 'Worst-origin delay score')}</dt><dd>${cmp(h.worstOld, h.worstPlan, 0, 's')} ${delta(h.worstOld, h.worstPlan)}</dd></div></dl>${eachEvening(d)}
+    <p class="eng-links"><a href="../cards/${d.road}.md">Engineer card (text)</a><a href="#/${d.road}/deploy">Deploy &amp; monitor (simulated) ›</a></p>`;
 }
 
-function decisionPanel(d) {
-  const s = statusKey(d), x = dec(d), note = drafts[d.road] ?? '';
-  const when = x.when ? new Date(x.when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
-  if (!isChange(d)) {
-    return panel('Decision', s === 'acknowledged'
-      ? `<p class="done"><b>Acknowledged</b> · ${new Date(x.at).toLocaleTimeString()}</p><div class="row"><a class="btn primary" href="#/corridors">Back to corridors</a><button class="btn ghost" data-action="reopen">Undo</button></div>`
-      : `<div class="row"><button class="btn primary" data-action="acknowledge">Acknowledge · keep current</button></div>`);
-  }
-  if (s !== 'pending') {
-    const next = { approved: `<a class="btn primary" href="#/wolfe/simulate?run">Run side-by-side simulation</a><a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`,
-      scheduled: `<a class="btn primary" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`, deployed: `<a class="btn primary" href="#/${d.road}/deploy">Monitor</a>`,
-      rolled_back: `<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`, rejected: '' }[s];
-    return panel('Decision', `<div class="done" role="status">${pill(d)}<span>${new Date(x.at).toLocaleTimeString()}</span>${when ? `<span>for ${esc(when)}</span>` : ''}</div>
-      ${x.note ? `<blockquote class="note-q">${esc(x.note)}</blockquote>` : ''}
-      <div class="row">${next}${['approved', 'scheduled', 'rejected'].includes(s) ? '<button class="btn ghost" data-action="reopen">Reopen</button>' : ''}</div>`);
-  }
-  return panel('Decision', `<label class="field" for="note">Notes</label>
-    <textarea id="note" maxlength="500" data-road="${d.road}" placeholder="Kept with the decision in the audit log">${esc(note)}</textarea>
-    ${form === 'schedule' ? `<div class="sched"><label class="field" for="when">Deploy on</label><input id="when" type="datetime-local" required>
-      <div class="row"><button class="btn primary" data-action="schedule-confirm">Confirm schedule</button><button class="btn ghost" data-action="cancel">Cancel</button></div>
-      <p class="error-t" id="when-err" role="alert" hidden>Pick a date and time.</p></div>`
-      : `<div class="row decide"><button class="btn primary" data-action="approve">Approve</button><button class="btn" data-action="schedule">Schedule</button><button class="btn danger" data-action="reject">Reject</button></div>`}`);
+/* ---------- 4 · The 3-step path: problem, fix, proof ---------- */
+
+const STEPS = [['problem', 'The problem'], ['fix', 'The fix'], ['proof', 'The proof']];
+// Both test roads run north–south, so a phase serving only the N and S legs is green for the road itself.
+const onRoad = codes => codes.every(c => /^[NS]:/.test(c));
+
+function stepper(d, at) {
+  const s = statusKey(d), [label, cls] = STATUS[s], now = STEPS.findIndex(([k]) => k === at);
+  return `<nav class="path" aria-label="Steps for ${esc(d.info.street)}"><ol>${STEPS.map(([k, t], i) =>
+    `<li><a href="${go(d.road, k)}"${i === now ? ' aria-current="step"' : ''}${i < now ? ' class="past"' : ''}><span class="n">${i + 1}</span>${t}</a></li>`).join('')}
+    <li class="end"><a class="pill ${cls}" href="${go(d.road, 'proof', { p: 'decision' })}">${s === 'pending' ? 'Approve or reject' : label}</a></li></ol></nav>`;
 }
 
-function reviewScreen(d) {
-  const ev = `<ul class="links">${d.card.signals.map((s, i) => `<li><a href="#/${d.road}/signal/${i + 1}"><span class="badge">${i + 1}</span>${esc(s.signal)}</a></li>`).join('')}
-    <li><a href="#/${d.road}">Corridor · ${esc(d.info.street)}</a></li>${d.road === 'wolfe' ? '<li><a href="#/wolfe/simulate">Side-by-side simulation</a></li>' : ''}
-    <li><a href="../cards/${d.road}.md">Engineer card (text)</a></li></ul>`;
-  return `<div class="page">
-    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], ['Recommendation']])}
-    ${head(`${d.info.street} · ${isChange(d) ? 'new PM peak timing' : 'keep current timing'}`, { status: pill(d),
-      meta: [`${d.card.signals.length} signals`, `PM peak ${esc(window_(d))}`, 'Phase order, yellow, all-red, min greens unchanged'],
-      actions: isChange(d) ? '<button class="btn" data-action="print">Download timing sheet</button>' : '' })}
-    <div class="grid g-review">
-      <div class="col">${panel(isChange(d) ? 'Changes by signal' : 'Timing by signal', diffTable(d), { tools: LEGEND_PHASE, anchor: 'changes' })}${impactPanel(d)}</div>
-      <div class="col" id="decision" tabindex="-1">${decisionPanel(d)}${panel('Evidence', ev)}</div>
-    </div>
+function pathPage(d, at, headline, body) {
+  const next = STEPS[STEPS.findIndex(([k]) => k === at) + 1];
+  return `<div class="page path-page">
+    <div class="path-top"><p class="road">${esc(d.info.street)}</p>${stepper(d, at)}</div>
+    <header class="path-h"><h1>${headline}</h1>${next ? `<a class="btn primary lg" href="${go(d.road, next[0])}">See ${next[1].toLowerCase()} ›</a>` : ''}</header>
+    ${body}
   </div>`;
+}
+
+const hero = (value, label, note = '') => `<div class="hero"><p class="hero-v">${value}</p><p class="hero-l">${label}</p>${note ? `<p class="hero-n">${note}</p>` : ''}</div>`;
+const stat = (value, label) => `<p class="stat"><b>${value}</b> ${label}</p>`;
+const forEngineers = (body, id) => `<details class="eng" id="${id}" tabindex="-1"${route.p === id ? ' open' : ''}><summary>Details for engineers</summary><div class="eng-b">${body}</div></details>`;
+
+function problemScreen(d) {
+  const h = heldout(d), n = d.card.signals.length, street = esc(d.info.street), stuck = h.unfOld > 0;
+  const road = `<div class="map road" data-road="${d.road}" data-along data-links role="group" aria-label="Map of ${street}, north on the left, lights numbered 1 to ${n}."></div>
+    <ol class="lights">${d.card.signals.map((s, i) => `<li><span class="badge">${i + 1}</span>${esc(s.signal)}</li>`).join('')}</ol>`;
+  const eng = `<dl class="facts wide">
+      <div><dt>Average delay per trip</dt><dd>The all-requested delay score: extra seconds per requested trip, with 900 s charged for each trip that never finishes.</dd></div>
+      <div><dt>Test evenings</dt><dd>${h.n} held-out simulated evenings, seeds ${h.seeds[0]}–${h.seeds.at(-1)}. ${esc(TERMS.heldout)}</dd></div>
+      <div><dt>Current timing</dt><dd>Modeled stale timing, not verified city timing.</dd></div></dl>
+    <p class="eng-links"><a href="#/${d.road}">Road details: signals, 15-minute charts, time-space diagram ›</a></p>`;
+  return pathPage(d, 'problem', stuck ? `In the evening rush, the current timing on ${street} leaves cars stuck in line.` : `In the evening rush, every car on ${street} gets through with the current timing.`,
+    `<div class="grid g-step">
+      <div class="col">${hero(`${fmt(h.oldMean)}<small>s</small>`, `${term('score', 'average delay per trip')} with the ${term('current', 'current timing')}`, `Average of ${h.n} ${term('heldout', 'test evenings')}`)}
+        ${stat(fmt(h.unfOld), stuck ? `${term('unfinished', 'cars never got through')} on an average test evening` : `cars left stuck on any of the ${h.n} test evenings`)}</div>
+      ${panel(`${n} traffic lights, evening rush ${esc(window_(d))}`, road)}
+    </div>
+    ${forEngineers(eng, 'about')}`);
+}
+
+// One round of one light, scaled so every bar on the page shares one seconds axis. Colour says whose green it is.
+function roundBar(d, list, cycle, scale, which) {
+  const seg = (cls, s) => s > 0 ? `<i class="${cls}" style="width:${s / cycle * 100}%"></i>` : '';
+  const label = `${which} round ${f1(cycle)} s: ${list.map(p => `${f1(p.max_green_s)} s green for ${onRoad(p.serves) ? d.info.street : 'side traffic'}`).join(', ')}`;
+  return `<div class="rb ${which === 'Current' ? 'now' : 'ours'}" style="width:${cycle / scale * 100}%" role="img" aria-label="${esc(label)}">${list.map(p =>
+    seg(onRoad(p.serves) ? 'g-road' : 'g-side', p.max_green_s) + seg('g-clear', (p.yellow || 0) + (p.red || 0))).join('')}</div>`;
+}
+
+function roundsPanel(d) {
+  const sigs = d.card.signals, change = isChange(d), scale = Math.max(...sigs.flatMap(s => [s.old.cycle_s, s.new.cycle_s]));
+  const rows = sigs.map((s, i) => {
+    const old = phases(d, s, 'old'), neu = phases(d, s, 'new');
+    const top = old.map((p, k) => ({ p, g: neu[k].max_green_s - p.max_green_s })).sort((a, b) => b.g - a.g)[0];
+    const side = /ramp/i.test(s.signal) ? 'the ramp' : 'the side street';
+    const gain = change && top && top.g >= 0.05 ? `<b>+${f1(top.g)} s</b> green for ${onRoad(top.p.serves) ? esc(d.info.street) : side}` : '<span class="na">No change</span>';
+    return `<li><span class="badge">${i + 1}</span><a class="nm" href="${go(d.road, `signal/${i + 1}`, { p: 'timing' })}">${esc(s.signal)}</a>
+      <div class="rbs"><span class="k">Now</span>${roundBar(d, old, s.old.cycle_s, scale, 'Current')}${change ? `<span class="k">Ours</span>${roundBar(d, neu, s.new.cycle_s, scale, 'New')}` : ''}</div>
+      <span class="gain">${gain}</span></li>`;
+  }).join('');
+  const legend = `<div class="legend"><span><i class="sw g-road"></i>Green for ${esc(d.info.street)}</span><span><i class="sw g-side"></i>Green for side streets and ramps</span><span><i class="sw g-clear"></i>Yellow and all-red</span></div>`;
+  return panel(change ? 'Green time at each light, now and with our timing' : 'Green time at each light', `<ul class="rounds">${rows}</ul>`, { tools: legend });
+}
+
+function fixScreen(d) {
+  const sigs = d.card.signals, n = sigs.length, change = isChange(d);
+  const one = k => { const v = [...new Set(sigs.map(s => s[k].cycle_s))]; return v.length === 1 ? v[0] : null; };
+  const was = one('old'), now = one('new'), j = jams(d);
+  const lead = change
+    ? `${ok(was) && ok(now) ? hero(`<span class="was">${f1(was)}</span><span class="arr" aria-label="to">→</span>${f1(now)}<small>s</small>`, `one full ${term('cycle', 'round')} of greens, at all ${n} lights`) : ''}
+       ${stat('', 'The order of greens, the yellow and all-red times, and the minimum greens stay the same.')}`
+    : `${hero(`${j.jammed} of ${j.n}`, `${term('practice', 'practice runs')} where the best new timing ${term('jammed', 'jammed')}`)}
+       ${stat('', `Timing stays as it is at all ${n} lights.`)}`;
+  const eng = `${panel(change ? 'Changes by signal' : 'Timing by signal', diffTable(d), { tools: LEGEND_PHASE })}
+    <p class="eng-links">${change ? '<button class="btn" data-action="print">Download timing sheet</button>' : ''}<a href="#/${d.road}">Road details ›</a></p>`;
+  return pathPage(d, 'fix', change ? 'Each light gets a longer round, and the busy directions get more green.' : 'The best new timing the learner found jammed the road, so it keeps the current timing.',
+    `<div class="grid g-step"><div class="col">${lead}</div>${roundsPanel(d)}</div>
+    ${forEngineers(eng, 'changes')}`);
+}
+
+function verdict(d) {
+  const s = statusKey(d), x = dec(d), h = heldout(d), j = jams(d), note = drafts[d.road] ?? '';
+  const when = x.when ? new Date(x.when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  const done = s !== 'pending' && s !== 'keep';
+  const result = isChange(d)
+    ? `<div class="verdict-r"><p class="big good-t">${pct(h.oldMean, h.planMean)}</p><p>${term('score', 'average delay per trip')} across ${h.n} ${term('heldout', 'test evenings')}, lower on ${betterOn(h)}</p></div>`
+    : `<div class="verdict-r"><p>Keep the current timing: the best new timing ${term('jammed', 'jammed')} in <b>${j.jammed} of ${j.n}</b> practice runs.</p></div>`;
+  let act;
+  if (done) {
+    const next = { approved: `<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor (simulated) ›</a>`, scheduled: `<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor (simulated) ›</a>`,
+      deployed: `<a class="btn" href="#/${d.road}/deploy">Monitor</a>`, rolled_back: `<a class="btn" href="#/${d.road}/deploy">Deploy &amp; monitor</a>`, acknowledged: '<a class="btn" href="#/corridors">All roads</a>' }[s] || '';
+    act = `<div class="done" role="status">${pill(d)}<span>${new Date(x.at).toLocaleTimeString()}</span>${when ? `<span>for ${esc(when)}</span>` : ''}</div>
+      ${x.note ? `<blockquote class="note-q">${esc(x.note)}</blockquote>` : ''}
+      <div class="row">${next}${['approved', 'scheduled', 'rejected', 'acknowledged'].includes(s) ? `<button class="btn ghost" data-action="reopen">${s === 'acknowledged' ? 'Undo' : 'Reopen'}</button>` : ''}</div>`;
+  } else if (!isChange(d)) {
+    act = '<div class="row"><button class="btn primary lg" data-action="acknowledge">Keep current timing</button></div>';
+  } else {
+    act = `<div class="row decide"><button class="btn primary lg" data-action="approve">Approve new timing</button><button class="btn lg danger" data-action="reject">Reject</button></div>
+      <details class="more-d"${form === 'schedule' || note ? ' open' : ''}><summary>Add a note or schedule</summary>
+        <label class="field" for="note">Note for the audit log</label>
+        <textarea id="note" maxlength="500" data-road="${d.road}">${esc(note)}</textarea>
+        ${form === 'schedule' ? `<div class="sched"><label class="field" for="when">Deploy on</label><input id="when" type="datetime-local" required>
+          <div class="row"><button class="btn primary" data-action="schedule-confirm">Confirm schedule</button><button class="btn ghost" data-action="cancel">Cancel</button></div>
+          <p class="error-t" id="when-err" role="alert" hidden>Pick a date and time.</p></div>`
+          : '<div class="row"><button class="btn sm" data-action="schedule">Schedule instead</button></div>'}
+      </details>`;
+  }
+  return `<section class="verdict" id="decision" tabindex="-1" aria-label="Decision">${result}<div class="verdict-d">${act}</div></section>`;
+}
+
+function proofScreen(d) {
+  if (isChange(d)) {
+    return pathPage(d, 'proof', 'Same cars, same test evening, two timings. Watch how many cars are left waiting.',
+      `${d.road === 'wolfe' ? simStage(d) : ''}${verdict(d)}${forEngineers(impactDetails(d), 'impact')}`);
+  }
+  const ph = d.posthoc;
+  return pathPage(d, 'proof', ph ? 'A later check agrees: the rejected timing made trips slower on most evenings.' : 'The current timing stays.',
+    `${ph ? `<div class="grid g-step"><div class="col">${hero(`${ph.seeds_worse} of ${ph.seeds.length}`, `more evenings where the rejected timing added delay`, `${term('posthoc', 'Checked after the test')}, on evenings the test did not use`)}</div></div>` : ''}
+    ${verdict(d)}${forEngineers(impactDetails(d), 'impact')}`);
 }
 
 function sheet(d) {
   const x = dec(d), at = x.status === 'approved' || x.status === 'scheduled' ? new Date(x.at).toLocaleString() : 'Not approved yet';
   const ch = (a, b) => Math.abs(a - b) < 0.05 ? f1(a) : `${f1(a)} → ${f1(b)}`;
   return `<section class="sheet">
-    <div class="sheet-head"><div><h2>Timing change sheet</h2><p class="small muted">Signal Learner · simulation result, not city timing</p></div><span class="stamp">Draft for engineer entry</span></div>
+    <div class="sheet-head"><div><h2>Timing change sheet</h2><p class="small muted">Signal Learner simulation result, not city timing</p></div><span class="stamp">Draft for engineer entry</span></div>
     <dl><dt>Road</dt><dd>${esc(d.info.street)}, ${d.card.signals.length} intersections</dd>
       <dt>Plan</dt><dd>PM peak, ${esc(d.info.begin)}–${esc(d.info.end)}</dd>
       <dt>Approved</dt><dd>${esc(at)} (in this console)</dd>
@@ -547,7 +632,7 @@ function sheet(d) {
     ${d.card.signals.map(sig => {
       const old = phases(d, sig, 'old'), neu = phases(d, sig, 'new');
       return `<div class="int"><h3>${esc(sig.signal)}</h3>
-        <p class="small">Cycle ${ch(sig.old.cycle_s, sig.new.cycle_s)} s · Offset ${ch(sig.old.offset_s, sig.new.offset_s)} s</p>
+        <p class="small">Cycle ${ch(sig.old.cycle_s, sig.new.cycle_s)} s, offset ${ch(sig.old.offset_s, sig.new.offset_s)} s</p>
         <table><thead><tr><th>SUMO phase</th><th>Movements</th><th class="n">Min green</th><th class="n">Max green</th><th class="n">Yellow</th><th class="n">All-red</th><th class="n">Split</th></tr></thead><tbody>
         ${old.map((p, i) => `<tr><td>${p.phase}</td><td>${esc(serves(p.serves))}</td><td class="n">${f1(p.min_green_s)}</td><td class="n">${ch(p.max_green_s, neu[i].max_green_s)}</td>
           <td class="n">${opt(p.yellow)}</td><td class="n">${opt(p.red)}</td><td class="n">${ok(p.split) && ok(neu[i].split) ? ch(p.split, neu[i].split) : opt()}</td></tr>`).join('')}
@@ -561,13 +646,13 @@ function sheet(d) {
 /* ---------- 6 · Deploy & monitor ---------- */
 
 // Where each logged action can be seen.
-const actionHref = r => /simulation/.test(r.action) ? '#/wolfe/simulate' : /Deployed|Rolled back/.test(r.action) ? go(r.road, 'deploy', { p: 'controllers' }) : go(r.road, 'review', { p: 'decision' });
+const actionHref = r => /simulation/.test(r.action) ? '#/wolfe/proof' : /Deployed|Rolled back/.test(r.action) ? go(r.road, 'deploy', { p: 'controllers' }) : go(r.road, 'proof', { p: 'decision' });
 
 function auditPanel() {
   const rows = [...state.log].reverse();
   const name = r => cache[r]?.info.street || r;
   return panel(`Audit log <span class="count">${rows.length}</span>`, rows.length
-    ? `<table class="tbl"><thead><tr><th>Time</th><th>Corridor</th><th>Action</th><th>Note</th></tr></thead><tbody>${rows.map(r =>
+    ? `<table class="tbl"><thead><tr><th>Time</th><th>Road</th><th>Action</th><th>Note</th></tr></thead><tbody>${rows.map(r =>
       `<tr><td class="num">${new Date(r.at).toLocaleTimeString()}</td><td>${dl(go(r.road), esc(name(r.road)))}</td><td class="strong">${dl(actionHref(r), esc(r.action))}</td><td>${esc(r.note || '')}</td></tr>`).join('')}</tbody></table>`
     : '<p class="empty">No actions yet this session</p>', { anchor: 'audit', tools: '<button class="btn sm ghost" data-action="reset">Reset demo</button>' });
 }
@@ -575,17 +660,17 @@ function auditPanel() {
 function deployScreen(d) {
   const s = statusKey(d), n = d.card.signals.length, sigs = d.card.signals;
   const ctlStatus = { deployed: ['New plan', 'live'], rolled_back: ['Rolled back', 'bad'] }[s] || (isChange(d) ? ['Waiting', 'calm'] : ['Current kept', 'calm']);
-  const actions = !isChange(d) ? `<a class="btn" href="${go(d.road, 'review')}">Open recommendation</a>`
+  const actions = !isChange(d) ? `<a class="btn" href="${go(d.road, 'problem')}">Open the 3 steps</a>`
     : s === 'deployed' ? '<button class="btn danger" data-action="rollback">Roll back</button>'
       : ['approved', 'scheduled', 'rolled_back'].includes(s) ? `<button class="btn primary" data-action="deploy">${s === 'rolled_back' ? 'Deploy again' : `Deploy to ${n} controllers`}</button>`
-        : `<a class="btn primary" href="#/${d.road}/review">Review recommendation</a>`;
+        : `<a class="btn primary" href="#/${d.road}/proof?p=decision">Approve or reject first</a>`;
   const steps = [['Review', true], ['Approve', !['pending', 'rejected'].includes(s)], ['Deploy', ['deployed', 'rolled_back'].includes(s)], ['Evidence', s === 'deployed']];
   const stepper = isChange(d) ? `<ol class="steps" aria-label="Progress">${steps.map(([t, on]) => `<li class="${on ? 'on' : ''}">${t}</li>`).join('')}</ol>` : '';
   const sig0 = sigs[0];
   const plan = isChange(d) ? `<table class="tbl"><thead><tr><th>Time-of-day plan</th><th>Window</th><th class="n">${term('cycle', 'Cycle')} s</th><th>Controllers</th></tr></thead><tbody>
-      <tr><td class="strong">PM peak · Signal Learner</td><td>${esc(window_(d))}</td><td class="n">${dl(go(d.road, 'review', { p: 'changes' }), f1(sig0.new.cycle_s))}</td><td>${dl(go(d.road, 'deploy', { p: 'controllers' }), `${n} of ${n}`)}</td></tr>
+      <tr><td class="strong">PM peak, Signal Learner</td><td>${esc(window_(d))}</td><td class="n">${dl(go(d.road, 'fix', { p: 'changes' }), f1(sig0.new.cycle_s))}</td><td>${dl(go(d.road, 'deploy', { p: 'controllers' }), `${n} of ${n}`)}</td></tr>
       <tr><td>All other times</td><td>–</td><td class="n na">unchanged</td><td>–</td></tr></tbody></table>`
-    : '<p class="empty">Nothing to deploy · current timing kept</p>';
+    : '<p class="empty">Nothing to deploy: current timing kept</p>';
   const ctl = `<table class="tbl"><thead><tr><th class="n">#</th><th>Intersection</th><th>Model signal ID</th><th class="n">${term('cycle', 'Cycle')} s</th><th class="n">${term('offset', 'Offset')} s</th><th>Status</th></tr></thead>
     <tbody>${sigs.map((x, i) => { const timing = go(d.road, `signal/${i + 1}`, { p: 'timing' }); return `<tr><td class="n"><span class="badge">${i + 1}</span></td><td><a class="strong" href="${go(d.road, `signal/${i + 1}`)}">${esc(x.signal)}</a></td>
       <td class="mono" title="${esc(x.sumo_tls_id)}">${esc(x.sumo_tls_id)}</td><td class="n">${dl(timing, sameOr(x.old.cycle_s, x.new.cycle_s))}</td><td class="n">${dl(timing, sameOr(x.old.offset_s, x.new.offset_s))}</td>
@@ -594,20 +679,20 @@ function deployScreen(d) {
   if (isChange(d)) {
     const e = d.card.expected_in_copy, h = heldout(d), g = goBack(d), per = h.per;
     const band = { lo: e.change_range_s[0] / e.old_delay_s * 100, hi: e.change_range_s[1] / e.old_delay_s * 100, mid: e.change_share * 100 };
-    const each = go(d.road, 'review', { p: 'impact' });
+    const each = go(d.road, 'proof', { p: 'impact' });
     watch = ['deployed', 'rolled_back'].includes(s) ? `<div class="kpi-row">
-        <div class="kpi"><div class="kpi-l">Forecast · ${term('practice', 'practice copy')}</div><a class="kpi-v dl" href="${each}"><span class="p">${signed(Math.round(band.mid))}%</span></a><div class="kpi-b">${signed(Math.round(band.lo))}% to ${signed(Math.round(band.hi))}%</div></div>
-        <div class="kpi"><div class="kpi-l">Measured · ${term('heldout', `${h.n} test evenings`)}</div><a class="kpi-v dl" href="${each}"><span class="p">${pct(h.oldMean, h.planMean)}</span></a><div class="kpi-b">${signed(Math.round(Math.min(...per.map(p => p.v))))}% to ${signed(Math.round(Math.max(...per.map(p => p.v))))}% · better on ${betterOn(h)}</div></div>
-        <div class="kpi"><div class="kpi-l">${term('rollback', 'Roll-back rule')} · bad plan</div><div class="kpi-v"><span class="p">${g.caught}</span><small>of ${g.bad} caught</small></div><div class="kpi-b">median ${fmt(g.median)} min after change</div></div>
-        <div class="kpi"><div class="kpi-l">${term('rollback', 'Roll-back rule')} · harmless change</div><div class="kpi-v"><span class="p">${g.false}</span><small>of ${g.noop} false alarms</small></div><div class="kpi-b">simulated feed</div></div></div>
+        <div class="kpi"><div class="kpi-l">Forecast, ${term('practice', 'practice copy')}</div><a class="kpi-v dl" href="${each}"><span class="p">${signed(Math.round(band.mid))}%</span></a><div class="kpi-b">${signed(Math.round(band.lo))}% to ${signed(Math.round(band.hi))}%</div></div>
+        <div class="kpi"><div class="kpi-l">Measured, ${term('heldout', `${h.n} test evenings`)}</div><a class="kpi-v dl" href="${each}"><span class="p">${pct(h.oldMean, h.planMean)}</span></a><div class="kpi-b">${signed(Math.round(Math.min(...per.map(p => p.v))))}% to ${signed(Math.round(Math.max(...per.map(p => p.v))))}%, better on ${betterOn(h)}</div></div>
+        <div class="kpi"><div class="kpi-l">${term('rollback', 'Roll-back rule')}, bad plan</div><div class="kpi-v"><span class="p">${g.caught}</span><small>of ${g.bad} caught</small></div><div class="kpi-b">median ${fmt(g.median)} min after change</div></div>
+        <div class="kpi"><div class="kpi-l">${term('rollback', 'Roll-back rule')}, harmless change</div><div class="kpi-v"><span class="p">${g.false}</span><small>of ${g.noop} false alarms</small></div><div class="kpi-b">simulated feed</div></div></div>
       <div class="chart-h"><span>${term('score', 'Delay score')} change per evening</span><div class="legend"><span><i class="sw bar-good"></i>Measured</span><span><i class="sw band"></i>Forecast range</span></div></div>
       ${eveningsChart({ rows: per.map(p => ({ v: p.v, label: `Seed ${p.seed}`, short: String(p.seed) })), band, label: `Delay score change on each of ${h.n} held-out evenings, with the practice-copy forecast range ${signed(Math.round(band.lo))}% to ${signed(Math.round(band.hi))}%.` })}
       <div class="panel-f"><a class="btn sm ghost" href="${each}">Each evening, in numbers ›</a></div>`
       : '';
   }
   return `<div class="page">
-    ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], ['Deploy & monitor']])}
-    ${head(`Deploy & monitor · ${d.info.street}`, { status: pill(d), meta: [`${n} controllers`, `PM peak ${esc(window_(d))}`, 'Simulated rollout · no real controller is touched'], actions })}
+    ${crumbs([['All roads', '#/corridors'], [d.info.street, `#/${d.road}`], ['Deploy & monitor']])}
+    ${head(`Deploy & monitor: ${d.info.street}`, { status: pill(d), meta: [`${n} controllers`, `PM peak ${esc(window_(d))}`, 'Simulated rollout, no real controller is touched'], actions })}
     ${stepper}
     <div class="grid g-deploy">${panel('Rollout plan', plan, { anchor: 'rollout' })}${panel('Controllers', ctl, { anchor: 'controllers' })}</div>
     ${panel('Saved simulation evidence', watch, { anchor: 'watch' })}
@@ -639,7 +724,7 @@ function connect() {
     ${arrow(170, 86, 212, 86)}${arrow(516, 86, 558, 86)}${arrow(700, 76, 728, 76)}
     ${arrow(880, 66, 908, 66)}${arrow(908, 110, 882, 110)}
     <text x="880" y="170" text-anchor="middle">enters changes</text>
-    ${box(200, 290, 680, 96, 'Signal Learner (this software) · READ-ONLY', ['Reads counts, controller logs and timing sheets. Never writes to the cabinet or central system.', 'Learns the pattern, practices plans on a copy, and gives the engineer one recommendation to approve or reject.'], { stroke: A, dash: true })}
+    ${box(200, 290, 680, 96, 'Signal Learner (this software), read-only', ['Reads counts, controller logs and timing sheets. Never writes to the cabinet or central system.', 'Learns the pattern, practices plans on a copy, and gives the engineer one recommendation to approve or reject.'], { stroke: A, dash: true })}
     ${arrow(290, 228, 290, 288, { dash: true, color: A })}<text x="300" y="262" style="fill:${A}">counts and logs (read)</text>
     ${arrow(805, 150, 805, 288, { dash: true, color: A })}<text x="797" y="262" text-anchor="end" style="fill:${A}">timing sheets (read)</text>
     ${arrow(880, 330, 975, 152, { color: A })}<text x="935" y="262" style="fill:${A}">recommendation</text>
@@ -674,12 +759,13 @@ function connect() {
 }
 
 function connectScreen() {
-  return `<div class="page">${crumbs([['Corridors', '#/corridors'], ['How it connects']])}${head('How it connects')}<div class="connect">${connect()}</div></div>`;
+  return `<div class="page">${crumbs([['All roads', '#/corridors'], ['How it connects']])}${head('How it connects')}<div class="connect">${connect()}</div></div>`;
 }
 
 /* ---------- Shell ---------- */
 
-// Old deck links keep working: #/overview, #/wolfe/recommendation, #/wolfe/test, #/wolfe/connect.
+// No hash opens step 1 of Wolfe Road. Old links keep working: #/overview, #/wolfe/review and /recommendation (step 1),
+// #/wolfe/simulate and /test (step 3), #/wolfe/connect.
 // ?p=<panel id> scrolls to that panel; ?c15= / ?s15= / ?ts= pick a chart view; ?run starts the simulation.
 function parseRoute() {
   const [hash, query = ''] = location.hash.split('?');
@@ -687,32 +773,40 @@ function parseRoute() {
   for (const [k, v] of q) if (k in view) view[k] = v;
   const p = q.get('p') || '';
   const [a, b, c] = hash.replace(/^#\/?/, '').split('/');
+  if (!a) return { road: 'wolfe', screen: 'problem', p };
   if (a === 'connect') return { road: route.road, screen: 'connect', p };
   if (!ROADS.includes(a)) return { road: route.road, screen: 'corridors', p };
-  if (b === 'review' || b === 'recommendation') return { road: a, screen: 'review', p };
-  if (b === 'simulate' || b === 'test') return { road: 'wolfe', screen: 'simulate', run: q.has('run') };
+  if (b === 'problem' || b === 'review' || b === 'recommendation') return { road: a, screen: 'problem', p };
+  if (b === 'fix') return { road: a, screen: 'fix', p };
+  if (b === 'proof') return { road: a, screen: 'proof', p, run: q.has('run') };
+  if (b === 'simulate' || b === 'test') return { road: 'wolfe', screen: 'proof', p, run: q.has('run') };
   if (b === 'deploy') return { road: a, screen: 'deploy', p };
   if (b === 'connect') return { road: a, screen: 'connect', p };
   if (b === 'signal') return { road: a, screen: 'signal', i: Number(c) - 1, p, a: q.get('a') || '' };
   return { road: a, screen: 'corridor', p };
 }
 
-const TITLES = { corridors: 'Corridors', corridor: 'Corridor', signal: 'Signal', review: 'Review', simulate: 'Simulate', deploy: 'Deploy & monitor', connect: 'How it connects' };
-const NAV_OF = { corridor: 'corridors', signal: 'corridors' };
+const TITLES = { corridors: 'All roads', corridor: 'Road details', signal: 'Signal', problem: 'The problem', fix: 'The fix', proof: 'The proof', deploy: 'Deploy & monitor', connect: 'How it connects' };
+const ON_ROAD = ['problem', 'fix', 'proof', 'corridor', 'signal'];
 
 function shell(ds) {
   const r = route.road;
-  document.getElementById('nav-review').href = `#/${r}/review`;
   document.getElementById('nav-deploy').href = `#/${r}/deploy`;
-  const active = NAV_OF[route.screen] || route.screen;
-  document.querySelectorAll('#nav a[data-screen]').forEach(a => {
-    if (a.dataset.screen === active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  document.querySelectorAll('.side a[data-screen]').forEach(a => {
+    if (a.dataset.screen === route.screen) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
-  document.getElementById('nav-roads').innerHTML = ds.map(d => `<li><a href="#/${d.road}"${['corridor', 'signal', 'review', 'deploy'].includes(route.screen) && route.road === d.road ? ' class="here"' : ''}>
+  document.getElementById('nav-roads').innerHTML = ds.map(d => `<li><a href="${go(d.road, 'problem')}"${ON_ROAD.includes(route.screen) && r === d.road ? ' aria-current="page"' : ''}>
     <i class="dot ${STATUS[statusKey(d)][1]}" aria-hidden="true"></i>${esc(d.info.street)}<span class="sr">, ${STATUS[statusKey(d)][0]}</span></a></li>`).join('');
-  const pending = ds.filter(d => statusKey(d) === 'pending').length;
-  document.getElementById('nav-count').textContent = pending || '';
   document.getElementById('fixture').hidden = !FIXTURE;
+}
+
+// On the proof step the simulation keeps running: swap only the decision and the stepper.
+async function refreshDecision(focusSel) {
+  const ds = await Promise.all(ROADS.map(data)), d = ds[ROADS.indexOf(route.road)];
+  main.querySelector('#decision').outerHTML = verdict(d);
+  main.querySelector('.path').outerHTML = stepper(d, route.screen);
+  shell(ds);
+  main.querySelector(focusSel)?.focus();
 }
 
 function drawMaps() {
@@ -735,18 +829,21 @@ async function render() {
     const d = ds[ROADS.indexOf(route.road)];
     if (route.screen === 'signal' && !(route.i >= 0 && route.i < d.card.signals.length)) route.screen = 'corridor';
     shell(ds);
-    document.title = `${TITLES[route.screen]} · Signal Learner`;
+    document.title = `${TITLES[route.screen]} – Signal Learner`;
     if (route.screen === 'corridors') main.innerHTML = corridorsScreen(ds, await contextRoads());
     else if (route.screen === 'corridor') main.innerHTML = corridorScreen(d);
     else if (route.screen === 'signal') main.innerHTML = signalScreen(d, route.i);
-    else if (route.screen === 'review') main.innerHTML = reviewScreen(d);
+    else if (route.screen === 'problem') main.innerHTML = problemScreen(d);
+    else if (route.screen === 'fix') main.innerHTML = fixScreen(d);
     else if (route.screen === 'deploy') main.innerHTML = deployScreen(d);
     else if (route.screen === 'connect') main.innerHTML = connectScreen();
     else {
-      main.innerHTML = simulate(ds[0]);
-      player = new Player(ds[0]);
-      player.draw();
-      if (route.run) { history.replaceState(null, '', '#/wolfe/simulate'); act('wolfe', 'Ran side-by-side simulation'); player.start(); }
+      main.innerHTML = proofScreen(d);
+      if (main.querySelector('.sim')) {
+        player = new Player(d);
+        player.draw();
+        if (route.run) { history.replaceState(null, '', `#/${d.road}/proof`); act(d.road, 'Ran side-by-side simulation'); player.start(); }
+      }
     }
     drawMaps();
   } catch (err) {
@@ -801,10 +898,11 @@ main.addEventListener('click', async event => {
   if (action === 'toggle') return player?.toggle();
   const d = await data(route.road), note = (drafts[d.road] || '').trim();
   const done = () => { delete drafts[d.road]; form = null; };
+  const redraw = sel => route.screen === 'proof' ? refreshDecision(sel) : rerender(sel);
   if (action === 'approve') { act(d.road, 'Approved recommendation', { status: 'approved' }, note); done(); }
   else if (action === 'reject') { act(d.road, 'Rejected recommendation', { status: 'rejected' }, note); done(); }
-  else if (action === 'schedule') { form = 'schedule'; return rerender('#when'); }
-  else if (action === 'cancel') { form = null; return rerender('[data-action="schedule"]'); }
+  else if (action === 'schedule') { form = 'schedule'; return redraw('#when'); }
+  else if (action === 'cancel') { form = null; return redraw('[data-action="schedule"]'); }
   else if (action === 'schedule-confirm') {
     const when = document.getElementById('when').value;
     if (!when) { document.getElementById('when-err').hidden = false; return document.getElementById('when').focus(); }
@@ -816,7 +914,7 @@ main.addEventListener('click', async event => {
   else if (action === 'rollback') act(d.road, 'Rolled back to current timing (simulated)', { ...dec(d), status: 'rolled_back' });
   else if (action === 'reset') { state = { decisions: {}, log: [] }; save(); }
   else if (action === 'print') { document.getElementById('print').innerHTML = sheet(d); return window.print(); }
-  await rerender('.panel .done ~ .row .btn, .actions .btn.primary, .actions .btn.danger, .decide .btn.primary');
+  await redraw('.verdict .row .btn, .actions .btn.primary, .actions .btn.danger');
 });
 
 document.addEventListener('keydown', event => {

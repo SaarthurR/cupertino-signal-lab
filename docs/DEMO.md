@@ -6,11 +6,11 @@ VTA approved use in the hackathon presentation with the citation *VTA, 2024 CMP 
 
 From the repository root, run `python3 -m tools.demo` with the supported Python 3.12 environment. Open the printed Slides URL. The command serves a temporary copy on `127.0.0.1`; it runs a fixed simulation only when requested in the console and does not rewrite reports. Use `python3 -m tools.demo --port 8769` for a fixed port. Ctrl-C stops the server and removes the temporary copy. No network connection is needed after cloning.
 
-Open the printed Engineer console URL in a second tab. The Simulate screen compares modeled old timing with the proposed plan on the same held-out Wolfe Road run (seed 200). It starts SUMO when the generated inputs and simulator are available. Otherwise it plays the saved run and shows **Recording**.
+Open the printed Engineer console URL in a second tab. It opens on Wolfe Road, step 1 of 3 (The problem, The fix, The proof). Step 3 compares modeled old timing with the proposed plan on the same held-out Wolfe Road run (seed 200). It starts SUMO when the generated inputs and simulator are available. Otherwise it plays the saved run and shows **Recording**.
 
 For the live simulation on a fresh clone, first run `export PYTHONPATH=src` and `python -m tools.learner build-world --road wolfe` with the SUMO-enabled environment. This generates the ignored routes and old timing from the tracked road inputs.
 
-Use Left and Right to change slides and N to show speaker notes. In the repo slides, slide 4 is the live engineer console, opened on Wolfe Road Review: click into it to use it, then press Esc (or click outside it) and Right to go to slide 5. Opened as a file instead of through the launcher, slide 4 shows a screenshot. The “End of talk” slide links to every backup topic. Save the PDF and the standalone MP4 from the launcher as offline copies. The PDF has a still from the Wolfe Road run.
+Use Left and Right to change slides and N to show speaker notes. In the repo slides, slide 4 is the live engineer console, opened on Wolfe Road step 1: click into it to use it, then press Esc (or click outside it) and Right to go to slide 5. Opened as a file instead of through the launcher, slide 4 shows a screenshot. The “End of talk” slide links to every backup topic. Save the PDF and the standalone MP4 from the launcher as offline copies. The PDF has a still from the Wolfe Road run.
 
 ## Present and rehearse
 
@@ -18,16 +18,16 @@ The main talk is the team’s Google Slides judge deck: slides 1–7 are the tal
 
 ## Demo script: 45 seconds
 
-Before the talk, open the console at Wolfe Road Review (`/console/#/wolfe/review`) in the second tab. If Wolfe shows Approved or Deployed, use **Reset demo** at the bottom of Deploy & monitor, then go back to Review.
+Before the talk, open the console in the second tab; it lands on Wolfe Road step 1 (`/console/`, same as `/console/#/wolfe/review`). If the stepper ends in Approved or Deployed instead of “Approve or reject”, click **Reopen** on step 3, or use **Reset demo** under More, Deploy & monitor.
 
 | s | Screen | Click | Say |
 |---:|---|---|---|
-| 5 | Review | Point to the green bars and the changed timings | “Here’s the recommendation the engineer sees. Every light gets a longer round, and the busiest directions get more green.” |
-| 5 | Review | Approve, then Run side-by-side simulation, then 240× | “I’ll approve it in the demo and run both plans.” |
-| 25 | Simulate | Point to both panels, then to the waiting count | “Both sides get the same simulated trips. The top is the old plan. The bottom is ours. Red dots are stopped cars. Watch how many cars are stuck waiting to get onto the road.” |
-| 10 | Simulate | Switch back to the slides | “This is one evening. Next is the full test.” |
+| 5 | 1 The problem | Point to the big 870 s | “This is Wolfe Road in the evening rush. With the current timing, the average trip loses 870 seconds, and 968 cars never get through.” |
+| 5 | 2 The fix | **See the fix** | “Our fix: every light gets a longer round, and the busy directions get more green. The dark blue is Wolfe Road’s green.” |
+| 25 | 3 The proof | **See the proof**, then **Run the simulation** (starts at 240×) | “Same cars, same evening. Top is the current timing, bottom is ours. Watch the two big numbers on the left: cars still waiting to get on the road.” |
+| 10 | 3 The proof | Point to the green “fewer waiting” line, then switch back to the slides | “That’s one evening. Next is the full test.” |
 
-At 45 seconds, go to the result slide even if the run is still playing. A full run takes about 35 seconds at 240×, so it may not reach its end card. Do not open Deploy & monitor in the main talk. That screen previews a future workflow, and no real controller is touched. Show it only if a judge asks.
+At 45 seconds, go to the result slide even if the run is still playing. A full run takes about 35 seconds at 240×, so it may not reach its end card. Approving is optional: the −26% result and **Approve new timing** sit just below the maps (scroll inside slide 4), and approving does not restart the run. Do not open Deploy & monitor in the main talk. That screen previews a future workflow, and no real controller is touched. Show it only if a judge asks.
 
 **If you see Recording**, start with “This is a saved run of the same evening” and continue. **If the console or playback fails**, talk over the demo slide’s screenshot, then go to the result slide. **If the whole talk breaks**, give the 60-second version on the judge deck’s last slide. It needs no app, terminal or video.
 
@@ -35,11 +35,11 @@ At 45 seconds, go to the result slide even if the run is still playing. A full r
 
 | Number | What it is |
 |---|---|
-| 137.6 → 79.6 s, −42% | Forecast in the practice copy, used to pick the plan. Shown on the Review card. |
+| 137.6 → 79.6 s, −42% | Forecast in the practice copy, used to pick the plan. Shown only under Details for engineers on step 3. |
 | 856.0 → 650.2 s, −24% | One evening, held-out seed 200. The demo run and the video. |
 | 870.49 → 643.11 s, −26.1% | The independent test: mean of 20 held-out runs, seeds 200–219, lower in all 20. The headline. |
 
-The annotated De Anza card explains why the candidate failed the relocation limit and what its practice forecast refers to.
+The annotated De Anza card explains why the candidate failed the relocation limit and what its practice forecast refers to. In the console, De Anza Boulevard runs the same three steps and ends in **Keep current timing**.
 
 ## Develop separately
 

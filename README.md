@@ -38,7 +38,7 @@ Every one of us must be able to explain the whole project, not only our own part
    - **Slides:** the same 18 slides as the judge deck, with the live engineer console inside slide 4. Press **N** for speaker notes.
    - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
-4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **Wolfe Road Review → Approve → Run side-by-side simulation at 240× → result slide**. Then look at **Deploy & monitor** and **How it connects** for questions only. They are not part of the main talk.
+4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **Wolfe Road: 1 The problem → See the fix → See the proof → Run the simulation (240×) → result slide**. Then look at **Deploy & monitor** and **How it connects** (under More) for questions only. They are not part of the main talk.
 5. Test yourself: answer every question in [section 6 of the guide](docs/PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) out loud without looking.
 
 ### Step 2 · Learn your own part
