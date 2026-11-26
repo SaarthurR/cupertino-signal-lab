@@ -81,7 +81,7 @@ Say these before someone else finds them.
 - The traffic on the new roads is made up.
 - "Old timing" is a stand-in we built from out-of-date traffic. It is not Cupertino's timing.
 - It watched only 3 simulated evening rush hours.
-- On Wolfe Rd, one group of drivers got about 203 s worse.
+- On Wolfe Rd, drivers from the worst-off starting point (origin) got about 203 s worse.
 - The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer signal-turn passages (a vehicle may cross several signals); this is not a unique-trip count. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
 - The undo check failed its test on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two unseen roads is a small test.

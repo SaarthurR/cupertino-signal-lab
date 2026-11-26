@@ -36,7 +36,7 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 
 ## What did not go well
 
-- On Wolfe Rd, one group of drivers got worse, by about 203 s.
+- On Wolfe Rd, drivers from the worst-off starting point (origin) got worse, by about 203 s.
 - The practice copy had real errors. On De Anza it was badly wrong because of one shared lane.
 - The undo check passed on Wolfe Rd but failed on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two roads is a small test.

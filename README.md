@@ -15,7 +15,7 @@ Built in simulation by Saarth, Advaita and Prithvi for the Monta Vista AI Club h
 | **User** | A Cupertino traffic engineer deciding when and how to retime a road. |
 | **What we built** | Signal Learner uses simulated sensor readings to model traffic, try 150 timings and give an engineer one recommendation to review. It never touches a real light. |
 | **Result** | On Wolfe Road, a road the learner never saw, the simulated delay score fell **26.1%**, from 870.5 to 643.1 seconds per trip. It was lower in all 20 held-out test runs (seeds 200–219). On De Anza Boulevard, the learner recommended keeping the modeled old timing. |
-| **Limits** | Everything is simulated. The test traffic was made up, the “old timing” is not Cupertino’s real timing, and one group of Wolfe drivers got worse (+203 s). |
+| **Limits** | Everything is simulated. The test traffic was made up, the “old timing” is not Cupertino’s real timing, and Wolfe drivers from the worst-off starting point (origin) got worse (+203 s). |
 | **Next step** | Review a recommendation with a Cupertino traffic engineer using the city’s actual timing and counts. |
 
 ## Run the demo
