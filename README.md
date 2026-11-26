@@ -92,6 +92,8 @@ Slides and the console need only `python3 -m tools.demo`, no setup. Without the 
 | [dashboard/signal-learner/](dashboard/signal-learner/) | Slides, PDF, video |
 | [dashboard/console/](dashboard/console/) | The engineer console (live demo) |
 | [docs/DEMO.md](docs/DEMO.md) | How the demo launcher works |
+| [docs/SUBMISSION-CHECKLIST.md](docs/SUBMISSION-CHECKLIST.md) | Questions for the club leads, pre-submit checks, day-of list |
+| `python3 -m tools.check_links` | Checks every link in the README and docs opens |
 | [docs/PROJECT-DETAILS.md](docs/PROJECT-DETAILS.md) | Every detail of the study, results and limits |
 | [docs/research-hardware.md](docs/research-hardware.md) | Sourced facts on signal hardware and city systems |
 | `src/learner/`, `tools/learner.py` | The learner code and its commands |
