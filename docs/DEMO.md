@@ -8,33 +8,38 @@ From the repository root, run `python3 -m tools.demo` with the supported Python 
 
 Open the printed Engineer console URL in a second tab. The Simulate screen compares modeled old timing with the proposed plan on the same held-out Wolfe Road run (seed 200). It starts SUMO when the generated inputs and simulator are available. Otherwise it plays the saved run and shows **Recording**.
 
-For the live simulation on a fresh clone, first run `PYTHONPATH=src:. python -m tools.learner build-world --road wolfe` with the SUMO-enabled environment; this generates the ignored routes and old timing from the tracked road inputs.
+For the live simulation on a fresh clone, first run `export PYTHONPATH=src` and `python -m tools.learner build-world --road wolfe` with the SUMO-enabled environment. This generates the ignored routes and old timing from the tracked road inputs.
 
-Use Left and Right to change slides and N to show speaker notes. Slide 4 has the backup video. Click its thumbnail to play it and press Esc to close it. Slide 7 links to every backup topic. Save the PDF and the standalone MP4 from the launcher as offline copies. The PDF has a still from the Wolfe Road run.
+Use Left and Right to change slides and N to show speaker notes. In the repo slides, slide 4 has the backup video: click its thumbnail to play it and press Esc to close it. Slide 7 links to every backup topic. Save the PDF and the standalone MP4 from the launcher as offline copies. The PDF has a still from the Wolfe Road run.
 
 ## Present and rehearse
 
-Slides 1–6 are the 150-second talk. Slides 7–17 are for questions. The [PDF](../dashboard/signal-learner/signal-learner.pdf) follows the same order. Open the notes, put the lines in your own words and do a timed pass on the presentation laptop. The [README](../README.md) has the speaking roles and the shorter route.
+The main talk is the team’s Google Slides judge deck: slides 1–9 are the 180-second talk, with the demo on slide 5 and the Wolfe result on slide 6. B1–B14 are for questions, and the last slide is the 60-second version. The repo slides (`dashboard/signal-learner/`, served by the launcher) are the offline version with the same numbers: slides 1–6 are the talk, the demo is slide 3 and the result is slide 4. Put the notes in your own words and do a timed pass on the presentation laptop. The [README](../README.md) has the speaking roles.
 
-## Demo script: 85 seconds
+## Demo script: 45 seconds
 
-Before the talk, open Corridors (`/console/#/corridors`) in the second tab. If Wolfe shows Approved or Deployed, use **Reset demo** at the bottom of Deploy & monitor. Budget 45 seconds for the simulation at 240× and speak while it runs. If it needs more time, skip the deploy click and return to slide 4.
+Before the talk, open the console at Wolfe Road Review (`/console/#/wolfe/review`) in the second tab. If Wolfe shows Approved or Deployed, use **Reset demo** at the bottom of Deploy & monitor, then go back to Review.
 
 | s | Screen | Click | Say |
 |---:|---|---|---|
-| 4 | Slide 3 | Switch to the console tab | "Here's what a city engineer would see." |
-| 6 | Corridors | Wolfe Road row | “Here’s the recommendation waiting for review on Wolfe Road.” |
-| 7 | Wolfe Road | Vallco Pkwy | “We used simulated sensor counts to build a model and try a hundred and fifty timings.” |
-| 5 | Vallco Pkwy | Point to the timings, then Review recommendation | “Here’s how both plans time one light.” |
-| 5 | Review | Approve | “The engineer can see what changes across the whole road.” |
-| 3 | Approved | Run side-by-side simulation, then 240× | “Let’s run them side by side.” |
-| 45 | Simulate | Point to both panels and then to the end card | “The top is our modeled old timing. The bottom is our plan. Both get the same traffic on the same Wolfe Road map.” “Red dots are stopped cars. The middle shows the difference in how many cars are waiting to enter.” At the end card, point to this run’s score. “This is one evening. The full comparison is on the next slide.” |
-| 8 | Deploy & monitor | Deploy & monitor, then Deploy to 5 controllers | “Here’s how the console previews applying or rolling back the plan.” |
-| 2 | | Switch back to the slides, slide 4 | |
+| 5 | Review | Point to the green bars and the changed timings | “Here’s the recommendation the engineer sees. Every light gets a longer round, and the busiest directions get more green.” |
+| 5 | Review | Approve, then Run side-by-side simulation, then 240× | “I’ll approve it in the demo and run both plans.” |
+| 25 | Simulate | Point to both panels, then to the waiting count | “Both sides get the same simulated trips. The top is the old plan. The bottom is ours. Red dots are stopped cars. Watch how many cars are stuck waiting to get onto the road.” |
+| 10 | Simulate | Switch back to the slides | “This is one evening. Next is the full test.” |
 
-**If you see Recording**, say “This is the saved run of the same evening” and continue. **If the console or playback fails**, go directly to slide 4. Play about 20 seconds of the backup video while explaining the two timings, then close it and give the 20-run result. If time is tight, use the comparison and still on slide 4.
+At 45 seconds, go to the result slide even if the run is still playing. A full run takes about 35 seconds at 240×, so it may not reach its end card. Do not open Deploy & monitor in the main talk. That screen previews a future workflow, and no real controller is touched. Show it only if a judge asks.
 
-Wolfe’s archived card predicts 137.6 → 79.6 in the model used to select the plan. The independent test result on slide 4 is 870.49 → 643.11. The annotated De Anza card explains why the candidate failed the relocation limit and what its practice forecast refers to.
+**If you see Recording**, start with “This is a saved run of the same evening” and continue. **If the console or playback fails**, talk over the demo slide’s screenshot, then go to the result slide. **If the whole talk breaks**, give the 60-second version on the judge deck’s last slide. It needs no app, terminal or video.
+
+**Three Wolfe numbers, three meanings.** Don’t read the forecast out loud.
+
+| Number | What it is |
+|---|---|
+| 137.6 → 79.6 s, −42% | Forecast in the practice copy, used to pick the plan. Shown on the Review card. |
+| 856.0 → 650.2 s, −24% | One evening, held-out seed 200. The demo run and the video. |
+| 870.49 → 643.11 s, −26.1% | The independent test: mean of 20 held-out runs, seeds 200–219, lower in all 20. The headline. |
+
+The annotated De Anza card explains why the candidate failed the relocation limit and what its practice forecast refers to.
 
 ## Develop separately
 
