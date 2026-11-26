@@ -7,7 +7,7 @@ This page turns that into things to ask, check and tick. Fill in the blanks as a
 
 Copy this into a message:
 
-> Hi! Quick questions for the Monta Vista AI Club hackathon (Nov 16–23, 2026) from the Signal Learner team:
+> Hi! Quick questions for the Monta Vista AI Club hackathon (submissions due Mon Nov 30, 2026) from the Signal Learner team:
 > 1. Where do we submit (form, email, or a repo link), and who receives it?
 > 2. What is the exact deadline, including the time zone?
 > 3. How long is the pitch, and how long is Q&A?
@@ -28,7 +28,7 @@ Copy this into a message:
 | 7 | Judge access to the repo | | | |
 | 8 | Data credit | | | |
 
-If the answer to 3 is not 150 seconds, see the 120-second cut at the end of [README Step 4](../README.md#step-4--on-the-day).
+If the pitch is shorter than our 3-minute talk, use the 60-second version (last slide of the judge deck).
 
 ## 2. Before submitting
 
@@ -45,10 +45,10 @@ If the answer to 3 is not 150 seconds, see the 120-second cut at the end of [REA
 
 - [ ] Laptop charged, Chrome open on the slides and the console, Wi-Fi off.
 - [ ] PDF and the backup video on the desktop.
-- [ ] A timer ready. The talk is 150 seconds, so say the time at 60 and 120 seconds in rehearsal.
-- [ ] Order of speakers: Advaita (slides 1–2), Saarth (slide 3, live demo, slide 4), Prithvi (slide 5), Advaita (slide 6), then questions using backup slides 7–17.
+- [ ] A timer ready. Say the time at 60 and 120 seconds in rehearsal.
+- [ ] Speaker order and seconds: the speaker notes in the judge deck (each slide's notes start with who speaks and for how long).
 
 ## 4. Prithvi's own part
 
-- Slide 5: how it would connect to a real city (15 seconds). Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
+- Slides 7–8 in the judge deck: limits, and how it would fit the city. Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
 - Leads Q&A. Be able to answer the hardware, safety and "don't smart systems already exist?" questions in [Presenter Guide section 6](PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) without looking.
