@@ -30,12 +30,14 @@ Open the links it prints: the slides, the engineer console and the Wolfe Road vi
 
 ## Game plan: read this, do these in order
 
+> **Advaita and Prithvi: start with [docs/TEAM-TASKS.md](docs/TEAM-TASKS.md).** It says what each of you does next (Advaita: the slide deck; Prithvi: the engineer console), the rules, and the dates.
+
 ### Step 1 · Everyone learns the whole project (30 minutes)
 Every one of us must be able to explain the whole project, not only our own part.
 1. Read **[docs/PRESENTER-GUIDE.md](docs/PRESENTER-GUIDE.md)** top to bottom. It explains traffic lights from zero, what our software does, what the numbers mean, and the judge answers.
-2. Open the **judge deck** (Google Slides in Saarth’s Drive, not in this repo). It is the main talk: slides 1–7 are the talk (about 2.5 minutes), then an “End of talk” slide; B1–B9 after it are backup for questions only, and the last slide is the 60-second version. Read every speaker note.
+2. Open the **slide deck** (`python3 -m tools.demo`, then the Slides link). It is the main talk: slides 1–7 are the talk (about 2.5 minutes), then an “End of talk” slide; B1–B9 after it are backup for questions only, and the last slide is the 60-second version. Read every speaker note.
 3. Run `python3 -m tools.demo` and open the links in Chrome:
-   - **Slides:** the same 18 slides as the judge deck, with a console preview on slide 4. Press Right there to open the live console; **Back to slides** returns to slide 5. Press **N** for speaker notes.
+   - **Slides:** the main deck, with a console preview on slide 4. Press Right there to open the live console; **Back to slides** returns to slide 5. Press **N** for speaker notes.
    - **Engineer console:** the demo shows the same simulated evening on Wolfe Road under two plans, modeled old timing above and our plan below.
    - **Video:** one Wolfe Rd rush hour, old timing vs our plan, side by side.
 4. Click the demo once, following the [45-second script](docs/DEMO.md#demo-script-45-seconds): **slide 4 preview → Right → Wolfe Road: 1 The problem → See the fix → See the proof → Run the simulation (240×) → Back to slides**. Then look at **Deploy & monitor** and **How it connects** (under More) for questions only. They are not part of the main talk.
@@ -66,7 +68,7 @@ If one of us is away on the day, the other two cover their part. That is why Ste
 | If we are finalists (picked Dec 5): rehearse again before the presentation (about Dec 11, date not final) | All 3 | Dec 10 |
 
 ### Step 4 · On the day
-Laptop charged. Chrome open on the judge deck and the console (already on Wolfe Road Review). Wi-Fi off. PDF and backup video on the desktop.
+Laptop charged. Chrome open on the slide deck (`python3 -m tools.demo`). Wi-Fi off. PDF and backup video on the desktop.
 
 | Slide | Who | Seconds |
 |---|---|---:|

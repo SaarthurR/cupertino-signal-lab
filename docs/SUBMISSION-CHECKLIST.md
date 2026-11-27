@@ -50,5 +50,5 @@ If the pitch is shorter than our 2.5-minute talk, use the 60-second version (las
 
 ## 4. Prithvi's own part
 
-- Slides 6–7 in the judge deck: limits, and how it would fit the city. Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
+- Slides 6–7: the De Anza no-change, our limits, and thank you. Read [Presenter Guide sections 2 and 5](PRESENTER-GUIDE.md#2-traffic-lights-in-2-minutes) and [research-hardware](research-hardware.md).
 - Leads Q&A. Be able to answer the hardware, safety and "don't smart systems already exist?" questions in [Presenter Guide section 6](PRESENTER-GUIDE.md#6-judge-questions-and-short-answers) without looking.
