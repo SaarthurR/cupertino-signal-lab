@@ -16,7 +16,7 @@ Software that learns a new road by watching it, then suggests a better timing pl
 3. **Learn:** it learns the traffic pattern and builds a practice copy of the road.
 4. **Practice:** it tries 150 timing plans on the copy.
 5. **Recommend:** it makes a one-page card for an engineer, who approves or rejects it.
-6. **Check:** it watches the sensors and goes back to the old timing if traffic gets clearly worse.
+6. **Check:** it watches the simulated sensors and tells the engineer to go back to the old timing if traffic looks clearly worse. It passed on Wolfe Rd but not on De Anza (see below).
 
 It only makes recommendations. It never controls a light.
 
@@ -36,7 +36,7 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 
 ## What did not go well
 
-- On Wolfe Rd, one group of drivers got worse, by about 203 s.
+- Wolfe’s worst-origin delay score rose about 203 s.
 - The practice copy had real errors. On De Anza it was badly wrong because of one shared lane.
 - The undo check passed on Wolfe Rd but failed on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two roads is a small test.
@@ -47,11 +47,11 @@ A retiming with perfect traffic counts scored 846 s on Wolfe Rd. The learner bea
 2. **Recommend:** an engineer enters an approved change by hand. No connection to the lights is needed.
 3. **Automatic:** only with city approval, much later.
 
-The city told us on Nov 1 that Stevens Creek runs time-of-day plans, not adaptive timing. We do not know yet how the city system is set up.
+The city told us on Nov 1 that Stevens Creek runs time-of-day plans. We do not know yet how the city system is set up.
 
-## What we do in hackathon week
+## What comes next (not done yet)
 
-Fix the shared-lane error, watch for longer, test on new roads, and use real city data if it arrives.
+Fix the shared-lane error, watch for longer, and use real city data if it arrives. Any fix gets tested on new roads and new seeds; the original results stay as they are.
 
 ## Files
 

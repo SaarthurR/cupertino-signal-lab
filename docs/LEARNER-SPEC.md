@@ -12,7 +12,7 @@ Signal Learner is the cheap first step. Point it at a new road and it:
 3. **Learns** the traffic pattern and builds a simulated copy of the road from what it saw.
 4. **Practices** in the copy: a search tries many timings over many simulated rush hours.
 5. **Recommends** a bounded change, with its reason and expected effect. An engineer approves or rejects it.
-6. **Checks** the result on the feed after approval, and goes back to the old timing if traffic gets worse.
+6. **Checks** the simulated feed and advises the engineer to go back if traffic gets worse.
 
 **It never writes to a real signal.** In simulation, an approved change is applied by the simulator.
 

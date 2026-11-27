@@ -2,65 +2,55 @@
 // Simulate: two real SUMO runs side by side (SSE /api/sim/stream), or the saved recording of the same evening.
 
 const SPEEDS = [60, 120, 240];
+const START_SPEED = 240;
 const ARMS = ['old', 'plan'];
-const ARM_NAME = { old: 'Current timing', plan: 'Signal Learner plan' };
+const ARM_NAME = { old: 'Current timing', plan: 'Our timing' };
 
-function simulate(d) {
-  const h = heldout(d), begin = seconds(d.info.begin), end = seconds(d.info.end);
-  const arrow = up => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${up ? 'M6 2 11 9H1z' : 'M6 10 1 3h10z'}"/></svg>`;
-  const panel = arm => `<section class="arm ${arm}" aria-labelledby="h-${arm}">
-    <div class="arm-head">
-      <h2 id="h-${arm}"><span class="sw"></span>${ARM_NAME[arm]}</h2>
-      <div class="counter hero"><b data-k="waiting" data-arm="${arm}"><small>–</small></b><span>cars waiting to get onto the road</span></div>
-      <div class="counter"><b data-k="finished" data-arm="${arm}"><small>–</small></b><span>trips finished</span></div>
-      <div class="counter tiny"><span>Avg delay of finished trips</span><b data-k="delay" data-arm="${arm}"><small>–</small></b></div>
-    </div>
+// Step 3's stage: the two waiting-car counts are the hero, the two maps show why.
+function simStage(d) {
+  const begin = seconds(d.info.begin), end = seconds(d.info.end);
+  const count = arm => `<div class="watch-n ${arm}"><span><i class="sw"></i>${ARM_NAME[arm]}</span><b data-k="waiting" data-arm="${arm}">–</b></div>`;
+  const map = arm => `<section class="arm ${arm}" aria-labelledby="h-${arm}">
+    <div class="arm-head"><h2 id="h-${arm}"><span class="sw"></span>${ARM_NAME[arm]}</h2><span class="fin"><b data-k="finished" data-arm="${arm}">–</b> trips finished</span></div>
     <div class="sim-map" id="map-${arm}" role="img" aria-label="Live map, ${ARM_NAME[arm]}: ${esc(d.info.street)} runs left to right, north on the left. Moving cars green, stopped cars red."></div>
   </section>`;
-  return `<div class="page sim-page">
-  ${crumbs([['Corridors', '#/corridors'], [d.info.street, `#/${d.road}`], ['Simulate']])}
-  <div class="sim-top">
-    <div><h1>Simulate · ${esc(d.info.street)}</h1><p class="meta-line">Same traffic, same clock · held-out seed 200</p></div>
+  return `<section class="sim" aria-label="Side-by-side simulation, one test evening">
+  <div class="sim-bar">
     <div class="clock" aria-live="off"><b id="clock">${ampm(begin)}</b><span id="clock-note">${ampm(begin)} to ${ampm(end)}</span></div>
+    <div class="progress" aria-hidden="true"><i id="progress"></i></div>
     <div class="right"><span class="pill" id="source">Ready</span>
       <button class="btn" id="play" data-action="toggle" disabled aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
-      <div class="seg" role="group" aria-label="Speed">${SPEEDS.map(s => `<button type="button" data-speed="${s}" aria-pressed="${s === 120}">${s}×</button>`).join('')}</div></div>
+      <div class="seg" role="group" aria-label="Speed">${SPEEDS.map(s => `<button type="button" data-speed="${s}" aria-pressed="${s === START_SPEED}">${s}×</button>`).join('')}</div></div>
   </div>
-  <div class="progress" aria-hidden="true"><i id="progress"></i></div>
   <div class="card stage">
-    ${panel('old')}
-    <div class="gap even" id="gap">
-      <p class="gap-main">${arrow(true)}<b id="gap-n">0</b><span class="gap-on">more cars stuck waiting with current timing</span><span class="gap-off">Same cars, same evening: watch the queues</span></p>
-      <p class="gap-sub" id="gap-sub" hidden>${arrow(false)}<b id="gap-f">0</b>more trips finished with the plan</p>
+    <div class="watch">
+      <p class="watch-h">${term('waiting', 'Cars waiting to get on the road')}</p>
+      ${count('old')}${count('plan')}
+      <p class="watch-gap even" id="gap"><b id="gap-n">0</b> fewer waiting with our timing</p>
+      <p class="watch-note">These cars are not on the map yet. Their trip has started, but the road is too full to let them on.</p>
+      <div class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span><span><i class="sig"></i>Each light, one stripe per lane</span></div>
     </div>
-    ${panel('plan')}
+    <div class="maps">${map('old')}${map('plan')}</div>
     <div class="overlay" id="overlay">
-      <div class="card pad start" id="start"><h2>Watch both timings handle the same evening</h2>
-        <p class="small muted">${ampm(begin)} to ${ampm(end)}, about ${Math.round((end - begin) / 120)} seconds at 120×. Each dot is a car.</p>
+      <div class="card pad start" id="start"><h2>Run both timings on the same test evening</h2>
+        <p class="small muted">${ampm(begin)} to ${ampm(end)}, about ${Math.round((end - begin) / START_SPEED)} seconds at ${START_SPEED}×. Each dot is a car.</p>
         <button class="btn primary lg" data-action="start">Run the simulation</button></div>
     </div>
   </div>
-  <div class="sim-foot">
-    <span class="legend"><span><i class="dot" style="background:var(--go)"></i>Moving car</span><span><i class="dot" style="background:var(--stop)"></i>Stopped car</span><span><i class="sig"></i>Live signal at each light, one stripe per lane</span></span>
-    <span class="hint">Headline result: ${pct(h.oldMean, h.planMean)} delay over ${h.n} new evenings.</span>
-  </div>
   <p class="sr" aria-live="polite" id="sim-status"></p>
-</div>`;
+</section>`;
 }
 
 function endCard(d, final, recorded) {
-  const h = heldout(d), o = final.old.delay_s, p = final.plan.delay_s;
+  const h = heldout(d);
   return `<div class="card endcard" role="dialog" aria-labelledby="end-title" tabindex="-1">
-    <div><h2 id="end-title">This one evening</h2>
-      <p class="score">${f1(o)} s → <b>${f1(p)} s</b></p>
-      <p class="pct">${pct(o, p)}</p>
-      <p class="xs muted" style="margin-top:6px">Delay score: average extra seconds per trip. A trip that never finishes counts 900 s. ${recorded ? 'From the recorded run.' : 'From this live run.'}</p></div>
-    <div><h2>Tested on ${h.n} new evenings</h2>
-      <p class="score">${f1(h.oldMean)} s → <b>${f1(h.planMean)} s</b></p>
+    <div><h2 id="end-title">This test evening</h2>
+      <p class="score">${f1(final.old.delay_s)} s → <b>${f1(final.plan.delay_s)} s</b></p>
+      <p class="xs muted">${term('score', 'Average delay per trip')}, current timing → our timing. ${recorded ? 'From the recorded run.' : 'From this live run.'}</p></div>
+    <div><h2>All ${h.n} test evenings</h2>
       <p class="pct">${pct(h.oldMean, h.planMean)}</p>
-      <p class="xs muted" style="margin-top:6px">Better on ${betterOn(h)}. This is the headline result.</p></div>
-    <div class="foot"><span class="small">Next: review the simulated rollout and saved roll-back rule results.</span>
-      <span class="row"><button class="btn" data-action="start">Replay</button><a class="btn primary" href="#/${d.road}/deploy">Deploy &amp; monitor</a></span></div>
+      <p class="xs muted">Average delay per trip, lower on ${betterOn(h)}.</p></div>
+    <div class="foot"><button class="btn" data-action="start">Replay</button><a class="btn primary" href="${go(d.road, 'proof', { p: 'decision' })}">Approve or reject ›</a></div>
   </div>`;
 }
 
@@ -144,7 +134,7 @@ class Player {
   constructor(d) {
     this.d = d;
     this.begin = seconds(d.info.begin); this.end = seconds(d.info.end); this.stop = this.end + d.info.drain;
-    this.frames = []; this.t = this.begin; this.speed = 120; this.playing = false; this.done = null;
+    this.frames = []; this.t = this.begin; this.speed = START_SPEED; this.playing = false; this.done = null;
     this.views = ARMS.map(arm => ({ arm, box: document.getElementById(`map-${arm}`) }));
     this.counters = [...document.querySelectorAll('[data-k]')];
     this.layout();
@@ -209,7 +199,7 @@ class Player {
         const value = JSON.parse(body);
         if (kind === 'status') {
           this.live = true;
-          this.setSource('Live · SUMO', 'live');
+          this.setSource('Live SUMO run', 'live');
           this.control({ speed: this.speed, paused: false });
           this.loop();
         } else if (kind === 'unavailable') throw new Error(value.reason);
@@ -312,16 +302,15 @@ class Player {
     set(document.getElementById('clock-note'), t >= this.end ? 'Evening over: the last cars finish their trips' : `${ampm(this.begin)} to ${ampm(this.end)}`);
     const bar = document.getElementById('progress'), width = `${Math.min(100, (t - this.begin) / (this.stop - this.begin) * 100).toFixed(1)}%`;
     if (bar.style.width !== width) bar.style.width = width;
-    const fmt = { waiting: x => x.toLocaleString(), finished: x => x.toLocaleString(), delay: x => `${Math.round(x)}<small>s</small>` };
     for (const el of this.counters) {
       const s = a[el.dataset.arm]; if (!s) continue;
-      set(el, fmt[el.dataset.k](s[el.dataset.k]));
+      set(el, s[el.dataset.k].toLocaleString());
       const other = a[el.dataset.arm === 'old' ? 'plan' : 'old'];
-      el.parentElement.classList.toggle('better', el.dataset.arm === 'plan' && !!other && el.dataset.k !== 'finished' && s[el.dataset.k] < other[el.dataset.k]);
+      el.parentElement.classList.toggle('better', el.dataset.arm === 'plan' && !!other && el.dataset.k === 'waiting' && s.waiting < other.waiting);
     }
-    if (a.old && a.plan) this.gap(a.old.waiting - a.plan.waiting, a.plan.finished - a.old.finished);
+    if (a.old && a.plan) this.gap(a.old.waiting - a.plan.waiting);
   }
-  gap(n, f) {
+  gap(n) {
     const box = document.getElementById('gap'), num = document.getElementById('gap-n');
     box.classList.toggle('even', n <= 0);
     if (n > 0 && num._v !== n) {
@@ -332,9 +321,6 @@ class Player {
       }
       this.hundred = hundred;
     }
-    document.getElementById('gap-sub').hidden = f <= 0;
-    const fin = document.getElementById('gap-f');
-    if (f > 0 && fin._v !== f) { fin._v = f; fin.textContent = f.toLocaleString(); }
   }
   finish() {
     this.done = true; this.playing = false;

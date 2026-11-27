@@ -2,7 +2,7 @@
 
 The team start page is the [README](../README.md). This page keeps every detail of the study.
 
-**Monta Vista AI Club hackathon project.** The hackathon runs for one week, starts about Nov 16, 2026, and ends Mon Nov 23, 2026.
+**Monta Vista AI Club hackathon project.** Submissions are due Mon Nov 30, 2026; finalists are picked Dec 5 and present about Dec 11 (date not final). Organizers will email the submission format.
 The club leads said pre-built code is allowed.
 
 If you are new, read this page, then run `python3 -m tools.demo` from the cloned repo.
@@ -81,7 +81,7 @@ Say these before someone else finds them.
 - The traffic on the new roads is made up.
 - "Old timing" is a stand-in we built from out-of-date traffic. It is not Cupertino's timing.
 - It watched only 3 simulated evening rush hours.
-- On Wolfe Rd, one group of drivers got about 203 s worse.
+- Wolfe’s worst-origin delay score rose about 203 s.
 - The practice copy is not close to the true traffic. On Wolfe Rd it had 24% fewer signal-turn passages (a vehicle may cross several signals); this is not a unique-trip count. On De Anza it was badly wrong, because the software misread one lane shared by straight and right-turning cars.
 - The undo check failed its test on De Anza. It undid a harmless change on 4 of 10 runs.
 - Two unseen roads is a small test.

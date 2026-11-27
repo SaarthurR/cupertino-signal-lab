@@ -1,5 +1,7 @@
 # Cupertino Signal Lab — Architecture & Build Spec
 
+> **History:** the Oct 21 plan for the original Stevens Creek study. The current project is Signal Learner; start at the [README](../README.md).
+
 **v3, Oct 21, 2026.** v1 → v2 same day (no filming, actuated, loops). v2 → v3 after three independent
 reviews (`reviews/traffic-engineering.md`, `reviews/data-ml-sumo.md`, `reviews/buildability.md`): real
 VTA counts replace Google Maps, SUMO's built-in actuated lights replace the custom safety layer, scope

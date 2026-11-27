@@ -45,4 +45,4 @@ cd cupertino-signal-lab && source .venv/bin/activate && export PYTHONPATH=src
 
 - **`command not found: uv`**: run `export PATH="$HOME/.local/bin:$PATH"` or open a new terminal.
 - **`ModuleNotFoundError`**: you forgot `export PYTHONPATH=src` or `source .venv/bin/activate`.
-- **Simulate screen plays a recording instead of running live**: you skipped `build-world --road wolfe`.
+- **Step 3 (The proof) plays a recording instead of running live**: you skipped `build-world --road wolfe`.
