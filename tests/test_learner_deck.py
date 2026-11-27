@@ -87,7 +87,7 @@ class LearnerDeckTests(unittest.TestCase):
             if i != 14:
                 self.assertNotIn("+203", text)
             self.assertNotIn("got worse", slide.lower())
-        self.assertIn("Worst-off start point on Wolfe got slower", visible(self.slides[5]))
+        self.assertIn("Wolfe’s worst-origin delay score rose", visible(self.slides[5]))
         self.assertIn("Worst-origin delay score", visible(self.slides[14]))
 
     def test_pdf_has_one_page_per_slide(self):
