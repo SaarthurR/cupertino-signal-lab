@@ -127,7 +127,8 @@ p { font-size: 32px; line-height: 1.4; color: var(--ink-2); letter-spacing: -.01
 .open { display: inline-flex; align-items: center; gap: 14px; height: 64px; padding: 0 34px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 26px; font-weight: 600; text-decoration: none; letter-spacing: -.01em; }
 .open svg { width: 22px; height: 22px; }
 .open:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
-.fallback .open { display: none; }
+.skip-demo { margin-left: auto; margin-right: 32px; color: var(--blue); font-size: 26px; }
+.fallback .open, .fallback .skip-demo { display: none; }
 .s4 .panel { flex: 1; margin-top: 48px; }
 .s4 .win { position: absolute; left: 304px; top: 48px; width: 1120px; }
 .leads { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; pointer-events: none; overflow: visible; }
@@ -169,7 +170,7 @@ p { font-size: 32px; line-height: 1.4; color: var(--ink-2); letter-spacing: -.01
 
 /* 7 close: one statement */
 .s7 { align-items: center; justify-content: center; text-align: center; }
-.s7 h1 { font-size: 200px; line-height: 1; letter-spacing: -.05em; }
+.s7 h1 { font-size: 144px; line-height: 1; letter-spacing: -.05em; }
 .s7 .sub { font-size: 44px; line-height: 1.3; color: var(--faint); margin-top: 48px; letter-spacing: -.015em; }
 .s7 .team { margin-top: 120px; font-size: 32px; color: var(--muted); }
 .s7 .team b { display: block; font-size: 40px; font-weight: 600; color: var(--ink); margin-bottom: 10px; letter-spacing: -.015em; }
@@ -327,10 +328,10 @@ html.render .notes-panel { display: none; }
 
 <!-- ================================================================ THE TALK, slides 1–7 -->
 <section class="slide t s1" data-label="1 / 7">
-    <h2>Stevens Creek backs up at rush hour.</h2>
+    <h2>Evening traffic backs up toward Glenbrook</h2>
     <figure class="panel">
         <img class="fill" src="img/stevens_creek_map.png" alt="Map of Stevens Creek Blvd from Mary Ave to De Anza Blvd. The evening rush backs up toward Glenbrook Apartments.">
-        <blockquote class="quote"><span>The city told us</span>“Stevens Creek Blvd is running time of day plans.”<cite>City of Cupertino, Nov 2026</cite></blockquote>
+        <blockquote class="quote"><span>How Stevens Creek’s lights are timed</span>“Stevens Creek Blvd is running time of day plans.”<cite>City of Cupertino, Nov 2026</cite></blockquote>
         <figcaption class="credit">© OpenStreetMap contributors</figcaption>
     </figure>
     <aside class="notes">Advaita, 12 s
@@ -346,10 +347,10 @@ We asked: could better timing help?
     <div class="head">
         <div>
             <p class="name">Signal Learner</p>
-            <h1>Better signal timing<br>for Cupertino.</h1>
+            <h1>Signal timing a city<br>engineer can test</h1>
             <p class="team"><b>Advaita, Saarth and Prithvi</b>Monta Vista AI Club hackathon</p>
         </div>
-        <div class="hero"><b>−26%</b><span>less delay per trip on Wolfe Road</span><span>average of 20 test evenings</span></div>
+        <div class="hero"><b>−26%</b><span>less delay per trip on Wolfe Road</span><span>in 20 simulated test evenings</span></div>
     </div>
     <figure class="panel">
         <img class="fill" src="img/wolfe_map.png" alt="Map of Wolfe Road with its 5 traffic lights: Vallco Pkwy, the I-280 south and north ramps, Pruneridge Ave and Apple Park Way.">
@@ -357,15 +358,15 @@ We asked: could better timing help?
     <aside class="notes">Advaita, 10 s
 
 We're Advaita, Saarth and Prithvi. We built Signal Learner.
-It finds better light timing. On Wolfe Road it cut our delay score twenty-six percent.
+It suggests timing changes a city engineer can check. On our simulated Wolfe Road, the delay score fell twenty-six percent.
 
 [Point at the big number once. Slide 5 explains it.]</aside>
 </section>
 
 <section class="slide t s3" data-label="3 / 7">
-    <h2>How it works</h2>
+    <h2>From car counts to one timing plan</h2>
     <div class="trio">
-        <article class="panel"><h3><i>1</i>Count the cars<span>From road sensors</span></h3>
+        <article class="panel"><h3><i>1</i>Count the cars<span>From simulated sensors</span></h3>
             <figure><div class="frag"><img src="img/step_cars.png" alt="Simulated cars on Wolfe Road, queued at Apple Park Way and Pruneridge Ave."></div></figure></article>
         <article class="panel"><h3><i>2</i>Try 150 timings<span>On a practice copy of the road</span></h3>
             <figure><div class="frag"><img src="img/step_timing.png" alt="Green time at three lights, now and with the new timing."></div></figure></article>
@@ -385,6 +386,7 @@ Saarth?
 <section class="slide t s4" data-label="4 / 7" data-console>
     <div class="top">
         <h2>The engineer console</h2>
+        <a class="skip-demo" href="#5">Skip to result</a>
         <a class="open" href="console/?from=deck#/wolfe/problem">Open the console<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
     <div class="panel">
@@ -413,19 +415,19 @@ Saarth?
 [Back to slides opens slide 5, even if the run is still playing. A clicker's Page Down does the same. Browser Back returns to this slide. Don't open Deploy.]
 [If the badge says Recording, say: "This is a saved run of the same evening."]
 [The 42% forecast is only under "Details for engineers". It's the practice copy's guess, not the test. Don't read it out.]
-[If the console breaks: Back to slides, talk over this screenshot, go on. Whole talk breaks: jump to the last slide.]</aside>
+[If the console breaks: Back to slides, talk over this preview, then choose Skip to result. Whole talk breaks: jump to the last slide.]</aside>
 </section>
 
 <section class="slide t s5" data-label="5 / 7" data-countup>
-    <h2>Less delay on all 20 test evenings.</h2>
+    <h2>Less delay on all 20 test evenings</h2>
     <div class="body">
         <div>
             <div class="big" data-count="26">−26%</div>
             <p>less delay per trip on Wolfe Road</p>
-            <p>Simulated evenings on a road the tool never practiced on</p>
+            <p>Each unfinished trip counts as 15 minutes of delay.</p>
         </div>
         <div class="bars">
-            <h3>Seconds of delay per trip<span>average of 20 test evenings</span></h3>
+            <h3>Delay score in seconds per trip<span>Average over 20 simulated evenings</span></h3>
             <div class="r"><div class="name">Current timing</div><div class="track"><div class="bar" style="width: 520px"></div><span class="v">870<small>s</small></span></div></div>
             <div class="r new"><div class="name">Signal Learner</div><div class="track"><div class="bar" style="width: 384px"></div><span class="v">643<small>s</small></span></div></div>
         </div>
@@ -445,17 +447,17 @@ Prithvi?
     <div class="panel">
         <div class="shot"><div class="win"><header>Signal Learner</header><img src="img/console_deanza.png" alt="Engineer console, De Anza Boulevard, step 2: the best new timing jammed in 4 of 10 practice runs, so the timing stays as it is at all 4 lights."></div></div>
         <div class="copy">
-            <h2 class="two">It can also say no. <span>On De Anza, the best new plan failed a jam check, so it kept the old timing.</span></h2>
+            <h2 class="two">De Anza kept its old timing <span>The best new plan failed the jam check.</span></h2>
             <div class="rows">
                 <span>Test traffic was simulated</span>
-                <span>Worst-off start point on Wolfe got slower (about 203 s more delay per trip)</span>
+                <span>Wolfe’s worst-origin delay score rose by about 203 s</span>
                 <b>Not ready for real lights</b>
             </div>
         </div>
     </div>
     <aside class="notes">Prithvi, 20 s
 
-On De Anza, the best new plan failed a jam check, so the tool kept the old timing. A later check showed that was right.
+On De Anza, the best new plan failed a jam check, so the tool kept the old timing. In a later check, the rejected plan scored worse on 13 of 20 evenings.
 Limits: our test traffic was simulated. On Wolfe, the worst-off starting point got about 203 seconds slower.
 It's not ready for real lights.
 
@@ -463,8 +465,8 @@ It's not ready for real lights.
 </section>
 
 <section class="slide t s7" data-label="7 / 7">
-    <h1>Thank you</h1>
-    <p class="sub">The engineer decides. It never touches a real light.</p>
+    <h1>The engineer decides</h1>
+    <p class="sub">Signal Learner recommends a timing plan. It never touches a real light.</p>
     <p class="team"><b>Advaita, Saarth and Prithvi</b>Monta Vista AI Club hackathon</p>
     <aside class="notes">Prithvi, 8 s
 
@@ -501,7 +503,7 @@ B1 numbers, B2 data, B3 the AI, B4 fair test, B5 score, B6 De Anza, B7 who loses
         <div class="cols c4">
             <div class="card"><h3>What did the tool guess before testing?</h3><div class="num">−42%</div><p class="lab">A guess on the practice copy, used only to pick the plan</p><p class="from">137.6 → 79.6 s per trip</p></div>
             <div class="card"><h3>What happened in the demo evening?</h3><div class="num">−24%</div><p class="lab">The one test evening you watch in the console</p><p class="from">856.0 → 650.2 s per trip</p></div>
-            <div class="card ok"><h3>What happened in the real test?</h3><div class="num green">−26%</div><p class="lab">20 new evenings, lower in all 20. The only result</p><p class="from">870.5 → 643.1 s per trip, average</p></div>
+            <div class="card ok"><h3>What happened across 20 simulated evenings?</h3><div class="num green">−26%</div><p class="lab">The delay score was lower in all 20</p><p class="from">870.5 → 643.1 s per trip, average</p></div>
             <div class="card"><h3>On real streets?</h3><div class="num word">Not tested yet</div><p class="lab">No field test or city timing comparison</p><p class="from"></p></div>
         </div>
         <p class="caption">Wolfe Road. Seconds are delay per trip. All simulated.</p>
@@ -651,8 +653,8 @@ Later, we tested the rejected plan on twenty new runs. It was six point four per
     <h2>Who could lose?</h2>
     <div class="body">
         <div class="cols c2">
-            <div class="card ok"><h3>Everyone, on average</h3><div class="num green">−26%</div><p>less delay per trip</p><p class="from">870.5 → 643.1 s, average of 20 test evenings</p></div>
-            <div class="card bad"><h3>The worst-off start point</h3><div class="num red">+203 s</div><p>more delay per trip</p><p class="from">Worst-origin delay score 2,565.8 → 2,768.6 s</p></div>
+            <div class="card ok"><h3>All requested trips</h3><div class="num green">−26%</div><p>less delay per trip</p><p class="from">870.5 → 643.1 s, average of 20 test evenings</p></div>
+            <div class="card bad"><h3>Worst-off starting point</h3><div class="num red">+203 s</div><p>more delay per trip</p><p class="from">Worst-origin delay score 2,565.8 → 2,768.6 s</p></div>
         </div>
         <p class="caption">Worst-origin delay score: on each test evening, the delay per trip at the start point that did worst, then averaged over the 20 evenings.</p>
     </div>
@@ -686,7 +688,7 @@ We haven't shown we beat any of them. What we built is a small simulation an eng
     <h2>Who did what</h2>
     <div class="body">
         <div class="cols c3">
-            <div class="card"><h3>Advaita</h3><div class="role">The story</div><p>Why Cupertino needs this, who the user is, what comes next</p></div>
+            <div class="card"><h3>Advaita</h3><div class="role">Demo playback</div><p>Fixed a crash when a simulation frame took longer than expected</p></div>
             <div class="card"><h3>Saarth</h3><div class="role">The simulation and the demo</div><p>What the AI is, whether the test is fair, what −26% means</p></div>
             <div class="card"><h3>Prithvi</h3><div class="role">The real-world side</div><p>Signal hardware, city fit, safety, existing systems</p></div>
         </div>
@@ -705,7 +707,7 @@ We each own different parts, but all three of us can explain the test.
                 <span>Builds a practice road from simulated sensor counts</span><span>Tries 150 timing plans</span><span>Gives an engineer one card</span><span>Never touches a real light</span></div></div>
             <div class="card ok"><h3>Wolfe Road result</h3><div class="big">−26%</div><p>less delay per trip, average of 20 test evenings, lower on all 20</p><p class="from">Seconds of delay per trip: 870.5 → 643.1 s</p></div>
             <div class="card"><h3>Limits</h3><div class="rows">
-                <span>Test traffic was simulated</span><span>De Anza kept its old timing</span><span>Worst-off Wolfe start point got slower</span><b>Not ready for real lights</b></div></div>
+                <span>Test traffic was simulated</span><span>De Anza kept its old timing</span><span>Wolfe’s worst-origin delay score rose by about 203 s</span><b>Not ready for real lights</b></div></div>
         </div>
     </div>
     <aside class="notes">Advaita, Saarth and Prithvi, 60 s
@@ -769,10 +771,10 @@ function countUp(slide) {
     requestAnimationFrame(step);
 }
 
-function show(i) {
+function show(i, openConsole = false) {
     i = Math.max(0, Math.min(i, slides.length - 1));
     if (i === cur) return;
-    if (i === cur + 1 && slides[cur] === demo && !demo.classList.contains('fallback')) return void (location.href = demo.querySelector('.open').href);
+    if (openConsole && i === cur + 1 && slides[cur] === demo && !demo.classList.contains('fallback')) return void (location.href = demo.querySelector('.open').href);
     if (cur >= 0 && !started) started = Date.now();
     cur = i;
     slides.forEach((s, k) => s.classList.toggle('active', k === i));
@@ -795,7 +797,7 @@ document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const k = e.key;
     if (k === ' ' && e.target.closest('a, button')) return;
-    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(k)) { e.preventDefault(); show(cur + 1); }
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(k)) { e.preventDefault(); show(cur + 1, true); }
     else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(k)) { e.preventDefault(); show(cur - 1); }
     else if (k === 'Home') show(0);
     else if (k === 'End') show(slides.length - 1);
@@ -805,7 +807,7 @@ document.addEventListener('keydown', (e) => {
 let x0 = null;
 document.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', (e) => {
-    if (x0 !== null && Math.abs(e.changedTouches[0].clientX - x0) > 50) show(cur + (e.changedTouches[0].clientX < x0 ? 1 : -1));
+    if (x0 !== null && Math.abs(e.changedTouches[0].clientX - x0) > 50) show(cur + (e.changedTouches[0].clientX < x0 ? 1 : -1), true);
     x0 = null;
 });
 
